@@ -17,7 +17,7 @@ public:
 	void CleanUp();
 
 	GLFWwindow* GetWindowPtr() { return GLFWindow; }
-	unsigned int GetWindowWidth() { Width; }
-	unsigned int GetWindowHeight() { Height; }
+	unsigned int GetWindowWidth() { return Width; }
+	unsigned int GetWindowHeight() { return Height; }
 };
 

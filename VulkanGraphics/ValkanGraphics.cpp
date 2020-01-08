@@ -1,20 +1,28 @@
 #include "ValkanGraphics.h"
+#include <set>
+#include <algorithm> 
 
 ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const char* windowName) : EnableValidationLayers(true)
 {
 	ValidationLayers.emplace_back("VK_LAYER_KHRONOS_validation");
+	DeviceExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 	Window = VulkanWindow(width, height, windowName);
 
 	SetUpVulkanInstance();
 	SetUpDebugger();
+	SetUpSurface();
 	SetUpPhysicalDevice();
 	SetUpLogicalDevice();
+	SetUpSwapChain();
 }
 
 ValkanGraphics::~ValkanGraphics()
 {
+	vkDestroySwapchainKHR(GPUInfo.Device, SwapChain, nullptr);
+	vkDestroyDevice(GPUInfo.Device, nullptr);
 	VulkanDebug.CleanUp(VulkanInstance);
+	vkDestroySurfaceKHR(VulkanInstance, VulkanSurface, nullptr);
 	vkDestroyInstance(VulkanInstance, nullptr);
 	Window.CleanUp();
 }
@@ -48,6 +56,7 @@ void ValkanGraphics::SetUpVulkanInstance()
 	CreateVKInfo.ppEnabledExtensionNames = glfwExtenstion;
 	CreateVKInfo.enabledExtensionCount = static_cast<unsigned int>(extensions.size());
 	CreateVKInfo.ppEnabledExtensionNames = extensions.data();
+
 
 	if (EnableValidationLayers)
 	{
@@ -95,15 +104,7 @@ void ValkanGraphics::SetUpPhysicalDevice()
 
 	for (const auto& device : GPUDevices)
 	{
-		VkPhysicalDeviceProperties deviceProperties;
-		VkPhysicalDeviceFeatures deviceFeatures;
-
-		vkGetPhysicalDeviceProperties(device, &deviceProperties);
-		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-		
-		if (FindQueueFamilies(device).IsComplete() &&
-			deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
-			deviceFeatures.geometryShader)
+		if (IsDeviceCompatable(device))
 		{
 			GPUInfo.PhysicalDevice = device;
 		}
@@ -117,39 +118,118 @@ void ValkanGraphics::SetUpPhysicalDevice()
 
 void ValkanGraphics::SetUpLogicalDevice()
 {
-	VulkanQueueFamily Indices = FindQueueFamilies(GPUInfo.PhysicalDevice);
-	float QueuePriority = 1.0f;
+	VulkanQueueFamily indices = FindQueueFamilies(GPUInfo.PhysicalDevice);
 
-	VkDeviceQueueCreateInfo QueueCreateInfo = {};
-	QueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	QueueCreateInfo.queueFamilyIndex = Indices.GraphicsFamily.value();
-	QueueCreateInfo.queueCount = 1;
-	QueueCreateInfo.pQueuePriorities = &QueuePriority;
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	std::set<uint32_t> uniqueQueueFamilies = { indices.GraphicsFamily.value(), indices.PresentationFamily.value() };
 
-	VkPhysicalDeviceFeatures DeviceFeatures = {};
-
-	VkDeviceCreateInfo CreateDeviceInfo = {};
-	CreateDeviceInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	CreateDeviceInfo.pQueueCreateInfos = &QueueCreateInfo;
-	CreateDeviceInfo.queueCreateInfoCount = 1;
-	CreateDeviceInfo.pEnabledFeatures = &DeviceFeatures;
-	CreateDeviceInfo.enabledExtensionCount = 0;
-	
-	if (EnableValidationLayers)
-	{
-		CreateDeviceInfo.enabledLayerCount = static_cast<unsigned int>(ValidationLayers.size());
-		CreateDeviceInfo.ppEnabledLayerNames = ValidationLayers.data();
-	}
-	else
-	{
-		CreateDeviceInfo.enabledLayerCount = 0;
+	float queuePriority = 1.0f;
+	for (uint32_t queueFamily : uniqueQueueFamilies) {
+		VkDeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		queueCreateInfos.push_back(queueCreateInfo);
 	}
 
-	VkResult Result = vkCreateDevice(GPUInfo.PhysicalDevice, &CreateDeviceInfo, nullptr, &GPUInfo.Device);
+	VkPhysicalDeviceFeatures deviceFeatures = {};
+
+	VkDeviceCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+	createInfo.pQueueCreateInfos = queueCreateInfos.data();
+
+	createInfo.pEnabledFeatures = &deviceFeatures;
+
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
+	createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
+
+	if (EnableValidationLayers) {
+		createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+		createInfo.ppEnabledLayerNames = ValidationLayers.data();
+	}
+	else {
+		createInfo.enabledLayerCount = 0;
+	}
+
+	if (vkCreateDevice(GPUInfo.PhysicalDevice, &createInfo, nullptr, &GPUInfo.Device) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create logical device!");
+	}
+
+	vkGetDeviceQueue(GPUInfo.Device, indices.GraphicsFamily.value(), 0, &GraphicsQueue);
+	vkGetDeviceQueue(GPUInfo.Device, indices.PresentationFamily.value(), 0, &PresentQueue);
+}
+
+void ValkanGraphics::SetUpSurface()
+{
+	VkResult Result = glfwCreateWindowSurface(VulkanInstance, Window.GetWindowPtr(), nullptr, &VulkanSurface);
 	if (Result != VK_SUCCESS)
 	{
-		throw std::runtime_error("Failed to create logical device.");
+		throw std::runtime_error("Failed to create window surface.");
 	}
+}
+
+void ValkanGraphics::SetUpSwapChain()
+{
+	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(GPUInfo.PhysicalDevice);
+	VkSurfaceFormatKHR surfaceFormat = SetSwapSurfaceFormat(swapChainSupport.formats);
+	VkPresentModeKHR presentMode = SetSwapPresentMode(swapChainSupport.presentModes);
+	VkExtent2D extent = SetSwapExtent(swapChainSupport.capabilities);
+
+	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
+		imageCount = swapChainSupport.capabilities.maxImageCount;
+	}
+
+	VkSwapchainCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	createInfo.surface = VulkanSurface;
+
+	createInfo.minImageCount = imageCount;
+	createInfo.imageFormat = surfaceFormat.format;
+	createInfo.imageColorSpace = surfaceFormat.colorSpace;
+	createInfo.imageExtent = extent;
+	createInfo.imageArrayLayers = 1;
+	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+	VulkanQueueFamily indices = FindQueueFamilies(GPUInfo.PhysicalDevice);
+	uint32_t queueFamilyIndices[] = { indices.GraphicsFamily.value(), indices.PresentationFamily.value() };
+
+	if (indices.GraphicsFamily != indices.PresentationFamily) {
+		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+		createInfo.queueFamilyIndexCount = 2;
+		createInfo.pQueueFamilyIndices = queueFamilyIndices;
+	}
+	else {
+		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	}
+
+	createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	createInfo.presentMode = presentMode;
+	createInfo.clipped = VK_TRUE;
+
+	createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+	try
+	{
+		if (vkCreateSwapchainKHR(GPUInfo.Device, &createInfo, nullptr, &SwapChain) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create swap chain!");
+		}
+	}
+	catch (const std::exception & ex)
+	{
+		std::cerr << ex.what() << std::endl;
+	}
+
+	vkGetSwapchainImagesKHR(GPUInfo.Device, SwapChain, &imageCount, nullptr);
+	SwapChainImages.resize(imageCount);
+	vkGetSwapchainImagesKHR(GPUInfo.Device, SwapChain, &imageCount, SwapChainImages.data());
+
+	SwapChainImageFormat = surfaceFormat.format;
+	SwapChainExtent = extent;
 }
 
 VulkanQueueFamily ValkanGraphics::FindQueueFamilies(VkPhysicalDevice physicalDevice)
@@ -164,13 +244,19 @@ VulkanQueueFamily ValkanGraphics::FindQueueFamilies(VkPhysicalDevice physicalDev
 
 	for (int x = 0; x <= QueueFamilies.size() - 1; x++)
 	{
-		if (QueueFamilies[x].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-		{
+		if (QueueFamilies[x].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			Indices.GraphicsFamily = x;
 		}
 
-		if (Indices.IsComplete()) 
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, x, VulkanSurface, &presentSupport);
+
+		if (presentSupport) 
 		{
+			Indices.PresentationFamily = x;
+		}
+
+		if (Indices.IsComplete()) {
 			break;
 		}
 	}
@@ -206,6 +292,116 @@ bool ValkanGraphics::ValidationLayerSupport()
 	}
 
 	return true;
+}
+
+bool ValkanGraphics::IsDeviceCompatable(VkPhysicalDevice device)
+{
+	VkPhysicalDeviceProperties DeviceProperties;
+	VkPhysicalDeviceFeatures DeviceFeatures;
+
+	vkGetPhysicalDeviceProperties(device, &DeviceProperties);
+	vkGetPhysicalDeviceFeatures(device, &DeviceFeatures);
+
+	VulkanQueueFamily Indices = FindQueueFamilies(device);
+
+	bool ExtensionSupported = CheckDeviceExtensionSupport(device);
+
+	bool SwapChainAdequate = false;
+	if (ExtensionSupported) 
+	{
+		SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
+		SwapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+	}
+
+	return Indices.IsComplete() && 
+		   ExtensionSupported &&
+		   SwapChainAdequate &&
+		   DeviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+		   DeviceFeatures.geometryShader;
+}
+
+bool ValkanGraphics::CheckDeviceExtensionSupport(VkPhysicalDevice device)
+{
+	unsigned int ExtensionCount;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &ExtensionCount, nullptr);
+
+	std::vector<VkExtensionProperties> AvailableExtension(ExtensionCount);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &ExtensionCount, AvailableExtension.data());
+
+	std::set<std::string> RequiredExtension(DeviceExtensions.begin(), DeviceExtensions.end());
+
+	for (const auto& extension : AvailableExtension)
+	{
+		RequiredExtension.erase(extension.extensionName);
+	}
+
+	return RequiredExtension.empty();
+}
+
+SwapChainSupportDetails ValkanGraphics::QuerySwapChainSupport(VkPhysicalDevice device)
+{
+	SwapChainSupportDetails Details;
+	unsigned int FormatCount;
+	unsigned int PresentModeCount;
+
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, VulkanSurface, &Details.capabilities);
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, VulkanSurface, &FormatCount, nullptr);
+
+	if (FormatCount != 0)
+	{
+		Details.formats.resize(FormatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, VulkanSurface, &FormatCount, Details.formats.data());
+	}
+
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, VulkanSurface, &PresentModeCount, Details.presentModes.data());
+
+	if (PresentModeCount != 0)
+	{
+		Details.presentModes.resize(PresentModeCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, VulkanSurface, &PresentModeCount, Details.presentModes.data());
+	}
+
+	return Details;
+}
+
+VkSurfaceFormatKHR ValkanGraphics::SetSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& AvailableFormats)
+{
+	for (const auto& availableFormat : AvailableFormats)
+	{
+		if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+		{
+			return availableFormat;
+		}
+	}
+	return AvailableFormats[0];
+}
+
+VkPresentModeKHR ValkanGraphics::SetSwapPresentMode(const std::vector<VkPresentModeKHR>& AvailablePresentModes)
+{
+	for (const auto& availablePresentMode : AvailablePresentModes) 
+	{
+		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) 
+		{
+			return availablePresentMode;
+		}
+	}
+
+	return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D ValkanGraphics::SetSwapExtent(const VkSurfaceCapabilitiesKHR& Capabilities)
+{
+	if (Capabilities.currentExtent.width != UINT32_MAX) {
+		return Capabilities.currentExtent;
+	}
+	else 
+	{
+		VkExtent2D ActualExtent = { Window.GetWindowWidth(), Window.GetWindowHeight() };
+		ActualExtent.width = std::max(Capabilities.minImageExtent.width, std::min(Capabilities.maxImageExtent.width, ActualExtent.width));
+		ActualExtent.height = std::max(Capabilities.minImageExtent.width, std::min(Capabilities.maxImageExtent.height, ActualExtent.height));
+
+		return ActualExtent;
+	}
 }
 
 std::vector<const char*> ValkanGraphics::GetRequiredExtensions()
