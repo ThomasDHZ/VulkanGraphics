@@ -15,11 +15,27 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpPhysicalDevice();
 	SetUpLogicalDevice();
 	SetUpSwapChain();
+	SetUpImageViews();
+	SetUpRenderPass();
+	SetUpGraphicsPipeLine();
+	SetUpFrameBuffers();
+	SetUpCommandPool();
+	SetUpCommandBuffers();
+	SetUpSyncObjects();
+	
 }
 
 ValkanGraphics::~ValkanGraphics()
 {
-	vkDestroySwapchainKHR(GPUInfo.Device, SwapChain, nullptr);
+	CleanUpSwapChain();
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroySemaphore(GPUInfo.Device, RenderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(GPUInfo.Device, ImageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(GPUInfo.Device, InFlightFences[i], nullptr);
+	}
+
+	vkDestroyCommandPool(GPUInfo.Device, CommandPool, nullptr);
 	vkDestroyDevice(GPUInfo.Device, nullptr);
 	VulkanDebug.CleanUp(VulkanInstance);
 	vkDestroySurfaceKHR(VulkanInstance, VulkanSurface, nullptr);
@@ -215,7 +231,8 @@ void ValkanGraphics::SetUpSwapChain()
 
 	try
 	{
-		if (vkCreateSwapchainKHR(GPUInfo.Device, &createInfo, nullptr, &SwapChain) != VK_SUCCESS) {
+		VkResult Result = vkCreateSwapchainKHR(GPUInfo.Device, &createInfo, nullptr, &SwapChain);
+		if (Result != VK_SUCCESS) {
 			throw std::runtime_error("failed to create swap chain!");
 		}
 	}
@@ -230,6 +247,414 @@ void ValkanGraphics::SetUpSwapChain()
 
 	SwapChainImageFormat = surfaceFormat.format;
 	SwapChainExtent = extent;
+}
+
+void ValkanGraphics::SetUpImageViews()
+{
+	SwapChainImageViews.resize(SwapChainImages.size());
+	for (unsigned int x = 0; x < SwapChainImages.size(); x++)
+	{
+		VkImageViewCreateInfo CreateImageInfo = {};
+		CreateImageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		CreateImageInfo.image = SwapChainImages[x];
+		CreateImageInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		CreateImageInfo.format = SwapChainImageFormat;
+		CreateImageInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		CreateImageInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		CreateImageInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		CreateImageInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		CreateImageInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		CreateImageInfo.subresourceRange.baseMipLevel = 0;
+		CreateImageInfo.subresourceRange.levelCount = 1;
+		CreateImageInfo.subresourceRange.baseArrayLayer = 0;
+		CreateImageInfo.subresourceRange.layerCount = 1;
+
+		VkResult Result = vkCreateImageView(GPUInfo.Device, &CreateImageInfo, nullptr, &SwapChainImageViews[x]);
+		if(Result != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create image views.");
+		}
+	}
+}
+
+void ValkanGraphics::SetUpRenderPass()
+{
+	VkAttachmentDescription colorAttachment = {};
+	colorAttachment.format = SwapChainImageFormat;
+	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+	VkAttachmentReference colorAttachmentRef = {};
+	colorAttachmentRef.attachment = 0;
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorAttachmentRef;
+
+	VkSubpassDependency dependency = {};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+	VkRenderPassCreateInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = 1;
+	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
+
+	if (vkCreateRenderPass(GPUInfo.Device, &renderPassInfo, nullptr, &RenderPass) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create render pass!");
+	}
+}
+
+void ValkanGraphics::SetUpGraphicsPipeLine()
+{
+	VkShaderModule VertexShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/vert.spv");
+	VkShaderModule FragmentShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/frag.spv");
+
+	VkPipelineShaderStageCreateInfo VertexShaderStageInfo = {};
+	VertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	VertexShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	VertexShaderStageInfo.module = VertexShaderModule;
+	VertexShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo FragmentShaderStageInfo = {};
+	FragmentShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	FragmentShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	FragmentShaderStageInfo.module = FragmentShaderModule;
+	FragmentShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo ShaderStages[] = { VertexShaderStageInfo, FragmentShaderStageInfo };
+
+	VkPipelineVertexInputStateCreateInfo VertexInputInfo = {};
+	VertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	VertexInputInfo.vertexBindingDescriptionCount = 0;
+	VertexInputInfo.vertexAttributeDescriptionCount = 0;
+
+	VkPipelineInputAssemblyStateCreateInfo InputAssembly = {};
+	InputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	InputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	InputAssembly.primitiveRestartEnable = VK_FALSE;
+
+	VkViewport Viewport = {};
+	Viewport.x = 0.0f;
+	Viewport.y = 0.0f;
+	Viewport.width = (float)SwapChainExtent.width;
+	Viewport.height = (float)SwapChainExtent.height;
+	Viewport.minDepth = 0.0f;
+	Viewport.maxDepth = 1.0f;
+
+	VkRect2D Scissor = {};
+	Scissor.offset = { 0, 0 };
+	Scissor.extent = SwapChainExtent;
+
+	VkPipelineViewportStateCreateInfo ViewportState = {};
+	ViewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	ViewportState.viewportCount = 1;
+	ViewportState.pViewports = &Viewport;
+	ViewportState.scissorCount = 1;
+	ViewportState.pScissors = &Scissor;
+
+	VkPipelineRasterizationStateCreateInfo Rasterizer = {};
+	Rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	Rasterizer.depthClampEnable = VK_FALSE;
+	Rasterizer.rasterizerDiscardEnable = VK_FALSE;
+	Rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+	Rasterizer.lineWidth = 1.0f;
+	Rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+	Rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	Rasterizer.depthBiasEnable = VK_FALSE;
+
+	VkPipelineMultisampleStateCreateInfo Multisampling = {};
+	Multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	Multisampling.sampleShadingEnable = VK_FALSE;
+	Multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+	VkPipelineColorBlendAttachmentState ColorBlendAttachment = {};
+	ColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	ColorBlendAttachment.blendEnable = VK_FALSE;
+
+	VkPipelineColorBlendStateCreateInfo ColorBlending = {};
+	ColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	ColorBlending.logicOpEnable = VK_FALSE;
+	ColorBlending.logicOp = VK_LOGIC_OP_COPY;
+	ColorBlending.attachmentCount = 1;
+	ColorBlending.pAttachments = &ColorBlendAttachment;
+	ColorBlending.blendConstants[0] = 0.0f;
+	ColorBlending.blendConstants[1] = 0.0f;
+	ColorBlending.blendConstants[2] = 0.0f;
+	ColorBlending.blendConstants[3] = 0.0f;
+
+	VkPipelineLayoutCreateInfo PipelineLayoutInfo = {};
+	PipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	PipelineLayoutInfo.setLayoutCount = 0;
+	PipelineLayoutInfo.pushConstantRangeCount = 0;
+
+	VkResult Result = vkCreatePipelineLayout(GPUInfo.Device, &PipelineLayoutInfo, nullptr, &PipelineLayout);
+	if (Result != VK_SUCCESS) {
+		throw std::runtime_error("failed to create pipeline layout!");
+	}
+
+	VkGraphicsPipelineCreateInfo PipelineInfo = {};
+	PipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	PipelineInfo.stageCount = 2;
+	PipelineInfo.pStages = ShaderStages;
+	PipelineInfo.pVertexInputState = &VertexInputInfo;
+	PipelineInfo.pInputAssemblyState = &InputAssembly;
+	PipelineInfo.pViewportState = &ViewportState;
+	PipelineInfo.pRasterizationState = &Rasterizer;
+	PipelineInfo.pMultisampleState = &Multisampling;
+	PipelineInfo.pColorBlendState = &ColorBlending;
+	PipelineInfo.layout = PipelineLayout;
+	PipelineInfo.renderPass = RenderPass;
+	PipelineInfo.subpass = 0;
+	PipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+	 Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &PipelineInfo, nullptr, &GraphicsPipeline);
+	if (Result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create graphics pipeline.");
+	}
+
+	vkDestroyShaderModule(GPUInfo.Device, FragmentShaderModule, nullptr);
+	vkDestroyShaderModule(GPUInfo.Device, VertexShaderModule, nullptr);
+}
+
+void ValkanGraphics::SetUpFrameBuffers()
+{
+	SwapChainFramebuffers.resize(SwapChainImageViews.size());
+
+	for (size_t x = 0; x < SwapChainImageViews.size(); x++) {
+		VkImageView attachments[] = 
+		{
+			SwapChainImageViews[x]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo = {};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = RenderPass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.width = SwapChainExtent.width;
+		framebufferInfo.height = SwapChainExtent.height;
+		framebufferInfo.layers = 1;
+
+		VkResult Result = vkCreateFramebuffer(GPUInfo.Device, &framebufferInfo, nullptr, &SwapChainFramebuffers[x]);
+		if (Result != VK_SUCCESS) {
+			throw std::runtime_error("failed to create framebuffer!");
+		}
+	}
+
+}
+
+void ValkanGraphics::SetUpCommandPool()
+{
+	VulkanQueueFamily QueueFamilyIndices = FindQueueFamilies(GPUInfo.PhysicalDevice);
+
+	VkCommandPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.queueFamilyIndex = QueueFamilyIndices.GraphicsFamily.value();
+
+	if (vkCreateCommandPool(GPUInfo.Device, &poolInfo, nullptr, &CommandPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create command pool!");
+	}
+}
+
+void ValkanGraphics::SetUpCommandBuffers()
+{
+	CommandBuffers.resize(SwapChainFramebuffers.size());
+
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = CommandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)CommandBuffers.size();
+
+	if (vkAllocateCommandBuffers(GPUInfo.Device, &allocInfo, CommandBuffers.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+	}
+
+	for (size_t i = 0; i < CommandBuffers.size(); i++) {
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		if (vkBeginCommandBuffer(CommandBuffers[i], &beginInfo) != VK_SUCCESS) {
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
+
+		VkRenderPassBeginInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = RenderPass;
+		renderPassInfo.framebuffer = SwapChainFramebuffers[i];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = SwapChainExtent;
+
+		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
+		vkCmdDraw(CommandBuffers[i], 3, 1, 0, 0);
+		vkCmdEndRenderPass(CommandBuffers[i]);
+
+		if (vkEndCommandBuffer(CommandBuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
+		}
+	}
+}
+
+void ValkanGraphics::SetUpSyncObjects()
+{
+	ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+	ImagesInFlight.resize(SwapChainImages.size(), VK_NULL_HANDLE);
+
+	VkSemaphoreCreateInfo semaphoreInfo = {};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	VkFenceCreateInfo fenceInfo = {};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		if (vkCreateSemaphore(GPUInfo.Device, &semaphoreInfo, nullptr, &ImageAvailableSemaphores[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(GPUInfo.Device, &semaphoreInfo, nullptr, &RenderFinishedSemaphores[i]) != VK_SUCCESS ||
+			vkCreateFence(GPUInfo.Device, &fenceInfo, nullptr, &InFlightFences[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create synchronization objects for a frame!");
+		}
+	}
+}
+
+void ValkanGraphics::CleanUpSwapChain()
+{
+	for (size_t x = 0; x < SwapChainFramebuffers.size(); x++)
+	{
+		vkDestroyFramebuffer(GPUInfo.Device, SwapChainFramebuffers[x], nullptr);
+	}
+
+	vkFreeCommandBuffers(GPUInfo.Device, CommandPool, static_cast<uint32_t>(CommandBuffers.size()), CommandBuffers.data());
+	vkDestroyPipeline(GPUInfo.Device, GraphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(GPUInfo.Device, PipelineLayout, nullptr);
+	vkDestroyRenderPass(GPUInfo.Device, RenderPass, nullptr);
+
+	for (size_t x = 0; x < SwapChainImageViews.size(); x++) 
+	{
+		vkDestroyImageView(GPUInfo.Device, SwapChainImageViews[x], nullptr);
+	}
+
+	vkDestroySwapchainKHR(GPUInfo.Device, SwapChain, nullptr);
+}
+
+void ValkanGraphics::RecreateSwapChain()
+{
+	int width = 0;
+	int height = 0;
+	glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
+	while (width == 0 ||
+		   height == 0)
+	{
+		glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(GPUInfo.Device);
+
+	CleanUpSwapChain();
+
+	SetUpSwapChain();
+	SetUpImageViews();
+	SetUpRenderPass();
+	SetUpGraphicsPipeLine();
+	SetUpFrameBuffers();
+	SetUpCommandBuffers();
+}
+
+void ValkanGraphics::DrawFrame() {
+	vkWaitForFences(GPUInfo.Device, 1, &InFlightFences[CurrentFrame], VK_TRUE, UINT64_MAX);
+
+	uint32_t imageIndex;
+
+	VkResult Result = vkAcquireNextImageKHR(GPUInfo.Device, SwapChain, UINT64_MAX, ImageAvailableSemaphores[CurrentFrame], VK_NULL_HANDLE, &imageIndex);
+	if (Result == VK_ERROR_OUT_OF_DATE_KHR)
+	{
+		RecreateSwapChain();
+		return;
+	}
+	else if (Result != VK_SUCCESS &&
+			 Result != VK_SUBOPTIMAL_KHR)
+	{
+		throw std::runtime_error("Failed to acquire swap chain image.");
+	}
+
+	if (ImagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+		vkWaitForFences(GPUInfo.Device, 1, &ImagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+	}
+
+	ImagesInFlight[imageIndex] = InFlightFences[CurrentFrame];
+
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { ImageAvailableSemaphores[CurrentFrame] };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &CommandBuffers[imageIndex];
+
+	VkSemaphore signalSemaphores[] = { RenderFinishedSemaphores[CurrentFrame] };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	vkResetFences(GPUInfo.Device, 1, &InFlightFences[CurrentFrame]);
+
+	if (vkQueueSubmit(GraphicsQueue, 1, &submitInfo, InFlightFences[CurrentFrame]) != VK_SUCCESS) {
+		throw std::runtime_error("failed to submit draw command buffer!");
+	}
+
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { SwapChain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+
+	presentInfo.pImageIndices = &imageIndex;
+
+	Result = vkQueuePresentKHR(PresentQueue, &presentInfo);
+	if (Result == VK_ERROR_OUT_OF_DATE_KHR || 
+		Result == VK_SUBOPTIMAL_KHR ||
+		Window.GetFrameBufferResizedFlag()) 
+	{
+		Window.SetFrameBufferResizedFlag(false);
+		RecreateSwapChain();
+	}
+	else if (Result != VK_SUCCESS) 
+	{
+		throw std::runtime_error("Failed to present swap chain image.");
+	}
+
+	CurrentFrame = (CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 VulkanQueueFamily ValkanGraphics::FindQueueFamilies(VkPhysicalDevice physicalDevice)
@@ -396,7 +821,11 @@ VkExtent2D ValkanGraphics::SetSwapExtent(const VkSurfaceCapabilitiesKHR& Capabil
 	}
 	else 
 	{
-		VkExtent2D ActualExtent = { Window.GetWindowWidth(), Window.GetWindowHeight() };
+		int width = Window.GetWindowWidth();
+		int height = Window.GetWindowHeight();
+
+		glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
+		VkExtent2D ActualExtent = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 		ActualExtent.width = std::max(Capabilities.minImageExtent.width, std::min(Capabilities.maxImageExtent.width, ActualExtent.width));
 		ActualExtent.height = std::max(Capabilities.minImageExtent.width, std::min(Capabilities.maxImageExtent.height, ActualExtent.height));
 
@@ -426,7 +855,10 @@ void ValkanGraphics::MainLoop()
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
+		DrawFrame();
 	}
+
+	vkDeviceWaitIdle(GPUInfo.Device);
 }
 
 void ValkanGraphics::Run()

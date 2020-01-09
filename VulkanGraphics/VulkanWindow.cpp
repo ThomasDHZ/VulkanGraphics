@@ -6,13 +6,16 @@ VulkanWindow::VulkanWindow()
 
 VulkanWindow::VulkanWindow(unsigned int width, unsigned int height, const char* WindowName)
 {
+	FramebufferResized = false;
 	Width = width;
 	Height = height;
 
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
 	GLFWindow = glfwCreateWindow(Width, Height, WindowName, nullptr, nullptr);
+	glfwSetWindowUserPointer(GLFWindow, this);
+	glfwSetFramebufferSizeCallback(GLFWindow, frameBufferResizeCallBack);
 }
 
 VulkanWindow::~VulkanWindow()
@@ -29,4 +32,10 @@ void VulkanWindow::CleanUp()
 {
 	glfwDestroyWindow(GLFWindow);
 	glfwTerminate();
+}
+
+void VulkanWindow::frameBufferResizeCallBack(GLFWwindow* Window, int width, int height)
+{
+	auto app = reinterpret_cast<VulkanWindow*>(glfwGetWindowUserPointer(Window));
+	app->FramebufferResized = true;
 }

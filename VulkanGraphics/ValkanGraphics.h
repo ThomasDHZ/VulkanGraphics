@@ -10,6 +10,7 @@
 #include "VulkanWindow.h"
 #include "VulkanDebugger.h"
 #include "VulkanQueueFamily.h"
+#include "ShaderCompiler.h"
 #include <optional>
 
 struct VkGPUInfo
@@ -29,6 +30,8 @@ class ValkanGraphics
 {
 private:
 	const bool EnableValidationLayers;
+	const int MAX_FRAMES_IN_FLIGHT = 2;
+
 	std::vector<const char*> ValidationLayers;
 	std::vector<const char*> DeviceExtensions;
 
@@ -41,10 +44,26 @@ private:
 	VkQueue PresentQueue;
 	VkSurfaceKHR VulkanSurface;
 	VkSwapchainKHR SwapChain;
+	ShaderCompiler CompileShader;
+	VkRenderPass RenderPass;
+	VkPipelineLayout PipelineLayout;
+	VkPipeline GraphicsPipeline;
+	VkCommandPool CommandPool;
+	VkSemaphore ImageAvailableSemaphore;
+	VkSemaphore RenderFinishedSemaphore;
 
 	std::vector<VkImage> SwapChainImages;
+	std::vector<VkImageView> SwapChainImageViews;
+	std::vector<VkFramebuffer> SwapChainFramebuffers;
+	std::vector<VkCommandBuffer> CommandBuffers;
+	std::vector<VkSemaphore> ImageAvailableSemaphores;
+	std::vector<VkSemaphore> RenderFinishedSemaphores;
+	std::vector<VkFence> InFlightFences;
+	std::vector<VkFence> ImagesInFlight;
+
 	VkFormat SwapChainImageFormat;
 	VkExtent2D SwapChainExtent;
+	size_t CurrentFrame = 0;
 
 	void SetUpVulkanInstance();
 	void SetUpDebugger();
@@ -52,6 +71,17 @@ private:
 	void SetUpLogicalDevice();
 	void SetUpSurface();
 	void SetUpSwapChain();
+	void SetUpImageViews();
+	void SetUpRenderPass();
+	void SetUpGraphicsPipeLine();
+	void SetUpFrameBuffers();
+	void SetUpCommandPool();
+	void SetUpCommandBuffers();
+	void SetUpSyncObjects();
+
+	void CleanUpSwapChain();
+	void RecreateSwapChain();
+	void DrawFrame();
 
 	VulkanQueueFamily FindQueueFamilies(VkPhysicalDevice physicalDevice);
 
