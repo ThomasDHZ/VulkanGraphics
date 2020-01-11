@@ -74,6 +74,12 @@ const std::vector<uint16_t> indices =
 	0, 1, 2, 2, 3, 0
 };
 
+struct UniformBufferObject {
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 proj;
+};
+
 class ValkanGraphics
 {
 private:
@@ -103,11 +109,16 @@ private:
 	VkDeviceMemory VertexBufferMemory;
 	VkBuffer IndexBuffer;
 	VkDeviceMemory IndexBufferMemory;
+	VkDescriptorSetLayout DescriptorSetLayout;
+	VkDescriptorPool DescriptorPool;
 
+	std::vector<VkDescriptorSet> DescriptorSets;
 	std::vector<VkImage> SwapChainImages;
 	std::vector<VkImageView> SwapChainImageViews;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 	std::vector<VkCommandBuffer> CommandBuffers;
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
 	std::vector<VkSemaphore> ImageAvailableSemaphores;
 	std::vector<VkSemaphore> RenderFinishedSemaphores;
 	std::vector<VkFence> InFlightFences;
@@ -125,11 +136,15 @@ private:
 	void SetUpSwapChain();
 	void SetUpImageViews();
 	void SetUpRenderPass();
+	void SetDescriptorSetLayout();
 	void SetUpGraphicsPipeLine();
 	void SetUpFrameBuffers();
 	void SetUpCommandPool();
 	void SetUpVertexBuffers();
 	void SetUpIndexBuffers();
+	void SetUpUniformBuffer();
+	void SetUpDescriptorPool();
+	void SetUpDescriptorSets();
 	void SetUpCommandBuffers();
 	void SetUpSyncObjects();
 
@@ -139,6 +154,7 @@ private:
 
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	void CopyBuffer(VkBuffer SrcBuffer, VkBuffer DstBuffer, VkDeviceSize Size);
+	void UpdateUniformBuffer(uint32_t currentImage);
 
 	VulkanQueueFamily FindQueueFamilies(VkPhysicalDevice physicalDevice);
 

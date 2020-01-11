@@ -1,6 +1,11 @@
 #include "ValkanGraphics.h"
 #include <set>
 #include <algorithm> 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include <chrono>
 
 ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const char* windowName) : EnableValidationLayers(true)
 {
@@ -17,11 +22,15 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpSwapChain();
 	SetUpImageViews();
 	SetUpRenderPass();
+	SetDescriptorSetLayout();
 	SetUpGraphicsPipeLine();
 	SetUpFrameBuffers();
 	SetUpCommandPool();
 	SetUpVertexBuffers();
 	SetUpIndexBuffers();
+	SetUpUniformBuffer();
+	SetUpDescriptorPool();
+	SetUpDescriptorSets();
 	SetUpCommandBuffers();
 	SetUpSyncObjects();
 	
@@ -31,9 +40,16 @@ ValkanGraphics::~ValkanGraphics()
 {
 	CleanUpSwapChain();
 
+	for (size_t i = 0; i < SwapChainImages.size(); i++) 
+	{
+		vkDestroyBuffer(GPUInfo.Device, uniformBuffers[i], nullptr);
+		vkFreeMemory(GPUInfo.Device, uniformBuffersMemory[i], nullptr);
+	}
+
+	vkDestroyDescriptorPool(GPUInfo.Device, DescriptorPool, nullptr);
+	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
 	vkDestroyBuffer(GPUInfo.Device, IndexBuffer, nullptr);
 	vkFreeMemory(GPUInfo.Device, IndexBufferMemory, nullptr);
-
 	vkDestroyBuffer(GPUInfo.Device, VertexBuffer, nullptr);
 	vkFreeMemory(GPUInfo.Device, VertexBufferMemory, nullptr);
 
@@ -328,6 +344,27 @@ void ValkanGraphics::SetUpRenderPass()
 	}
 }
 
+void ValkanGraphics::SetDescriptorSetLayout()
+{
+	VkDescriptorSetLayoutBinding UBOLayoutBinding = {};
+	UBOLayoutBinding.binding = 0;
+	UBOLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	UBOLayoutBinding.descriptorCount = 1;
+	UBOLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	UBOLayoutBinding.pImmutableSamplers = nullptr;
+
+	VkDescriptorSetLayoutCreateInfo LayoutInfo = {};
+	LayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	LayoutInfo.bindingCount = 1;
+	LayoutInfo.pBindings = &UBOLayoutBinding;
+
+	VkResult Result = vkCreateDescriptorSetLayout(GPUInfo.Device, &LayoutInfo, nullptr, &DescriptorSetLayout);
+	if (Result != VK_SUCCESS) 
+	{
+		throw std::runtime_error("Failed to create descriptor set layout.");
+	}
+}
+
 void ValkanGraphics::SetUpGraphicsPipeLine()
 {
 	VkShaderModule VertexShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/vert.spv");
@@ -388,7 +425,7 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	Rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	Rasterizer.lineWidth = 1.0f;
 	Rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	Rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	Rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	Rasterizer.depthBiasEnable = VK_FALSE;
 
 	VkPipelineMultisampleStateCreateInfo Multisampling = {};
@@ -413,8 +450,8 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 
 	VkPipelineLayoutCreateInfo PipelineLayoutInfo = {};
 	PipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	PipelineLayoutInfo.setLayoutCount = 0;
-	PipelineLayoutInfo.pushConstantRangeCount = 0;
+	PipelineLayoutInfo.setLayoutCount = 1;
+	PipelineLayoutInfo.pSetLayouts = &DescriptorSetLayout;
 
 	VkResult Result = vkCreatePipelineLayout(GPUInfo.Device, &PipelineLayoutInfo, nullptr, &PipelineLayout);
 	if (Result != VK_SUCCESS) {
@@ -528,6 +565,76 @@ void ValkanGraphics::SetUpIndexBuffers()
 	vkFreeMemory(GPUInfo.Device, stagingBufferMemory, nullptr);
 }
 
+void ValkanGraphics::SetUpUniformBuffer()
+{
+	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+	uniformBuffers.resize(SwapChainImages.size());
+	uniformBuffersMemory.resize(SwapChainImages.size());
+
+	for (size_t i = 0; i < SwapChainImages.size(); i++) {
+		CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+	}
+}
+
+void ValkanGraphics::SetUpDescriptorPool()
+{
+	VkDescriptorPoolSize DescriptorPoolSize = {};
+	DescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	DescriptorPoolSize.descriptorCount = static_cast<unsigned int>(SwapChainImages.size());
+
+	VkDescriptorPoolCreateInfo DescriptorPoolInfo = {};
+	DescriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	DescriptorPoolInfo.poolSizeCount = 1;
+	DescriptorPoolInfo.pPoolSizes = &DescriptorPoolSize;
+	DescriptorPoolInfo.maxSets = static_cast<unsigned int>(SwapChainImages.size());
+
+	VkResult Result = vkCreateDescriptorPool(GPUInfo.Device, &DescriptorPoolInfo, nullptr, &DescriptorPool);
+	if (Result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create descriptor pool.");
+	}
+}
+
+void ValkanGraphics::SetUpDescriptorSets()
+{
+	std::vector<VkDescriptorSetLayout> Layouts(SwapChainImages.size(), DescriptorSetLayout);
+
+	VkDescriptorSetAllocateInfo AllocInfo = {};
+	AllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	AllocInfo.descriptorPool = DescriptorPool;
+	AllocInfo.descriptorSetCount = static_cast<unsigned int>(SwapChainImages.size());
+	AllocInfo.pSetLayouts = Layouts.data();
+
+	DescriptorSets.resize(SwapChainImages.size());
+	VkResult Result = vkAllocateDescriptorSets(GPUInfo.Device, &AllocInfo, DescriptorSets.data());
+	if (Result != VK_SUCCESS) 
+	{
+		throw std::runtime_error("Failed to allocate descriptor sets.");
+	}
+
+	for (size_t x = 0; x < SwapChainImages.size(); x++)
+	{
+		VkDescriptorBufferInfo BufferInfo = {};
+		BufferInfo.buffer = uniformBuffers[x];
+		BufferInfo.offset = 0;
+		BufferInfo.range = sizeof(UniformBufferObject);
+
+		VkWriteDescriptorSet DescriptorWrite = {};
+		DescriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		DescriptorWrite.dstSet = DescriptorSets[x];
+		DescriptorWrite.dstBinding = 0;
+		DescriptorWrite.dstArrayElement = 0;
+		DescriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		DescriptorWrite.descriptorCount = 1;
+		DescriptorWrite.pBufferInfo = &BufferInfo;
+		DescriptorWrite.pImageInfo = nullptr;
+		DescriptorWrite.pTexelBufferView = nullptr;
+
+		vkUpdateDescriptorSets(GPUInfo.Device, 1, &DescriptorWrite, 0, nullptr);
+	}
+}
+
 uint32_t ValkanGraphics::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
 	VkPhysicalDeviceMemoryProperties memProperties;
@@ -556,7 +663,8 @@ void ValkanGraphics::SetUpCommandBuffers()
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 
-	for (size_t i = 0; i < CommandBuffers.size(); i++) {
+	for (size_t i = 0; i < CommandBuffers.size(); i++) 
+	{
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -578,11 +686,11 @@ void ValkanGraphics::SetUpCommandBuffers()
 		VkBuffer VertexBuffers[] = { VertexBuffer };
 		VkDeviceSize Offsets[] = { 0 };
 
-
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdBindVertexBuffers(CommandBuffers[i], 0, 1, VertexBuffers, Offsets);
 		vkCmdBindIndexBuffer(CommandBuffers[i], IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
+		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSets[i], 0, nullptr);
 		vkCmdDrawIndexed(CommandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 		vkCmdEndRenderPass(CommandBuffers[i]);
 
@@ -656,6 +764,9 @@ void ValkanGraphics::RecreateSwapChain()
 	SetUpRenderPass();
 	SetUpGraphicsPipeLine();
 	SetUpFrameBuffers();
+	SetUpUniformBuffer();
+	SetUpDescriptorPool();
+	SetUpDescriptorSets();
 	SetUpCommandBuffers();
 }
 
@@ -679,6 +790,8 @@ void ValkanGraphics::DrawFrame() {
 	if (ImagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(GPUInfo.Device, 1, &ImagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
 	}
+
+	UpdateUniformBuffer(imageIndex);
 
 	ImagesInFlight[imageIndex] = InFlightFences[CurrentFrame];
 
@@ -791,6 +904,25 @@ void ValkanGraphics::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevice
 	vkQueueWaitIdle(GraphicsQueue);
 
 	vkFreeCommandBuffers(GPUInfo.Device, CommandPool, 1, &commandBuffer);
+}
+
+void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
+{
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	UniformBufferObject ubo = {};
+	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
+	ubo.proj[1][1] *= -1;
+
+	void* data;
+	vkMapMemory(GPUInfo.Device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+	memcpy(data, &ubo, sizeof(ubo));
+	vkUnmapMemory(GPUInfo.Device, uniformBuffersMemory[currentImage]);
 }
 
 VulkanQueueFamily ValkanGraphics::FindQueueFamilies(VkPhysicalDevice physicalDevice)
