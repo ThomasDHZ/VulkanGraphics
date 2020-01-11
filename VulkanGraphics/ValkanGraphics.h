@@ -12,6 +12,8 @@
 #include "VulkanQueueFamily.h"
 #include "ShaderCompiler.h"
 #include <optional>
+#include <glm/glm.hpp>
+#include <array>
 
 struct VkGPUInfo
 {
@@ -24,6 +26,52 @@ struct SwapChainSupportDetails
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
+};
+
+struct Vertex
+{
+	glm::vec2 pos;
+	glm::vec3 color;
+
+	static VkVertexInputBindingDescription GetBindingDescription()
+	{
+		VkVertexInputBindingDescription BindingDescription = {};
+		BindingDescription.binding = 0;
+		BindingDescription.stride = sizeof(Vertex);
+		BindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		
+		return BindingDescription;
+	}
+
+	static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
+	{
+		std::array<VkVertexInputAttributeDescription, 2> AttributeDescriptions = {};
+
+		AttributeDescriptions[0].binding = 0;
+		AttributeDescriptions[0].location = 0;
+		AttributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		AttributeDescriptions[0].offset = offsetof(Vertex, pos);
+
+		AttributeDescriptions[1].binding = 0;
+		AttributeDescriptions[1].location = 1;
+		AttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		AttributeDescriptions[1].offset = offsetof(Vertex, color);
+
+		return AttributeDescriptions;
+	}
+};
+
+const std::vector<Vertex> vertices = 
+{
+	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+};
+
+const std::vector<uint16_t> indices = 
+{
+	0, 1, 2, 2, 3, 0
 };
 
 class ValkanGraphics
@@ -51,6 +99,10 @@ private:
 	VkCommandPool CommandPool;
 	VkSemaphore ImageAvailableSemaphore;
 	VkSemaphore RenderFinishedSemaphore;
+	VkBuffer VertexBuffer;
+	VkDeviceMemory VertexBufferMemory;
+	VkBuffer IndexBuffer;
+	VkDeviceMemory IndexBufferMemory;
 
 	std::vector<VkImage> SwapChainImages;
 	std::vector<VkImageView> SwapChainImageViews;
@@ -76,12 +128,17 @@ private:
 	void SetUpGraphicsPipeLine();
 	void SetUpFrameBuffers();
 	void SetUpCommandPool();
+	void SetUpVertexBuffers();
+	void SetUpIndexBuffers();
 	void SetUpCommandBuffers();
 	void SetUpSyncObjects();
 
 	void CleanUpSwapChain();
 	void RecreateSwapChain();
 	void DrawFrame();
+
+	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	void CopyBuffer(VkBuffer SrcBuffer, VkBuffer DstBuffer, VkDeviceSize Size);
 
 	VulkanQueueFamily FindQueueFamilies(VkPhysicalDevice physicalDevice);
 
@@ -95,7 +152,7 @@ private:
 	VkSurfaceFormatKHR SetSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& AvailableFormats);
 	VkPresentModeKHR SetSwapPresentMode(const std::vector<VkPresentModeKHR>& AvailablePresentModes);
 	VkExtent2D SetSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-
+	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	std::vector<const char*> GetRequiredExtensions();
 
 public:
