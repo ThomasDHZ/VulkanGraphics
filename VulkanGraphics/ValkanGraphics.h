@@ -32,6 +32,7 @@ struct Vertex
 {
 	glm::vec2 pos;
 	glm::vec3 color;
+	glm::vec2 texCoord;
 
 	static VkVertexInputBindingDescription GetBindingDescription()
 	{
@@ -43,9 +44,9 @@ struct Vertex
 		return BindingDescription;
 	}
 
-	static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
+	static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
 	{
-		std::array<VkVertexInputAttributeDescription, 2> AttributeDescriptions = {};
+		std::array<VkVertexInputAttributeDescription, 3> AttributeDescriptions = {};
 
 		AttributeDescriptions[0].binding = 0;
 		AttributeDescriptions[0].location = 0;
@@ -57,16 +58,20 @@ struct Vertex
 		AttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 		AttributeDescriptions[1].offset = offsetof(Vertex, color);
 
+		AttributeDescriptions[2].binding = 0;
+		AttributeDescriptions[2].location = 2;
+		AttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+		AttributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+
 		return AttributeDescriptions;
 	}
 };
 
-const std::vector<Vertex> vertices = 
-{
-	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+const std::vector<Vertex> vertices = {
+	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 };
 
 const std::vector<uint16_t> indices = 
@@ -111,6 +116,10 @@ private:
 	VkDeviceMemory IndexBufferMemory;
 	VkDescriptorSetLayout DescriptorSetLayout;
 	VkDescriptorPool DescriptorPool;
+	VkImage TextureImage;
+	VkDeviceMemory TextureImageMemory;
+	VkImageView TextureImageView;
+	VkSampler TextureSampler;
 
 	std::vector<VkDescriptorSet> DescriptorSets;
 	std::vector<VkImage> SwapChainImages;
@@ -140,6 +149,9 @@ private:
 	void SetUpGraphicsPipeLine();
 	void SetUpFrameBuffers();
 	void SetUpCommandPool();
+	void SetUpTextureImage();
+	void SetUpTextureImageView();
+	void SetUpTextureSampler();
 	void SetUpVertexBuffers();
 	void SetUpIndexBuffers();
 	void SetUpUniformBuffer();
@@ -152,10 +164,15 @@ private:
 	void RecreateSwapChain();
 	void DrawFrame();
 
+	VkImageView CreateImageView(VkImage image, VkFormat format);
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	VkCommandBuffer beginSingleTimeCommands();
+	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 	void CopyBuffer(VkBuffer SrcBuffer, VkBuffer DstBuffer, VkDeviceSize Size);
 	void UpdateUniformBuffer(uint32_t currentImage);
-
+	void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+	void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	VulkanQueueFamily FindQueueFamilies(VkPhysicalDevice physicalDevice);
 
 	void MainLoop();
