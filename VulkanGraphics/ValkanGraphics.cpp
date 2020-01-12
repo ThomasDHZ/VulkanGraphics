@@ -35,6 +35,7 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpVertexBuffers();
 	SetUpIndexBuffers();
 	SetUpUniformBuffer();
+	SetUpLightBuffer();
 	SetUpDescriptorPool();
 	SetUpDescriptorSets();
 	SetUpCommandBuffers();
@@ -352,7 +353,14 @@ void ValkanGraphics::SetDescriptorSetLayout()
 	SamplerLayoutBinding.pImmutableSamplers = nullptr;
 	SamplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { UBOLayoutBinding, SamplerLayoutBinding };
+	VkDescriptorSetLayoutBinding AmbiantLayoutBinding = {};
+	AmbiantLayoutBinding.binding = 2;
+	AmbiantLayoutBinding.descriptorCount = 1;
+	AmbiantLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	AmbiantLayoutBinding.pImmutableSamplers = nullptr;
+	AmbiantLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 3> bindings = { UBOLayoutBinding, SamplerLayoutBinding, AmbiantLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo LayoutInfo = {};
 	LayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	LayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -639,6 +647,18 @@ void ValkanGraphics::SetUpUniformBuffer()
 	}
 }
 
+void ValkanGraphics::SetUpLightBuffer()
+{
+	VkDeviceSize bufferSize = sizeof(LightingStruct);
+
+	lightBuffers.resize(SwapChainImages.size());
+	lightBuffersMemory.resize(SwapChainImages.size());
+
+	for (size_t i = 0; i < SwapChainImages.size(); i++) {
+		CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, lightBuffers[i], lightBuffersMemory[i]);
+	}
+}
+
 void ValkanGraphics::SetUpDescriptorPool()
 {
 	std::array<VkDescriptorPoolSize, 2> PoolSizes = {};
@@ -685,7 +705,12 @@ void ValkanGraphics::SetUpDescriptorSets()
 		imageInfo.imageView = TextureImageView;
 		imageInfo.sampler = TextureSampler;
 
-		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+		VkDescriptorBufferInfo LightbufferInfo = {};
+		LightbufferInfo.buffer = lightBuffers[i];
+		LightbufferInfo.offset = 0;
+		LightbufferInfo.range = sizeof(LightingStruct);
+
+		std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
 
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = DescriptorSets[i];
@@ -702,6 +727,14 @@ void ValkanGraphics::SetUpDescriptorSets()
 		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[1].descriptorCount = 1;
 		descriptorWrites[1].pImageInfo = &imageInfo;
+
+		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[2].dstSet = DescriptorSets[i];
+		descriptorWrites[2].dstBinding = 2;
+		descriptorWrites[2].dstArrayElement = 0;
+		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[2].descriptorCount = 1;
+		descriptorWrites[2].pBufferInfo = &LightbufferInfo;
 
 		vkUpdateDescriptorSets(GPUInfo.Device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
@@ -864,6 +897,7 @@ void ValkanGraphics::DrawFrame() {
 	}
 
 	UpdateUniformBuffer(imageIndex);
+	UpdateAmbiantBuffer(imageIndex);
 
 	ImagesInFlight[imageIndex] = InFlightFences[CurrentFrame];
 
@@ -1028,6 +1062,17 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	vkMapMemory(GPUInfo.Device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
 	memcpy(data, &ubo, sizeof(ubo));
 	vkUnmapMemory(GPUInfo.Device, uniformBuffersMemory[currentImage]);
+}
+
+void ValkanGraphics::UpdateAmbiantBuffer(uint32_t currentImage)
+{
+	LightingStruct light = {};
+	light.Ambiant = glm::vec3(0.1f);
+
+	void* data;
+	vkMapMemory(GPUInfo.Device, lightBuffersMemory[currentImage], 0, sizeof(light), 0, &data);
+	memcpy(data, &light, sizeof(light));
+	vkUnmapMemory(GPUInfo.Device, lightBuffersMemory[currentImage]);
 }
 
 void ValkanGraphics::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)

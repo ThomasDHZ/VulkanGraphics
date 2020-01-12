@@ -85,6 +85,11 @@ struct UniformBufferObject {
 	glm::mat4 proj;
 };
 
+struct LightingStruct
+{
+	glm::vec3 Ambiant;
+};
+
 class ValkanGraphics
 {
 private:
@@ -127,7 +132,9 @@ private:
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 	std::vector<VkCommandBuffer> CommandBuffers;
 	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkBuffer> lightBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	std::vector<VkDeviceMemory> lightBuffersMemory;
 	std::vector<VkSemaphore> ImageAvailableSemaphores;
 	std::vector<VkSemaphore> RenderFinishedSemaphores;
 	std::vector<VkFence> InFlightFences;
@@ -155,6 +162,7 @@ private:
 	void SetUpVertexBuffers();
 	void SetUpIndexBuffers();
 	void SetUpUniformBuffer();
+	void SetUpLightBuffer();
 	void SetUpDescriptorPool();
 	void SetUpDescriptorSets();
 	void SetUpCommandBuffers();
@@ -170,6 +178,7 @@ private:
 	void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 	void CopyBuffer(VkBuffer SrcBuffer, VkBuffer DstBuffer, VkDeviceSize Size);
 	void UpdateUniformBuffer(uint32_t currentImage);
+	void UpdateAmbiantBuffer(uint32_t currentImage);
 	void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
