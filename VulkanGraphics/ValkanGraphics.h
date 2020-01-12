@@ -14,6 +14,7 @@
 #include <optional>
 #include <glm/glm.hpp>
 #include <array>
+#include "UniformBufferObject.h"
 
 struct VkGPUInfo
 {
@@ -79,15 +80,18 @@ const std::vector<uint16_t> indices =
 	0, 1, 2, 2, 3, 0
 };
 
-struct UniformBufferObject {
-	glm::mat4 model;
-	glm::mat4 view;
-	glm::mat4 proj;
+struct UniformBufferObject2 {
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
 };
 
 struct LightingStruct
 {
-	glm::vec3 Ambiant;
+	alignas(16) glm::vec3 Position;
+	alignas(16) glm::vec3 Ambient;
+	alignas(16) glm::vec3 Diffuse;
+	alignas(16) glm::vec3 Specular;
 };
 
 class ValkanGraphics
@@ -98,7 +102,6 @@ private:
 
 	std::vector<const char*> ValidationLayers;
 	std::vector<const char*> DeviceExtensions;
-
 
 	VulkanWindow Window;
 	VkInstance VulkanInstance;
@@ -112,6 +115,7 @@ private:
 	VkRenderPass RenderPass;
 	VkPipelineLayout PipelineLayout;
 	VkPipeline GraphicsPipeline;
+	VkPipeline LightGraphicsPipeline;
 	VkCommandPool CommandPool;
 	VkSemaphore ImageAvailableSemaphore;
 	VkSemaphore RenderFinishedSemaphore;
@@ -126,15 +130,14 @@ private:
 	VkImageView TextureImageView;
 	VkSampler TextureSampler;
 
+	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
+	UniformBufferObject<LightingStruct> LightBufferStuff;
+
 	std::vector<VkDescriptorSet> DescriptorSets;
 	std::vector<VkImage> SwapChainImages;
 	std::vector<VkImageView> SwapChainImageViews;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 	std::vector<VkCommandBuffer> CommandBuffers;
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkBuffer> lightBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
-	std::vector<VkDeviceMemory> lightBuffersMemory;
 	std::vector<VkSemaphore> ImageAvailableSemaphores;
 	std::vector<VkSemaphore> RenderFinishedSemaphores;
 	std::vector<VkFence> InFlightFences;

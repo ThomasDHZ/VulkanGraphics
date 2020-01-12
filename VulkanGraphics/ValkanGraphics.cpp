@@ -40,7 +40,6 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpDescriptorSets();
 	SetUpCommandBuffers();
 	SetUpSyncObjects();
-	
 }
 
 ValkanGraphics::~ValkanGraphics()
@@ -52,11 +51,8 @@ ValkanGraphics::~ValkanGraphics()
 	vkDestroyImage(GPUInfo.Device, TextureImage, nullptr);
 	vkFreeMemory(GPUInfo.Device, TextureImageMemory, nullptr);
 
-	for (size_t i = 0; i < SwapChainImages.size(); i++) 
-	{
-		vkDestroyBuffer(GPUInfo.Device, uniformBuffers[i], nullptr);
-		vkFreeMemory(GPUInfo.Device, uniformBuffersMemory[i], nullptr);
-	}
+	UniformBufferobject.CleanUp(SwapChainImages.size());
+	LightBufferStuff.CleanUp(SwapChainImages.size());
 
 	vkDestroyDescriptorPool(GPUInfo.Device, DescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
@@ -377,6 +373,8 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 {
 	VkShaderModule VertexShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/vert.spv");
 	VkShaderModule FragmentShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/frag.spv");
+	VkShaderModule LightVertexShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/lightvert.spv");
+	VkShaderModule LightFragmentShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/lightfrag.spv");
 
 	auto bindingDescription = Vertex::GetBindingDescription();
 	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
@@ -393,7 +391,20 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	FragmentShaderStageInfo.module = FragmentShaderModule;
 	FragmentShaderStageInfo.pName = "main";
 
+	VkPipelineShaderStageCreateInfo lightVertexShaderStageInfo = {};
+	lightVertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	lightVertexShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	lightVertexShaderStageInfo.module = LightVertexShaderModule;
+	lightVertexShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo lightFragmentShaderStageInfo = {};
+	lightFragmentShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	lightFragmentShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	lightFragmentShaderStageInfo.module = LightFragmentShaderModule;
+	lightFragmentShaderStageInfo.pName = "main";
+
 	VkPipelineShaderStageCreateInfo ShaderStages[] = { VertexShaderStageInfo, FragmentShaderStageInfo };
+	VkPipelineShaderStageCreateInfo LightShaderStages[] = { lightVertexShaderStageInfo, lightFragmentShaderStageInfo };
 
 	VkPipelineVertexInputStateCreateInfo VertexInputInfo = {};
 	VertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -487,8 +498,31 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 		throw std::runtime_error("Failed to create graphics pipeline.");
 	}
 
+	VkGraphicsPipelineCreateInfo LightPipelineInfo = {};
+	PipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	PipelineInfo.stageCount = 2;
+	PipelineInfo.pStages = LightShaderStages;
+	PipelineInfo.pVertexInputState = &VertexInputInfo;
+	PipelineInfo.pInputAssemblyState = &InputAssembly;
+	PipelineInfo.pViewportState = &ViewportState;
+	PipelineInfo.pRasterizationState = &Rasterizer;
+	PipelineInfo.pMultisampleState = &Multisampling;
+	PipelineInfo.pColorBlendState = &ColorBlending;
+	PipelineInfo.layout = PipelineLayout;
+	PipelineInfo.renderPass = RenderPass;
+	PipelineInfo.subpass = 0;
+	PipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+	Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &PipelineInfo, nullptr, &LightGraphicsPipeline);
+	if (Result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create graphics pipeline.");
+	}
+
 	vkDestroyShaderModule(GPUInfo.Device, FragmentShaderModule, nullptr);
 	vkDestroyShaderModule(GPUInfo.Device, VertexShaderModule, nullptr);
+	vkDestroyShaderModule(GPUInfo.Device, LightFragmentShaderModule, nullptr);
+	vkDestroyShaderModule(GPUInfo.Device, LightVertexShaderModule, nullptr);
 }
 
 void ValkanGraphics::SetUpFrameBuffers()
@@ -637,26 +671,12 @@ void ValkanGraphics::SetUpIndexBuffers()
 
 void ValkanGraphics::SetUpUniformBuffer()
 {
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-	uniformBuffers.resize(SwapChainImages.size());
-	uniformBuffersMemory.resize(SwapChainImages.size());
-
-	for (size_t i = 0; i < SwapChainImages.size(); i++) {
-		CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
-	}
+	UniformBufferobject = UniformBufferObject<UniformBufferObject2>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
 }
 
 void ValkanGraphics::SetUpLightBuffer()
 {
-	VkDeviceSize bufferSize = sizeof(LightingStruct);
-
-	lightBuffers.resize(SwapChainImages.size());
-	lightBuffersMemory.resize(SwapChainImages.size());
-
-	for (size_t i = 0; i < SwapChainImages.size(); i++) {
-		CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, lightBuffers[i], lightBuffersMemory[i]);
-	}
+	LightBufferStuff = UniformBufferObject<LightingStruct>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
 }
 
 void ValkanGraphics::SetUpDescriptorPool()
@@ -696,9 +716,9 @@ void ValkanGraphics::SetUpDescriptorSets()
 
 	for (size_t i = 0; i < SwapChainImages.size(); i++) {
 		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = uniformBuffers[i];
+		bufferInfo.buffer = UniformBufferobject.GetShaderBuffer()[i];
 		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
+		bufferInfo.range = sizeof(UniformBufferObject2);
 
 		VkDescriptorImageInfo imageInfo = {};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -706,7 +726,7 @@ void ValkanGraphics::SetUpDescriptorSets()
 		imageInfo.sampler = TextureSampler;
 
 		VkDescriptorBufferInfo LightbufferInfo = {};
-		LightbufferInfo.buffer = lightBuffers[i];
+		LightbufferInfo.buffer = LightBufferStuff.GetShaderBuffer()[i];
 		LightbufferInfo.offset = 0;
 		LightbufferInfo.range = sizeof(LightingStruct);
 
@@ -768,7 +788,7 @@ void ValkanGraphics::SetUpCommandBuffers()
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 
-	for (size_t i = 0; i < CommandBuffers.size(); i++) 
+	for (size_t i = 0; i < CommandBuffers.size(); i++)
 	{
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1052,27 +1072,29 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	UniformBufferObject ubo = {};
+	UniformBufferObject2 ubo = {};
 	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.proj = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
 
-	void* data;
-	vkMapMemory(GPUInfo.Device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
-	memcpy(data, &ubo, sizeof(ubo));
-	vkUnmapMemory(GPUInfo.Device, uniformBuffersMemory[currentImage]);
+	UniformBufferobject.UpdateShaderBuffer(ubo, currentImage);
 }
 
 void ValkanGraphics::UpdateAmbiantBuffer(uint32_t currentImage)
 {
-	LightingStruct light = {};
-	light.Ambiant = glm::vec3(0.1f);
+	static auto startTime = std::chrono::high_resolution_clock::now();
 
-	void* data;
-	vkMapMemory(GPUInfo.Device, lightBuffersMemory[currentImage], 0, sizeof(light), 0, &data);
-	memcpy(data, &light, sizeof(light));
-	vkUnmapMemory(GPUInfo.Device, lightBuffersMemory[currentImage]);
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	LightingStruct light = {};
+	light.Ambient = glm::vec3(sin(time));
+	light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+	light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
+
+	LightBufferStuff.UpdateShaderBuffer(light, currentImage);
 }
 
 void ValkanGraphics::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
