@@ -58,8 +58,7 @@ ValkanGraphics::~ValkanGraphics()
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
 	vkDestroyBuffer(GPUInfo.Device, IndexBuffer, nullptr);
 	vkFreeMemory(GPUInfo.Device, IndexBufferMemory, nullptr);
-	vkDestroyBuffer(GPUInfo.Device, VertexBuffer, nullptr);
-	vkFreeMemory(GPUInfo.Device, VertexBufferMemory, nullptr);
+	VertexBuffer.CleanUp();
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroySemaphore(GPUInfo.Device, RenderFinishedSemaphores[i], nullptr);
@@ -629,23 +628,7 @@ void ValkanGraphics::SetUpTextureSampler()
 
 void ValkanGraphics::SetUpVertexBuffers()
 {
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-	void* data;
-	vkMapMemory(GPUInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(GPUInfo.Device, stagingBufferMemory);
-
-	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
-
-	CopyBuffer(stagingBuffer, VertexBuffer, bufferSize);
-
-	vkDestroyBuffer(GPUInfo.Device, stagingBuffer, nullptr);
-	vkFreeMemory(GPUInfo.Device, stagingBufferMemory, nullptr);
+	VertexBuffer = VertexBufferObject<Vertex>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices, CommandPool, GraphicsQueue);
 }
 
 void ValkanGraphics::SetUpIndexBuffers()
@@ -808,7 +791,7 @@ void ValkanGraphics::SetUpCommandBuffers()
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 
-		VkBuffer VertexBuffers[] = { VertexBuffer };
+		VkBuffer VertexBuffers[] = { VertexBuffer.GetVertexBuffer() };
 		VkDeviceSize Offsets[] = { 0 };
 
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);

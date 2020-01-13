@@ -156,6 +156,7 @@
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="ShaderCompiler.h" />
     <ClInclude Include="ValkanGraphics.h" />
+    <ClInclude Include="VertexBufferObject.h" />
     <ClInclude Include="VulkanDebugger.h" />
     <ClInclude Include="VulkanQueueFamily.h" />
     <ClInclude Include="UniformBufferObject.h" />

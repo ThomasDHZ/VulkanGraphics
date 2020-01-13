@@ -15,6 +15,7 @@
 #include <glm/glm.hpp>
 #include <array>
 #include "UniformBufferObject.h"
+#include "VertexBufferObject.h"
 
 struct VkGPUInfo
 {
@@ -119,8 +120,7 @@ private:
 	VkCommandPool CommandPool;
 	VkSemaphore ImageAvailableSemaphore;
 	VkSemaphore RenderFinishedSemaphore;
-	VkBuffer VertexBuffer;
-	VkDeviceMemory VertexBufferMemory;
+
 	VkBuffer IndexBuffer;
 	VkDeviceMemory IndexBufferMemory;
 	VkDescriptorSetLayout DescriptorSetLayout;
@@ -130,6 +130,7 @@ private:
 	VkImageView TextureImageView;
 	VkSampler TextureSampler;
 
+	VertexBufferObject<Vertex> VertexBuffer;
 	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
 	UniformBufferObject<LightingStruct> LightBufferStuff;
 
