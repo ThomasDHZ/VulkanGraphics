@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <vector>
+#include "VulkanBufferManager.h"
 
 template<class T>
 class UniformBufferObject
@@ -56,28 +57,13 @@ public:
 		VkMemoryAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
+		allocInfo.memoryTypeIndex = VulkanBufferManager::FindMemoryType(PhysicalDevice, memRequirements.memoryTypeBits, properties);
 
 		if (vkAllocateMemory(Device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate buffer memory!");
 		}
 
 		vkBindBufferMemory(Device, buffer, bufferMemory, 0);
-	}
-
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
-	{
-		VkPhysicalDeviceMemoryProperties memProperties;
-		vkGetPhysicalDeviceMemoryProperties(PhysicalDevice, &memProperties);
-
-		for (uint32_t x = 0; x < memProperties.memoryTypeCount; x++) 
-		{
-			if ((typeFilter & (1 << x)) && (memProperties.memoryTypes[x].propertyFlags & properties) == properties) {
-				return x;
-			}
-		}
-
-		throw std::runtime_error("failed to find suitable memory type!");
 	}
 
 	void CleanUp(int SwapChainImageSize)

@@ -56,8 +56,8 @@ ValkanGraphics::~ValkanGraphics()
 
 	vkDestroyDescriptorPool(GPUInfo.Device, DescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
-	vkDestroyBuffer(GPUInfo.Device, IndexBuffer, nullptr);
-	vkFreeMemory(GPUInfo.Device, IndexBufferMemory, nullptr);
+
+	IndexBuffer.CleanUp();
 	VertexBuffer.CleanUp();
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -633,23 +633,7 @@ void ValkanGraphics::SetUpVertexBuffers()
 
 void ValkanGraphics::SetUpIndexBuffers()
 {
-	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-	void* data;
-	vkMapMemory(GPUInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(GPUInfo.Device, stagingBufferMemory);
-
-	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, IndexBuffer, IndexBufferMemory);
-
-	CopyBuffer(stagingBuffer, IndexBuffer, bufferSize);
-
-	vkDestroyBuffer(GPUInfo.Device, stagingBuffer, nullptr);
-	vkFreeMemory(GPUInfo.Device, stagingBufferMemory, nullptr);
+	IndexBuffer = IndexBufferObject(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, indices, CommandPool, GraphicsQueue);
 }
 
 void ValkanGraphics::SetUpUniformBuffer()
@@ -796,7 +780,7 @@ void ValkanGraphics::SetUpCommandBuffers()
 
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdBindVertexBuffers(CommandBuffers[i], 0, 1, VertexBuffers, Offsets);
-		vkCmdBindIndexBuffer(CommandBuffers[i], IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(CommandBuffers[i], IndexBuffer.GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
 		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
 		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSets[i], 0, nullptr);
 		vkCmdDrawIndexed(CommandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);

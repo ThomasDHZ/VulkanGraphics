@@ -3,26 +3,26 @@
 #include <vector>
 #include "VulkanBufferManager.h"
 
-template<class T>
-class VertexBufferObject
+class IndexBufferObject
 {
 private:
 	VkDevice Device;
 	VkPhysicalDevice PhysicalDevice;
-	VkBuffer VertexBuffer;
-	VkDeviceMemory VertexBufferMemory;
+	VkBuffer IndexBuffer;
+	VkDeviceMemory IndexBufferMemory;
+
 public:
-	VertexBufferObject()
+	IndexBufferObject()
 	{
 
 	}
 
-	VertexBufferObject(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<T> VertexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue)
+	IndexBufferObject(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue)
 	{
 		Device = device;
 		PhysicalDevice = physicalDevice;
 
-		VkDeviceSize bufferSize = sizeof(VertexData[0]) * VertexData.size();
+		VkDeviceSize bufferSize = sizeof(IndexData[0]) * IndexData.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
@@ -30,12 +30,12 @@ public:
 
 		void* data;
 		vkMapMemory(Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, VertexData.data(), (size_t)bufferSize);
+		memcpy(data, IndexData.data(), (size_t)bufferSize);
 		vkUnmapMemory(Device, stagingBufferMemory);
 
-		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
+		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, IndexBuffer, IndexBufferMemory);
 
-		VulkanBufferManager::CopyBuffer(device, physicalDevice, stagingBuffer, VertexBuffer, bufferSize, CommandPool, GraphicsQueue);
+		VulkanBufferManager::CopyBuffer(device, physicalDevice, stagingBuffer, IndexBuffer, bufferSize, CommandPool, GraphicsQueue);
 
 		vkDestroyBuffer(Device, stagingBuffer, nullptr);
 		vkFreeMemory(Device, stagingBufferMemory, nullptr);
@@ -49,7 +49,7 @@ public:
 		bufferInfo.usage = usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		if (vkCreateBuffer(Device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) 
+		if (vkCreateBuffer(Device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create buffer.");
 		}
@@ -71,10 +71,11 @@ public:
 
 	void CleanUp()
 	{
-		vkDestroyBuffer(Device, VertexBuffer, nullptr);
-		vkFreeMemory(Device, VertexBufferMemory, nullptr);
+		vkDestroyBuffer(Device, IndexBuffer, nullptr);
+		vkFreeMemory(Device, IndexBufferMemory, nullptr);
 	}
 
-	VkBuffer GetVertexBuffer() { return VertexBuffer; }
-	VkDeviceMemory GetVertexBufferMemory() { return VertexBufferMemory; }
+	VkBuffer GetIndexBuffer() { return IndexBuffer; }
+	VkDeviceMemory GetIndexBufferMemory() { return IndexBufferMemory; }
 };
+

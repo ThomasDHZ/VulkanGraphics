@@ -144,19 +144,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="IndexBufferObject.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="ValkanGraphics.cpp" />
+    <ClCompile Include="VulkanBufferManager.cpp" />
     <ClCompile Include="VulkanDebugger.cpp" />
     <ClCompile Include="VulkanSwapChain.cpp" />
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IndexBufferObject.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="ShaderCompiler.h" />
     <ClInclude Include="ValkanGraphics.h" />
     <ClInclude Include="VertexBufferObject.h" />
+    <ClInclude Include="VulkanBufferManager.h" />
     <ClInclude Include="VulkanDebugger.h" />
     <ClInclude Include="VulkanQueueFamily.h" />
     <ClInclude Include="UniformBufferObject.h" />
