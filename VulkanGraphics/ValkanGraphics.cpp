@@ -10,6 +10,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const char* windowName) : EnableValidationLayers(true)
 {
 	ValidationLayers.emplace_back("VK_LAYER_KHRONOS_validation");
@@ -27,6 +32,7 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpRenderPass();
 	SetDescriptorSetLayout();
 	SetUpGraphicsPipeLine();
+	SetUpDepthBuffer();
 	SetUpFrameBuffers();
 	SetUpCommandPool();
 	SetUpTextureImage();
@@ -285,7 +291,7 @@ void ValkanGraphics::SetUpImageViews()
 {
 	SwapChainImageViews.resize(SwapChainImages.size());
 	for (size_t i = 0; i < SwapChainImages.size(); i++) {
-		SwapChainImageViews[i] = CreateImageView(SwapChainImages[i], SwapChainImageFormat);
+		SwapChainImageViews[i] = CreateImageView(SwapChainImages[i], SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 	}
 }
 
@@ -301,14 +307,29 @@ void ValkanGraphics::SetUpRenderPass()
 	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
+	VkAttachmentDescription depthAttachment = {};
+	depthAttachment.format = findDepthFormat();
+	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 	VkAttachmentReference colorAttachmentRef = {};
 	colorAttachmentRef.attachment = 0;
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depthAttachmentRef = {};
+	depthAttachmentRef.attachment = 1;
+	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	VkSubpassDescription subpass = {};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
+	subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 	VkSubpassDependency dependency = {};
 	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -318,10 +339,11 @@ void ValkanGraphics::SetUpRenderPass()
 	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
+	std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 	VkRenderPassCreateInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	renderPassInfo.pAttachments = attachments.data();
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
 	renderPassInfo.dependencyCount = 1;
@@ -451,6 +473,14 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	Multisampling.sampleShadingEnable = VK_FALSE;
 	Multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
+	VkPipelineDepthStencilStateCreateInfo DepthStencil = {};
+	DepthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	DepthStencil.depthTestEnable = VK_TRUE;
+	DepthStencil.depthWriteEnable = VK_TRUE;
+	DepthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+	DepthStencil.depthBoundsTestEnable = VK_FALSE;
+	DepthStencil.stencilTestEnable = VK_FALSE;
+
 	VkPipelineColorBlendAttachmentState ColorBlendAttachment = {};
 	ColorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	ColorBlendAttachment.blendEnable = VK_FALSE;
@@ -485,6 +515,7 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	PipelineInfo.pViewportState = &ViewportState;
 	PipelineInfo.pRasterizationState = &Rasterizer;
 	PipelineInfo.pMultisampleState = &Multisampling;
+	PipelineInfo.pDepthStencilState = &DepthStencil;
 	PipelineInfo.pColorBlendState = &ColorBlending;
 	PipelineInfo.layout = PipelineLayout;
 	PipelineInfo.renderPass = RenderPass;
@@ -528,17 +559,15 @@ void ValkanGraphics::SetUpFrameBuffers()
 {
 	SwapChainFramebuffers.resize(SwapChainImageViews.size());
 
-	for (size_t x = 0; x < SwapChainImageViews.size(); x++) {
-		VkImageView attachments[] = 
-		{
-			SwapChainImageViews[x]
-		};
+	for (size_t x = 0; x < SwapChainImageViews.size(); x++) 
+	{
+		std::array<VkImageView, 2> attachments = { SwapChainImageViews[x], DepthImageView };
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.renderPass = RenderPass;
-		framebufferInfo.attachmentCount = 1;
-		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferInfo.pAttachments = attachments.data();
 		framebufferInfo.width = SwapChainExtent.width;
 		framebufferInfo.height = SwapChainExtent.height;
 		framebufferInfo.layers = 1;
@@ -562,6 +591,13 @@ void ValkanGraphics::SetUpCommandPool()
 	if (vkCreateCommandPool(GPUInfo.Device, &poolInfo, nullptr, &CommandPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create command pool!");
 	}
+}
+
+void ValkanGraphics::SetUpDepthBuffer()
+{
+	VkFormat DepthFormat = findDepthFormat();
+	CreateImage(SwapChainExtent.width, SwapChainExtent.height, DepthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, DepthImage, DepthImageMemory);
+	DepthImageView = CreateImageView(DepthImage, DepthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
 void ValkanGraphics::SetUpTextureImage()
@@ -597,7 +633,7 @@ void ValkanGraphics::SetUpTextureImage()
 
 void ValkanGraphics::SetUpTextureImageView()
 {
-	TextureImageView = CreateImageView(TextureImage, VK_FORMAT_R8G8B8A8_UNORM);
+	TextureImageView = CreateImageView(TextureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
 }
 
 void ValkanGraphics::SetUpTextureSampler()
@@ -771,9 +807,12 @@ void ValkanGraphics::SetUpCommandBuffers()
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = SwapChainExtent;
 
-		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
+		std::array<VkClearValue, 2> clearValues = {};
+		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
 		VkBuffer VertexBuffers[] = { VertexBuffer.GetVertexBuffer() };
 		VkDeviceSize Offsets[] = { 0 };
@@ -817,6 +856,10 @@ void ValkanGraphics::SetUpSyncObjects()
 
 void ValkanGraphics::CleanUpSwapChain()
 {
+	vkDestroyImageView(GPUInfo.Device, DepthImageView, nullptr);
+	vkDestroyImage(GPUInfo.Device, DepthImage, nullptr);
+	vkFreeMemory(GPUInfo.Device, DepthImageMemory, nullptr);
+
 	for (size_t x = 0; x < SwapChainFramebuffers.size(); x++)
 	{
 		vkDestroyFramebuffer(GPUInfo.Device, SwapChainFramebuffers[x], nullptr);
@@ -855,6 +898,7 @@ void ValkanGraphics::RecreateSwapChain()
 	SetUpImageViews();
 	SetUpRenderPass();
 	SetUpGraphicsPipeLine();
+	SetUpDepthBuffer();
 	SetUpFrameBuffers();
 	SetUpUniformBuffer();
 	SetUpDescriptorPool();
@@ -938,14 +982,14 @@ void ValkanGraphics::DrawFrame() {
 	CurrentFrame = (CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-VkImageView ValkanGraphics::CreateImageView(VkImage image, VkFormat format)
+VkImageView ValkanGraphics::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
 {
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	viewInfo.image = image;
 	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	viewInfo.format = format;
-	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	viewInfo.subresourceRange.aspectMask = aspectFlags;
 	viewInfo.subresourceRange.baseMipLevel = 0;
 	viewInfo.subresourceRange.levelCount = 1;
 	viewInfo.subresourceRange.baseArrayLayer = 0;
@@ -984,52 +1028,6 @@ void ValkanGraphics::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, V
 	}
 
 	vkBindBufferMemory(GPUInfo.Device, buffer, bufferMemory, 0);
-}
-
-VkCommandBuffer ValkanGraphics::beginSingleTimeCommands()
-{
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = CommandPool;
-	allocInfo.commandBufferCount = 1;
-
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(GPUInfo.Device, &allocInfo, &commandBuffer);
-
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-	return commandBuffer;
-}
-
-void ValkanGraphics::endSingleTimeCommands(VkCommandBuffer commandBuffer)
-{
-	vkEndCommandBuffer(commandBuffer);
-
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
-
-	vkQueueSubmit(GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(GraphicsQueue);
-
-	vkFreeCommandBuffers(GPUInfo.Device, CommandPool, 1, &commandBuffer);
-}
-
-void ValkanGraphics::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
-{
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-
-	VkBufferCopy copyRegion = {};
-	copyRegion.size = size;
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-	endSingleTimeCommands(commandBuffer);
 }
 
 void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
@@ -1102,7 +1100,7 @@ void ValkanGraphics::CreateImage(uint32_t width, uint32_t height, VkFormat forma
 
 void ValkanGraphics::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(GPUInfo.Device, CommandPool);
 
 	VkImageMemoryBarrier barrier = {};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1147,12 +1145,12 @@ void ValkanGraphics::transitionImageLayout(VkImage image, VkFormat format, VkIma
 		1, &barrier
 	);
 
-	endSingleTimeCommands(commandBuffer);
+	VulkanBufferManager::endSingleTimeCommands(GPUInfo.Device, commandBuffer, CommandPool, GraphicsQueue);
 }
 
 void ValkanGraphics::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
 {
-	VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(GPUInfo.Device, CommandPool);
 
 	VkBufferImageCopy region = {};
 	region.bufferOffset = 0;
@@ -1163,15 +1161,11 @@ void ValkanGraphics::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t 
 	region.imageSubresource.baseArrayLayer = 0;
 	region.imageSubresource.layerCount = 1;
 	region.imageOffset = { 0, 0, 0 };
-	region.imageExtent = {
-		width,
-		height,
-		1
-	};
+	region.imageExtent = { width, height, 1};
 
 	vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-	endSingleTimeCommands(commandBuffer);
+	VulkanBufferManager::endSingleTimeCommands(GPUInfo.Device, commandBuffer, CommandPool, GraphicsQueue);
 }
 
 VulkanQueueFamily ValkanGraphics::FindQueueFamilies(VkPhysicalDevice physicalDevice)
@@ -1204,6 +1198,37 @@ VulkanQueueFamily ValkanGraphics::FindQueueFamilies(VkPhysicalDevice physicalDev
 	}
 
 	return Indices;
+}
+
+VkFormat ValkanGraphics::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+{
+	for (VkFormat format : candidates) {
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(GPUInfo.PhysicalDevice, format, &props);
+
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+			return format;
+		}
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+			return format;
+		}
+	}
+
+	throw std::runtime_error("failed to find supported format!");
+}
+
+VkFormat ValkanGraphics::findDepthFormat()
+{
+	return findSupportedFormat(
+		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+	);
+}
+
+bool ValkanGraphics::hasStencilComponent(VkFormat format)
+{
+	return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
 bool ValkanGraphics::ValidationLayerSupport()

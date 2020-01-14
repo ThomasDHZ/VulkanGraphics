@@ -144,7 +144,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="IndexBufferObject.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
