@@ -15,12 +15,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+
+
 ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const char* windowName) : EnableValidationLayers(true)
 {
 	ValidationLayers.emplace_back("VK_LAYER_KHRONOS_validation");
 	DeviceExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
 	Window = VulkanWindow(width, height, windowName);
+	camera = Camera(glm::vec3(0.0f, 0.0f, 0.3f));
 
 	SetUpVulkanInstance();
 	SetUpDebugger();
@@ -40,8 +43,7 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpTextureSampler();
 	SetUpVertexBuffers();
 	SetUpIndexBuffers();
-	SetUpUniformBuffer();
-	SetUpLightBuffer();
+	SetUpUniformBuffers();
 	SetUpDescriptorPool();
 	SetUpDescriptorSets();
 	SetUpCommandBuffers();
@@ -66,7 +68,8 @@ ValkanGraphics::~ValkanGraphics()
 	IndexBuffer.CleanUp();
 	VertexBuffer.CleanUp();
 
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+	{
 		vkDestroySemaphore(GPUInfo.Device, RenderFinishedSemaphores[i], nullptr);
 		vkDestroySemaphore(GPUInfo.Device, ImageAvailableSemaphores[i], nullptr);
 		vkDestroyFence(GPUInfo.Device, InFlightFences[i], nullptr);
@@ -606,7 +609,8 @@ void ValkanGraphics::SetUpTextureImage()
 	stbi_uc* pixels = stbi_load("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-	if (!pixels) {
+	if (!pixels) 
+	{
 		throw std::runtime_error("failed to load texture image!");
 	}
 
@@ -672,13 +676,9 @@ void ValkanGraphics::SetUpIndexBuffers()
 	IndexBuffer = IndexBufferObject(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, indices, CommandPool, GraphicsQueue);
 }
 
-void ValkanGraphics::SetUpUniformBuffer()
+void ValkanGraphics::SetUpUniformBuffers()
 {
 	UniformBufferobject = UniformBufferObject<UniformBufferObject2>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
-}
-
-void ValkanGraphics::SetUpLightBuffer()
-{
 	LightBufferStuff = UniformBufferObject<LightingStruct>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
 }
 
@@ -900,7 +900,7 @@ void ValkanGraphics::RecreateSwapChain()
 	SetUpGraphicsPipeLine();
 	SetUpDepthBuffer();
 	SetUpFrameBuffers();
-	SetUpUniformBuffer();
+	SetUpUniformBuffers();
 	SetUpDescriptorPool();
 	SetUpDescriptorSets();
 	SetUpCommandBuffers();
@@ -928,7 +928,6 @@ void ValkanGraphics::DrawFrame() {
 	}
 
 	UpdateUniformBuffer(imageIndex);
-	UpdateAmbiantBuffer(imageIndex);
 
 	ImagesInFlight[imageIndex] = InFlightFences[CurrentFrame];
 
@@ -1039,26 +1038,17 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 
 	UniformBufferObject2 ubo = {};
 	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
+	ubo.view = camera.GetViewMatrix();
+	ubo.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
-	UniformBufferobject.UpdateShaderBuffer(ubo, currentImage);
-}
-
-void ValkanGraphics::UpdateAmbiantBuffer(uint32_t currentImage)
-{
-	static auto startTime = std::chrono::high_resolution_clock::now();
-
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
 	LightingStruct light = {};
-	light.Ambient = glm::vec3(sin(time));
+	light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
 	light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
 	light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
 	light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
 
+	UniformBufferobject.UpdateShaderBuffer(ubo, currentImage);
 	LightBufferStuff.UpdateShaderBuffer(light, currentImage);
 }
 
@@ -1393,12 +1383,56 @@ std::vector<const char*> ValkanGraphics::GetRequiredExtensions()
 	return extensions;
 }
 
+void ValkanGraphics::UpdateMouse()
+{
+	if (glfwGetMouseButton(Window.GetWindowPtr(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	{
+		glfwGetCursorPos(Window.GetWindowPtr(), &MouseXPos, &MouseYPos);
+		if (firstMouse)
+		{
+			lastX = MouseXPos;
+			lastY = MouseYPos;
+			firstMouse = false;
+		}
+
+		float xoffset = MouseXPos - lastX;
+		float yoffset = lastY - MouseYPos;
+
+		lastX = MouseXPos;
+		lastY = MouseYPos;
+
+		camera.UpdateMouse(xoffset, yoffset);
+	}
+	else
+	{
+		firstMouse = true;
+	}
+}
+
+void ValkanGraphics::UpdateKeyboard()
+{
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_W) == GLFW_PRESS)
+		camera.UpdateKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_S) == GLFW_PRESS)
+		camera.UpdateKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_A) == GLFW_PRESS)
+		camera.UpdateKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
+		camera.UpdateKeyboard(RIGHT, deltaTime);
+}
+
 void ValkanGraphics::MainLoop()
 {
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
 		DrawFrame();
+		UpdateMouse();
+		UpdateKeyboard();
 	}
 
 	vkDeviceWaitIdle(GPUInfo.Device);

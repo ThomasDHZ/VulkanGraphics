@@ -17,6 +17,7 @@
 #include "UniformBufferObject.h"
 #include "VertexBufferObject.h"
 #include "IndexBufferObject.h"
+#include "Camera.h"
 
 struct VkGPUInfo
 {
@@ -110,6 +111,15 @@ private:
 
 	std::vector<const char*> ValidationLayers;
 	std::vector<const char*> DeviceExtensions;
+	float deltaTime = 0.0f;	// time between current frame and last frame
+	float lastFrame = 0.0f;
+
+	Camera camera;
+	float lastX;
+	float lastY;
+	bool firstMouse;
+	double MouseXPos;
+	double MouseYPos;
 
 	VulkanWindow Window;
 	VkInstance VulkanInstance;
@@ -175,13 +185,11 @@ private:
 	void SetUpTextureSampler();
 	void SetUpVertexBuffers();
 	void SetUpIndexBuffers();
-	void SetUpUniformBuffer();
-	void SetUpLightBuffer();
+	void SetUpUniformBuffers();
 	void SetUpDescriptorPool();
 	void SetUpDescriptorSets();
 	void SetUpCommandBuffers();
 	void SetUpSyncObjects();
-
 	void CleanUpSwapChain();
 	void RecreateSwapChain();
 	void DrawFrame();
@@ -189,7 +197,6 @@ private:
 	VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	void UpdateUniformBuffer(uint32_t currentImage);
-	void UpdateAmbiantBuffer(uint32_t currentImage);
 	void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
@@ -211,6 +218,9 @@ private:
 	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	std::vector<const char*> GetRequiredExtensions();
 
+
+	void UpdateMouse();
+	void UpdateKeyboard();
 public:
 	ValkanGraphics(unsigned int width, unsigned int height, const char* windowName);
 	~ValkanGraphics();
