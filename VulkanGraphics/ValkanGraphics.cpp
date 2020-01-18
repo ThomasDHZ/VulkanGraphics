@@ -42,12 +42,10 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpTextureImageView();
 	SetUpTextureSampler();
 	SetUpVertexBuffers();
-	SetUpIndexBuffers();
 	SetUpUniformBuffers();
 	SetUpDescriptorPool();
 	SetUpDescriptorSets();
 	SetUpCommandBuffers();
-	SetUpCommandBuffers2();
 	SetUpSyncObjects();
 }
 
@@ -65,9 +63,6 @@ ValkanGraphics::~ValkanGraphics()
 
 	vkDestroyDescriptorPool(GPUInfo.Device, DescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
-
-	IndexBuffer.CleanUp();
-	VertexBuffer.CleanUp();
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 	{
@@ -669,15 +664,8 @@ void ValkanGraphics::SetUpTextureSampler()
 
 void ValkanGraphics::SetUpVertexBuffers()
 {
-	VertexBuffer = VertexBufferObject<Vertex>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices2, CommandPool, GraphicsQueue);
-	VertexBuffer2 = VertexBufferObject<Vertex>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices, CommandPool, GraphicsQueue);
-}
-
-void ValkanGraphics::SetUpIndexBuffers()
-{
-	IndexBuffer = IndexBufferObject(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, indices2, CommandPool, GraphicsQueue);
-	IndexBuffer2 = IndexBufferObject(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, indices, CommandPool, GraphicsQueue);
-
+	Mesh1 = Mesh(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices2, indices2, CommandPool, GraphicsQueue);
+	Mesh2 = Mesh(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices, indices, CommandPool, GraphicsQueue);
 }
 
 void ValkanGraphics::SetUpUniformBuffers()
@@ -819,80 +807,14 @@ void ValkanGraphics::SetUpCommandBuffers()
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
-		VkBuffer VertexBuffers[] = { VertexBuffer.GetVertexBuffer() };
-		VkBuffer VertexBuffers2[] = { VertexBuffer2.GetVertexBuffer() };
-		VkDeviceSize Offsets[] = { 0 };
-
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, LightGraphicsPipeline);
-		vkCmdBindVertexBuffers(CommandBuffers[i], 0, 1, VertexBuffers, Offsets);
-		vkCmdBindIndexBuffer(CommandBuffers[i], IndexBuffer.GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
-		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSets[i], 0, nullptr);
-		vkCmdDrawIndexed(CommandBuffers[i], static_cast<uint32_t>(indices2.size()), 1, 0, 0, 0);
-
-		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSets[i], 0, nullptr);
-		vkCmdBindVertexBuffers(CommandBuffers[i], 0, 1, VertexBuffers2, Offsets);
-		vkCmdBindIndexBuffer(CommandBuffers[i], IndexBuffer2.GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
-		vkCmdDrawIndexed(CommandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+		Mesh1.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, DescriptorSets[i], static_cast<uint32_t>(indices2.size()));
+		Mesh2.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, DescriptorSets[i], static_cast<uint32_t>(indices.size()));
 
 		vkCmdEndRenderPass(CommandBuffers[i]);
 
 		if (vkEndCommandBuffer(CommandBuffers[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to record command buffer!");
-		}
-	}
-}
-
-void ValkanGraphics::SetUpCommandBuffers2()
-{
-	CommandBuffers2.resize(SwapChainFramebuffers.size());
-
-	VkCommandBufferAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = CommandPool;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = (uint32_t)CommandBuffers2.size();
-
-	if (vkAllocateCommandBuffers(GPUInfo.Device, &allocInfo, CommandBuffers2.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate command buffers!");
-	}
-
-	for (size_t i = 0; i < CommandBuffers2.size(); i++)
-	{
-		std::array<VkClearValue, 2> clearValues = {};
-		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-		clearValues[1].depthStencil = { 1.0f, 0 };
-
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-		if (vkBeginCommandBuffer(CommandBuffers2[i], &beginInfo) != VK_SUCCESS) {
-			throw std::runtime_error("failed to begin recording command buffer!");
-		}
-
-		VkRenderPassBeginInfo renderPassInfo = {};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = RenderPass;
-		renderPassInfo.framebuffer = SwapChainFramebuffers[i];
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = SwapChainExtent;
-		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-		renderPassInfo.pClearValues = clearValues.data();
-
-		VkBuffer VertexBuffers[] = { VertexBuffer.GetVertexBuffer() };
-		VkDeviceSize Offsets[] = { 0 };
-
-		vkCmdBeginRenderPass(CommandBuffers2[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdBindVertexBuffers(CommandBuffers2[i], 0, 1, VertexBuffers, Offsets);
-		vkCmdBindIndexBuffer(CommandBuffers2[i], IndexBuffer.GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
-		vkCmdBindPipeline(CommandBuffers2[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-		vkCmdBindDescriptorSets(CommandBuffers2[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSets[i], 0, nullptr);
-		vkCmdDrawIndexed(CommandBuffers2[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-		vkCmdEndRenderPass(CommandBuffers2[i]);
-
-		if (vkEndCommandBuffer(CommandBuffers2[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer!");
 		}
 	}

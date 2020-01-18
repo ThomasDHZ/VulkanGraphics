@@ -147,6 +147,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="ValkanGraphics.cpp" />
     <ClCompile Include="VulkanBufferManager.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="IndexBufferObject.h" />
     <ClInclude Include="MemoryManager.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="ShaderCompiler.h" />
     <ClInclude Include="ValkanGraphics.h" />
     <ClInclude Include="VertexBufferObject.h" />

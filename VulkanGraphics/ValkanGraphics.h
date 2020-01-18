@@ -18,6 +18,7 @@
 #include "VertexBufferObject.h"
 #include "IndexBufferObject.h"
 #include "Camera.h"
+#include "Mesh.h"
 
 struct VkGPUInfo
 {
@@ -30,89 +31,6 @@ struct SwapChainSupportDetails
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
-};
-
-struct Vertex
-{
-	glm::vec3 pos;
-	glm::vec3 color;
-	glm::vec2 texCoord;
-
-	static VkVertexInputBindingDescription GetBindingDescription()
-	{
-		VkVertexInputBindingDescription BindingDescription = {};
-		BindingDescription.binding = 0;
-		BindingDescription.stride = sizeof(Vertex);
-		BindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-		
-		return BindingDescription;
-	}
-
-	static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
-	{
-		std::array<VkVertexInputAttributeDescription, 3> AttributeDescriptions = {};
-
-		AttributeDescriptions[0].binding = 0;
-		AttributeDescriptions[0].location = 0;
-		AttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-		AttributeDescriptions[0].offset = offsetof(Vertex, pos);
-
-		AttributeDescriptions[1].binding = 0;
-		AttributeDescriptions[1].location = 1;
-		AttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-		AttributeDescriptions[1].offset = offsetof(Vertex, color);
-
-		AttributeDescriptions[2].binding = 0;
-		AttributeDescriptions[2].location = 2;
-		AttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-		AttributeDescriptions[2].offset = offsetof(Vertex, texCoord);
-
-		return AttributeDescriptions;
-	}
-};
-
-const std::vector<Vertex> vertices = {
-	{{-1.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -1.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 1.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-};
-
-const std::vector<Vertex> vertices2 = {
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-};
-
-const std::vector<uint16_t> indices =
-{
-	0, 1, 2, 2, 3, 0
-};
-
-const std::vector<uint16_t> indices2 = 
-{
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4
-};
-
-struct UniformBufferObject2 {
-	alignas(16) glm::mat4 model;
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 proj;
-};
-
-struct LightingStruct
-{
-	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
 };
 
 class ValkanGraphics
@@ -160,10 +78,9 @@ private:
 	VkImageView TextureImageView;
 	VkSampler TextureSampler;
 
-	VertexBufferObject<Vertex> VertexBuffer;
-	VertexBufferObject<Vertex> VertexBuffer2;
-	IndexBufferObject IndexBuffer;
-	IndexBufferObject IndexBuffer2;
+	Mesh Mesh1;
+	Mesh Mesh2;
+
 	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
 	UniformBufferObject<UniformBufferObject2> UniformBufferobject2;
 	UniformBufferObject<LightingStruct> LightBufferStuff;
@@ -200,12 +117,10 @@ private:
 	void SetUpTextureImageView();
 	void SetUpTextureSampler();
 	void SetUpVertexBuffers();
-	void SetUpIndexBuffers();
 	void SetUpUniformBuffers();
 	void SetUpDescriptorPool();
 	void SetUpDescriptorSets();
 	void SetUpCommandBuffers();
-	void SetUpCommandBuffers2();
 	void SetUpSyncObjects();
 	void CleanUpSwapChain();
 	void RecreateSwapChain();

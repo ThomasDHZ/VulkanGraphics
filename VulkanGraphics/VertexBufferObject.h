@@ -22,7 +22,7 @@ public:
 		Device = device;
 		PhysicalDevice = physicalDevice;
 
-		VkDeviceSize bufferSize = sizeof(VertexData[0]) * VertexData.size();
+		VkDeviceSize bufferSize = sizeof(VertexData[0]) * VertexData.size() * 2;
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
@@ -73,6 +73,16 @@ public:
 	{
 		vkDestroyBuffer(Device, VertexBuffer, nullptr);
 		vkFreeMemory(Device, VertexBufferMemory, nullptr);
+	}
+
+	VertexBufferObject& operator=(const VertexBufferObject& rhs)
+	{
+		Device = rhs.Device;
+		PhysicalDevice = rhs.PhysicalDevice;
+		VertexBuffer = rhs.VertexBuffer;
+		VertexBufferMemory = rhs.VertexBufferMemory;
+
+		return*this;
 	}
 
 	VkBuffer GetVertexBuffer() { return VertexBuffer; }
