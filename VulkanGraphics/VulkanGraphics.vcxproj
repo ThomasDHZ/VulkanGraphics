@@ -151,6 +151,7 @@
     <ClCompile Include="ValkanGraphics.cpp" />
     <ClCompile Include="VulkanBufferManager.cpp" />
     <ClCompile Include="VulkanDebugger.cpp" />
+    <ClCompile Include="VulkanPipeLineManager.cpp" />
     <ClCompile Include="VulkanSwapChain.cpp" />
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
@@ -163,14 +164,15 @@
     <ClInclude Include="VertexBufferObject.h" />
     <ClInclude Include="VulkanBufferManager.h" />
     <ClInclude Include="VulkanDebugger.h" />
+    <ClInclude Include="VulkanPipeLineManager.h" />
     <ClInclude Include="VulkanQueueFamily.h" />
     <ClInclude Include="UniformBufferObject.h" />
     <ClInclude Include="VulkanSwapChain.h" />
     <ClInclude Include="VulkanWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="light.frag" />
-    <None Include="light.vert" />
+    <None Include="Shaders\light.frag" />
+    <None Include="Shaders\light.vert" />
     <None Include="Shaders\Shader.frag" />
     <None Include="Shaders\Shader.vert" />
   </ItemGroup>

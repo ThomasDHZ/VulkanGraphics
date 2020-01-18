@@ -45,6 +45,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VulkanPipeLineManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ValkanGraphics.h">
@@ -83,6 +86,9 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VulkanPipeLineManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Shader.frag">
@@ -91,10 +97,10 @@
     <None Include="Shaders\Shader.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="light.frag">
+    <None Include="Shaders\light.frag">
       <Filter>Shader</Filter>
     </None>
-    <None Include="light.vert">
+    <None Include="Shaders\light.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

@@ -72,6 +72,13 @@ struct Vertex
 };
 
 const std::vector<Vertex> vertices = {
+	{{-1.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+	{{0.5f, -1.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+	{{0.5f, 0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+	{{-0.5f, 1.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+};
+
+const std::vector<Vertex> vertices2 = {
 	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
 	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
 	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
@@ -83,7 +90,12 @@ const std::vector<Vertex> vertices = {
 	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 };
 
-const std::vector<uint16_t> indices = 
+const std::vector<uint16_t> indices =
+{
+	0, 1, 2, 2, 3, 0
+};
+
+const std::vector<uint16_t> indices2 = 
 {
 	0, 1, 2, 2, 3, 0,
 	4, 5, 6, 6, 7, 4
@@ -149,8 +161,11 @@ private:
 	VkSampler TextureSampler;
 
 	VertexBufferObject<Vertex> VertexBuffer;
+	VertexBufferObject<Vertex> VertexBuffer2;
 	IndexBufferObject IndexBuffer;
+	IndexBufferObject IndexBuffer2;
 	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
+	UniformBufferObject<UniformBufferObject2> UniformBufferobject2;
 	UniformBufferObject<LightingStruct> LightBufferStuff;
 
 	std::vector<VkDescriptorSet> DescriptorSets;
@@ -158,6 +173,7 @@ private:
 	std::vector<VkImageView> SwapChainImageViews;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 	std::vector<VkCommandBuffer> CommandBuffers;
+	std::vector<VkCommandBuffer> CommandBuffers2;
 	std::vector<VkSemaphore> ImageAvailableSemaphores;
 	std::vector<VkSemaphore> RenderFinishedSemaphores;
 	std::vector<VkFence> InFlightFences;
@@ -189,11 +205,13 @@ private:
 	void SetUpDescriptorPool();
 	void SetUpDescriptorSets();
 	void SetUpCommandBuffers();
+	void SetUpCommandBuffers2();
 	void SetUpSyncObjects();
 	void CleanUpSwapChain();
 	void RecreateSwapChain();
 	void DrawFrame();
 
+	void CreatePipeLine();
 	VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	void UpdateUniformBuffer(uint32_t currentImage);

@@ -47,6 +47,7 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpDescriptorPool();
 	SetUpDescriptorSets();
 	SetUpCommandBuffers();
+	SetUpCommandBuffers2();
 	SetUpSyncObjects();
 }
 
@@ -668,17 +669,21 @@ void ValkanGraphics::SetUpTextureSampler()
 
 void ValkanGraphics::SetUpVertexBuffers()
 {
-	VertexBuffer = VertexBufferObject<Vertex>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices, CommandPool, GraphicsQueue);
+	VertexBuffer = VertexBufferObject<Vertex>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices2, CommandPool, GraphicsQueue);
+	VertexBuffer2 = VertexBufferObject<Vertex>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices, CommandPool, GraphicsQueue);
 }
 
 void ValkanGraphics::SetUpIndexBuffers()
 {
-	IndexBuffer = IndexBufferObject(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, indices, CommandPool, GraphicsQueue);
+	IndexBuffer = IndexBufferObject(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, indices2, CommandPool, GraphicsQueue);
+	IndexBuffer2 = IndexBufferObject(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, indices, CommandPool, GraphicsQueue);
+
 }
 
 void ValkanGraphics::SetUpUniformBuffers()
 {
 	UniformBufferobject = UniformBufferObject<UniformBufferObject2>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
+	UniformBufferobject2 = UniformBufferObject<UniformBufferObject2>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
 	LightBufferStuff = UniformBufferObject<LightingStruct>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
 }
 
@@ -721,6 +726,7 @@ void ValkanGraphics::SetUpDescriptorSets()
 		VkDescriptorBufferInfo bufferInfo = {};
 		bufferInfo.buffer = UniformBufferobject.GetShaderBuffer()[i];
 		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(UniformBufferObject2);
 		bufferInfo.range = sizeof(UniformBufferObject2);
 
 		VkDescriptorImageInfo imageInfo = {};
@@ -793,6 +799,10 @@ void ValkanGraphics::SetUpCommandBuffers()
 
 	for (size_t i = 0; i < CommandBuffers.size(); i++)
 	{
+		std::array<VkClearValue, 2> clearValues = {};
+		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -806,26 +816,83 @@ void ValkanGraphics::SetUpCommandBuffers()
 		renderPassInfo.framebuffer = SwapChainFramebuffers[i];
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = SwapChainExtent;
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
+		VkBuffer VertexBuffers[] = { VertexBuffer.GetVertexBuffer() };
+		VkBuffer VertexBuffers2[] = { VertexBuffer2.GetVertexBuffer() };
+		VkDeviceSize Offsets[] = { 0 };
+
+		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, LightGraphicsPipeline);
+		vkCmdBindVertexBuffers(CommandBuffers[i], 0, 1, VertexBuffers, Offsets);
+		vkCmdBindIndexBuffer(CommandBuffers[i], IndexBuffer.GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSets[i], 0, nullptr);
+		vkCmdDrawIndexed(CommandBuffers[i], static_cast<uint32_t>(indices2.size()), 1, 0, 0, 0);
+
+		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
+		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSets[i], 0, nullptr);
+		vkCmdBindVertexBuffers(CommandBuffers[i], 0, 1, VertexBuffers2, Offsets);
+		vkCmdBindIndexBuffer(CommandBuffers[i], IndexBuffer2.GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(CommandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+
+		vkCmdEndRenderPass(CommandBuffers[i]);
+
+		if (vkEndCommandBuffer(CommandBuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
+		}
+	}
+}
+
+void ValkanGraphics::SetUpCommandBuffers2()
+{
+	CommandBuffers2.resize(SwapChainFramebuffers.size());
+
+	VkCommandBufferAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = CommandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)CommandBuffers2.size();
+
+	if (vkAllocateCommandBuffers(GPUInfo.Device, &allocInfo, CommandBuffers2.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+	}
+
+	for (size_t i = 0; i < CommandBuffers2.size(); i++)
+	{
 		std::array<VkClearValue, 2> clearValues = {};
 		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 		clearValues[1].depthStencil = { 1.0f, 0 };
 
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		if (vkBeginCommandBuffer(CommandBuffers2[i], &beginInfo) != VK_SUCCESS) {
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
+
+		VkRenderPassBeginInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = RenderPass;
+		renderPassInfo.framebuffer = SwapChainFramebuffers[i];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = SwapChainExtent;
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
 		VkBuffer VertexBuffers[] = { VertexBuffer.GetVertexBuffer() };
 		VkDeviceSize Offsets[] = { 0 };
 
-		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdBindVertexBuffers(CommandBuffers[i], 0, 1, VertexBuffers, Offsets);
-		vkCmdBindIndexBuffer(CommandBuffers[i], IndexBuffer.GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
-		vkCmdBindPipeline(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
-		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSets[i], 0, nullptr);
-		vkCmdDrawIndexed(CommandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-		vkCmdEndRenderPass(CommandBuffers[i]);
+		vkCmdBeginRenderPass(CommandBuffers2[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBindVertexBuffers(CommandBuffers2[i], 0, 1, VertexBuffers, Offsets);
+		vkCmdBindIndexBuffer(CommandBuffers2[i], IndexBuffer.GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindPipeline(CommandBuffers2[i], VK_PIPELINE_BIND_POINT_GRAPHICS, GraphicsPipeline);
+		vkCmdBindDescriptorSets(CommandBuffers2[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSets[i], 0, nullptr);
+		vkCmdDrawIndexed(CommandBuffers2[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+		vkCmdEndRenderPass(CommandBuffers2[i]);
 
-		if (vkEndCommandBuffer(CommandBuffers[i]) != VK_SUCCESS) {
+		if (vkEndCommandBuffer(CommandBuffers2[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer!");
 		}
 	}
@@ -931,19 +998,17 @@ void ValkanGraphics::DrawFrame() {
 
 	ImagesInFlight[imageIndex] = InFlightFences[CurrentFrame];
 
-	VkSubmitInfo submitInfo = {};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
 	VkSemaphore waitSemaphores[] = { ImageAvailableSemaphores[CurrentFrame] };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	VkSemaphore signalSemaphores[] = { RenderFinishedSemaphores[CurrentFrame] };
+
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
-
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &CommandBuffers[imageIndex];
-
-	VkSemaphore signalSemaphores[] = { RenderFinishedSemaphores[CurrentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -953,16 +1018,14 @@ void ValkanGraphics::DrawFrame() {
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
 
+	VkSwapchainKHR swapChains[] = { SwapChain };
+
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
-
-	VkSwapchainKHR swapChains[] = { SwapChain };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
-
 	presentInfo.pImageIndices = &imageIndex;
 
 	Result = vkQueuePresentKHR(PresentQueue, &presentInfo);
@@ -979,6 +1042,10 @@ void ValkanGraphics::DrawFrame() {
 	}
 
 	CurrentFrame = (CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void ValkanGraphics::CreatePipeLine()
+{
 }
 
 VkImageView ValkanGraphics::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
