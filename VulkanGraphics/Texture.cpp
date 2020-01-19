@@ -4,7 +4,7 @@ Texture::Texture()
 {
 }
 
-Texture::Texture(VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue)
+Texture::Texture(std::string TexturePath, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue)
 {
 	Device = device;
 	PhysicalDevice = physicalDevice;
@@ -12,7 +12,7 @@ Texture::Texture(VkDevice device, VkPhysicalDevice physicalDevice, std::vector<V
 	CommandPool = commandPool;
 	GraphicsQueue = graphicsQueue;
 
-	LoadImage(device, physicalDevice, commandBuffer, commandPool, graphicsQueue);
+	LoadImage(TexturePath, device, physicalDevice, commandBuffer, commandPool, graphicsQueue);
 	CreateImageView(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
 	CreateTextureSampler();
 }
@@ -21,11 +21,11 @@ Texture::~Texture()
 {
 }
 
-void Texture::LoadImage(VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue)
+void Texture::LoadImage(std::string TexturePath, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue)
 {
 	int Channels;
 
-	stbi_uc* Pixels = stbi_load("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", &Width, &Height, &Channels, STBI_rgb_alpha);
+	stbi_uc* Pixels = stbi_load(TexturePath.c_str(), &Width, &Height, &Channels, STBI_rgb_alpha);
 	VkDeviceSize ImageSize = Width * Height * STBI_rgb_alpha;
 
 	if (!Pixels)

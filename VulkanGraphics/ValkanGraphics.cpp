@@ -34,14 +34,11 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpImageViews();
 	SetUpRenderPass();
 	SetDescriptorSetLayout();
-	SetUpGraphicsPipeLine();
 	SetUpDepthBuffer();
 	SetUpFrameBuffers();
 	SetUpCommandPool();
+	SetUpGraphicsPipeLine();
 	SetUpVertexBuffers();
-	SetUpUniformBuffers();
-	SetUpDescriptorPool();
-	SetUpDescriptorSets();
 	SetUpCommandBuffers();
 	SetUpSyncObjects();
 }
@@ -52,8 +49,8 @@ ValkanGraphics::~ValkanGraphics()
 
 	//texture.CleanUp();
 
-	UniformBufferobject.CleanUp(SwapChainImages.size());
-	LightBufferStuff.CleanUp(SwapChainImages.size());
+	//UniformBufferobject.CleanUp(SwapChainImages.size());
+	//LightBufferStuff.CleanUp(SwapChainImages.size());
 
 	//vkDestroyDescriptorPool(GPUInfo.Device, DescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
@@ -596,26 +593,8 @@ void ValkanGraphics::SetUpDepthBuffer()
 
 void ValkanGraphics::SetUpVertexBuffers()
 {
-	Mesh1 = Mesh(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices2, indices2, CommandPool, GraphicsQueue);
-	Mesh2 = Mesh(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue);
-}
-
-void ValkanGraphics::SetUpUniformBuffers()
-{
-	UniformBufferobject = UniformBufferObject<UniformBufferObject2>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
-	LightBufferStuff = UniformBufferObject<LightingStruct>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
-}
-
-void ValkanGraphics::SetUpDescriptorPool()
-{
-	Mesh1.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
-	Mesh2.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
-}
-
-void ValkanGraphics::SetUpDescriptorSets()
-{
-	Mesh1.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout, UniformBufferobject, LightBufferStuff);
-	Mesh2.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout, UniformBufferobject, LightBufferStuff);
+	Mesh1 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices2, indices2, CommandPool, GraphicsQueue, DescriptorSetLayout);
+	Mesh2 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/cat.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout);
 }
 
 uint32_t ValkanGraphics::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
@@ -750,9 +729,11 @@ void ValkanGraphics::RecreateSwapChain()
 	SetUpGraphicsPipeLine();
 	SetUpDepthBuffer();
 	SetUpFrameBuffers();
-	SetUpUniformBuffers();
-	SetUpDescriptorPool();
-	SetUpDescriptorSets();
+	//Mesh1.SetUpUniformBuffers();
+	Mesh1.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
+	Mesh1.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout);
+	Mesh2.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
+	Mesh2.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout);
 	SetUpCommandBuffers();
 }
 
@@ -892,14 +873,26 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	ubo.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
+	UniformBufferObject2 ubo2 = {};
+	ubo2.model = glm::rotate(glm::mat4(1.0f), time * -glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo2.view = camera.GetViewMatrix();
+	ubo2.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
+	ubo2.proj[1][1] *= -1;
+
 	LightingStruct light = {};
 	light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
 	light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
 	light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
 	light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
 
-	UniformBufferobject.UpdateShaderBuffer(ubo, currentImage);
-	LightBufferStuff.UpdateShaderBuffer(light, currentImage);
+	LightingStruct light2 = {};
+	light2.Ambient = glm::vec3(1.0f, 0.0f, 0.0f);
+	light2.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	light2.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+	light2.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
+
+	Mesh1.UpdateUniformBuffers(ubo, light, currentImage);
+	Mesh2.UpdateUniformBuffers(ubo2, light2, currentImage);
 }
 
 void ValkanGraphics::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)

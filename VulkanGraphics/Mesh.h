@@ -108,15 +108,19 @@ private:
 	IndexBufferObject IBO;
 	Texture texture;
 
+	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
+	UniformBufferObject<LightingStruct> LightBufferStuff;
+
 	VkDescriptorPool DescriptorPool;
 	std::vector<VkDescriptorSet> DescriptorSets;
 public:
 	Mesh();
-	Mesh(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue);
+	Mesh(std::string TexturePath, int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue, VkDescriptorSetLayout DescriptorSetLayout);
 	~Mesh();
 
 	void SetUpDescriptorPool(int SwapChainSize, VkDevice device);
-	void SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout, UniformBufferObject<UniformBufferObject2> UniformBufferobject, UniformBufferObject<LightingStruct> LightBufferStuff);
+	void SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout);
+	void UpdateUniformBuffers(UniformBufferObject2 ubo, LightingStruct light, uint32_t ImageIndex);
 	void Draw(VkCommandBuffer CommandBuffer, VkPipeline Pipeline, VkPipelineLayout PipeLineLayout, uint32_t Indices, int frame);
 
 	VkDescriptorPool GetVkDescriptorPool() { return DescriptorPool; }

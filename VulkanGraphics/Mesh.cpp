@@ -5,11 +5,17 @@ Mesh::Mesh()
 
 }
 
-Mesh::Mesh(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue)
+Mesh::Mesh(std::string TexturePath, int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue, VkDescriptorSetLayout DescriptorSetLayout)
 {
 	VBO = VertexBufferObject<Vertex>(SwapChainSize, device, physicalDevice, VertexData, CommandPool, GraphicsQueue);
 	IBO = IndexBufferObject(SwapChainSize, device, physicalDevice, IndexData, CommandPool, GraphicsQueue);
-	texture = Texture(device, physicalDevice, CommandBuffer, CommandPool, GraphicsQueue);
+	texture = Texture(TexturePath, device, physicalDevice, CommandBuffer, CommandPool, GraphicsQueue);
+
+	UniformBufferobject = UniformBufferObject<UniformBufferObject2>(SwapChainSize, device, physicalDevice);
+	LightBufferStuff = UniformBufferObject<LightingStruct>(SwapChainSize, device, physicalDevice);
+
+	SetUpDescriptorPool(SwapChainSize, device);
+	SetUpDescriptorSets(SwapChainSize, device, DescriptorSetLayout);
 }
 
 Mesh::~Mesh()
@@ -37,7 +43,7 @@ void Mesh::SetUpDescriptorPool(int SwapChainSize, VkDevice device)
 	}
 }
 
-void Mesh::SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout, UniformBufferObject<UniformBufferObject2> UniformBufferobject, UniformBufferObject<LightingStruct> LightBufferStuff)
+void Mesh::SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout)
 {
 	std::vector<VkDescriptorSetLayout> layouts(SwapChainSize, DescriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
@@ -97,6 +103,12 @@ void Mesh::SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorS
 	}
 }
 
+void Mesh::UpdateUniformBuffers(UniformBufferObject2 ubo, LightingStruct light, uint32_t ImageIndex)
+{
+	UniformBufferobject.UpdateShaderBuffer(ubo, ImageIndex);
+	LightBufferStuff.UpdateShaderBuffer(light, ImageIndex);
+}
+
 void Mesh::Draw(VkCommandBuffer CommandBuffer, VkPipeline Pipeline, VkPipelineLayout PipeLineLayout, uint32_t Indices, int frame)
 {
 	VkDeviceSize Offset[] = { 0 };
@@ -115,7 +127,8 @@ Mesh& Mesh::operator=(const Mesh& rhs)
 	VBO = rhs.VBO;
 	IBO = rhs.IBO;
 	texture = rhs.texture;
-
+	UniformBufferobject = rhs.UniformBufferobject;
+	LightBufferStuff = rhs.LightBufferStuff;
 	DescriptorPool = rhs.DescriptorPool;
 	DescriptorSets = rhs.DescriptorSets;
 	return *this;

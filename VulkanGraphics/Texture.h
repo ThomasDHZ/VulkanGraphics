@@ -24,7 +24,7 @@ private:
 	VkImageView TextureImageView;
 	VkSampler TextureSampler;
 
-	void LoadImage(VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue);
+	void LoadImage(std::string TexturePath, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue);
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	void CreateImage(VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
 	void TransitionImageLayout(VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -35,7 +35,7 @@ private:
 	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 public:
 	Texture();
-	Texture(VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue);
+	Texture(std::string TexturePath, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue);
 	~Texture();
 
 	void CreateImageView(VkFormat format, VkImageAspectFlags aspectFlags);

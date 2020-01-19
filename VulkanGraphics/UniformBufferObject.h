@@ -75,6 +75,15 @@ public:
 		}
 	}
 
+	UniformBufferObject<T>& operator=(const UniformBufferObject<T>& rhs)
+	{
+		Device = rhs.Device;
+		PhysicalDevice = rhs.PhysicalDevice;
+		ShaderBuffer = rhs.ShaderBuffer;
+		ShaderBufferMemory = rhs.ShaderBufferMemory;
+		return *this;
+	}
+
 	std::vector<VkBuffer> GetShaderBuffer() { return ShaderBuffer; }
 	std::vector<VkDeviceMemory> GetShaderBufferMemory() { return ShaderBufferMemory; }
 };

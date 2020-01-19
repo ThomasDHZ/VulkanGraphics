@@ -77,9 +77,6 @@ private:
 	Mesh Mesh1;
 	Mesh Mesh2;
 
-	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
-	UniformBufferObject<LightingStruct> LightBufferStuff;
-
 	std::vector<VkImage> SwapChainImages;
 	std::vector<VkImageView> SwapChainImageViews;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
@@ -107,9 +104,6 @@ private:
 	void SetUpCommandPool();
 	void SetUpDepthBuffer();
 	void SetUpVertexBuffers();
-	void SetUpUniformBuffers();
-	void SetUpDescriptorPool();
-	void SetUpDescriptorSets();
 	void SetUpCommandBuffers();
 	void SetUpSyncObjects();
 	void CleanUpSwapChain();
