@@ -19,6 +19,7 @@
 #include "IndexBufferObject.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "Texture.h"
 
 struct VkGPUInfo
 {
@@ -73,13 +74,10 @@ private:
 
 	VkDescriptorSetLayout DescriptorSetLayout;
 	VkDescriptorPool DescriptorPool;
-	VkImage TextureImage;
-	VkDeviceMemory TextureImageMemory;
-	VkImageView TextureImageView;
-	VkSampler TextureSampler;
 
 	Mesh Mesh1;
 	Mesh Mesh2;
+	Texture texture;
 
 	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
 	UniformBufferObject<UniformBufferObject2> UniformBufferobject2;
@@ -114,8 +112,6 @@ private:
 	void SetUpCommandPool();
 	void SetUpDepthBuffer();
 	void SetUpTextureImage();
-	void SetUpTextureImageView();
-	void SetUpTextureSampler();
 	void SetUpVertexBuffers();
 	void SetUpUniformBuffers();
 	void SetUpDescriptorPool();
@@ -131,8 +127,6 @@ private:
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	void UpdateUniformBuffer(uint32_t currentImage);
 	void CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-	void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 	VulkanQueueFamily FindQueueFamilies(VkPhysicalDevice physicalDevice);
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkFormat findDepthFormat();
