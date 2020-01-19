@@ -38,7 +38,6 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpDepthBuffer();
 	SetUpFrameBuffers();
 	SetUpCommandPool();
-	SetUpTextureImage();
 	SetUpVertexBuffers();
 	SetUpUniformBuffers();
 	SetUpDescriptorPool();
@@ -51,12 +50,12 @@ ValkanGraphics::~ValkanGraphics()
 {
 	CleanUpSwapChain();
 
-	texture.CleanUp();
+	//texture.CleanUp();
 
 	UniformBufferobject.CleanUp(SwapChainImages.size());
 	LightBufferStuff.CleanUp(SwapChainImages.size());
 
-	vkDestroyDescriptorPool(GPUInfo.Device, DescriptorPool, nullptr);
+	//vkDestroyDescriptorPool(GPUInfo.Device, DescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
@@ -595,104 +594,28 @@ void ValkanGraphics::SetUpDepthBuffer()
 	DepthImageView = CreateImageView(DepthImage, DepthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
-void ValkanGraphics::SetUpTextureImage()
-{
-	texture = Texture(GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, CommandPool, GraphicsQueue);
-}
-
 void ValkanGraphics::SetUpVertexBuffers()
 {
-	Mesh1 = Mesh(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices2, indices2, CommandPool, GraphicsQueue);
-	Mesh2 = Mesh(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, vertices, indices, CommandPool, GraphicsQueue);
+	Mesh1 = Mesh(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices2, indices2, CommandPool, GraphicsQueue);
+	Mesh2 = Mesh(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue);
 }
 
 void ValkanGraphics::SetUpUniformBuffers()
 {
 	UniformBufferobject = UniformBufferObject<UniformBufferObject2>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
-	UniformBufferobject2 = UniformBufferObject<UniformBufferObject2>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
 	LightBufferStuff = UniformBufferObject<LightingStruct>(SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice);
 }
 
 void ValkanGraphics::SetUpDescriptorPool()
 {
-	std::array<VkDescriptorPoolSize, 2> PoolSizes = {};
-	PoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	PoolSizes[0].descriptorCount = static_cast<unsigned int>(SwapChainImages.size());
-	PoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	PoolSizes[1].descriptorCount = static_cast<uint32_t>(SwapChainImages.size());
-
-	VkDescriptorPoolCreateInfo DescriptorPoolInfo = {};
-	DescriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	DescriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(PoolSizes.size());
-	DescriptorPoolInfo.pPoolSizes = PoolSizes.data();
-	DescriptorPoolInfo.maxSets = static_cast<unsigned int>(SwapChainImages.size());
-
-	VkResult Result = vkCreateDescriptorPool(GPUInfo.Device, &DescriptorPoolInfo, nullptr, &DescriptorPool);
-	if (Result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create descriptor pool.");
-	}
+	Mesh1.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
+	Mesh2.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
 }
 
 void ValkanGraphics::SetUpDescriptorSets()
 {
-	std::vector<VkDescriptorSetLayout> layouts(SwapChainImages.size(), DescriptorSetLayout);
-	VkDescriptorSetAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = DescriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(SwapChainImages.size());
-	allocInfo.pSetLayouts = layouts.data();
-
-	DescriptorSets.resize(SwapChainImages.size());
-	if (vkAllocateDescriptorSets(GPUInfo.Device, &allocInfo, DescriptorSets.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
-
-	for (size_t i = 0; i < SwapChainImages.size(); i++) {
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = UniformBufferobject.GetShaderBuffer()[i];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject2);
-		bufferInfo.range = sizeof(UniformBufferObject2);
-
-		VkDescriptorImageInfo imageInfo = {};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = texture.GetTextureImageView();
-		imageInfo.sampler = texture.GetTextureSampler();
-
-		VkDescriptorBufferInfo LightbufferInfo = {};
-		LightbufferInfo.buffer = LightBufferStuff.GetShaderBuffer()[i];
-		LightbufferInfo.offset = 0;
-		LightbufferInfo.range = sizeof(LightingStruct);
-
-		std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
-
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = DescriptorSets[i];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = DescriptorSets[i];
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
-
-		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[2].dstSet = DescriptorSets[i];
-		descriptorWrites[2].dstBinding = 2;
-		descriptorWrites[2].dstArrayElement = 0;
-		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[2].descriptorCount = 1;
-		descriptorWrites[2].pBufferInfo = &LightbufferInfo;
-
-		vkUpdateDescriptorSets(GPUInfo.Device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-	}
+	Mesh1.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout, UniformBufferobject, LightBufferStuff);
+	Mesh2.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout, UniformBufferobject, LightBufferStuff);
 }
 
 uint32_t ValkanGraphics::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
@@ -747,8 +670,8 @@ void ValkanGraphics::SetUpCommandBuffers()
 
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		Mesh1.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, DescriptorSets[i], static_cast<uint32_t>(indices2.size()));
-		Mesh2.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, DescriptorSets[i], static_cast<uint32_t>(indices.size()));
+		Mesh1.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
+		Mesh2.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
 
 		vkCmdEndRenderPass(CommandBuffers[i]);
 

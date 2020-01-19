@@ -73,22 +73,17 @@ private:
 	VkImageView DepthImageView;
 
 	VkDescriptorSetLayout DescriptorSetLayout;
-	VkDescriptorPool DescriptorPool;
 
 	Mesh Mesh1;
 	Mesh Mesh2;
-	Texture texture;
 
 	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
-	UniformBufferObject<UniformBufferObject2> UniformBufferobject2;
 	UniformBufferObject<LightingStruct> LightBufferStuff;
 
-	std::vector<VkDescriptorSet> DescriptorSets;
 	std::vector<VkImage> SwapChainImages;
 	std::vector<VkImageView> SwapChainImageViews;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 	std::vector<VkCommandBuffer> CommandBuffers;
-	std::vector<VkCommandBuffer> CommandBuffers2;
 	std::vector<VkSemaphore> ImageAvailableSemaphores;
 	std::vector<VkSemaphore> RenderFinishedSemaphores;
 	std::vector<VkFence> InFlightFences;
@@ -111,7 +106,6 @@ private:
 	void SetUpFrameBuffers();
 	void SetUpCommandPool();
 	void SetUpDepthBuffer();
-	void SetUpTextureImage();
 	void SetUpVertexBuffers();
 	void SetUpUniformBuffers();
 	void SetUpDescriptorPool();

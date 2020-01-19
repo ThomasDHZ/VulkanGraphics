@@ -2,6 +2,8 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 #include <vector>
+#include <array>
+
 #include "UniformBufferObject.h"
 #include "VertexBufferObject.h"
 #include "IndexBufferObject.h"
@@ -9,6 +11,7 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Texture.h"
 
 struct Vertex
 {
@@ -103,13 +106,21 @@ class Mesh
 private:
 	VertexBufferObject<Vertex> VBO;
 	IndexBufferObject IBO;
+	Texture texture;
+
+	VkDescriptorPool DescriptorPool;
+	std::vector<VkDescriptorSet> DescriptorSets;
 public:
 	Mesh();
-	Mesh(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue);
+	Mesh(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue);
 	~Mesh();
 
-	void Draw(VkCommandBuffer CommandBuffer, VkPipeline Pipeline, VkPipelineLayout PipeLineLayout, VkDescriptorSet DescriptorSet, uint32_t Indices);
+	void SetUpDescriptorPool(int SwapChainSize, VkDevice device);
+	void SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout, UniformBufferObject<UniformBufferObject2> UniformBufferobject, UniformBufferObject<LightingStruct> LightBufferStuff);
+	void Draw(VkCommandBuffer CommandBuffer, VkPipeline Pipeline, VkPipelineLayout PipeLineLayout, uint32_t Indices, int frame);
 
+	VkDescriptorPool GetVkDescriptorPool() { return DescriptorPool; }
+	Texture GetTexture() { return texture; }
 	Mesh& operator=(const Mesh& rhs);
 };
 
