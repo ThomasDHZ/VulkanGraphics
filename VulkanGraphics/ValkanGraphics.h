@@ -89,7 +89,7 @@ private:
 
 	Mesh Mesh1;
 	Mesh Mesh2;
-
+	Texture texture;
 	std::vector<VkImage> SwapChainImages;
 	std::vector<VkImageView> SwapChainImageViews;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;

@@ -561,28 +561,6 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 		throw std::runtime_error("Failed to create graphics pipeline.");
 	}
 
-	VkGraphicsPipelineCreateInfo VertexShaderPipelineInfo = {};
-	VertexShaderPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	VertexShaderPipelineInfo.stageCount = 2;
-	VertexShaderPipelineInfo.pStages = LightShaderStages;
-	VertexShaderPipelineInfo.pVertexInputState = &VertexInputInfo;
-	VertexShaderPipelineInfo.pInputAssemblyState = &InputAssembly;
-	VertexShaderPipelineInfo.pViewportState = &ViewportState;
-	VertexShaderPipelineInfo.pRasterizationState = &LineRasterizer;
-	VertexShaderPipelineInfo.pMultisampleState = &Multisampling;
-	VertexShaderPipelineInfo.pDepthStencilState = &DepthStencil;
-	VertexShaderPipelineInfo.pColorBlendState = &ColorBlending;
-	VertexShaderPipelineInfo.layout = PipelineLayout;
-	VertexShaderPipelineInfo.renderPass = RenderPass;
-	VertexShaderPipelineInfo.subpass = 0;
-	VertexShaderPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-	Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &VertexShaderPipelineInfo, nullptr, &LineShaderPipeline);
-	if (Result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create graphics pipeline.");
-	}
-
 	VkGraphicsPipelineCreateInfo VertexeShaderPipelineInfo = {};
 	VertexeShaderPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	VertexeShaderPipelineInfo.stageCount = 2;
@@ -658,8 +636,9 @@ void ValkanGraphics::SetUpDepthBuffer()
 
 void ValkanGraphics::SetUpVertexBuffers()
 {
-	Mesh1 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices2, indices2, CommandPool, GraphicsQueue, DescriptorSetLayout);
-	Mesh2 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/cat.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout);
+	Mesh1 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout);
+	Mesh2 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/cat.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices2, indices2, CommandPool, GraphicsQueue, DescriptorSetLayout);
+	texture = Texture("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/cat.png", GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, CommandPool, GraphicsQueue);
 }
 
 uint32_t ValkanGraphics::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
@@ -717,18 +696,18 @@ void ValkanGraphics::SetUpCommandBuffers()
 
 		if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
 		{
-			Mesh1.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
-			Mesh2.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			Mesh1.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			Mesh2.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
 		}
 		else if (FillMode == PolygonFillMode::GPX_FILL_LINE)
 		{
-			Mesh1.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
-			Mesh2.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			Mesh1.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			Mesh2.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
 		}
 		else if (FillMode == PolygonFillMode::GPX_FILL_VERTEX)
 		{
-			Mesh1.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
-			Mesh2.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			Mesh1.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			Mesh2.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
 		}
 
 		vkCmdEndRenderPass(CommandBuffers[i]);
@@ -947,14 +926,22 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	modelMatrix = glm::translate(modelMatrix, glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMatrix = glm::rotate(modelMatrix, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	glm::mat4 modelMatrix2 = glm::mat4(1.0f);
+	modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(-1.0f, 0.0f, 0.0f));
+	modelMatrix2 = glm::rotate(modelMatrix2, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	
 	UniformBufferObject2 ubo = {};
-	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.model = modelMatrix;
 	ubo.view = camera.GetViewMatrix();
 	ubo.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
 	UniformBufferObject2 ubo2 = {};
-	ubo2.model = glm::rotate(glm::mat4(1.0f), time * -glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 1.0f));
+	ubo2.model = modelMatrix2;
 	ubo2.view = camera.GetViewMatrix();
 	ubo2.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
 	ubo2.proj[1][1] *= -1;
@@ -966,7 +953,7 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
 
 	LightingStruct light2 = {};
-	light2.Ambient = glm::vec3(1.0f, 0.0f, 0.0f);
+	light2.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
 	light2.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
 	light2.Position = glm::vec3(0.0f, 1.0f, 0.0f);
 	light2.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -1287,6 +1274,13 @@ void ValkanGraphics::UpdateKeyboard()
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_6) == GLFW_PRESS)
 	{
 		FillMode = PolygonFillMode::GPX_FILL_LINE;
+		vkDeviceWaitIdle(GPUInfo.Device);
+		CommandBuffers.clear();
+		SetUpCommandBuffers();
+	}
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_7) == GLFW_PRESS)
+	{
+		FillMode = PolygonFillMode::GPX_FILL_VERTEX;
 		vkDeviceWaitIdle(GPUInfo.Device);
 		CommandBuffers.clear();
 		SetUpCommandBuffers();
