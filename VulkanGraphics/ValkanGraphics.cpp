@@ -470,6 +470,16 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	LineRasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	LineRasterizer.depthBiasEnable = VK_FALSE;
 
+	VkPipelineRasterizationStateCreateInfo VertexRasterizer = {};
+	VertexRasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	VertexRasterizer.depthClampEnable = VK_FALSE;
+	VertexRasterizer.rasterizerDiscardEnable = VK_FALSE;
+	VertexRasterizer.polygonMode = VK_POLYGON_MODE_POINT;
+	VertexRasterizer.lineWidth = 1.0f;
+	VertexRasterizer.cullMode = VK_CULL_MODE_NONE;
+	VertexRasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	VertexRasterizer.depthBiasEnable = VK_FALSE;
+
 	VkPipelineMultisampleStateCreateInfo Multisampling = {};
 	Multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	Multisampling.sampleShadingEnable = VK_FALSE;
@@ -551,23 +561,45 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 		throw std::runtime_error("Failed to create graphics pipeline.");
 	}
 
-	VkGraphicsPipelineCreateInfo LineShaderPipelineInfo = {};
-	LineShaderPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-	LineShaderPipelineInfo.stageCount = 2;
-	LineShaderPipelineInfo.pStages = LightShaderStages;
-	LineShaderPipelineInfo.pVertexInputState = &VertexInputInfo;
-	LineShaderPipelineInfo.pInputAssemblyState = &InputAssembly;
-	LineShaderPipelineInfo.pViewportState = &ViewportState;
-	LineShaderPipelineInfo.pRasterizationState = &LineRasterizer;
-	LineShaderPipelineInfo.pMultisampleState = &Multisampling;
-	LineShaderPipelineInfo.pDepthStencilState = &DepthStencil;
-	LineShaderPipelineInfo.pColorBlendState = &ColorBlending;
-	LineShaderPipelineInfo.layout = PipelineLayout;
-	LineShaderPipelineInfo.renderPass = RenderPass;
-	LineShaderPipelineInfo.subpass = 0;
-	LineShaderPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+	VkGraphicsPipelineCreateInfo VertexShaderPipelineInfo = {};
+	VertexShaderPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	VertexShaderPipelineInfo.stageCount = 2;
+	VertexShaderPipelineInfo.pStages = LightShaderStages;
+	VertexShaderPipelineInfo.pVertexInputState = &VertexInputInfo;
+	VertexShaderPipelineInfo.pInputAssemblyState = &InputAssembly;
+	VertexShaderPipelineInfo.pViewportState = &ViewportState;
+	VertexShaderPipelineInfo.pRasterizationState = &LineRasterizer;
+	VertexShaderPipelineInfo.pMultisampleState = &Multisampling;
+	VertexShaderPipelineInfo.pDepthStencilState = &DepthStencil;
+	VertexShaderPipelineInfo.pColorBlendState = &ColorBlending;
+	VertexShaderPipelineInfo.layout = PipelineLayout;
+	VertexShaderPipelineInfo.renderPass = RenderPass;
+	VertexShaderPipelineInfo.subpass = 0;
+	VertexShaderPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &LineShaderPipelineInfo, nullptr, &LineShaderPipeline);
+	Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &VertexShaderPipelineInfo, nullptr, &LineShaderPipeline);
+	if (Result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create graphics pipeline.");
+	}
+
+	VkGraphicsPipelineCreateInfo VertexeShaderPipelineInfo = {};
+	VertexeShaderPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	VertexeShaderPipelineInfo.stageCount = 2;
+	VertexeShaderPipelineInfo.pStages = LightShaderStages;
+	VertexeShaderPipelineInfo.pVertexInputState = &VertexInputInfo;
+	VertexeShaderPipelineInfo.pInputAssemblyState = &InputAssembly;
+	VertexeShaderPipelineInfo.pViewportState = &ViewportState;
+	VertexeShaderPipelineInfo.pRasterizationState = &VertexRasterizer;
+	VertexeShaderPipelineInfo.pMultisampleState = &Multisampling;
+	VertexeShaderPipelineInfo.pDepthStencilState = &DepthStencil;
+	VertexeShaderPipelineInfo.pColorBlendState = &ColorBlending;
+	VertexeShaderPipelineInfo.layout = PipelineLayout;
+	VertexeShaderPipelineInfo.renderPass = RenderPass;
+	VertexeShaderPipelineInfo.subpass = 0;
+	VertexeShaderPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+	Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &VertexeShaderPipelineInfo, nullptr, &VertexShaderPipeline);
 	if (Result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create graphics pipeline.");
@@ -683,15 +715,20 @@ void ValkanGraphics::SetUpCommandBuffers()
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 
-		if (!LineArt)
+		if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
 		{
 			Mesh1.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
 			Mesh2.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
 		}
-		else
+		else if (FillMode == PolygonFillMode::GPX_FILL_LINE)
 		{
 			Mesh1.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
 			Mesh2.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+		}
+		else if (FillMode == PolygonFillMode::GPX_FILL_VERTEX)
+		{
+			Mesh1.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
+			Mesh2.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
 		}
 
 		vkCmdEndRenderPass(CommandBuffers[i]);
@@ -1241,7 +1278,26 @@ void ValkanGraphics::UpdateKeyboard()
 		camera.UpdateKeyboard(RIGHT, deltaTime);
 
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_5) == GLFW_PRESS)
-		LineArt = true;
+	{
+		FillMode = PolygonFillMode::GPX_FILL_SOLID;
+		vkDeviceWaitIdle(GPUInfo.Device);
+		CommandBuffers.clear();
+		SetUpCommandBuffers();
+	}
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_6) == GLFW_PRESS)
+	{
+		FillMode = PolygonFillMode::GPX_FILL_LINE;
+		vkDeviceWaitIdle(GPUInfo.Device);
+		CommandBuffers.clear();
+		SetUpCommandBuffers();
+	}
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_7) == GLFW_PRESS)
+	{
+		FillMode = PolygonFillMode::GPX_FILL_VERTEX;
+		vkDeviceWaitIdle(GPUInfo.Device);
+		CommandBuffers.clear();
+		SetUpCommandBuffers();
+	}
 }
 
 void ValkanGraphics::MainLoop()
@@ -1252,13 +1308,6 @@ void ValkanGraphics::MainLoop()
 		DrawFrame();
 		UpdateMouse();
 		UpdateKeyboard();
-
-		if (LineArt)
-		{
-			vkDeviceWaitIdle(GPUInfo.Device);
-			CommandBuffers.clear();
-			SetUpCommandBuffers();
-		}
 	}
 
 	vkDeviceWaitIdle(GPUInfo.Device);

@@ -34,10 +34,17 @@ struct SwapChainSupportDetails
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
+enum PolygonFillMode
+{
+	GPX_FILL_SOLID,
+	GPX_FILL_LINE,
+	GPX_FILL_VERTEX
+};
+
 class ValkanGraphics
 {
 private:
-	bool LineArt = false;
+	 PolygonFillMode FillMode = GPX_FILL_SOLID;
 
 	const bool EnableValidationLayers;
 	const int MAX_FRAMES_IN_FLIGHT = 2;
