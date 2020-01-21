@@ -37,6 +37,8 @@ struct SwapChainSupportDetails
 class ValkanGraphics
 {
 private:
+	bool LineArt = false;
+
 	const bool EnableValidationLayers;
 	const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -63,8 +65,12 @@ private:
 	ShaderCompiler CompileShader;
 	VkRenderPass RenderPass;
 	VkPipelineLayout PipelineLayout;
+
 	VkPipeline GraphicsPipeline;
 	VkPipeline LightGraphicsPipeline;
+	VkPipeline LineShaderPipeline;
+	VkPipeline VertexShaderPipeline;
+	
 	VkCommandPool CommandPool;
 	VkSemaphore ImageAvailableSemaphore;
 	VkSemaphore RenderFinishedSemaphore;

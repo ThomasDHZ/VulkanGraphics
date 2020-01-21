@@ -178,6 +178,7 @@ void ValkanGraphics::SetUpLogicalDevice()
 
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 	deviceFeatures.samplerAnisotropy = VK_TRUE;
+	deviceFeatures.fillModeNonSolid = VK_TRUE;
 
 	VkDeviceCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -455,9 +456,19 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	Rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	Rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	Rasterizer.lineWidth = 1.0f;
-	Rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+	Rasterizer.cullMode = VK_CULL_MODE_NONE;
 	Rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	Rasterizer.depthBiasEnable = VK_FALSE;
+
+	VkPipelineRasterizationStateCreateInfo LineRasterizer = {};
+	LineRasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	LineRasterizer.depthClampEnable = VK_FALSE;
+	LineRasterizer.rasterizerDiscardEnable = VK_FALSE;
+	LineRasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+	LineRasterizer.lineWidth = 1.0f;
+	LineRasterizer.cullMode = VK_CULL_MODE_NONE;
+	LineRasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	LineRasterizer.depthBiasEnable = VK_FALSE;
 
 	VkPipelineMultisampleStateCreateInfo Multisampling = {};
 	Multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -535,6 +546,28 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	PipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
 	Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &PipelineInfo, nullptr, &LightGraphicsPipeline);
+	if (Result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create graphics pipeline.");
+	}
+
+	VkGraphicsPipelineCreateInfo LineShaderPipelineInfo = {};
+	LineShaderPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	LineShaderPipelineInfo.stageCount = 2;
+	LineShaderPipelineInfo.pStages = LightShaderStages;
+	LineShaderPipelineInfo.pVertexInputState = &VertexInputInfo;
+	LineShaderPipelineInfo.pInputAssemblyState = &InputAssembly;
+	LineShaderPipelineInfo.pViewportState = &ViewportState;
+	LineShaderPipelineInfo.pRasterizationState = &LineRasterizer;
+	LineShaderPipelineInfo.pMultisampleState = &Multisampling;
+	LineShaderPipelineInfo.pDepthStencilState = &DepthStencil;
+	LineShaderPipelineInfo.pColorBlendState = &ColorBlending;
+	LineShaderPipelineInfo.layout = PipelineLayout;
+	LineShaderPipelineInfo.renderPass = RenderPass;
+	LineShaderPipelineInfo.subpass = 0;
+	LineShaderPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+	Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &LineShaderPipelineInfo, nullptr, &LineShaderPipeline);
 	if (Result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create graphics pipeline.");
@@ -649,10 +682,20 @@ void ValkanGraphics::SetUpCommandBuffers()
 
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		Mesh1.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
-		Mesh2.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+
+		if (!LineArt)
+		{
+			Mesh1.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
+			Mesh2.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+		}
+		else
+		{
+			Mesh1.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
+			Mesh2.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+		}
 
 		vkCmdEndRenderPass(CommandBuffers[i]);
+
 
 		if (vkEndCommandBuffer(CommandBuffers[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer!");
@@ -874,7 +917,7 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	ubo.proj[1][1] *= -1;
 
 	UniformBufferObject2 ubo2 = {};
-	ubo2.model = glm::rotate(glm::mat4(1.0f), time * -glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo2.model = glm::rotate(glm::mat4(1.0f), time * -glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 1.0f));
 	ubo2.view = camera.GetViewMatrix();
 	ubo2.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
 	ubo2.proj[1][1] *= -1;
@@ -1196,6 +1239,9 @@ void ValkanGraphics::UpdateKeyboard()
 		camera.UpdateKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
 		camera.UpdateKeyboard(RIGHT, deltaTime);
+
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_5) == GLFW_PRESS)
+		LineArt = true;
 }
 
 void ValkanGraphics::MainLoop()
@@ -1206,6 +1252,13 @@ void ValkanGraphics::MainLoop()
 		DrawFrame();
 		UpdateMouse();
 		UpdateKeyboard();
+
+		if (LineArt)
+		{
+			vkDeviceWaitIdle(GPUInfo.Device);
+			CommandBuffers.clear();
+			SetUpCommandBuffers();
+		}
 	}
 
 	vkDeviceWaitIdle(GPUInfo.Device);
