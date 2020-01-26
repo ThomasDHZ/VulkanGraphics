@@ -69,13 +69,12 @@ public:
 		vkBindBufferMemory(Device, buffer, bufferMemory, 0);
 	}
 
-	void CleanUp()
+	void Destroy()
 	{
 		vkDestroyBuffer(Device, IndexBuffer, nullptr);
 		vkFreeMemory(Device, IndexBufferMemory, nullptr);
 	}
 
 	VkBuffer GetIndexBuffer() { return IndexBuffer; }
-	VkDeviceMemory GetIndexBufferMemory() { return IndexBufferMemory; }
 };
 

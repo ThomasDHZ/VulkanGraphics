@@ -49,6 +49,9 @@ void Texture::LoadImage(std::string TexturePath, VkDevice device, VkPhysicalDevi
 	TransitionImageLayout(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	CopyBufferToImage(StagingBuffer);
 	TransitionImageLayout(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	vkDestroyBuffer(device, StagingBuffer, nullptr);
+	vkFreeMemory(device, StagingBufferMemory, nullptr);
 }
 
 void Texture::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
@@ -246,7 +249,7 @@ uint32_t Texture::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prop
 	throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void Texture::CleanUp()
+void Texture::Destroy()
 {
 	vkDestroySampler(Device, TextureSampler, nullptr);
 	vkDestroyImageView(Device, TextureImageView, nullptr);

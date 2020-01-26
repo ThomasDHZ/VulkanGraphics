@@ -194,6 +194,7 @@ public:
 	void UpdateUniformBuffers(UniformBufferObject2 ubo, LightingStruct light, uint32_t ImageIndex);
 	void UpdateTexture(Texture updateTexture, int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout);
 	void Draw(VkCommandBuffer CommandBuffer, VkPipeline Pipeline, VkPipelineLayout PipeLineLayout, uint32_t Indices, int frame);
+	void Destory(VkDevice device, int FrameSize);
 
 	VkDescriptorPool GetVkDescriptorPool() { return DescriptorPool; }
 	Texture GetTexture() { return texture; }

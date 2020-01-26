@@ -66,7 +66,7 @@ public:
 		vkBindBufferMemory(Device, buffer, bufferMemory, 0);
 	}
 
-	void CleanUp(int SwapChainImageSize)
+	void Destroy(int SwapChainImageSize)
 	{
 		for (size_t x = 0; x < SwapChainImageSize; x++)
 		{
@@ -85,5 +85,4 @@ public:
 	}
 
 	std::vector<VkBuffer> GetShaderBuffer() { return ShaderBuffer; }
-	std::vector<VkDeviceMemory> GetShaderBufferMemory() { return ShaderBufferMemory; }
 };

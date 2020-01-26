@@ -20,6 +20,7 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "CubeMapMesh.h"
 
 struct VkGPUInfo
 {
@@ -71,10 +72,14 @@ private:
 	VkSwapchainKHR SwapChain;
 	ShaderCompiler CompileShader;
 	VkRenderPass RenderPass;
+
 	VkPipelineLayout PipelineLayout;
+	VkPipelineLayout SkyBoxPipelineLayout;
 
 	VkPipeline GraphicsPipeline;
 	VkPipeline LightGraphicsPipeline;
+	VkPipeline SkyBoxPipeline;
+
 	VkPipeline LineShaderPipeline;
 	VkPipeline VertexShaderPipeline;
 	
@@ -86,10 +91,13 @@ private:
 	VkImageView DepthImageView;
 
 	VkDescriptorSetLayout DescriptorSetLayout;
+	VkDescriptorSetLayout SkyBoxDescriptorSetLayout;
 
 	Mesh Mesh1;
 	Mesh Mesh2;
+	CubeMapMesh SkyBox;
 	Texture texture;
+
 	std::vector<VkImage> SwapChainImages;
 	std::vector<VkImageView> SwapChainImageViews;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
@@ -112,6 +120,7 @@ private:
 	void SetUpImageViews();
 	void SetUpRenderPass();
 	void SetDescriptorSetLayout();
+	void SetSkyBoxDescriptorSetLayout();
 	void SetUpGraphicsPipeLine();
 	void SetUpFrameBuffers();
 	void SetUpCommandPool();

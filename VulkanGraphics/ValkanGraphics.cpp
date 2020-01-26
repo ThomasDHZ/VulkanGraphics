@@ -34,6 +34,7 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpImageViews();
 	SetUpRenderPass();
 	SetDescriptorSetLayout();
+	SetSkyBoxDescriptorSetLayout();
 	SetUpDepthBuffer();
 	SetUpFrameBuffers();
 	SetUpCommandPool();
@@ -47,6 +48,11 @@ ValkanGraphics::~ValkanGraphics()
 {
 	CleanUpSwapChain();
 
+	Mesh1.Destory(GPUInfo.Device, SwapChainImages.size());
+	Mesh2.Destory(GPUInfo.Device, SwapChainImages.size());
+	SkyBox.Destory(GPUInfo.Device, SwapChainImages.size());
+	texture.Destroy();
+
 	//texture.CleanUp();
 
 	//UniformBufferobject.CleanUp(SwapChainImages.size());
@@ -54,6 +60,7 @@ ValkanGraphics::~ValkanGraphics()
 
 	//vkDestroyDescriptorPool(GPUInfo.Device, DescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
+	vkDestroyDescriptorSetLayout(GPUInfo.Device, SkyBoxDescriptorSetLayout, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 	{
@@ -382,15 +389,48 @@ void ValkanGraphics::SetDescriptorSetLayout()
 	}
 }
 
+void ValkanGraphics::SetSkyBoxDescriptorSetLayout()
+{
+	VkDescriptorSetLayoutBinding UBOLayoutBinding = {};
+	UBOLayoutBinding.binding = 0;
+	UBOLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	UBOLayoutBinding.descriptorCount = 1;
+	UBOLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	UBOLayoutBinding.pImmutableSamplers = nullptr;
+
+	VkDescriptorSetLayoutBinding SamplerLayoutBinding = {};
+	SamplerLayoutBinding.binding = 1;
+	SamplerLayoutBinding.descriptorCount = 1;
+	SamplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	SamplerLayoutBinding.pImmutableSamplers = nullptr;
+	SamplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { UBOLayoutBinding, SamplerLayoutBinding };
+	VkDescriptorSetLayoutCreateInfo LayoutInfo = {};
+	LayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	LayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+	LayoutInfo.pBindings = bindings.data();
+
+	VkResult Result = vkCreateDescriptorSetLayout(GPUInfo.Device, &LayoutInfo, nullptr, &SkyBoxDescriptorSetLayout);
+	if (Result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create descriptor set layout.");
+	}
+}
+
 void ValkanGraphics::SetUpGraphicsPipeLine()
 {
 	VkShaderModule VertexShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/vert.spv");
 	VkShaderModule FragmentShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/frag.spv");
 	VkShaderModule LightVertexShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/lightvert.spv");
 	VkShaderModule LightFragmentShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/lightfrag.spv");
+	VkShaderModule SkyBoxVertexShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/SkyBoxVert.spv");
+	VkShaderModule SkyBoxFragmentShaderModule = CompileShader.CompileShader(GPUInfo.Device, "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/Shaders/SkyBoxFrag.spv");
 
 	auto bindingDescription = Vertex::GetBindingDescription();
 	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+	auto SkyBoxBindingDescription = CubeMapVertex::GetBindingDescription();
+	auto SkyBoxAttributeDescriptions = CubeMapVertex::GetAttributeDescriptions();
 
 	VkPipelineShaderStageCreateInfo VertexShaderStageInfo = {};
 	VertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -416,8 +456,21 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	lightFragmentShaderStageInfo.module = LightFragmentShaderModule;
 	lightFragmentShaderStageInfo.pName = "main";
 
+	VkPipelineShaderStageCreateInfo SkyBoxVertexShaderStageInfo = {};
+	SkyBoxVertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	SkyBoxVertexShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	SkyBoxVertexShaderStageInfo.module = SkyBoxVertexShaderModule;
+	SkyBoxVertexShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo SkyBoxFragmentShaderStageInfo = {};
+	SkyBoxFragmentShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	SkyBoxFragmentShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	SkyBoxFragmentShaderStageInfo.module = SkyBoxFragmentShaderModule;
+	SkyBoxFragmentShaderStageInfo.pName = "main";
+
 	VkPipelineShaderStageCreateInfo ShaderStages[] = { VertexShaderStageInfo, FragmentShaderStageInfo };
 	VkPipelineShaderStageCreateInfo LightShaderStages[] = { lightVertexShaderStageInfo, lightFragmentShaderStageInfo };
+	VkPipelineShaderStageCreateInfo SkyBoxShaderStages[] = { SkyBoxVertexShaderStageInfo, SkyBoxFragmentShaderStageInfo };
 
 	VkPipelineVertexInputStateCreateInfo VertexInputInfo = {};
 	VertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -425,6 +478,13 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	VertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 	VertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 	VertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
+	VkPipelineVertexInputStateCreateInfo SkyBoxVertexInputInfo = {};
+	SkyBoxVertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	SkyBoxVertexInputInfo.vertexBindingDescriptionCount = 1;
+	SkyBoxVertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(SkyBoxAttributeDescriptions.size());
+	SkyBoxVertexInputInfo.pVertexBindingDescriptions = &SkyBoxBindingDescription;
+	SkyBoxVertexInputInfo.pVertexAttributeDescriptions = SkyBoxAttributeDescriptions.data();
 
 	VkPipelineInputAssemblyStateCreateInfo InputAssembly = {};
 	InputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -518,6 +578,16 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
 
+	VkPipelineLayoutCreateInfo SkyBoxPipelineLayoutInfo = {};
+	SkyBoxPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	SkyBoxPipelineLayoutInfo.setLayoutCount = 1;
+	SkyBoxPipelineLayoutInfo.pSetLayouts = &SkyBoxDescriptorSetLayout;
+
+	Result = vkCreatePipelineLayout(GPUInfo.Device, &SkyBoxPipelineLayoutInfo, nullptr, &SkyBoxPipelineLayout);
+	if (Result != VK_SUCCESS) {
+		throw std::runtime_error("failed to create pipeline layout!");
+	}
+
 	VkGraphicsPipelineCreateInfo PipelineInfo = {};
 	PipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	PipelineInfo.stageCount = 2;
@@ -534,7 +604,29 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	PipelineInfo.subpass = 0;
 	PipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	 Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &PipelineInfo, nullptr, &GraphicsPipeline);
+	Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &PipelineInfo, nullptr, &GraphicsPipeline);
+	if (Result != VK_SUCCESS)
+	{
+		throw std::runtime_error("Failed to create graphics pipeline.");
+	}
+
+	VkGraphicsPipelineCreateInfo SkyBoxPipelineInfo = {};
+	SkyBoxPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	SkyBoxPipelineInfo.stageCount = 2;
+	SkyBoxPipelineInfo.pStages = SkyBoxShaderStages;
+	SkyBoxPipelineInfo.pVertexInputState = &SkyBoxVertexInputInfo;
+	SkyBoxPipelineInfo.pInputAssemblyState = &InputAssembly;
+	SkyBoxPipelineInfo.pViewportState = &ViewportState;
+	SkyBoxPipelineInfo.pRasterizationState = &Rasterizer;
+	SkyBoxPipelineInfo.pMultisampleState = &Multisampling;
+	SkyBoxPipelineInfo.pDepthStencilState = &DepthStencil;
+	SkyBoxPipelineInfo.pColorBlendState = &ColorBlending;
+	SkyBoxPipelineInfo.layout = SkyBoxPipelineLayout;
+	SkyBoxPipelineInfo.renderPass = RenderPass;
+	SkyBoxPipelineInfo.subpass = 0;
+	SkyBoxPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+	Result = vkCreateGraphicsPipelines(GPUInfo.Device, VK_NULL_HANDLE, 1, &SkyBoxPipelineInfo, nullptr, &SkyBoxPipeline);
 	if (Result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create graphics pipeline.");
@@ -587,6 +679,8 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 	vkDestroyShaderModule(GPUInfo.Device, VertexShaderModule, nullptr);
 	vkDestroyShaderModule(GPUInfo.Device, LightFragmentShaderModule, nullptr);
 	vkDestroyShaderModule(GPUInfo.Device, LightVertexShaderModule, nullptr);
+	vkDestroyShaderModule(GPUInfo.Device, SkyBoxFragmentShaderModule, nullptr);
+	vkDestroyShaderModule(GPUInfo.Device, SkyBoxVertexShaderModule, nullptr);
 }
 
 void ValkanGraphics::SetUpFrameBuffers()
@@ -636,8 +730,17 @@ void ValkanGraphics::SetUpDepthBuffer()
 
 void ValkanGraphics::SetUpVertexBuffers()
 {
+	std::vector<std::string> CubeOfMap;
+	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg");
+	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/bottom.jpg");
+	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg");
+	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/left.jpg");
+	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/right.jpg");
+	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/top.jpg");
+
 	Mesh1 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout);
 	Mesh2 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/cat.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices2, indices2, CommandPool, GraphicsQueue, DescriptorSetLayout);
+	SkyBox = CubeMapMesh(CubeOfMap, SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, CubeVertices, CommandPool, GraphicsQueue, SkyBoxDescriptorSetLayout);
 	texture = Texture("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/cat.png", GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, CommandPool, GraphicsQueue);
 }
 
@@ -672,7 +775,7 @@ void ValkanGraphics::SetUpCommandBuffers()
 	for (size_t i = 0; i < CommandBuffers.size(); i++)
 	{
 		std::array<VkClearValue, 2> clearValues = {};
-		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
 		clearValues[1].depthStencil = { 1.0f, 0 };
 
 		VkCommandBufferBeginInfo beginInfo = {};
@@ -693,6 +796,7 @@ void ValkanGraphics::SetUpCommandBuffers()
 
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+		SkyBox.Draw(CommandBuffers[i], SkyBoxPipeline, SkyBoxPipelineLayout, i);
 
 		if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
 		{
@@ -754,8 +858,16 @@ void ValkanGraphics::CleanUpSwapChain()
 	}
 
 	vkFreeCommandBuffers(GPUInfo.Device, CommandPool, static_cast<uint32_t>(CommandBuffers.size()), CommandBuffers.data());
+
 	vkDestroyPipeline(GPUInfo.Device, GraphicsPipeline, nullptr);
+	vkDestroyPipeline(GPUInfo.Device, LightGraphicsPipeline, nullptr);
+	vkDestroyPipeline(GPUInfo.Device, SkyBoxPipeline, nullptr);
+	vkDestroyPipeline(GPUInfo.Device, LineShaderPipeline, nullptr);
+	vkDestroyPipeline(GPUInfo.Device, VertexShaderPipeline, nullptr);
+
 	vkDestroyPipelineLayout(GPUInfo.Device, PipelineLayout, nullptr);
+	vkDestroyPipelineLayout(GPUInfo.Device, SkyBoxPipelineLayout, nullptr);
+
 	vkDestroyRenderPass(GPUInfo.Device, RenderPass, nullptr);
 
 	for (size_t x = 0; x < SwapChainImageViews.size(); x++) 
@@ -793,6 +905,8 @@ void ValkanGraphics::RecreateSwapChain()
 	Mesh1.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout);
 	Mesh2.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
 	Mesh2.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout);
+	SkyBox.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
+	SkyBox.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, SkyBoxDescriptorSetLayout);
 	SetUpCommandBuffers();
 }
 
@@ -926,25 +1040,49 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-	modelMatrix = glm::translate(modelMatrix, glm::vec3(1.0f, 0.0f, 0.0f));
-	modelMatrix = glm::rotate(modelMatrix, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 view = camera.GetViewMatrix();
+	glm::mat4 projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
 
-	glm::mat4 modelMatrix2 = glm::mat4(1.0f);
-	modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(-1.0f, 0.0f, 0.0f));
-	modelMatrix2 = glm::rotate(modelMatrix2, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	
 	UniformBufferObject2 ubo = {};
-	ubo.model = modelMatrix;
-	ubo.view = camera.GetViewMatrix();
-	ubo.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
+	ubo.model = model;
+	ubo.view = view;
+	ubo.proj = projection;
 	ubo.proj[1][1] *= -1;
 
-	UniformBufferObject2 ubo2 = {};
-	ubo2.model = modelMatrix2;
-	ubo2.view = camera.GetViewMatrix();
-	ubo2.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
-	ubo2.proj[1][1] *= -1;
+	view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+	SkyBoxUniformBufferObject2 SkyBoxUbo = {};
+	SkyBoxUbo.view = view;
+	SkyBoxUbo.proj = projection;
+
+	//glm::mat4 modelMatrix = glm::mat4(1.0f);
+	//modelMatrix = glm::translate(modelMatrix, glm::vec3(1.0f, 0.0f, 0.0f));
+	//modelMatrix = glm::rotate(modelMatrix, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	//glm::mat4 modelMatrix2 = glm::mat4(1.0f);
+	//modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(-1.0f, 0.0f, 0.0f));
+	//modelMatrix2 = glm::rotate(modelMatrix2, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//
+	//glm::mat4 modelMatrix3 = glm::mat4(1.0f);
+
+	//UniformBufferObject2 ubo = {};
+	//ubo.model = modelMatrix;
+	//ubo.view = camera.GetViewMatrix();
+	//ubo.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
+	//ubo.proj[1][1] *= -1;
+
+	//UniformBufferObject2 ubo2 = {};
+	//ubo2.model = modelMatrix2;
+	//ubo2.view = camera.GetViewMatrix();
+	//ubo2.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
+	//ubo2.proj[1][1] *= -1;
+
+	//SkyBoxUniformBufferObject2 SkyBoxUbo = {};
+	//glm::mat4 viewMatrix = glm::mat4(1.0f);
+	//SkyBoxUbo.view = glm::perspective(glm::radians(60.0f), (float)SwapChainExtent.width / (float)SwapChainExtent.height, 0.001f, 256.0f);
+
+	//SkyBoxUbo.view = glm::mat4(1.0f);
+	//SkyBoxUbo.view = viewMatrix * glm::translate(SkyBoxUbo.view, glm::vec3(0, 0, 0));
 
 	LightingStruct light = {};
 	light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
@@ -952,14 +1090,15 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
 	light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
 
-	LightingStruct light2 = {};
-	light2.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
-	light2.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
-	light2.Position = glm::vec3(0.0f, 1.0f, 0.0f);
-	light2.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
+	//LightingStruct light2 = {};
+	//light2.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
+	//light2.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	//light2.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+	//light2.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
 
 	Mesh1.UpdateUniformBuffers(ubo, light, currentImage);
-	Mesh2.UpdateUniformBuffers(ubo2, light2, currentImage);
+	//Mesh2.UpdateUniformBuffers(ubo2, light2, currentImage);
+	SkyBox.UpdateUniformBuffers(SkyBoxUbo, currentImage);
 }
 
 void ValkanGraphics::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
@@ -1274,13 +1413,6 @@ void ValkanGraphics::UpdateKeyboard()
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_6) == GLFW_PRESS)
 	{
 		FillMode = PolygonFillMode::GPX_FILL_LINE;
-		vkDeviceWaitIdle(GPUInfo.Device);
-		CommandBuffers.clear();
-		SetUpCommandBuffers();
-	}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_7) == GLFW_PRESS)
-	{
-		FillMode = PolygonFillMode::GPX_FILL_VERTEX;
 		vkDeviceWaitIdle(GPUInfo.Device);
 		CommandBuffers.clear();
 		SetUpCommandBuffers();

@@ -69,7 +69,7 @@ public:
 		vkBindBufferMemory(Device, buffer, bufferMemory, 0);
 	}
 
-	void CleanUp()
+	void Destory()
 	{
 		vkDestroyBuffer(Device, VertexBuffer, nullptr);
 		vkFreeMemory(Device, VertexBufferMemory, nullptr);
@@ -86,5 +86,4 @@ public:
 	}
 
 	VkBuffer GetVertexBuffer() { return VertexBuffer; }
-	VkDeviceMemory GetVertexBufferMemory() { return VertexBufferMemory; }
 };

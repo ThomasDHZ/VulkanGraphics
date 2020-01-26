@@ -205,9 +205,18 @@ void Mesh::Draw(VkCommandBuffer CommandBuffer, VkPipeline Pipeline, VkPipelineLa
 	//vkCmdDrawIndexed(CommandBuffer, Indices, 1, 0, 0, 0);
 }
 
+void Mesh::Destory(VkDevice device, int FrameSize)
+{
+	VBO.Destory();
+	IBO.Destroy();
+	UniformBufferobject.Destroy(FrameSize);
+	LightBufferStuff.Destroy(FrameSize);
+	texture.Destroy();
+	vkDestroyDescriptorPool(device, DescriptorPool, nullptr);
+}
+
 Mesh& Mesh::operator=(const Mesh& rhs)
 {
-
 	VBO = rhs.VBO;
 	IBO = rhs.IBO;
 	texture = rhs.texture;
@@ -215,5 +224,6 @@ Mesh& Mesh::operator=(const Mesh& rhs)
 	LightBufferStuff = rhs.LightBufferStuff;
 	DescriptorPool = rhs.DescriptorPool;
 	DescriptorSets = rhs.DescriptorSets;
+
 	return *this;
 }

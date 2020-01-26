@@ -39,10 +39,8 @@ public:
 	~Texture();
 
 	void CreateImageView(VkFormat format, VkImageAspectFlags aspectFlags);
-	void CleanUp();
+	void Destroy();
 
-	VkImage GetTextureImage() { return TextureImage; }
-	VkDeviceMemory GetTextureImageMemory() { return TextureImageMemory; }
 	VkImageView GetTextureImageView() { return TextureImageView; }
 	VkSampler GetTextureSampler() { return TextureSampler; }
 };
