@@ -39,7 +39,7 @@ ValkanGraphics::ValkanGraphics(unsigned int width, unsigned int height, const ch
 	SetUpFrameBuffers();
 	SetUpCommandPool();
 	SetUpGraphicsPipeLine();
-	SetUpVertexBuffers();
+	SetUpMeshObjects();
 	SetUpCommandBuffers();
 	SetUpSyncObjects();
 }
@@ -48,17 +48,16 @@ ValkanGraphics::~ValkanGraphics()
 {
 	CleanUpSwapChain();
 
-	Mesh1.Destory(GPUInfo.Device, SwapChainImages.size());
-	Mesh2.Destory(GPUInfo.Device, SwapChainImages.size());
-	SkyBox.Destory(GPUInfo.Device, SwapChainImages.size());
-	texture.Destroy();
+	for (Mesh mesh : MeshObject)
+	{
+		mesh.Destory(GPUInfo.Device, SwapChainImages.size());
+	}
 
-	//texture.CleanUp();
+	for (Mesh mesh : LightMeshObject)
+	{
+		mesh.Destory(GPUInfo.Device, SwapChainImages.size());
+	}
 
-	//UniformBufferobject.CleanUp(SwapChainImages.size());
-	//LightBufferStuff.CleanUp(SwapChainImages.size());
-
-	//vkDestroyDescriptorPool(GPUInfo.Device, DescriptorPool, nullptr);
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, SkyBoxDescriptorSetLayout, nullptr);
 
@@ -369,14 +368,21 @@ void ValkanGraphics::SetDescriptorSetLayout()
 	SamplerLayoutBinding.pImmutableSamplers = nullptr;
 	SamplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
+	VkDescriptorSetLayoutBinding SamplerLayoutBinding2 = {};
+	SamplerLayoutBinding2.binding = 2;
+	SamplerLayoutBinding2.descriptorCount = 1;
+	SamplerLayoutBinding2.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	SamplerLayoutBinding2.pImmutableSamplers = nullptr;
+	SamplerLayoutBinding2.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
 	VkDescriptorSetLayoutBinding AmbiantLayoutBinding = {};
-	AmbiantLayoutBinding.binding = 2;
+	AmbiantLayoutBinding.binding = 3;
 	AmbiantLayoutBinding.descriptorCount = 1;
 	AmbiantLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	AmbiantLayoutBinding.pImmutableSamplers = nullptr;
 	AmbiantLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 3> bindings = { UBOLayoutBinding, SamplerLayoutBinding, AmbiantLayoutBinding };
+	std::array<VkDescriptorSetLayoutBinding, 4> bindings = { UBOLayoutBinding, SamplerLayoutBinding, SamplerLayoutBinding2, AmbiantLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo LayoutInfo = {};
 	LayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	LayoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -728,7 +734,7 @@ void ValkanGraphics::SetUpDepthBuffer()
 	DepthImageView = CreateImageView(DepthImage, DepthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
-void ValkanGraphics::SetUpVertexBuffers()
+void ValkanGraphics::SetUpMeshObjects()
 {
 	std::vector<std::string> CubeOfMap;
 	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg");
@@ -738,10 +744,18 @@ void ValkanGraphics::SetUpVertexBuffers()
 	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/right.jpg");
 	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/top.jpg");
 
-	Mesh1 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout);
-	Mesh2 = Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/cat.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices2, indices2, CommandPool, GraphicsQueue, DescriptorSetLayout);
-	SkyBox = CubeMapMesh(CubeOfMap, SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, CubeVertices, CommandPool, GraphicsQueue, SkyBoxDescriptorSetLayout);
-	texture = Texture("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/cat.png", GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, CommandPool, GraphicsQueue);
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+
+	LightMeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
 }
 
 uint32_t ValkanGraphics::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
@@ -775,7 +789,7 @@ void ValkanGraphics::SetUpCommandBuffers()
 	for (size_t i = 0; i < CommandBuffers.size(); i++)
 	{
 		std::array<VkClearValue, 2> clearValues = {};
-		clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
+		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 		clearValues[1].depthStencil = { 1.0f, 0 };
 
 		VkCommandBufferBeginInfo beginInfo = {};
@@ -796,22 +810,38 @@ void ValkanGraphics::SetUpCommandBuffers()
 
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		SkyBox.Draw(CommandBuffers[i], SkyBoxPipeline, SkyBoxPipelineLayout, i);
 
-		if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
+
+		for (Mesh mesh : MeshObject)
 		{
-			Mesh1.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
-			Mesh2.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
+			if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
+			{
+				mesh.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			}
+			else if (FillMode == PolygonFillMode::GPX_FILL_LINE)
+			{
+				mesh.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			}
+			else if (FillMode == PolygonFillMode::GPX_FILL_VERTEX)
+			{
+				mesh.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			}
 		}
-		else if (FillMode == PolygonFillMode::GPX_FILL_LINE)
+
+		for (Mesh mesh : LightMeshObject)
 		{
-			Mesh1.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
-			Mesh2.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
-		}
-		else if (FillMode == PolygonFillMode::GPX_FILL_VERTEX)
-		{
-			Mesh1.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
-			Mesh2.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices2.size()), i);
+			if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
+			{
+				mesh.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			}
+			else if (FillMode == PolygonFillMode::GPX_FILL_LINE)
+			{
+				mesh.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			}
+			else if (FillMode == PolygonFillMode::GPX_FILL_VERTEX)
+			{
+				mesh.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+			}
 		}
 
 		vkCmdEndRenderPass(CommandBuffers[i]);
@@ -876,6 +906,16 @@ void ValkanGraphics::CleanUpSwapChain()
 	}
 
 	vkDestroySwapchainKHR(GPUInfo.Device, SwapChain, nullptr);
+
+	for (Mesh mesh : MeshObject)
+	{
+		mesh.DestoryBufferObjects(GPUInfo.Device, SwapChainFramebuffers.size());
+	}
+
+	for (Mesh mesh : LightMeshObject)
+	{
+		mesh.DestoryBufferObjects(GPUInfo.Device, SwapChainFramebuffers.size());
+	}
 }
 
 void ValkanGraphics::RecreateSwapChain()
@@ -900,13 +940,13 @@ void ValkanGraphics::RecreateSwapChain()
 	SetUpGraphicsPipeLine();
 	SetUpDepthBuffer();
 	SetUpFrameBuffers();
-	//Mesh1.SetUpUniformBuffers();
-	Mesh1.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
-	Mesh1.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout);
-	Mesh2.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
-	Mesh2.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout);
-	SkyBox.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
-	SkyBox.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, SkyBoxDescriptorSetLayout);
+
+	//for (Mesh mesh : MeshObject)
+	//{
+	//	mesh.SetUpDescriptorPool(SwapChainImages.size(), GPUInfo.Device);
+	//	mesh.SetUpDescriptorSets(SwapChainImages.size(), GPUInfo.Device, DescriptorSetLayout);
+	//}
+
 	SetUpCommandBuffers();
 }
 
@@ -1040,65 +1080,60 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	glm::mat4 model = glm::mat4(1.0f);
+	
 	glm::mat4 view = camera.GetViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
 
 	UniformBufferObject2 ubo = {};
-	ubo.model = model;
 	ubo.view = view;
 	ubo.proj = projection;
 	ubo.proj[1][1] *= -1;
 
-	view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-	SkyBoxUniformBufferObject2 SkyBoxUbo = {};
-	SkyBoxUbo.view = view;
-	SkyBoxUbo.proj = projection;
+	glm::vec3 cubePositions[] = 
+	{
+	   glm::vec3(0.0f,  0.0f,  0.0f),
+	   glm::vec3(2.0f,  5.0f, -15.0f),
+	   glm::vec3(-1.5f, -2.2f, -2.5f),
+	   glm::vec3(-3.8f, -2.0f, -12.3f),
+	   glm::vec3(2.4f, -0.4f, -3.5f),
+	   glm::vec3(-1.7f,  3.0f, -7.5f),
+	   glm::vec3(1.3f, -2.0f, -2.5f),
+	   glm::vec3(1.5f,  2.0f, -2.5f),
+	   glm::vec3(1.5f,  0.2f, -1.5f),
+	   glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
 
-	//glm::mat4 modelMatrix = glm::mat4(1.0f);
-	//modelMatrix = glm::translate(modelMatrix, glm::vec3(1.0f, 0.0f, 0.0f));
-	//modelMatrix = glm::rotate(modelMatrix, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	for (unsigned int i = 0; i < 10; i++)
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, cubePositions[i]);
+		model = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+		ubo.model = model;
 
-	//glm::mat4 modelMatrix2 = glm::mat4(1.0f);
-	//modelMatrix2 = glm::translate(modelMatrix2, glm::vec3(-1.0f, 0.0f, 0.0f));
-	//modelMatrix2 = glm::rotate(modelMatrix2, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	//
-	//glm::mat4 modelMatrix3 = glm::mat4(1.0f);
+		LightingStruct light = {};
+		light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
+		light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+		light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+		light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
 
-	//UniformBufferObject2 ubo = {};
-	//ubo.model = modelMatrix;
-	//ubo.view = camera.GetViewMatrix();
-	//ubo.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
-	//ubo.proj[1][1] *= -1;
+		MeshObject[i].UpdateUniformBuffers(ubo, light, currentImage);
+	}
 
-	//UniformBufferObject2 ubo2 = {};
-	//ubo2.model = modelMatrix2;
-	//ubo2.view = camera.GetViewMatrix();
-	//ubo2.proj = glm::perspective(camera.GetCameraZoom(), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
-	//ubo2.proj[1][1] *= -1;
+	for (Mesh mesh : LightMeshObject)
+	{
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-1.7f, 3.0f, -7.5f));
+		model = glm::rotate(model, glm::radians(20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+		ubo.model = model;
 
-	//SkyBoxUniformBufferObject2 SkyBoxUbo = {};
-	//glm::mat4 viewMatrix = glm::mat4(1.0f);
-	//SkyBoxUbo.view = glm::perspective(glm::radians(60.0f), (float)SwapChainExtent.width / (float)SwapChainExtent.height, 0.001f, 256.0f);
+		LightingStruct light = {};
+		light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
+		light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+		light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+		light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
 
-	//SkyBoxUbo.view = glm::mat4(1.0f);
-	//SkyBoxUbo.view = viewMatrix * glm::translate(SkyBoxUbo.view, glm::vec3(0, 0, 0));
-
-	LightingStruct light = {};
-	light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
-	light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
-	light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
-	light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
-
-	//LightingStruct light2 = {};
-	//light2.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
-	//light2.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
-	//light2.Position = glm::vec3(0.0f, 1.0f, 0.0f);
-	//light2.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
-
-	Mesh1.UpdateUniformBuffers(ubo, light, currentImage);
-	//Mesh2.UpdateUniformBuffers(ubo2, light2, currentImage);
-	SkyBox.UpdateUniformBuffers(SkyBoxUbo, currentImage);
+		mesh.UpdateUniformBuffers(ubo, light, currentImage);
+	}
 }
 
 void ValkanGraphics::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)

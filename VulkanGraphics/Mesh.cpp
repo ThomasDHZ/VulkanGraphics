@@ -5,11 +5,12 @@ Mesh::Mesh()
 
 }
 
-Mesh::Mesh(std::string TexturePath, int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue, VkDescriptorSetLayout DescriptorSetLayout)
+Mesh::Mesh(std::string DiffuseMapPath, std::string SpecularMapPath, int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue, VkDescriptorSetLayout DescriptorSetLayout)
 {
 	VBO = VertexBufferObject<Vertex>(SwapChainSize, device, physicalDevice, VertexData, CommandPool, GraphicsQueue);
 	IBO = IndexBufferObject(SwapChainSize, device, physicalDevice, IndexData, CommandPool, GraphicsQueue);
-	texture = Texture(TexturePath, device, physicalDevice, CommandBuffer, CommandPool, GraphicsQueue);
+	DiffuseMap = Texture(DiffuseMapPath, device, physicalDevice, CommandBuffer, CommandPool, GraphicsQueue);
+	SpecularMap = Texture(SpecularMapPath, device, physicalDevice, CommandBuffer, CommandPool, GraphicsQueue);
 
 	UniformBufferobject = UniformBufferObject<UniformBufferObject2>(SwapChainSize, device, physicalDevice);
 	LightBufferStuff = UniformBufferObject<LightingStruct>(SwapChainSize, device, physicalDevice);
@@ -24,11 +25,13 @@ Mesh::~Mesh()
 
 void Mesh::SetUpDescriptorPool(int SwapChainSize, VkDevice device)
 {
-	std::array<VkDescriptorPoolSize, 2> PoolSizes = {};
+	std::array<VkDescriptorPoolSize, 3> PoolSizes = {};
 	PoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	PoolSizes[0].descriptorCount = static_cast<unsigned int>(SwapChainSize);
 	PoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	PoolSizes[1].descriptorCount = static_cast<uint32_t>(SwapChainSize);
+	PoolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	PoolSizes[2].descriptorCount = static_cast<uint32_t>(SwapChainSize);
 
 	VkDescriptorPoolCreateInfo DescriptorPoolInfo = {};
 	DescriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -57,23 +60,29 @@ void Mesh::SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorS
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
 
-	for (size_t i = 0; i < SwapChainSize; i++) {
+	for (size_t i = 0; i < SwapChainSize; i++) 
+	{
 		VkDescriptorBufferInfo bufferInfo = {};
 		bufferInfo.buffer = UniformBufferobject.GetShaderBuffer()[i];
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject2);
 
-		VkDescriptorImageInfo imageInfo = {};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = texture.GetTextureImageView();
-		imageInfo.sampler = texture.GetTextureSampler();
+		VkDescriptorImageInfo DiffuseMapInfo = {};
+		DiffuseMapInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		DiffuseMapInfo.imageView = DiffuseMap.GetTextureImageView();
+		DiffuseMapInfo.sampler = DiffuseMap.GetTextureSampler();
+
+		VkDescriptorImageInfo SpecularMapInfo = {};
+		SpecularMapInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		SpecularMapInfo.imageView = SpecularMap.GetTextureImageView();
+		SpecularMapInfo.sampler = SpecularMap.GetTextureSampler();
 
 		VkDescriptorBufferInfo LightbufferInfo = {};
 		LightbufferInfo.buffer = LightBufferStuff.GetShaderBuffer()[i];
 		LightbufferInfo.offset = 0;
 		LightbufferInfo.range = sizeof(LightingStruct);
 
-		std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
+		std::array<VkWriteDescriptorSet, 4> descriptorWrites = {};
 
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = DescriptorSets[i];
@@ -89,15 +98,23 @@ void Mesh::SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorS
 		descriptorWrites[1].dstArrayElement = 0;
 		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
+		descriptorWrites[1].pImageInfo = &DiffuseMapInfo;
 
 		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[2].dstSet = DescriptorSets[i];
 		descriptorWrites[2].dstBinding = 2;
 		descriptorWrites[2].dstArrayElement = 0;
-		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		descriptorWrites[2].descriptorCount = 1;
-		descriptorWrites[2].pBufferInfo = &LightbufferInfo;
+		descriptorWrites[2].pImageInfo = &SpecularMapInfo;
+
+		descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[3].dstSet = DescriptorSets[i];
+		descriptorWrites[3].dstBinding = 3;
+		descriptorWrites[3].dstArrayElement = 0;
+		descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[3].descriptorCount = 1;
+		descriptorWrites[3].pBufferInfo = &LightbufferInfo;
 
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
@@ -209,9 +226,15 @@ void Mesh::Destory(VkDevice device, int FrameSize)
 {
 	VBO.Destory();
 	IBO.Destroy();
+	DiffuseMap.Destroy();
+	SpecularMap.Destroy();
+	DestoryBufferObjects(device, FrameSize);
+}
+
+void Mesh::DestoryBufferObjects(VkDevice device, int FrameSize)
+{
 	UniformBufferobject.Destroy(FrameSize);
 	LightBufferStuff.Destroy(FrameSize);
-	texture.Destroy();
 	vkDestroyDescriptorPool(device, DescriptorPool, nullptr);
 }
 
@@ -219,7 +242,8 @@ Mesh& Mesh::operator=(const Mesh& rhs)
 {
 	VBO = rhs.VBO;
 	IBO = rhs.IBO;
-	texture = rhs.texture;
+	DiffuseMap = rhs.DiffuseMap;
+	SpecularMap = rhs.SpecularMap;
 	UniformBufferobject = rhs.UniformBufferobject;
 	LightBufferStuff = rhs.LightBufferStuff;
 	DescriptorPool = rhs.DescriptorPool;

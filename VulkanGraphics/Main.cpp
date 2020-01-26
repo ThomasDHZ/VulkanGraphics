@@ -2,7 +2,7 @@
 
 int main() 
 {
-	ValkanGraphics VGraphics(800, 600, "Vulkan Graphics Testing");
+	ValkanGraphics VGraphics(3840, 2160, "Vulkan Graphics Testing");
 	try
 	{
 		VGraphics.Run();

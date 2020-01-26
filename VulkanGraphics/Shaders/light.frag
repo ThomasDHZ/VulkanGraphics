@@ -2,7 +2,8 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(binding = 1) uniform sampler2D texSampler;
-layout(binding = 2) uniform LightingStruct 
+layout(binding = 2) uniform sampler2D texSampler2;
+layout(binding = 3) uniform LightingStruct 
 {
 	vec3 Position;
     vec3 Ambient;

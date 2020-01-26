@@ -177,7 +177,8 @@ class Mesh
 private:
 	VertexBufferObject<Vertex> VBO;
 	IndexBufferObject IBO;
-	Texture texture;
+	Texture DiffuseMap;
+	Texture SpecularMap;
 
 	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
 	UniformBufferObject<LightingStruct> LightBufferStuff;
@@ -186,7 +187,7 @@ private:
 	std::vector<VkDescriptorSet> DescriptorSets;
 public:
 	Mesh();
-	Mesh(std::string TexturePath, int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue, VkDescriptorSetLayout DescriptorSetLayout);
+	Mesh(std::string DiffuseMapPath, std::string SpecularMapPath, int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue, VkDescriptorSetLayout DescriptorSetLayout);
 	~Mesh();
 
 	void SetUpDescriptorPool(int SwapChainSize, VkDevice device);
@@ -195,9 +196,9 @@ public:
 	void UpdateTexture(Texture updateTexture, int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout);
 	void Draw(VkCommandBuffer CommandBuffer, VkPipeline Pipeline, VkPipelineLayout PipeLineLayout, uint32_t Indices, int frame);
 	void Destory(VkDevice device, int FrameSize);
+	void DestoryBufferObjects(VkDevice device,int FrameSize);
 
 	VkDescriptorPool GetVkDescriptorPool() { return DescriptorPool; }
-	Texture GetTexture() { return texture; }
 	Mesh& operator=(const Mesh& rhs);
 };
 

@@ -45,6 +45,7 @@ enum PolygonFillMode
 class ValkanGraphics
 {
 private:
+
 	 PolygonFillMode FillMode = GPX_FILL_SOLID;
 
 	const bool EnableValidationLayers;
@@ -93,10 +94,8 @@ private:
 	VkDescriptorSetLayout DescriptorSetLayout;
 	VkDescriptorSetLayout SkyBoxDescriptorSetLayout;
 
-	Mesh Mesh1;
-	Mesh Mesh2;
-	CubeMapMesh SkyBox;
-	Texture texture;
+	std::vector<Mesh> MeshObject;
+	std::vector<Mesh> LightMeshObject;
 
 	std::vector<VkImage> SwapChainImages;
 	std::vector<VkImageView> SwapChainImageViews;
@@ -125,7 +124,7 @@ private:
 	void SetUpFrameBuffers();
 	void SetUpCommandPool();
 	void SetUpDepthBuffer();
-	void SetUpVertexBuffers();
+	void SetUpMeshObjects();
 	void SetUpCommandBuffers();
 	void SetUpSyncObjects();
 	void CleanUpSwapChain();
