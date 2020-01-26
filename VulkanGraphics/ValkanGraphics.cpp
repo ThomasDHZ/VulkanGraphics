@@ -1111,10 +1111,12 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 		ubo.model = model;
 
 		LightingStruct light = {};
-		light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
-		light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
-		light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
-		light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
+		light.shininess = 64.0f;
+		light.viewPos = camera.GetCameraPos();
+		light.light.Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+		light.light.Diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+		light.light.Position = glm::vec3(3.2f, 1.0f, 0.0f);
+		light.light.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
 		MeshObject[i].UpdateUniformBuffers(ubo, light, currentImage);
 	}
@@ -1122,15 +1124,15 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	for (Mesh mesh : LightMeshObject)
 	{
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-1.7f, 3.0f, -7.5f));
-		model = glm::rotate(model, glm::radians(20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+		model = glm::translate(model, glm::vec3(3.2f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
 		ubo.model = model;
 
 		LightingStruct light = {};
-		light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
-		light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
-		light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
-		light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
+		light.light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
+		light.light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+		light.light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+		light.light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
 
 		mesh.UpdateUniformBuffers(ubo, light, currentImage);
 	}
@@ -1415,7 +1417,7 @@ void ValkanGraphics::UpdateMouse()
 		lastX = MouseXPos;
 		lastY = MouseYPos;
 
-		camera.UpdateMouse(xoffset, yoffset);
+		camera.ProcessMouseMovement(xoffset, yoffset);
 	}
 	else
 	{
@@ -1430,13 +1432,13 @@ void ValkanGraphics::UpdateKeyboard()
 	lastFrame = currentFrame;
 
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_W) == GLFW_PRESS)
-		camera.UpdateKeyboard(FORWARD, deltaTime);
+		camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_S) == GLFW_PRESS)
-		camera.UpdateKeyboard(BACKWARD, deltaTime);
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_A) == GLFW_PRESS)
-		camera.UpdateKeyboard(LEFT, deltaTime);
+		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
-		camera.UpdateKeyboard(RIGHT, deltaTime);
+		camera.ProcessKeyboard(RIGHT, deltaTime);
 
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_5) == GLFW_PRESS)
 	{

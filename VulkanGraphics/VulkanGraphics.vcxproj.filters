@@ -42,9 +42,6 @@
     <ClCompile Include="VulkanBufferManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VulkanPipeLineManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

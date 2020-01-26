@@ -158,18 +158,26 @@ const std::vector<uint16_t> indices2 =
 	4, 5, 6, 6, 7, 4
 };
 
-struct UniformBufferObject2 {
+struct UniformBufferObject2 
+{
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
 };
 
-struct LightingStruct
+struct Light
 {
 	alignas(16) glm::vec3 Position;
 	alignas(16) glm::vec3 Ambient;
 	alignas(16) glm::vec3 Diffuse;
 	alignas(16) glm::vec3 Specular;
+};
+
+struct LightingStruct
+{
+	Light light;
+	alignas(16) glm::vec3 viewPos;
+	alignas(4) float shininess;
 };
 
 class Mesh

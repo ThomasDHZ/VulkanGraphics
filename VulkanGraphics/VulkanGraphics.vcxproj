@@ -144,7 +144,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CubeMapMesh.cpp" />
     <ClCompile Include="CubeTexture.cpp" />
     <ClCompile Include="Main.cpp" />
