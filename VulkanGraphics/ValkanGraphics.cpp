@@ -48,15 +48,15 @@ ValkanGraphics::~ValkanGraphics()
 {
 	CleanUpSwapChain();
 
-	for (Mesh mesh : MeshObject)
-	{
-		mesh.Destory(GPUInfo.Device, SwapChainImages.size());
-	}
+	//for (Mesh mesh : MeshObject)
+	//{
+	//	mesh.Destory(GPUInfo.Device, SwapChainImages.size());
+	//}
 
-	for (Mesh mesh : LightMeshObject)
-	{
-		mesh.Destory(GPUInfo.Device, SwapChainImages.size());
-	}
+	//for (Mesh mesh : LightMeshObject)
+	//{
+	//	mesh.Destory(GPUInfo.Device, SwapChainImages.size());
+	//}
 
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, DescriptorSetLayout, nullptr);
 	vkDestroyDescriptorSetLayout(GPUInfo.Device, SkyBoxDescriptorSetLayout, nullptr);
@@ -435,8 +435,8 @@ void ValkanGraphics::SetUpGraphicsPipeLine()
 
 	auto bindingDescription = Vertex::GetBindingDescription();
 	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
-	auto SkyBoxBindingDescription = CubeMapVertex::GetBindingDescription();
-	auto SkyBoxAttributeDescriptions = CubeMapVertex::GetAttributeDescriptions();
+	auto SkyBoxBindingDescription = SkyBoxVertex::GetBindingDescription();
+	auto SkyBoxAttributeDescriptions = SkyBoxVertex::GetAttributeDescriptions();
 
 	VkPipelineShaderStageCreateInfo VertexShaderStageInfo = {};
 	VertexShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -744,7 +744,9 @@ void ValkanGraphics::SetUpMeshObjects()
 	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/right.jpg");
 	CubeOfMap.emplace_back("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/top.jpg");
 
-	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	SkyBox = Skybox(GPUInfo.Device, GPUInfo.PhysicalDevice, CommandPool, GraphicsQueue, 3);
+
+	/*MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
 	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
 	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
 	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
@@ -755,7 +757,7 @@ void ValkanGraphics::SetUpMeshObjects()
 	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
 	MeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
 
-	LightMeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));
+	LightMeshObject.emplace_back(Mesh("C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/texture.jpg", "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png", SwapChainImages.size(), GPUInfo.Device, GPUInfo.PhysicalDevice, CommandBuffers, vertices, indices, CommandPool, GraphicsQueue, DescriptorSetLayout));*/
 }
 
 uint32_t ValkanGraphics::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
@@ -811,38 +813,38 @@ void ValkanGraphics::SetUpCommandBuffers()
 		vkCmdBeginRenderPass(CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 
+		SkyBox.Draw(CommandBuffers[i], SkyBoxPipeline, SkyBoxPipelineLayout, i);
+		//for (Mesh mesh : MeshObject)
+		//{
+		//	if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
+		//	{
+		//		mesh.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+		//	}
+		//	else if (FillMode == PolygonFillMode::GPX_FILL_LINE)
+		//	{
+		//		mesh.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+		//	}
+		//	else if (FillMode == PolygonFillMode::GPX_FILL_VERTEX)
+		//	{
+		//		mesh.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+		//	}
+		//}
 
-		for (Mesh mesh : MeshObject)
-		{
-			if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
-			{
-				mesh.Draw(CommandBuffers[i], GraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
-			}
-			else if (FillMode == PolygonFillMode::GPX_FILL_LINE)
-			{
-				mesh.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
-			}
-			else if (FillMode == PolygonFillMode::GPX_FILL_VERTEX)
-			{
-				mesh.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
-			}
-		}
-
-		for (Mesh mesh : LightMeshObject)
-		{
-			if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
-			{
-				mesh.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
-			}
-			else if (FillMode == PolygonFillMode::GPX_FILL_LINE)
-			{
-				mesh.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
-			}
-			else if (FillMode == PolygonFillMode::GPX_FILL_VERTEX)
-			{
-				mesh.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
-			}
-		}
+		//for (Mesh mesh : LightMeshObject)
+		//{
+		//	if (FillMode == PolygonFillMode::GPX_FILL_SOLID)
+		//	{
+		//		mesh.Draw(CommandBuffers[i], LightGraphicsPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+		//	}
+		//	else if (FillMode == PolygonFillMode::GPX_FILL_LINE)
+		//	{
+		//		mesh.Draw(CommandBuffers[i], LineShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+		//	}
+		//	else if (FillMode == PolygonFillMode::GPX_FILL_VERTEX)
+		//	{
+		//		mesh.Draw(CommandBuffers[i], VertexShaderPipeline, PipelineLayout, static_cast<uint32_t>(indices.size()), i);
+		//	}
+		//}
 
 		vkCmdEndRenderPass(CommandBuffers[i]);
 
@@ -907,15 +909,15 @@ void ValkanGraphics::CleanUpSwapChain()
 
 	vkDestroySwapchainKHR(GPUInfo.Device, SwapChain, nullptr);
 
-	for (Mesh mesh : MeshObject)
-	{
-		mesh.DestoryBufferObjects(GPUInfo.Device, SwapChainFramebuffers.size());
-	}
+	//for (Mesh mesh : MeshObject)
+	//{
+	//	mesh.DestoryBufferObjects(GPUInfo.Device, SwapChainFramebuffers.size());
+	//}
 
-	for (Mesh mesh : LightMeshObject)
-	{
-		mesh.DestoryBufferObjects(GPUInfo.Device, SwapChainFramebuffers.size());
-	}
+	//for (Mesh mesh : LightMeshObject)
+	//{
+	//	mesh.DestoryBufferObjects(GPUInfo.Device, SwapChainFramebuffers.size());
+	//}
 }
 
 void ValkanGraphics::RecreateSwapChain()
@@ -1084,10 +1086,10 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	glm::mat4 view = camera.GetViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
 
-	UniformBufferObject2 ubo = {};
-	ubo.view = view;
-	ubo.proj = projection;
-	ubo.proj[1][1] *= -1;
+	//UniformBufferObject2 ubo = {};
+	//ubo.view = view;
+	//ubo.proj = projection;
+	//ubo.proj[1][1] *= -1;
 
 	glm::vec3 cubePositions[] = 
 	{
@@ -1103,39 +1105,45 @@ void ValkanGraphics::UpdateUniformBuffer(uint32_t currentImage)
 	   glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-	for (unsigned int i = 0; i < 10; i++)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, cubePositions[i]);
-		model = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
-		ubo.model = model;
+	SkyBoxUniformBufferObject ubo = {};
+	ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+	ubo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 100.0f);
+	ubo.projection[1][1] *= -1;
 
-		LightingStruct light = {};
-		light.shininess = 64.0f;
-		light.viewPos = camera.GetCameraPos();
-		light.light.Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-		light.light.Diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-		light.light.Position = glm::vec3(3.2f, 1.0f, 0.0f);
-		light.light.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	SkyBox.UpdateUniformBuffers(ubo, currentImage);
+	//for (unsigned int i = 0; i < 10; i++)
+	//{
+	//	glm::mat4 model = glm::mat4(1.0f);
+	//	model = glm::translate(model, cubePositions[i]);
+	//	model = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+	//	ubo.model = model;
 
-		MeshObject[i].UpdateUniformBuffers(ubo, light, currentImage);
-	}
+	//	LightingStruct light = {};
+	//	light.shininess = 64.0f;
+	//	light.viewPos = camera.GetCameraPos();
+	//	light.light.Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+	//	light.light.Diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+	//	light.light.Position = glm::vec3(3.2f, 1.0f, 0.0f);
+	//	light.light.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	for (Mesh mesh : LightMeshObject)
-	{
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(3.2f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
-		ubo.model = model;
+	//	MeshObject[i].UpdateUniformBuffers(ubo, light, currentImage);
+	//}
 
-		LightingStruct light = {};
-		light.light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
-		light.light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
-		light.light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
-		light.light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
+	//for (Mesh mesh : LightMeshObject)
+	//{
+	//	glm::mat4 model = glm::mat4(1.0f);
+	//	model = glm::translate(model, glm::vec3(3.2f, 1.0f, 0.0f));
+	//	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+	//	ubo.model = model;
 
-		mesh.UpdateUniformBuffers(ubo, light, currentImage);
-	}
+	//	LightingStruct light = {};
+	//	light.light.Ambient = glm::vec3(1.0f, sin(time), 0.0f);
+	//	light.light.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	//	light.light.Position = glm::vec3(0.0f, 1.0f, 0.0f);
+	//	light.light.Specular = glm::vec3(0.0f, 0.0f, 1.0f);
+
+	//	mesh.UpdateUniformBuffers(ubo, light, currentImage);
+	//}
 }
 
 void ValkanGraphics::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)

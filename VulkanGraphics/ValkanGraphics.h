@@ -20,7 +20,7 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Texture.h"
-#include "CubeMapMesh.h"
+#include "Skybox.h"
 
 struct VkGPUInfo
 {
@@ -94,8 +94,9 @@ private:
 	VkDescriptorSetLayout DescriptorSetLayout;
 	VkDescriptorSetLayout SkyBoxDescriptorSetLayout;
 
-	std::vector<Mesh> MeshObject;
-	std::vector<Mesh> LightMeshObject;
+	//std::vector<Mesh> MeshObject;
+	//std::vector<Mesh> LightMeshObject;
+	Skybox SkyBox;
 
 	std::vector<VkImage> SwapChainImages;
 	std::vector<VkImageView> SwapChainImageViews;

@@ -144,12 +144,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CubeMapMesh.cpp" />
-    <ClCompile Include="CubeTexture.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ValkanGraphics.cpp" />
     <ClCompile Include="VulkanBufferManager.cpp" />
@@ -161,12 +160,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="CubeMapMesh.h" />
-    <ClInclude Include="CubeTexture.h" />
     <ClInclude Include="IndexBufferObject.h" />
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ShaderCompiler.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ValkanGraphics.h" />
     <ClInclude Include="VertexBufferObject.h" />

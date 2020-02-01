@@ -85,4 +85,17 @@ public:
 	}
 
 	std::vector<VkBuffer> GetShaderBuffer() { return ShaderBuffer; }
+	std::vector<VkDeviceMemory> GetShaderBufferMemory() { return ShaderBufferMemory; }
+
+	VkBuffer GetShaderBuffer(int index) { return ShaderBuffer[index]; }
+	VkDeviceMemory GetShaderBufferMemory(int index) { return ShaderBufferMemory[index]; }
+
+	void SetShaderBuffer(VkBuffer shaderBuffer, int index)
+	{ 
+		ShaderBuffer[index] = shaderBuffer;
+	}
+	void SetShaderBufferMemory(VkDeviceMemory deviceMemory, int index)
+	{ 
+		ShaderBufferMemory[index] = deviceMemory;
+	}
 };
