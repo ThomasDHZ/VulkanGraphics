@@ -68,10 +68,17 @@ public:
 
 	void Destroy(int SwapChainImageSize)
 	{
-		for (size_t x = 0; x < SwapChainImageSize; x++)
+		if (ShaderBuffer[0] != nullptr &&
+			ShaderBufferMemory[0] != nullptr)
 		{
-			vkDestroyBuffer(Device, ShaderBuffer[x], nullptr);
-			vkFreeMemory(Device, ShaderBufferMemory[x], nullptr);
+			for (size_t x = 0; x < SwapChainImageSize; x++)
+			{
+				vkDestroyBuffer(Device, ShaderBuffer[x], nullptr);
+				vkFreeMemory(Device, ShaderBufferMemory[x], nullptr);
+			
+				ShaderBuffer[x] = nullptr;
+				ShaderBufferMemory[x] = nullptr;
+			}
 		}
 	}
 
@@ -91,11 +98,11 @@ public:
 	VkDeviceMemory GetShaderBufferMemory(int index) { return ShaderBufferMemory[index]; }
 
 	void SetShaderBuffer(VkBuffer shaderBuffer, int index)
-	{ 
+	{
 		ShaderBuffer[index] = shaderBuffer;
 	}
 	void SetShaderBufferMemory(VkDeviceMemory deviceMemory, int index)
-	{ 
+	{
 		ShaderBufferMemory[index] = deviceMemory;
 	}
 };

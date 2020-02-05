@@ -1,0 +1,74 @@
+#pragma once
+#include "Mesh.h"
+#include "SkyBox.h"
+
+struct DescriptorSetLayoutBindingInfo
+{
+	uint32_t Binding;
+	VkDescriptorType DescriptorType;
+	VkShaderStageFlags StageFlags;
+};
+
+struct DescriptorPoolSizeInfo
+{
+	VkDescriptorType DescriptorType;
+};
+
+struct WriteDescriptorSetInfo
+{
+	uint32_t DstBinding;
+	VkDescriptorType DescriptorType;
+	VkDescriptorBufferInfo DescriptorBufferInfo;
+	VkDescriptorImageInfo DescriptorImageInfo;
+
+};
+
+struct UniformBufferObject2 {
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
+};
+
+struct FragmentUniformBufferObject
+{
+	alignas(16) glm::vec3 cameraPos;
+};
+
+class BaseShader
+{
+protected:
+	VulkanDevice DeviceInfo;
+
+	void CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo> LayoutBindingInfo);
+
+public:
+	VkDescriptorSetLayout descriptorSetLayout;
+	VkDescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
+
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+
+	std::vector<VkBuffer> FragmentUniformBuffers;
+	std::vector<VkDeviceMemory> FragmentUniformBuffersMemory;
+
+	VkPipelineLayout ShaderPipelineLayout;
+	VkPipeline ShaderPipeline;
+
+	BaseShader();
+	BaseShader(VulkanDevice deviceInfo);
+	~BaseShader();
+
+	void CreateShaderPipeLine();
+	void CreateUniformBuffers();
+	void CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
+	void CreateDescriptorSets();
+	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWrites);
+
+	VkBuffer GetUniformBuffers(int i) { return uniformBuffers[i]; }
+	VkDescriptorSet GetDescriptorSet(int i) { return descriptorSets[i]; }
+
+	void Destory();
+	void DestorySwapChain();
+};
+

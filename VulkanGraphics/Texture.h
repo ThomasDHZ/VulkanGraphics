@@ -1,47 +1,32 @@
 #pragma once
-#include <vulkan/vulkan.h>
-
-#include <stb_image.h>
-#include <stdexcept>
-
-#include "VulkanBufferManager.h"
-#include <vector>
+#include <vulkan\vulkan_core.h>
+#include "Mesh.h"
 
 class Texture
 {
 private:
-
-	VkDevice Device;
-	VkPhysicalDevice PhysicalDevice;
-	std::vector<VkCommandBuffer> CommandBuffer;
-	VkCommandPool CommandPool;
-	VkQueue GraphicsQueue;
-
-	int Width;
+	int Width; 
 	int Height;
-	VkImage TextureImage;
-	VkDeviceMemory TextureImageMemory;
-	VkImageView TextureImageView;
-	VkSampler TextureSampler;
 
-	void LoadImage(std::string TexturePath, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue);
-	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-	void CreateImage(VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
-	void TransitionImageLayout(VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-	void CopyBufferToImage(VkBuffer buffer);
+	VulkanDevice DeviceInfo;
+
+	void CreateTextureImage(std::string TexturePath);
+	void CreateImageView();
 	void CreateTextureSampler();
-	void CreateDescriptorSetLayout();
 
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	void CreateImage();
+	void TransitionImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout);
+	void CopyBufferToImage(VkBuffer buffer);
 public:
+	VkImage textureImage;
+	VkDeviceMemory textureImageMemory;
+	VkImageView textureImageView;
+	VkSampler textureSampler;
+
 	Texture();
-	Texture(std::string TexturePath, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> commandBuffer, VkCommandPool commandPool, VkQueue graphicsQueue);
+	Texture(VulkanDevice deviceInfo, std::string TexturePath);
 	~Texture();
-
-	void CreateImageView(VkFormat format, VkImageAspectFlags aspectFlags);
 	void Destroy();
-
-	VkImageView GetTextureImageView() { return TextureImageView; }
-	VkSampler GetTextureSampler() { return TextureSampler; }
+	void SwapChainDestructor();
 };
 

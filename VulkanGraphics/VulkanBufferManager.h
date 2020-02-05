@@ -6,34 +6,34 @@ static class VulkanBufferManager
 {
 public:
 
-static void CreateBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
-{
-	VkBufferCreateInfo bufferInfo = {};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = size;
-	bufferInfo.usage = usage;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	static void CreateBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+	{
+		VkBufferCreateInfo bufferInfo = {};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = size;
+		bufferInfo.usage = usage;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create buffer!");
+		if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create buffer!");
+		}
+
+		VkMemoryRequirements memRequirements;
+		vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+
+		VkMemoryAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocInfo.allocationSize = memRequirements.size;
+		allocInfo.memoryTypeIndex = VulkanBufferManager::FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+
+		if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+			throw std::runtime_error("failed to allocate buffer memory!");
+		}
+
+		vkBindBufferMemory(device, buffer, bufferMemory, 0);
 	}
 
-	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
-
-	VkMemoryAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = VulkanBufferManager::FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
-
-	if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate buffer memory!");
-	}
-
-	vkBindBufferMemory(device, buffer, bufferMemory, 0);
-}
-
-static	VkCommandBuffer beginSingleTimeCommands(VkDevice Device, VkCommandPool& CommandPool)
+	static	VkCommandBuffer beginSingleTimeCommands(VkDevice Device, VkCommandPool& CommandPool)
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -53,7 +53,7 @@ static	VkCommandBuffer beginSingleTimeCommands(VkDevice Device, VkCommandPool& C
 		return commandBuffer;
 	}
 
-static void endSingleTimeCommands(VkDevice Device, VkCommandBuffer commandBuffer, VkCommandPool& CommandPool, VkQueue& GraphicsQueue)
+	static void endSingleTimeCommands(VkDevice Device, VkCommandBuffer commandBuffer, VkCommandPool& CommandPool, VkQueue& GraphicsQueue)
 	{
 		vkEndCommandBuffer(commandBuffer);
 
@@ -68,7 +68,7 @@ static void endSingleTimeCommands(VkDevice Device, VkCommandBuffer commandBuffer
 		vkFreeCommandBuffers(Device, CommandPool, 1, &commandBuffer);
 	}
 
-static void CopyBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool& CommandPool, VkQueue& GraphicsQueue)
+	static void CopyBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool& CommandPool, VkQueue& GraphicsQueue)
 	{
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands(Device, CommandPool);
 
@@ -79,7 +79,7 @@ static void CopyBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkBuffe
 		endSingleTimeCommands(Device, commandBuffer, CommandPool, GraphicsQueue);
 	}
 
-static uint32_t FindMemoryType(VkPhysicalDevice PhysicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
+	static uint32_t FindMemoryType(VkPhysicalDevice PhysicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(PhysicalDevice, &memProperties);

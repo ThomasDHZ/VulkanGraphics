@@ -1,17 +1,21 @@
 #pragma once
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_core.h>
+#include <vulkan\vulkan_core.h>
 #include <vector>
-#include <array>
-
-#include "UniformBufferObject.h"
-#include "VertexBufferObject.h"
-#include "IndexBufferObject.h"
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Texture.h"
+
+#include "VulkanBufferManager.h"
+
+struct VulkanDevice
+{
+	VkDevice Device;
+	VkPhysicalDevice PhysicalDevice;
+	VkCommandPool CommandPool;
+	VkQueue GraphicsQueue;
+	int SwapChainSize;
+};
 
 struct Vertex
 {
@@ -57,156 +61,31 @@ struct Vertex
 	}
 };
 
-const std::vector<Vertex> vertices = 
-{
-		 {{-0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  0.0f,  0.0f}},
-		 {{0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  1.0f,  0.0f}},
-		 {{0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {  1.0f,  1.0f}},
-		 {{0.5f,  0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  1.0f,  1.0f}},
-		{{-0.5f,  0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  0.0f,  1.0f}},
-		{{-0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, { 0.0f,  0.0f}},
-
-		{{-0.5f, -0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  0.0f,  0.0f}},
-		 {{0.5f, -0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  1.0f,  0.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  1.0f,  1.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  1.0f,  1.0f}},
-		{{-0.5f,  0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  0.0f,  1.0f}},
-		{{-0.5f, -0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  0.0f,  0.0f}},
-
-		{{-0.5f,  0.5f,  0.5f}, { -1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
-		{{-0.5f,  0.5f, -0.5f}, { -1.0f,  0.0f,  0.0f}, {  1.0f,  1.0f}},
-		{{-0.5f, -0.5f, -0.5f}, { -1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
-		{{-0.5f, -0.5f, -0.5f}, { -1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
-		{{-0.5f, -0.5f,  0.5f}, { -1.0f,  0.0f,  0.0f}, {  0.0f,  0.0f}},
-		{{-0.5f,  0.5f,  0.5f}, { -1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
-
-		 {{0.5f,  0.5f,  0.5f}, {  1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
-		 {{0.5f,  0.5f, -0.5f}, {  1.0f,  0.0f,  0.0f}, {  1.0f,  1.0f}},
-		 {{0.5f, -0.5f, -0.5f}, {  1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
-		 {{0.5f, -0.5f, -0.5f}, {  1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
-		 {{0.5f, -0.5f,  0.5f}, {  1.0f,  0.0f,  0.0f}, {  0.0f,  0.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
-
-		{{-0.5f, -0.5f, -0.5f}, {  0.0f, -1.0f,  0.0f}, {  0.0f,  1.0f}},
-		{{0.5f, -0.5f, -0.5f}, {  0.0f, -1.0f,  0.0f}, {  1.0f,  1.0f}},
-		 {{0.5f, -0.5f,  0.5f}, {  0.0f, -1.0f,  0.0f}, {  1.0f,  0.0f}},
-		 {{0.5f, -0.5f,  0.5f}, {  0.0f, -1.0f,  0.0f}, {  1.0f,  0.0f}},
-		{{-0.5f, -0.5f,  0.5f}, {  0.0f, -1.0f,  0.0f}, {  0.0f,  0.0f}},
-		{{-0.5f, -0.5f, -0.5f}, {  0.0f, -1.0f,  0.0f}, {  0.0f,  1.0f}},
-
-		{{-0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  1.0f}},
-		{{0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  1.0f,  1.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  0.0f,  1.0f,  0.0f}, {  1.0f,  0.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  0.0f,  1.0f,  0.0f}, {  1.0f,  0.0f}},
-		{{-0.5f,  0.5f,  0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  0.0f}},
-		{{-0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  1.0f}}
-};
-
-const std::vector<Vertex> vertices2 =
-{
-		 {{-0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  0.0f,  0.0f}},
-		 {{0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  1.0f,  0.0f}},
-		 {{0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {  1.0f,  1.0f}},
-		 {{0.5f,  0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  1.0f,  1.0f}},
-		{{-0.5f,  0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  0.0f,  1.0f}},
-		{{-0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, { 0.0f,  0.0f}},
-
-		{{-0.5f, -0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  0.0f,  0.0f}},
-		 {{0.5f, -0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  1.0f,  0.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  1.0f,  1.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  1.0f,  1.0f}},
-		{{-0.5f,  0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  0.0f,  1.0f}},
-		{{-0.5f, -0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  0.0f,  0.0f}},
-
-		{{-0.5f,  0.5f,  0.5f}, { -1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
-		{{-0.5f,  0.5f, -0.5f}, { -1.0f,  0.0f,  0.0f}, {  1.0f,  1.0f}},
-		{{-0.5f, -0.5f, -0.5f}, { -1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
-		{{-0.5f, -0.5f, -0.5f}, { -1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
-		{{-0.5f, -0.5f,  0.5f}, { -1.0f,  0.0f,  0.0f}, {  0.0f,  0.0f}},
-		{{-0.5f,  0.5f,  0.5f}, { -1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
-
-		 {{0.5f,  0.5f,  0.5f}, {  1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
-		 {{0.5f,  0.5f, -0.5f}, {  1.0f,  0.0f,  0.0f}, {  1.0f,  1.0f}},
-		 {{0.5f, -0.5f, -0.5f}, {  1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
-		 {{0.5f, -0.5f, -0.5f}, {  1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
-		 {{0.5f, -0.5f,  0.5f}, {  1.0f,  0.0f,  0.0f}, {  0.0f,  0.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
-
-		{{-0.5f, -0.5f, -0.5f}, {  0.0f, -1.0f,  0.0f}, {  0.0f,  1.0f}},
-		{{0.5f, -0.5f, -0.5f}, {  0.0f, -1.0f,  0.0f}, {  1.0f,  1.0f}},
-		 {{0.5f, -0.5f,  0.5f}, {  0.0f, -1.0f,  0.0f}, {  1.0f,  0.0f}},
-		 {{0.5f, -0.5f,  0.5f}, {  0.0f, -1.0f,  0.0f}, {  1.0f,  0.0f}},
-		{{-0.5f, -0.5f,  0.5f}, {  0.0f, -1.0f,  0.0f}, {  0.0f,  0.0f}},
-		{{-0.5f, -0.5f, -0.5f}, {  0.0f, -1.0f,  0.0f}, {  0.0f,  1.0f}},
-
-		{{-0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  1.0f}},
-		{{0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  1.0f,  1.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  0.0f,  1.0f,  0.0f}, {  1.0f,  0.0f}},
-		 {{0.5f,  0.5f,  0.5f}, {  0.0f,  1.0f,  0.0f}, {  1.0f,  0.0f}},
-		{{-0.5f,  0.5f,  0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  0.0f}},
-		{{-0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  1.0f}}
-};
-
-const std::vector<uint16_t> indices =
-{
-	0, 1, 2, 2, 3, 0
-};
-
-const std::vector<uint16_t> indices2 =
-{
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4
-};
-
-struct UniformBufferObject2 
-{
-	alignas(16) glm::mat4 model;
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 proj;
-};
-
-struct Light
-{
-	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
-};
-
-struct LightingStruct
-{
-	Light light;
-	alignas(16) glm::vec3 viewPos;
-	alignas(4) float shininess;
-};
-
 class Mesh
 {
 private:
-	VertexBufferObject<Vertex> VBO;
-	IndexBufferObject IBO;
-	Texture DiffuseMap;
-	Texture SpecularMap;
+	VulkanDevice DeviceInfo;
 
-	UniformBufferObject<UniformBufferObject2> UniformBufferobject;
-	UniformBufferObject<LightingStruct> LightBufferStuff;
+	int VerticeSize;
+	int IndiceSize;
 
-	VkDescriptorPool DescriptorPool;
-	std::vector<VkDescriptorSet> DescriptorSets;
+	void CreateVertexBuffer(std::vector<Vertex> vertices);
+	void CreateIndiceBuffer(std::vector<uint16_t> indices);
+
 public:
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
+
+	VkBuffer indexBuffer;
+	VkDeviceMemory indexBufferMemory;
+
 	Mesh();
-	Mesh(std::string DiffuseMapPath, std::string SpecularMapPath, int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue, VkDescriptorSetLayout DescriptorSetLayout);
+	Mesh(VulkanDevice deviceInfo, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
 	~Mesh();
 
-	void SetUpDescriptorPool(int SwapChainSize, VkDevice device);
-	void SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout);
-	void UpdateUniformBuffers(UniformBufferObject2 ubo, LightingStruct light, uint32_t ImageIndex);
-	void UpdateTexture(Texture updateTexture, int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout);
-	void Draw(VkCommandBuffer CommandBuffer, VkPipeline Pipeline, VkPipelineLayout PipeLineLayout, uint32_t Indices, int frame);
-	void Destory(VkDevice device, int FrameSize);
-	void DestoryBufferObjects(VkDevice device,int FrameSize);
+	void Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout);
+	void Destroy();
 
-	VkDescriptorPool GetVkDescriptorPool() { return DescriptorPool; }
 	Mesh& operator=(const Mesh& rhs);
 };
 

@@ -78,11 +78,11 @@
     <LibraryPath>C:\VulkanSDK\1.1.130.0\Lib;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\lib-vc2019;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\ZZT\Documents\Visual Studio 2019\stb-master;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\include;C:\Users\ZZT\Documents\Visual Studio 2019\glm;C:\VulkanSDK\1.1.130.0\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\ZZT\Documents\Visual Studio 2019\tinyobjloader-master;C:\Users\ZZT\Documents\Visual Studio 2019\stb-master;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\include;C:\Users\ZZT\Documents\Visual Studio 2019\glm;C:\VulkanSDK\1.1.130.0\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.1.130.0\Lib;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\lib-vc2019;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\ZZT\Documents\Visual Studio 2019\stb-master;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\include;C:\Users\ZZT\Documents\Visual Studio 2019\glm;C:\VulkanSDK\1.1.130.0\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\ZZT\Documents\Visual Studio 2019\tinyobjloader-master;C:\Users\ZZT\Documents\Visual Studio 2019\stb-master;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\include;C:\Users\ZZT\Documents\Visual Studio 2019\glm;C:\VulkanSDK\1.1.130.0\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\VulkanSDK\1.1.130.0\Lib;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\lib-vc2019;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -144,38 +144,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MemoryManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="ShaderCompiler.cpp" />
-    <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="BaseShader.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="ValkanGraphics.cpp" />
-    <ClCompile Include="VulkanBufferManager.cpp" />
-    <ClCompile Include="VulkanDebugger.cpp" />
-    <ClCompile Include="VulkanInstance.cpp" />
-    <ClCompile Include="VulkanPipeLineManager.cpp" />
-    <ClCompile Include="VulkanSwapChain.cpp" />
-    <ClCompile Include="VulkanWindow.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="IndexBufferObject.h" />
-    <ClInclude Include="MemoryManager.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="ShaderCompiler.h" />
-    <ClInclude Include="Skybox.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="ValkanGraphics.h" />
-    <ClInclude Include="VertexBufferObject.h" />
-    <ClInclude Include="VulkanBufferManager.h" />
-    <ClInclude Include="VulkanDebugger.h" />
-    <ClInclude Include="VulkanInstance.h" />
-    <ClInclude Include="VulkanPipeLineManager.h" />
-    <ClInclude Include="VulkanQueueFamily.h" />
-    <ClInclude Include="UniformBufferObject.h" />
-    <ClInclude Include="VulkanSwapChain.h" />
-    <ClInclude Include="VulkanWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\light.frag" />
@@ -184,6 +159,18 @@
     <None Include="Shaders\Shader.vert" />
     <None Include="Shaders\SkyboxShader.frag" />
     <None Include="Shaders\SkyboxShader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="ExternalHeaders.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="BaseShader.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="UniformBufferObject.h" />
+    <ClInclude Include="VertexBufferObject.h" />
+    <ClInclude Include="VulkanBufferManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

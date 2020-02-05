@@ -2,252 +2,98 @@
 
 Mesh::Mesh()
 {
-
 }
 
-Mesh::Mesh(std::string DiffuseMapPath, std::string SpecularMapPath, int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<VkCommandBuffer> CommandBuffer, std::vector<Vertex> VertexData, std::vector<uint16_t> IndexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue, VkDescriptorSetLayout DescriptorSetLayout)
+Mesh::Mesh(VulkanDevice deviceInfo, std::vector<Vertex> vertices, std::vector<uint16_t> indices)
 {
-	VBO = VertexBufferObject<Vertex>(SwapChainSize, device, physicalDevice, VertexData, CommandPool, GraphicsQueue);
-	IBO = IndexBufferObject(SwapChainSize, device, physicalDevice, IndexData, CommandPool, GraphicsQueue);
-	DiffuseMap = Texture(DiffuseMapPath, device, physicalDevice, CommandBuffer, CommandPool, GraphicsQueue);
-	SpecularMap = Texture(SpecularMapPath, device, physicalDevice, CommandBuffer, CommandPool, GraphicsQueue);
+	DeviceInfo = deviceInfo;
 
-	UniformBufferobject = UniformBufferObject<UniformBufferObject2>(SwapChainSize, device, physicalDevice);
-	LightBufferStuff = UniformBufferObject<LightingStruct>(SwapChainSize, device, physicalDevice);
+	VerticeSize = vertices.size();
+	IndiceSize = indices.size();
 
-	SetUpDescriptorPool(SwapChainSize, device);
-	SetUpDescriptorSets(SwapChainSize, device, DescriptorSetLayout);
+	CreateVertexBuffer(vertices);
+	CreateIndiceBuffer(indices);
 }
 
 Mesh::~Mesh()
 {
 }
 
-void Mesh::SetUpDescriptorPool(int SwapChainSize, VkDevice device)
+void Mesh::CreateVertexBuffer(std::vector<Vertex> vertices)
 {
-	std::array<VkDescriptorPoolSize, 3> PoolSizes = {};
-	PoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	PoolSizes[0].descriptorCount = static_cast<unsigned int>(SwapChainSize);
-	PoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	PoolSizes[1].descriptorCount = static_cast<uint32_t>(SwapChainSize);
-	PoolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	PoolSizes[2].descriptorCount = static_cast<uint32_t>(SwapChainSize);
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-	VkDescriptorPoolCreateInfo DescriptorPoolInfo = {};
-	DescriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	DescriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(PoolSizes.size());
-	DescriptorPoolInfo.pPoolSizes = PoolSizes.data();
-	DescriptorPoolInfo.maxSets = static_cast<unsigned int>(SwapChainSize);
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-	VkResult Result = vkCreateDescriptorPool(device, &DescriptorPoolInfo, nullptr, &DescriptorPool);
-	if (Result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create descriptor pool.");
-	}
+	void* data;
+	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+
+	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
 }
 
-void Mesh::SetUpDescriptorSets(int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout)
+void Mesh::CreateIndiceBuffer(std::vector<uint16_t> indices)
 {
-	std::vector<VkDescriptorSetLayout> layouts(SwapChainSize, DescriptorSetLayout);
-	VkDescriptorSetAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = DescriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(SwapChainSize);
-	allocInfo.pSetLayouts = layouts.data();
+	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
-	DescriptorSets.resize(SwapChainSize);
-	if (vkAllocateDescriptorSets(device, &allocInfo, DescriptorSets.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-	for (size_t i = 0; i < SwapChainSize; i++) 
-	{
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = UniformBufferobject.GetShaderBuffer()[i];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject2);
+	void* data;
+	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, indices.data(), (size_t)bufferSize);
+	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
 
-		VkDescriptorImageInfo DiffuseMapInfo = {};
-		DiffuseMapInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		DiffuseMapInfo.imageView = DiffuseMap.GetTextureImageView();
-		DiffuseMapInfo.sampler = DiffuseMap.GetTextureSampler();
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-		VkDescriptorImageInfo SpecularMapInfo = {};
-		SpecularMapInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		SpecularMapInfo.imageView = SpecularMap.GetTextureImageView();
-		SpecularMapInfo.sampler = SpecularMap.GetTextureSampler();
+	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, indexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
 
-		VkDescriptorBufferInfo LightbufferInfo = {};
-		LightbufferInfo.buffer = LightBufferStuff.GetShaderBuffer()[i];
-		LightbufferInfo.offset = 0;
-		LightbufferInfo.range = sizeof(LightingStruct);
-
-		std::array<VkWriteDescriptorSet, 4> descriptorWrites = {};
-
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = DescriptorSets[i];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = DescriptorSets[i];
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &DiffuseMapInfo;
-
-		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[2].dstSet = DescriptorSets[i];
-		descriptorWrites[2].dstBinding = 2;
-		descriptorWrites[2].dstArrayElement = 0;
-		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[2].descriptorCount = 1;
-		descriptorWrites[2].pImageInfo = &SpecularMapInfo;
-
-		descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[3].dstSet = DescriptorSets[i];
-		descriptorWrites[3].dstBinding = 3;
-		descriptorWrites[3].dstArrayElement = 0;
-		descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[3].descriptorCount = 1;
-		descriptorWrites[3].pBufferInfo = &LightbufferInfo;
-
-		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-	}
+	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
 }
 
-void Mesh::UpdateUniformBuffers(UniformBufferObject2 ubo, LightingStruct light, uint32_t ImageIndex)
+void Mesh::Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout)
 {
-	UniformBufferobject.UpdateShaderBuffer(ubo, ImageIndex);
-	LightBufferStuff.UpdateShaderBuffer(light, ImageIndex);
+	VkBuffer vertexBuffers[] = { vertexBuffer };
+	VkDeviceSize offsets[] = { 0 };
+
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorset, 0, nullptr);
+	vkCmdDraw(commandbuffer, VerticeSize, 1, 0, 0);
+	//vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	//vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 }
 
-void Mesh::UpdateTexture(Texture updateTexture, int SwapChainSize, VkDevice device, VkDescriptorSetLayout DescriptorSetLayout)
+void Mesh::Destroy()
 {
-	DescriptorSets.clear();
+	vkDestroyBuffer(DeviceInfo.Device, indexBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, indexBufferMemory, nullptr);
 
-	std::array<VkDescriptorPoolSize, 2> PoolSizes = {};
-	PoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	PoolSizes[0].descriptorCount = static_cast<unsigned int>(SwapChainSize);
-	PoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	PoolSizes[1].descriptorCount = static_cast<uint32_t>(SwapChainSize);
-
-	VkDescriptorPoolCreateInfo DescriptorPoolInfo = {};
-	DescriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	DescriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(PoolSizes.size());
-	DescriptorPoolInfo.pPoolSizes = PoolSizes.data();
-	DescriptorPoolInfo.maxSets = static_cast<unsigned int>(SwapChainSize);
-
-	VkResult Result = vkCreateDescriptorPool(device, &DescriptorPoolInfo, nullptr, &DescriptorPool);
-	if (Result != VK_SUCCESS)
-	{
-		throw std::runtime_error("Failed to create descriptor pool.");
-	}
-
-	std::vector<VkDescriptorSetLayout> layouts(SwapChainSize, DescriptorSetLayout);
-	VkDescriptorSetAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = DescriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(SwapChainSize);
-	allocInfo.pSetLayouts = layouts.data();
-
-	DescriptorSets.resize(SwapChainSize);
-	
-	 Result = vkAllocateDescriptorSets(device, &allocInfo, DescriptorSets.data());
-	if (Result != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
-
-	for (size_t i = 0; i < SwapChainSize; i++) {
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = UniformBufferobject.GetShaderBuffer()[i];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject2);
-
-		VkDescriptorImageInfo imageInfo = {};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = updateTexture.GetTextureImageView();
-		imageInfo.sampler = updateTexture.GetTextureSampler();
-
-		VkDescriptorBufferInfo LightbufferInfo = {};
-		LightbufferInfo.buffer = LightBufferStuff.GetShaderBuffer()[i];
-		LightbufferInfo.offset = 0;
-		LightbufferInfo.range = sizeof(LightingStruct);
-
-		std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
-
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = DescriptorSets[i];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = DescriptorSets[i];
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
-
-		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[2].dstSet = DescriptorSets[i];
-		descriptorWrites[2].dstBinding = 2;
-		descriptorWrites[2].dstArrayElement = 0;
-		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[2].descriptorCount = 1;
-		descriptorWrites[2].pBufferInfo = &LightbufferInfo;
-
-		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		
-	}
-}
-
-void Mesh::Draw(VkCommandBuffer CommandBuffer, VkPipeline Pipeline, VkPipelineLayout PipeLineLayout, uint32_t Indices, int frame)
-{
-	VkDeviceSize Offset[] = { 0 };
-	VkBuffer VertexBuffer[] = { VBO.GetVertexBuffer() };
-
-	vkCmdBindPipeline(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, Pipeline);
-	vkCmdBindDescriptorSets(CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, PipeLineLayout, 0, 1, &DescriptorSets[frame], 0, nullptr);
-	vkCmdBindVertexBuffers(CommandBuffer, 0, 1, VertexBuffer, Offset);
-	vkCmdDraw(CommandBuffer, 36, 1, 0, 0);
-	//vkCmdBindIndexBuffer(CommandBuffer, IBO.GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
-	//vkCmdDrawIndexed(CommandBuffer, Indices, 1, 0, 0, 0);
-}
-
-void Mesh::Destory(VkDevice device, int FrameSize)
-{
-	VBO.Destory();
-	IBO.Destroy();
-	DiffuseMap.Destroy();
-	SpecularMap.Destroy();
-	DestoryBufferObjects(device, FrameSize);
-}
-
-void Mesh::DestoryBufferObjects(VkDevice device, int FrameSize)
-{
-	UniformBufferobject.Destroy(FrameSize);
-	LightBufferStuff.Destroy(FrameSize);
-	vkDestroyDescriptorPool(device, DescriptorPool, nullptr);
+	vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
 }
 
 Mesh& Mesh::operator=(const Mesh& rhs)
 {
-	VBO = rhs.VBO;
-	IBO = rhs.IBO;
-	DiffuseMap = rhs.DiffuseMap;
-	SpecularMap = rhs.SpecularMap;
-	UniformBufferobject = rhs.UniformBufferobject;
-	LightBufferStuff = rhs.LightBufferStuff;
-	DescriptorPool = rhs.DescriptorPool;
-	DescriptorSets = rhs.DescriptorSets;
+	DeviceInfo = rhs.DeviceInfo;
 
+	VerticeSize = rhs.VerticeSize;
+	IndiceSize = rhs.IndiceSize;
+
+	vertexBuffer = rhs.vertexBuffer;
+	vertexBufferMemory = rhs.vertexBufferMemory;
+
+	indexBuffer = rhs.indexBuffer;
+	indexBufferMemory = rhs.indexBufferMemory;
 	return *this;
 }

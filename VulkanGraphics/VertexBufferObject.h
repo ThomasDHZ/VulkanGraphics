@@ -49,7 +49,7 @@ public:
 		bufferInfo.usage = usage;
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-		if (vkCreateBuffer(Device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) 
+		if (vkCreateBuffer(Device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create buffer.");
 		}
@@ -86,4 +86,5 @@ public:
 	}
 
 	VkBuffer GetVertexBuffer() { return VertexBuffer; }
+	VkDeviceMemory GetVertexMemoryBuffer() { return VertexBufferMemory; }
 };
