@@ -90,32 +90,27 @@ void BaseShader::CreateDescriptorSets()
 void BaseShader::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWrites)
 {
 	std::vector<VkWriteDescriptorSet> DescriptorPoolList = {};
-
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	for (auto Descriptor : descriptorWrites)
 	{
-		
-			VkWriteDescriptorSet DescriptorSet;
-			DescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			DescriptorSet.dstSet = descriptorSets[i];
-			DescriptorSet.dstBinding = descriptorWrites[i].DstBinding;
-			DescriptorSet.dstArrayElement = 0;
-			DescriptorSet.descriptorType = descriptorWrites[i].DescriptorType;
-			DescriptorSet.descriptorCount = 1;
-
-			if (descriptorWrites[i].DescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
-			{
-				DescriptorSet.pBufferInfo = &descriptorWrites[i].DescriptorBufferInfo;
-			}
-			else
-			{
-				DescriptorSet.pImageInfo = &descriptorWrites[i].DescriptorImageInfo;
-			}
-
-			DescriptorPoolList.emplace_back(DescriptorSet);
-		
-
-		vkUpdateDescriptorSets(DeviceInfo.Device, static_cast<uint32_t>(DescriptorPoolList.size()), DescriptorPoolList.data(), 0, nullptr);
+		VkWriteDescriptorSet DescriptorSet = {};
+		DescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		DescriptorSet.dstSet = Descriptor.DstSet;
+		DescriptorSet.dstBinding = Descriptor.DstBinding;
+		DescriptorSet.dstArrayElement = 0;
+		DescriptorSet.descriptorType = Descriptor.DescriptorType;
+		DescriptorSet.descriptorCount = 1;
+		if (Descriptor.DescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+		{
+			DescriptorSet.pBufferInfo = &Descriptor.DescriptorBufferInfo;
+		}
+		else
+		{
+			DescriptorSet.pImageInfo = &Descriptor.DescriptorImageInfo;
+		}
+		DescriptorPoolList.emplace_back(DescriptorSet);
 	}
+
+	vkUpdateDescriptorSets(DeviceInfo.Device, static_cast<uint32_t>(DescriptorPoolList.size()), DescriptorPoolList.data(), 0, nullptr);
 }
 
 void BaseShader::Destory()

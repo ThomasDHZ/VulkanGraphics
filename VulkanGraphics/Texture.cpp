@@ -201,7 +201,3 @@ void Texture::Destroy()
 	vkDestroyImage(DeviceInfo.Device, textureImage, nullptr);
 	vkFreeMemory(DeviceInfo.Device, textureImageMemory, nullptr);
 }
-
-void Texture::SwapChainDestructor()
-{
-}

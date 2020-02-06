@@ -91,34 +91,23 @@ class SkyBox
 {
 private:
 
-	void SetUpCubeMapImage(VkDevice Device, VkPhysicalDevice physicalDevice, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-	void TransitionCubeMapImageLayout(VkDevice device, VkCommandPool commandPool, VkQueue queue, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-	void CopyBufferToCubeMapImage(VkDevice device, VkCommandPool commandPool, VkQueue queue, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 public:
 	VertexBufferObject<SkyBoxVertex> VBO;
 	UniformBufferObject<SkyBoxUniformBufferObject> UBO;
-
-	VkImage textureImage;
-	VkDeviceMemory textureImageMemory;
-	VkImageView textureImageView;
-	VkSampler textureSampler;
 
 	VkDescriptorSetLayout DescriptorSetLayout;
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
 	SkyBox();
-	SkyBox(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue queue, int SwapChainSize);
+	SkyBox(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue queue, int SwapChainSize, VkImageView textureImageView, VkSampler textureSampler);
 	~SkyBox();
 
 	void SetUpDescriptorSetLayout(VkDevice Device);
-	void SetUpCubeMapImage(VkDevice Device, VkCommandPool commandPool, VkQueue queue, VkPhysicalDevice physicalDevice);
-	void SetUpSkyBoxImageView(VkDevice Device);
-	void SetUpCubeMapSampler(VkDevice Device);
 	void SetUpVertexBuffer(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<SkyBoxVertex> VertexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue);
 	void SetUpUniformBuffers(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice);
 	void SetUpDescriptorPool(VkDevice device, int SwapChainSize);
-	void SetUpDescriptorSets(VkDevice device, int SwapChainSize);
+	void SetUpDescriptorSets(VkDevice device, int SwapChainSize, VkImageView textureImageView, VkSampler textureSampler);
 
 	void UpdateUniformBuffer(SkyBoxUniformBufferObject ubo, uint32_t currentImage);
 	void Draw(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkCommandBuffer commandBuffer, size_t currentImage);

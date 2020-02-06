@@ -26,7 +26,7 @@ public:
 	Texture();
 	Texture(VulkanDevice deviceInfo, std::string TexturePath);
 	~Texture();
+
 	void Destroy();
-	void SwapChainDestructor();
 };
 

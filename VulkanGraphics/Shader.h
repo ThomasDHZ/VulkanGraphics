@@ -14,6 +14,6 @@ public:
 	void CreateShaderPipeLine();
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
-	void CreateDescriptorSets(SkyBox skybox, VkImageView textureImageView, VkSampler textureSampler, VkImageView textureImageView2, VkSampler textureSampler2);
+	void CreateDescriptorSets(VkImageView SkyboxtextureImageView, VkSampler SkyboxtextureSampler, VkImageView textureImageView, VkSampler textureSampler, VkImageView textureImageView2, VkSampler textureSampler2);
 };
 

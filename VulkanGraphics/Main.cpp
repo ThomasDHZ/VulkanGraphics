@@ -28,6 +28,7 @@
 #include "BaseShader.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "CubeMapTexture.h"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -148,6 +149,7 @@ private:
 	Shader shader;
 	Texture texture;
 	Texture texture2;
+	CubeMapTexture cubeMapTexture;
 
 	float deltaTime = 0.0f;	// time between current frame and last frame
 	float lastFrame = 0.0f;
@@ -233,7 +235,8 @@ private:
 
 		texture = Texture(DeviceInfo, "C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/texture/container2.png");
 		texture2 = Texture(DeviceInfo, "C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/texture/container2_specular.png");
-		Skybox = SkyBox(device, physicalDevice, commandPool, graphicsQueue, swapChainImages.size());
+		cubeMapTexture = CubeMapTexture(DeviceInfo);
+		Skybox = SkyBox(device, physicalDevice, commandPool, graphicsQueue, swapChainImages.size(), cubeMapTexture.textureImageView, cubeMapTexture.textureSampler);
 		createDescriptorSetLayout();
 		createGraphicsPipeline();
 		createUniformBuffers();
@@ -279,8 +282,7 @@ private:
 		}
 
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
-
-		Skybox.DestorySwapChain(device, swapChainImages.size());
+	
 		shader.DestorySwapChain();
 	}
 
@@ -291,6 +293,7 @@ private:
 		mesh.Destroy();
 		texture.Destroy();
 		texture2.Destroy();
+		cubeMapTexture.Destroy();
 		shader.Destory();
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -336,7 +339,7 @@ private:
 
 		Skybox.SetUpUniformBuffers(swapChainImages.size(), device, physicalDevice);
 		Skybox.SetUpDescriptorPool(device, swapChainImages.size());
-		Skybox.SetUpDescriptorSets(device, swapChainImages.size());
+		Skybox.SetUpDescriptorSets(device, swapChainImages.size(), cubeMapTexture.textureImageView, cubeMapTexture.textureSampler);
 
 		createUniformBuffers();
 		createDescriptorPool();
@@ -1050,7 +1053,7 @@ private:
 		DeviceInfo.GraphicsQueue = graphicsQueue;
 		DeviceInfo.SwapChainSize = swapChainImages.size();
 
-		shader.CreateDescriptorSets(Skybox, texture.textureImageView, texture.textureSampler, texture2.textureImageView, texture2.textureSampler);
+		shader.CreateDescriptorSets(cubeMapTexture.textureImageView, cubeMapTexture.textureSampler, texture.textureImageView, texture.textureSampler, texture2.textureImageView, texture2.textureSampler);
 	}
 
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {

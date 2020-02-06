@@ -17,10 +17,10 @@ struct DescriptorPoolSizeInfo
 struct WriteDescriptorSetInfo
 {
 	uint32_t DstBinding;
+	VkDescriptorSet DstSet;
 	VkDescriptorType DescriptorType;
 	VkDescriptorBufferInfo DescriptorBufferInfo;
 	VkDescriptorImageInfo DescriptorImageInfo;
-
 };
 
 struct UniformBufferObject2 {
