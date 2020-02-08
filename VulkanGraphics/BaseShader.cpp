@@ -87,30 +87,31 @@ void BaseShader::CreateDescriptorSets()
 	}
 }
 
-void BaseShader::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWrites)
+void BaseShader::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWritesList)
 {
-	std::vector<VkWriteDescriptorSet> DescriptorPoolList = {};
-	for (auto Descriptor : descriptorWrites)
+	std::vector<VkWriteDescriptorSet>  WriteDescriptorInfo = {};
+
+	for (int x = 0; x < descriptorWritesList.size(); x++)
 	{
 		VkWriteDescriptorSet DescriptorSet = {};
 		DescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		DescriptorSet.dstSet = Descriptor.DstSet;
-		DescriptorSet.dstBinding = Descriptor.DstBinding;
+		DescriptorSet.dstSet = descriptorWritesList[x].DstSet;
+		DescriptorSet.dstBinding = descriptorWritesList[x].DstBinding;
 		DescriptorSet.dstArrayElement = 0;
-		DescriptorSet.descriptorType = Descriptor.DescriptorType;
+		DescriptorSet.descriptorType = descriptorWritesList[x].DescriptorType;
 		DescriptorSet.descriptorCount = 1;
-		if (Descriptor.DescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+		if (descriptorWritesList[x].DescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
 		{
-			DescriptorSet.pBufferInfo = &Descriptor.DescriptorBufferInfo;
+			DescriptorSet.pBufferInfo = &descriptorWritesList[x].DescriptorBufferInfo;
 		}
 		else
 		{
-			DescriptorSet.pImageInfo = &Descriptor.DescriptorImageInfo;
+			DescriptorSet.pImageInfo = &descriptorWritesList[x].DescriptorImageInfo;
 		}
-		DescriptorPoolList.emplace_back(DescriptorSet);
+		WriteDescriptorInfo.emplace_back(DescriptorSet);
 	}
 
-	vkUpdateDescriptorSets(DeviceInfo.Device, static_cast<uint32_t>(DescriptorPoolList.size()), DescriptorPoolList.data(), 0, nullptr);
+	vkUpdateDescriptorSets(DeviceInfo.Device, static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
 void BaseShader::Destory()

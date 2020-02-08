@@ -63,7 +63,7 @@ public:
 	void CreateUniformBuffers();
 	void CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
 	void CreateDescriptorSets();
-	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWrites);
+	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> DescriptorList);
 
 	VkBuffer GetUniformBuffers(int i) { return uniformBuffers[i]; }
 	VkDescriptorSet GetDescriptorSet(int i) { return descriptorSets[i]; }
