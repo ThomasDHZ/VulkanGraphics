@@ -153,6 +153,7 @@
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="SkyBoxShader.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\light.frag" />
@@ -172,6 +173,7 @@
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="SkyBoxShader.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Texture2D.h" />
     <ClInclude Include="UniformBufferObject.h" />
     <ClInclude Include="VertexBufferObject.h" />
     <ClInclude Include="VulkanBufferManager.h" />

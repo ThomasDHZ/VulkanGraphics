@@ -27,7 +27,7 @@
 #include "Mesh.h"
 #include "BaseShader.h"
 #include "Shader.h"
-#include "Texture.h"
+#include "Texture2D.h"
 #include "CubeMapTexture.h"
 
 const int WIDTH = 800;
@@ -147,8 +147,8 @@ private:
 	SkyBox Skybox;
 	Mesh mesh;
 	Shader shader;
-	Texture texture;
-	Texture texture2;
+	Texture2D texture;
+	Texture2D texture2;
 	CubeMapTexture cubeMapTexture;
 
 	float deltaTime = 0.0f;	// time between current frame and last frame
@@ -233,9 +233,17 @@ private:
 		DeviceInfo.GraphicsQueue = graphicsQueue;
 		DeviceInfo.SwapChainSize = swapChainImages.size();
 
-		texture = Texture(DeviceInfo, "C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/texture/container2.png");
-		texture2 = Texture(DeviceInfo, "C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/texture/container2_specular.png");
-		cubeMapTexture = CubeMapTexture(DeviceInfo);
+		CubeMapLayout layout;
+		layout.Left = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/left.jpg";
+		layout.Right = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/right.jpg";
+		layout.Top = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/top.jpg";
+		layout.Bottom = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/bottom.jpg";
+		layout.Back = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg";
+		layout.Front = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
+
+		texture = Texture2D(DeviceInfo, "C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/texture/container2.png");
+		texture2 = Texture2D(DeviceInfo, "C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/texture/container2_specular.png");
+		cubeMapTexture = CubeMapTexture(DeviceInfo, layout);
 		Skybox = SkyBox(device, physicalDevice, commandPool, graphicsQueue, swapChainImages.size(), cubeMapTexture.textureImageView, cubeMapTexture.textureSampler);
 		createDescriptorSetLayout();
 		createGraphicsPipeline();

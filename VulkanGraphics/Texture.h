@@ -1,22 +1,24 @@
 #pragma once
-#include <vulkan\vulkan_core.h>
 #include "Mesh.h"
-
 class Texture
 {
-private:
-	int Width; 
+protected:
+	enum TextureType
+	{
+		vkTexture2D,
+		vkTextureCube
+	};
+
+	int Width;
 	int Height;
 
 	VulkanDevice DeviceInfo;
+	TextureType TypeOfTexture;
 
-	void CreateTextureImage(std::string TexturePath);
-	void CreateImageView();
-	void CreateTextureSampler();
-
-	void CreateImage();
 	void TransitionImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout);
 	void CopyBufferToImage(VkBuffer buffer);
+	void CreateImage();
+
 public:
 	VkImage textureImage;
 	VkDeviceMemory textureImageMemory;
@@ -24,9 +26,11 @@ public:
 	VkSampler textureSampler;
 
 	Texture();
-	Texture(VulkanDevice deviceInfo, std::string TexturePath);
+	Texture(VulkanDevice deviceInfo, TextureType textureType);
 	~Texture();
 
+	void CreateImageView();
+	void CreateTextureSampler(VkSamplerCreateInfo SamplerInfo);
 	void Destroy();
 };
 
