@@ -234,15 +234,15 @@ private:
 		DeviceInfo.SwapChainSize = swapChainImages.size();
 
 		CubeMapLayout layout;
-		layout.Left = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/left.jpg";
-		layout.Right = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/right.jpg";
-		layout.Top = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/top.jpg";
-		layout.Bottom = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/bottom.jpg";
-		layout.Back = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg";
-		layout.Front = "C:/Users/ZZT/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
+		layout.Left = "texture/skybox/left.jpg";
+		layout.Right = "texture/skybox/right.jpg";
+		layout.Top = "texture/skybox/top.jpg";
+		layout.Bottom = "texture/skybox/bottom.jpg";
+		layout.Back = "texture/skybox/back.jpg";
+		layout.Front = "texture/skybox/front.jpg";
 
-		texture = Texture2D(DeviceInfo, "C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/texture/container2.png");
-		texture2 = Texture2D(DeviceInfo, "C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/texture/container2_specular.png");
+		texture = Texture2D(DeviceInfo, "texture/container2.png");
+		texture2 = Texture2D(DeviceInfo, "texture/container2_specular.png");
 		cubeMapTexture = CubeMapTexture(DeviceInfo, layout);
 		Skybox = SkyBox(device, physicalDevice, commandPool, graphicsQueue, swapChainImages.size(), cubeMapTexture.textureImageView, cubeMapTexture.textureSampler);
 		createDescriptorSetLayout();
@@ -620,8 +620,8 @@ private:
 	}
 
 	void createGraphicsPipeline() {
-		auto vertShaderCode = readFile("C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/Shaders/vert.spv");
-		auto fragShaderCode = readFile("C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/Shaders/frag.spv");
+		auto vertShaderCode = readFile("Shaders/vert.spv");
+		auto fragShaderCode = readFile("Shaders/frag.spv");
 
 		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
 		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -640,8 +640,8 @@ private:
 
 		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-		auto SkyBoxvertShaderCode = readFile("C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/Shaders/SkyBoxVert.spv");
-		auto SkyBoxfragShaderCode = readFile("C:/Users/ZZT/Desktop/VulkanGraphics/VulkanGraphics/Shaders/SkyBoxFrag.spv");
+		auto SkyBoxvertShaderCode = readFile("Shaders/SkyBoxVert.spv");
+		auto SkyBoxfragShaderCode = readFile("Shaders/SkyBoxFrag.spv");
 
 		VkShaderModule SkyBoxvertShaderModule = createShaderModule(SkyBoxvertShaderCode);
 		VkShaderModule SkyBoxfragShaderModule = createShaderModule(SkyBoxfragShaderCode);

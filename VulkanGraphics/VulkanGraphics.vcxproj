@@ -156,6 +156,7 @@
     <ClCompile Include="Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\frag.spv" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />
     <None Include="Shaders\Shader.frag" />
@@ -176,6 +177,9 @@
     <ClInclude Include="UniformBufferObject.h" />
     <ClInclude Include="VertexBufferObject.h" />
     <ClInclude Include="VulkanBufferManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="texture\skybox\back.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
