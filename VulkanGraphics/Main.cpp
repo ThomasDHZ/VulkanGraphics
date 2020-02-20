@@ -177,9 +177,6 @@ private:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	VkRenderPass renderPass;
-	
-	VkPipelineLayout pipelineLayout;
-	VkPipeline graphicsPipeline;
 
 	VkPipelineLayout SkyBoxpipelineLayout;
 	VkPipeline SkyBoxgraphicsPipeline;
@@ -245,14 +242,23 @@ private:
 		texture2 = Texture2D(DeviceInfo, "texture/container2_specular.png");
 		cubeMapTexture = CubeMapTexture(DeviceInfo, layout);
 		Skybox = SkyBox(device, physicalDevice, commandPool, graphicsQueue, swapChainImages.size(), cubeMapTexture.textureImageView, cubeMapTexture.textureSampler);
-		createDescriptorSetLayout();
+		
 		createGraphicsPipeline();
-		createUniformBuffers();
-		createDescriptorPool();
+		
+		ShaderTextureInputs shaderInput{};
+			shaderInput.SkyboxtextureImageView = cubeMapTexture.textureImageView;
+			shaderInput.SkyboxtextureSampler = cubeMapTexture.textureSampler;
+			shaderInput.textureImageView = texture.textureImageView;
+			shaderInput.textureSampler = texture.textureSampler;
+			shaderInput.textureImageView2 = texture2.textureImageView;
+			shaderInput.textureSampler2 = texture2.textureSampler;
+		
+		shader = Shader(DeviceInfo, swapChainExtent, renderPass, shaderInput);
+		
+		mesh = Mesh(DeviceInfo, vertices2, indices);
+
 		createDepthResources();
 		createFramebuffers();
-		createVertexBuffer();
-		createDescriptorSets();
 		createCommandBuffers();
 		createSyncObjects();
 	}
@@ -279,8 +285,8 @@ private:
 
 		vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
-		vkDestroyPipeline(device, graphicsPipeline, nullptr);
-		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+		//vkDestroyPipeline(device, graphicsPipeline, nullptr);
+		//vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyPipeline(device, SkyBoxgraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, SkyBoxpipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
@@ -349,9 +355,16 @@ private:
 		Skybox.SetUpDescriptorPool(device, swapChainImages.size());
 		Skybox.SetUpDescriptorSets(device, swapChainImages.size(), cubeMapTexture.textureImageView, cubeMapTexture.textureSampler);
 
-		createUniformBuffers();
-		createDescriptorPool();
-		createDescriptorSets();
+		ShaderTextureInputs shaderInput{};
+		shaderInput.SkyboxtextureImageView = cubeMapTexture.textureImageView;
+		shaderInput.SkyboxtextureSampler = cubeMapTexture.textureSampler;
+		shaderInput.textureImageView = texture.textureImageView;
+		shaderInput.textureSampler = texture.textureSampler;
+		shaderInput.textureImageView2 = texture2.textureImageView;
+		shaderInput.textureSampler2 = texture2.textureSampler;
+
+		shader.RecreateSwapChainInfo(swapChainExtent, renderPass, shaderInput);
+
 		createCommandBuffers();
 	}
 
@@ -607,38 +620,7 @@ private:
 		}
 	}
 
-	void createDescriptorSetLayout() 
-	{
-		VulkanDevice DeviceInfo;
-		DeviceInfo.Device = device;
-		DeviceInfo.PhysicalDevice = physicalDevice;
-		DeviceInfo.CommandPool = commandPool;
-		DeviceInfo.GraphicsQueue = graphicsQueue;
-		DeviceInfo.SwapChainSize = swapChainImages.size();
-
-		shader = Shader(DeviceInfo);
-	}
-
 	void createGraphicsPipeline() {
-		auto vertShaderCode = readFile("Shaders/vert.spv");
-		auto fragShaderCode = readFile("Shaders/frag.spv");
-
-		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
-		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
-
-		VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
-		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		vertShaderStageInfo.module = vertShaderModule;
-		vertShaderStageInfo.pName = "main";
-
-		VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
-		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		fragShaderStageInfo.module = fragShaderModule;
-		fragShaderStageInfo.pName = "main";
-
-		VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
 		auto SkyBoxvertShaderCode = readFile("Shaders/SkyBoxVert.spv");
 		auto SkyBoxfragShaderCode = readFile("Shaders/SkyBoxFrag.spv");
@@ -753,35 +735,6 @@ private:
 		colorBlending.blendConstants[2] = 0.0f;
 		colorBlending.blendConstants[3] = 0.0f;
 
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 1;
-		pipelineLayoutInfo.pSetLayouts = &shader.descriptorSetLayout;
-
-		if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create pipeline layout!");
-		}
-
-		VkGraphicsPipelineCreateInfo pipelineInfo = {};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = shaderStages;
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-		pipelineInfo.pInputAssemblyState = &inputAssembly;
-		pipelineInfo.pViewportState = &viewportState;
-		pipelineInfo.pRasterizationState = &rasterizer;
-		pipelineInfo.pMultisampleState = &multisampling;
-		pipelineInfo.pDepthStencilState = &depthStencil;
-		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.layout = pipelineLayout;
-		pipelineInfo.renderPass = renderPass;
-		pipelineInfo.subpass = 0;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create graphics pipeline!");
-		}
-
 		VkPipelineLayoutCreateInfo SkyBoxpipelineLayoutInfo = {};
 		SkyBoxpipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		SkyBoxpipelineLayoutInfo.setLayoutCount = 1;
@@ -811,8 +764,6 @@ private:
 			throw std::runtime_error("failed to create graphics pipeline!");
 		}
 
-		vkDestroyShaderModule(device, fragShaderModule, nullptr);
-		vkDestroyShaderModule(device, vertShaderModule, nullptr);
 		vkDestroyShaderModule(device, SkyBoxfragShaderModule, nullptr);
 		vkDestroyShaderModule(device, SkyBoxvertShaderModule, nullptr);
 	}
@@ -1015,55 +966,6 @@ private:
 		endSingleTimeCommands(commandBuffer);
 	}
 
-	void createVertexBuffer() 
-	{
-		VulkanDevice DeviceInfo;
-		DeviceInfo.Device = device;
-		DeviceInfo.PhysicalDevice = physicalDevice;
-		DeviceInfo.CommandPool = commandPool;
-		DeviceInfo.GraphicsQueue = graphicsQueue;
-		DeviceInfo.SwapChainSize = swapChainImages.size();
-
-		mesh = Mesh(DeviceInfo, vertices2, indices);
-	}
-
-	void createUniformBuffers() 
-	{
-		VulkanDevice DeviceInfo;
-		DeviceInfo.Device = device;
-		DeviceInfo.PhysicalDevice = physicalDevice;
-		DeviceInfo.CommandPool = commandPool;
-		DeviceInfo.GraphicsQueue = graphicsQueue;
-		DeviceInfo.SwapChainSize = swapChainImages.size();
-
-		shader.CreateUniformBuffers();
-	}
-
-	void createDescriptorPool() 
-	{
-
-		VulkanDevice DeviceInfo;
-		DeviceInfo.Device = device;
-		DeviceInfo.PhysicalDevice = physicalDevice;
-		DeviceInfo.CommandPool = commandPool;
-		DeviceInfo.GraphicsQueue = graphicsQueue;
-		DeviceInfo.SwapChainSize = swapChainImages.size();
-
-		shader.CreateDescriptorPool();
-	}
-
-	void createDescriptorSets() 
-	{
-		VulkanDevice DeviceInfo;
-		DeviceInfo.Device = device;
-		DeviceInfo.PhysicalDevice = physicalDevice;
-		DeviceInfo.CommandPool = commandPool;
-		DeviceInfo.GraphicsQueue = graphicsQueue;
-		DeviceInfo.SwapChainSize = swapChainImages.size();
-
-		shader.CreateDescriptorSets(cubeMapTexture.textureImageView, cubeMapTexture.textureSampler, texture.textureImageView, texture.textureSampler, texture2.textureImageView, texture2.textureSampler);
-	}
-
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -1183,7 +1085,7 @@ private:
 
 			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 			Skybox.Draw(SkyBoxgraphicsPipeline, SkyBoxpipelineLayout, commandBuffers[i], i);
-			mesh.Draw(commandBuffers[i], shader.descriptorSets[i], graphicsPipeline, pipelineLayout);
+			mesh.Draw(commandBuffers[i], shader.descriptorSets[i], shader.ShaderPipeline, shader.ShaderPipelineLayout);
 			vkCmdEndRenderPass(commandBuffers[i]);
 
 			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {

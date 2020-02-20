@@ -246,3 +246,5 @@ ModelManifest.xml
 
 # Precompiled Shader Header Files
 *.shh
+*.ipch
+.vs/VulkanGraphics/v16/ipch/AutoPCH/a98718a42e195cd6/MAIN.ipch

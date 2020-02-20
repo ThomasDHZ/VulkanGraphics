@@ -11,7 +11,7 @@ public:
 	SkyBoxShader(VulkanDevice deviceInfo);
 	~SkyBoxShader();
 
-	void CreateShaderPipeLine();
+	void CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass);
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets(VkImageView textureImageView, VkSampler textureSampler);
