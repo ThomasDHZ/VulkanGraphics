@@ -4,4 +4,7 @@ C:/VulkanSDK/1.1.130.0/Bin32/glslc.exe light.vert -o lightvert.spv
 C:/VulkanSDK/1.1.130.0/Bin32/glslc.exe light.frag -o lightfrag.spv
 C:/VulkanSDK/1.1.130.0/Bin32/glslc.exe SkyboxShader.vert -o SkyBoxVert.spv
 C:/VulkanSDK/1.1.130.0/Bin32/glslc.exe SkyboxShader.frag -o SkyBoxFrag.spv
+C:/VulkanSDK/1.1.130.0/Bin32/glslc.exe FrameBufferShader.vert -o FrameBufferVert.spv
+C:/VulkanSDK/1.1.130.0/Bin32/glslc.exe FrameBufferShader.frag -o FrameBufferFrag.spv
+
 pause

@@ -146,6 +146,9 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
+    <ClCompile Include="FrameBufferShader.cpp" />
+    <ClCompile Include="InputAttachment.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="BaseShader.cpp" />
@@ -157,6 +160,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\frag.spv" />
+    <None Include="Shaders\FrameBufferShader.frag" />
+    <None Include="Shaders\FrameBufferShader.vert" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />
     <None Include="Shaders\Shader.frag" />
@@ -167,6 +172,9 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="CubeMapTexture.h" />
+    <ClInclude Include="FrameBuffer.h" />
+    <ClInclude Include="FrameBufferShader.h" />
+    <ClInclude Include="InputAttachment.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="BaseShader.h" />
     <ClInclude Include="Shader.h" />

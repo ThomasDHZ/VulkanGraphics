@@ -1,0 +1,73 @@
+#include "FrameBuffer.h"
+
+FrameBuffer::FrameBuffer()
+{
+}
+
+FrameBuffer::FrameBuffer(VulkanDevice deviceInfo)
+{
+	DeviceInfo = deviceInfo;
+}
+
+FrameBuffer::~FrameBuffer()
+{
+}
+
+void FrameBuffer::CreateFrameBufferView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
+{
+	swapChainImageViews.resize(DeviceInfo.SwapChainSize);
+
+	for (uint32_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	{
+		VkImageViewCreateInfo viewInfo = {};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = format;
+		viewInfo.subresourceRange = {};
+		viewInfo.subresourceRange.aspectMask = aspectFlags;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+		viewInfo.image = image;
+
+		if (vkCreateImageView(DeviceInfo.Device, &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to create texture image view!");
+		}
+	}
+}
+
+void FrameBuffer::CreateFrameBuffer()
+{
+	swapChainFramebuffers.resize(swapChainImageViews.size());
+
+	//for (size_t i = 0; i < swapChainImageViews.size(); i++)
+	//{
+	//	std::array<VkImageView, 3> attachments = {
+	//		swapChainImageViews[i],
+	//		ColorAttachment.AttachmentImageView,
+	//		DepthAttachment.AttachmentImageView
+	//	};
+
+	//	VkFramebufferCreateInfo framebufferInfo = {};
+	//	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	//	framebufferInfo.renderPass = renderPass;
+	//	framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	//	framebufferInfo.pAttachments = attachments.data();
+	//	framebufferInfo.width = swapChainExtent.width;
+	//	framebufferInfo.height = swapChainExtent.height;
+	//	framebufferInfo.layers = 1;
+
+	//	if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+	//		throw std::runtime_error("failed to create framebuffer!");
+	//	}
+	//}
+}
+
+void FrameBuffer::Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout)
+{
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorset, 0, NULL);
+	vkCmdDraw(commandbuffer, 3, 1, 0, 0);
+}

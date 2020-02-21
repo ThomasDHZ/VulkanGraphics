@@ -48,6 +48,15 @@
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InputAttachment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBufferShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Shader.frag">
@@ -69,6 +78,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\frag.spv">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\FrameBufferShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\FrameBufferShader.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -104,6 +119,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputAttachment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
