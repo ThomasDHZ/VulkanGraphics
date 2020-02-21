@@ -174,7 +174,6 @@
     <ClInclude Include="SkyBoxShader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Texture2D.h" />
-    <ClInclude Include="UniformBufferObject.h" />
     <ClInclude Include="VertexBufferObject.h" />
     <ClInclude Include="VulkanBufferManager.h" />
   </ItemGroup>

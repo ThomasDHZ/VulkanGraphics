@@ -79,9 +79,6 @@
     <ClInclude Include="SkyBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UniformBufferObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VulkanBufferManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>

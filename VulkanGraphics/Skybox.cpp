@@ -7,142 +7,50 @@ SkyBox::SkyBox()
 {
 }
 
-SkyBox::SkyBox(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue queue, int SwapChainSize, VkImageView textureImageView, VkSampler textureSampler)
+SkyBox::SkyBox(VulkanDevice deviceInfo)
 {
-	SetUpDescriptorSetLayout(device);
-	SetUpVertexBuffer(SwapChainSize, device, physicalDevice, vertices, commandPool, queue);
-	SetUpUniformBuffers(SwapChainSize, device, physicalDevice);
-	SetUpDescriptorPool(device, SwapChainSize);
-	SetUpDescriptorSets(device, SwapChainSize,  textureImageView,  textureSampler);
+	DeviceInfo = deviceInfo;
+	SetUpVertexBuffer(deviceInfo);
 }
 
 SkyBox::~SkyBox()
 {
 }
 
-void SkyBox::SetUpDescriptorSetLayout(VkDevice Device)
+void SkyBox::SetUpVertexBuffer(VulkanDevice deviceInfo)
 {
-	VkDescriptorSetLayoutBinding UBOLayoutBinding = {};
-	UBOLayoutBinding.binding = 0;
-	UBOLayoutBinding.descriptorCount = 1;
-	UBOLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	UBOLayoutBinding.pImmutableSamplers = nullptr;
-	UBOLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-	VkDescriptorSetLayoutBinding SamplerLayoutBinding = {};
-	SamplerLayoutBinding.binding = 1;
-	SamplerLayoutBinding.descriptorCount = 1;
-	SamplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	SamplerLayoutBinding.pImmutableSamplers = nullptr;
-	SamplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { UBOLayoutBinding, SamplerLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-	layoutInfo.pBindings = bindings.data();
+	void* data;
+	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
 
-	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, &DescriptorSetLayout) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create descriptor set layout!");
-	}
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+
+	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
 }
 
-void SkyBox::SetUpVertexBuffer(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<SkyBoxVertex> VertexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue)
+void SkyBox::Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout)
 {
-	VBO = VertexBufferObject<SkyBoxVertex>(SwapChainSize, device, physicalDevice, VertexData, CommandPool, GraphicsQueue);
-}
-
-void SkyBox::SetUpUniformBuffers(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice)
-{
-	UBO = UniformBufferObject<SkyBoxUniformBufferObject>(SwapChainSize, device, physicalDevice);
-}
-
-void SkyBox::SetUpDescriptorPool(VkDevice device, int SwapChainSize)
-{
-	std::array<VkDescriptorPoolSize, 2> PoolSizes = {};
-	PoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	PoolSizes[0].descriptorCount = static_cast<uint32_t>(SwapChainSize);
-	PoolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	PoolSizes[1].descriptorCount = static_cast<uint32_t>(SwapChainSize);
-
-	VkDescriptorPoolCreateInfo PoolInfo = {};
-	PoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	PoolInfo.poolSizeCount = static_cast<uint32_t>(PoolSizes.size());
-	PoolInfo.pPoolSizes = PoolSizes.data();
-	PoolInfo.maxSets = static_cast<uint32_t>(SwapChainSize);
-
-	if (vkCreateDescriptorPool(device, &PoolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create descriptor pool!");
-	}
-}
-
-void SkyBox::SetUpDescriptorSets(VkDevice device, int SwapChainSize, VkImageView textureImageView, VkSampler textureSampler)
-{
-	std::vector<VkDescriptorSetLayout> layouts(SwapChainSize, DescriptorSetLayout);
-	VkDescriptorSetAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(SwapChainSize);
-	allocInfo.pSetLayouts = layouts.data();
-
-	descriptorSets.resize(SwapChainSize);
-	if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
-
-	for (size_t i = 0; i < SwapChainSize; i++) {
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = UBO.GetShaderBuffer(i);
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(SkyBoxUniformBufferObject);
-
-		VkDescriptorImageInfo imageInfo = {};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = textureImageView;
-		imageInfo.sampler = textureSampler;
-
-		std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
-
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = descriptorSets[i];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = descriptorSets[i];
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
-
-		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-	}
-}
-
-void SkyBox::UpdateUniformBuffer(SkyBoxUniformBufferObject ubo, uint32_t currentImage)
-{
-	UBO.UpdateShaderBuffer(ubo, currentImage);
-}
-
-void SkyBox::Draw(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkCommandBuffer commandBuffer, size_t currentImage)
-{
-	VkBuffer vertexBuffers[] = { VBO.GetVertexBuffer() };
+	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
-	vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorset, 0, nullptr);
+	vkCmdDraw(commandbuffer, vertices.size(), 1, 0, 0);
 }
 
 void SkyBox::DestorySwapChain(VkDevice device, int SwapChainSize)
 {
-	UBO.Destroy(SwapChainSize);
-
 	if (descriptorPool != nullptr)
 	{
 		vkDestroyDescriptorPool(device, descriptorPool, nullptr);
@@ -155,7 +63,7 @@ void SkyBox::Destory(VkDevice device, int SwapChainSize)
 	DestorySwapChain(device, SwapChainSize);
 
 	vkDestroyDescriptorSetLayout(device, DescriptorSetLayout, nullptr);
-	vkDestroyBuffer(device, VBO.GetVertexBuffer(), nullptr);
-	vkFreeMemory(device, VBO.GetVertexMemoryBuffer(), nullptr);
+	vkDestroyBuffer(device, vertexBuffer, nullptr);
+	vkFreeMemory(device, vertexBufferMemory, nullptr);
 }
 

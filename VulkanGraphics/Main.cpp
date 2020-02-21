@@ -29,6 +29,7 @@
 #include "Shader.h"
 #include "Texture2D.h"
 #include "CubeMapTexture.h"
+#include "SkyBoxShader.h"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -147,6 +148,7 @@ private:
 	SkyBox Skybox;
 	Mesh mesh;
 	Shader shader;
+	SkyBoxShader skyBoxShader;
 	Texture2D texture;
 	Texture2D texture2;
 	CubeMapTexture cubeMapTexture;
@@ -177,9 +179,6 @@ private:
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	VkRenderPass renderPass;
-
-	VkPipelineLayout SkyBoxpipelineLayout;
-	VkPipeline SkyBoxgraphicsPipeline;
 
 	VkCommandPool commandPool;
 
@@ -241,9 +240,7 @@ private:
 		texture = Texture2D(DeviceInfo, "texture/container2.png");
 		texture2 = Texture2D(DeviceInfo, "texture/container2_specular.png");
 		cubeMapTexture = CubeMapTexture(DeviceInfo, layout);
-		Skybox = SkyBox(device, physicalDevice, commandPool, graphicsQueue, swapChainImages.size(), cubeMapTexture.textureImageView, cubeMapTexture.textureSampler);
-		
-		createGraphicsPipeline();
+	
 		
 		ShaderTextureInputs shaderInput{};
 			shaderInput.SkyboxtextureImageView = cubeMapTexture.textureImageView;
@@ -254,8 +251,10 @@ private:
 			shaderInput.textureSampler2 = texture2.textureSampler;
 		
 		shader = Shader(DeviceInfo, swapChainExtent, renderPass, shaderInput);
+		skyBoxShader = SkyBoxShader(DeviceInfo, swapChainExtent, renderPass, cubeMapTexture);
 		
 		mesh = Mesh(DeviceInfo, vertices2, indices);
+		Skybox = SkyBox(DeviceInfo);
 
 		createDepthResources();
 		createFramebuffers();
@@ -285,10 +284,6 @@ private:
 
 		vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
-		//vkDestroyPipeline(device, graphicsPipeline, nullptr);
-		//vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-		vkDestroyPipeline(device, SkyBoxgraphicsPipeline, nullptr);
-		vkDestroyPipelineLayout(device, SkyBoxpipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
 
 		for (auto imageView : swapChainImageViews) {
@@ -347,13 +342,8 @@ private:
 		createSwapChain();
 		createImageViews();
 		createRenderPass();
-		createGraphicsPipeline();
 		createDepthResources();
 		createFramebuffers();
-
-		Skybox.SetUpUniformBuffers(swapChainImages.size(), device, physicalDevice);
-		Skybox.SetUpDescriptorPool(device, swapChainImages.size());
-		Skybox.SetUpDescriptorSets(device, swapChainImages.size(), cubeMapTexture.textureImageView, cubeMapTexture.textureSampler);
 
 		ShaderTextureInputs shaderInput{};
 		shaderInput.SkyboxtextureImageView = cubeMapTexture.textureImageView;
@@ -364,7 +354,7 @@ private:
 		shaderInput.textureSampler2 = texture2.textureSampler;
 
 		shader.RecreateSwapChainInfo(swapChainExtent, renderPass, shaderInput);
-
+		skyBoxShader.RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
 		createCommandBuffers();
 	}
 
@@ -618,154 +608,6 @@ private:
 		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create render pass!");
 		}
-	}
-
-	void createGraphicsPipeline() {
-
-		auto SkyBoxvertShaderCode = readFile("Shaders/SkyBoxVert.spv");
-		auto SkyBoxfragShaderCode = readFile("Shaders/SkyBoxFrag.spv");
-
-		VkShaderModule SkyBoxvertShaderModule = createShaderModule(SkyBoxvertShaderCode);
-		VkShaderModule SkyBoxfragShaderModule = createShaderModule(SkyBoxfragShaderCode);
-
-		VkPipelineShaderStageCreateInfo SkyBoxvertShaderStageInfo = {};
-		SkyBoxvertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		SkyBoxvertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-		SkyBoxvertShaderStageInfo.module = SkyBoxvertShaderModule;
-		SkyBoxvertShaderStageInfo.pName = "main";
-
-		VkPipelineShaderStageCreateInfo SkyBoxfragShaderStageInfo = {};
-		SkyBoxfragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		SkyBoxfragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		SkyBoxfragShaderStageInfo.module = SkyBoxfragShaderModule;
-		SkyBoxfragShaderStageInfo.pName = "main";
-
-		VkPipelineShaderStageCreateInfo SkyBoxshaderStages[] = { SkyBoxvertShaderStageInfo, SkyBoxfragShaderStageInfo };
-
-		VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
-		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
-		auto bindingDescription = Vertex::GetBindingDescription();
-		auto attributeDescriptions = Vertex::GetAttributeDescriptions();
-
-		vertexInputInfo.vertexBindingDescriptionCount = 1;
-		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
-		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-
-		VkPipelineVertexInputStateCreateInfo SkyBoxvertexInputInfo = {};
-		SkyBoxvertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
-		auto SkyBoxbindingDescription = SkyBoxVertex::getBindingDescription();
-		auto SkyBoxattributeDescriptions = SkyBoxVertex::getAttributeDescriptions();
-
-		SkyBoxvertexInputInfo.vertexBindingDescriptionCount = 1;
-		SkyBoxvertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(SkyBoxattributeDescriptions.size());
-		SkyBoxvertexInputInfo.pVertexBindingDescriptions = &SkyBoxbindingDescription;
-		SkyBoxvertexInputInfo.pVertexAttributeDescriptions = SkyBoxattributeDescriptions.data();
-
-
-		VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
-		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-		inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-		VkViewport viewport = {};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = (float)swapChainExtent.width;
-		viewport.height = (float)swapChainExtent.height;
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-
-		VkRect2D scissor = {};
-		scissor.offset = { 0, 0 };
-		scissor.extent = swapChainExtent;
-
-		VkPipelineViewportStateCreateInfo viewportState = {};
-		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewportState.viewportCount = 1;
-		viewportState.pViewports = &viewport;
-		viewportState.scissorCount = 1;
-		viewportState.pScissors = &scissor;
-
-		VkPipelineRasterizationStateCreateInfo rasterizer = {};
-		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-		rasterizer.depthClampEnable = VK_FALSE;
-		rasterizer.rasterizerDiscardEnable = VK_FALSE;
-		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-		rasterizer.lineWidth = 1.0f;
-		rasterizer.cullMode = VK_CULL_MODE_NONE;
-		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-		rasterizer.depthBiasEnable = VK_FALSE;
-
-		VkPipelineMultisampleStateCreateInfo multisampling = {};
-		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		multisampling.sampleShadingEnable = VK_FALSE;
-		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-		VkPipelineDepthStencilStateCreateInfo depthStencil = {};
-		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-		depthStencil.depthTestEnable = VK_TRUE;
-		depthStencil.depthWriteEnable = VK_TRUE;
-		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-		depthStencil.depthBoundsTestEnable = VK_FALSE;
-		depthStencil.stencilTestEnable = VK_FALSE;
-
-		VkPipelineDepthStencilStateCreateInfo SkyBoxdepthStencil = {};
-		SkyBoxdepthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-		SkyBoxdepthStencil.depthTestEnable = VK_TRUE;
-		SkyBoxdepthStencil.depthWriteEnable = VK_TRUE;
-		SkyBoxdepthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-		SkyBoxdepthStencil.depthBoundsTestEnable = VK_FALSE;
-		SkyBoxdepthStencil.stencilTestEnable = VK_FALSE;
-
-		VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		colorBlendAttachment.blendEnable = VK_FALSE;
-
-		VkPipelineColorBlendStateCreateInfo colorBlending = {};
-		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-		colorBlending.logicOpEnable = VK_FALSE;
-		colorBlending.logicOp = VK_LOGIC_OP_COPY;
-		colorBlending.attachmentCount = 1;
-		colorBlending.pAttachments = &colorBlendAttachment;
-		colorBlending.blendConstants[0] = 0.0f;
-		colorBlending.blendConstants[1] = 0.0f;
-		colorBlending.blendConstants[2] = 0.0f;
-		colorBlending.blendConstants[3] = 0.0f;
-
-		VkPipelineLayoutCreateInfo SkyBoxpipelineLayoutInfo = {};
-		SkyBoxpipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		SkyBoxpipelineLayoutInfo.setLayoutCount = 1;
-		SkyBoxpipelineLayoutInfo.pSetLayouts = &Skybox.DescriptorSetLayout;
-
-		if (vkCreatePipelineLayout(device, &SkyBoxpipelineLayoutInfo, nullptr, &SkyBoxpipelineLayout) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create pipeline layout!");
-		}
-
-		VkGraphicsPipelineCreateInfo SkyBoxpipelineInfo = {};
-		SkyBoxpipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		SkyBoxpipelineInfo.stageCount = 2;
-		SkyBoxpipelineInfo.pStages = SkyBoxshaderStages;
-		SkyBoxpipelineInfo.pVertexInputState = &SkyBoxvertexInputInfo;
-		SkyBoxpipelineInfo.pInputAssemblyState = &inputAssembly;
-		SkyBoxpipelineInfo.pViewportState = &viewportState;
-		SkyBoxpipelineInfo.pRasterizationState = &rasterizer;
-		SkyBoxpipelineInfo.pMultisampleState = &multisampling;
-		SkyBoxpipelineInfo.pDepthStencilState = &SkyBoxdepthStencil;
-		SkyBoxpipelineInfo.pColorBlendState = &colorBlending;
-		SkyBoxpipelineInfo.layout = SkyBoxpipelineLayout;
-		SkyBoxpipelineInfo.renderPass = renderPass;
-		SkyBoxpipelineInfo.subpass = 0;
-		SkyBoxpipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-
-		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &SkyBoxpipelineInfo, nullptr, &SkyBoxgraphicsPipeline) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create graphics pipeline!");
-		}
-
-		vkDestroyShaderModule(device, SkyBoxfragShaderModule, nullptr);
-		vkDestroyShaderModule(device, SkyBoxvertShaderModule, nullptr);
 	}
 
 	void createFramebuffers() {
@@ -1084,7 +926,7 @@ private:
 			renderPassInfo.pClearValues = clearValues.data();
 
 			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-			Skybox.Draw(SkyBoxgraphicsPipeline, SkyBoxpipelineLayout, commandBuffers[i], i);
+			Skybox.Draw(commandBuffers[i], skyBoxShader.descriptorSets[i], skyBoxShader.ShaderPipeline, skyBoxShader.ShaderPipelineLayout);
 			mesh.Draw(commandBuffers[i], shader.descriptorSets[i], shader.ShaderPipeline, shader.ShaderPipelineLayout);
 			vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -1147,7 +989,10 @@ private:
 		ubo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 		ubo.projection[1][1] *= -1;
 
-		Skybox.UpdateUniformBuffer(ubo, currentImage);
+		void* data3;
+		vkMapMemory(device, skyBoxShader.uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data3);
+		memcpy(data3, &ubo, sizeof(ubo));
+		vkUnmapMemory(device, skyBoxShader.uniformBuffersMemory[currentImage]);
 	}
 
 	void drawFrame() {

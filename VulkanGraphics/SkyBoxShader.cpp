@@ -4,18 +4,27 @@ SkyBoxShader::SkyBoxShader() : BaseShader()
 {
 }
 
-SkyBoxShader::SkyBoxShader(VulkanDevice deviceInfo) : BaseShader(deviceInfo)
+SkyBoxShader::SkyBoxShader(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, CubeMapTexture cubeMapTexture) : BaseShader(deviceInfo)
 {
 	CreateDescriptorSetLayout();
+	RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
 }
 
 SkyBoxShader::~SkyBoxShader()
 {
 }
 
+void SkyBoxShader::RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass renderPass, CubeMapTexture cubeMapTexture)
+{
+	CreateShaderPipeLine(swapChainExtent, renderPass);
+	CreateUniformBuffers();
+	CreateDescriptorPool();
+	CreateDescriptorSets(cubeMapTexture);
+}
+
 void SkyBoxShader::CreateDescriptorSetLayout()
 {
-	std::array<DescriptorSetLayoutBindingInfo, 5> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -178,7 +187,7 @@ void SkyBoxShader::CreateDescriptorPool()
 	BaseShader::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void SkyBoxShader::CreateDescriptorSets(VkImageView textureImageView, VkSampler textureSampler)
+void SkyBoxShader::CreateDescriptorSets(CubeMapTexture cubeMapTexture)
 {
 	BaseShader::CreateDescriptorSets();
 
@@ -191,8 +200,8 @@ void SkyBoxShader::CreateDescriptorSets(VkImageView textureImageView, VkSampler 
 
 		VkDescriptorImageInfo imageInfo = {};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = textureImageView;
-		imageInfo.sampler = textureSampler;
+		imageInfo.imageView = cubeMapTexture.textureImageView;
+		imageInfo.sampler = cubeMapTexture.textureSampler;
 
 		std::array<VkWriteDescriptorSet, 2>  descriptorWrites = {};
 

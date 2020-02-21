@@ -8,7 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "VertexBufferObject.h"
-#include "UniformBufferObject.h"
+#include "Mesh.h"
 
 struct SkyBoxVertex 
 {
@@ -90,27 +90,22 @@ const std::vector<SkyBoxVertex> vertices =
 class SkyBox
 {
 private:
-
+	VulkanDevice DeviceInfo;
 public:
-	VertexBufferObject<SkyBoxVertex> VBO;
-	UniformBufferObject<SkyBoxUniformBufferObject> UBO;
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
 
 	VkDescriptorSetLayout DescriptorSetLayout;
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
 	SkyBox();
-	SkyBox(VkDevice device, VkPhysicalDevice physicalDevice, VkCommandPool commandPool, VkQueue queue, int SwapChainSize, VkImageView textureImageView, VkSampler textureSampler);
+	SkyBox(VulkanDevice deviceInfo);
 	~SkyBox();
 
-	void SetUpDescriptorSetLayout(VkDevice Device);
-	void SetUpVertexBuffer(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice, std::vector<SkyBoxVertex> VertexData, VkCommandPool& CommandPool, VkQueue& GraphicsQueue);
-	void SetUpUniformBuffers(int SwapChainSize, VkDevice device, VkPhysicalDevice physicalDevice);
-	void SetUpDescriptorPool(VkDevice device, int SwapChainSize);
-	void SetUpDescriptorSets(VkDevice device, int SwapChainSize, VkImageView textureImageView, VkSampler textureSampler);
+	void SetUpVertexBuffer(VulkanDevice deviceInfo);
 
-	void UpdateUniformBuffer(SkyBoxUniformBufferObject ubo, uint32_t currentImage);
-	void Draw(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkCommandBuffer commandBuffer, size_t currentImage);
+	void Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout);
 	void DestorySwapChain(VkDevice device, int SwapChainSize);
 	void Destory(VkDevice device, int SwapChainSize);
 };
