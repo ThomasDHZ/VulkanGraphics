@@ -36,8 +36,8 @@
 #include "VulkanDebugger.h"
 #include "VulkanWindow.h"
 
-const int WIDTH = 800;
-const int HEIGHT = 600;
+const int WIDTH = 1800;
+const int HEIGHT = 1600;
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -136,8 +136,7 @@ private:
 
 	Camera camera;
 	SkyBox Skybox;
-	Mesh mesh;
-	Shader shader;
+	std::vector<Mesh> MeshList;
 	SkyBoxShader skyBoxShader;
 	Texture2D texture;
 	Texture2D texture2;
@@ -228,11 +227,21 @@ private:
 			shaderInput.textureImageView2 = texture2.textureImageView;
 			shaderInput.textureSampler2 = texture2.textureSampler;
 		
-		shader = Shader(DeviceInfo, swapChainExtent, renderPass, shaderInput);
+		
 		skyBoxShader = SkyBoxShader(DeviceInfo, swapChainExtent, renderPass, cubeMapTexture);
 		frameBufferShader = FrameBufferShader(DeviceInfo, swapChainExtent, renderPass, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 		
-		mesh = Mesh(DeviceInfo, vertices2, indices);
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
+
 		Skybox = SkyBox(DeviceInfo);
 		frameBuffer = FrameBuffer(DeviceInfo);
 
@@ -272,8 +281,10 @@ private:
 		}
 
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
-	
-		shader.DestorySwapChain();
+		for (auto mesh : MeshList)
+		{
+			mesh.DestroySwapChainStage();
+		}
 		skyBoxShader.DestorySwapChain();
 		frameBufferShader.DestorySwapChain();
 	}
@@ -282,11 +293,13 @@ private:
 		cleanupSwapChain();
 
 		Skybox.Destory();
-		mesh.Destroy();
+		for (auto mesh : MeshList)
+		{
+			mesh.Destroy();
+		}
 		texture.Destroy();
 		texture2.Destroy();
 		cubeMapTexture.Destroy();
-		shader.Destory();
 		skyBoxShader.Destory();
 		frameBufferShader.Destory();
 
@@ -344,7 +357,10 @@ private:
 		shaderInput.textureImageView2 = texture2.textureImageView;
 		shaderInput.textureSampler2 = texture2.textureSampler;
 
-		shader.RecreateSwapChainInfo(swapChainExtent, renderPass, shaderInput);
+		for (auto mesh : MeshList)
+		{
+			mesh.RecreateSwapChainStage(swapChainExtent, renderPass, shaderInput);
+		}
 		skyBoxShader.RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
 		frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 		createCommandBuffers();
@@ -906,7 +922,10 @@ private:
 			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 			Skybox.Draw(commandBuffers[i], skyBoxShader.descriptorSets[i], skyBoxShader.ShaderPipeline, skyBoxShader.ShaderPipelineLayout);
-			mesh.Draw(commandBuffers[i], shader.descriptorSets[i], shader.ShaderPipeline, shader.ShaderPipelineLayout);
+			for (auto mesh : MeshList)
+			{
+				mesh.Draw(commandBuffers[i], i);
+			}
 
 			vkCmdNextSubpass(commandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);
 			frameBuffer.Draw(commandBuffers[i], frameBufferShader.descriptorSets[i], frameBufferShader.ShaderPipeline, frameBufferShader.ShaderPipelineLayout);
@@ -946,25 +965,34 @@ private:
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-		UniformBufferObject2 ubo2 = {};
-		ubo2.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		ubo2.view = camera.GetViewMatrix();
-		ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
-		ubo2.proj[1][1] *= -1;
+		glm::vec3 cubePositions[] = {
+	glm::vec3(0.0f,  0.0f,  0.0f),
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+		};
 
-		void* data;
-		vkMapMemory(device, shader.uniformBuffersMemory[currentImage], 0, sizeof(ubo2), 0, &data);
-		memcpy(data, &ubo2, sizeof(ubo2));
-		vkUnmapMemory(device, shader.uniformBuffersMemory[currentImage]);
+		for (int x = 0; x < 10; x++)
+		{
+			UniformBufferObject2 ubo2 = {};
+			ubo2.model = glm::mat4(1.0f);
+			ubo2.model = glm::translate(ubo2.model, cubePositions[x]);
+			ubo2.model = glm::rotate(ubo2.model, glm::radians(x * 20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			ubo2.view = camera.GetViewMatrix();
+			ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+			ubo2.proj[1][1] *= -1;
 
+			FragmentUniformBufferObject ubo3 = {};
+			ubo3.cameraPos = camera.GetCameraPos();
 
-		FragmentUniformBufferObject ubo3 = {};
-		ubo3.cameraPos = camera.GetCameraPos();
-
-		void* data2;
-		vkMapMemory(device, shader.FragmentUniformBuffersMemory[currentImage], 0, sizeof(ubo3), 0, &data2);
-		memcpy(data2, &ubo3, sizeof(ubo3));
-		vkUnmapMemory(device, shader.FragmentUniformBuffersMemory[currentImage]);
+			MeshList[x].UpdateUniformBuffer(ubo2, ubo3, currentImage);
+		}
 
 		SkyBoxUniformBufferObject ubo = {};
 		ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));

@@ -7,16 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "VulkanBufferManager.h"
-
-struct VulkanDevice
-{
-	VkDevice Device;
-	VkPhysicalDevice PhysicalDevice;
-	VkCommandPool CommandPool;
-	VkQueue GraphicsQueue;
-	int SwapChainSize;
-};
-
+#include "BaseShader.h"
+#include "Shader.h"
 struct Vertex
 {
 	glm::vec3 pos;
@@ -65,6 +57,7 @@ class Mesh
 {
 private:
 	VulkanDevice DeviceInfo;
+	Shader shader;
 
 	int VerticeSize;
 	int IndiceSize;
@@ -80,11 +73,14 @@ public:
 	VkDeviceMemory indexBufferMemory;
 
 	Mesh();
-	Mesh(VulkanDevice deviceInfo, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
+	Mesh(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs shaderInput, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
 	~Mesh();
 
-	void Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout);
+	void UpdateUniformBuffer(UniformBufferObject2 ubo2, FragmentUniformBufferObject ubo3, int currentImage);
+	void Draw(VkCommandBuffer commandbuffer, int currentImage);
+	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs shaderInput);
 	void Destroy();
+	void DestroySwapChainStage();
 
 	Mesh& operator=(const Mesh& rhs);
 };

@@ -4,12 +4,13 @@ Mesh::Mesh()
 {
 }
 
-Mesh::Mesh(VulkanDevice deviceInfo, std::vector<Vertex> vertices, std::vector<uint16_t> indices)
+Mesh::Mesh(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs shaderInput, std::vector<Vertex> vertices, std::vector<uint16_t> indices)
 {
 	DeviceInfo = deviceInfo;
 
 	VerticeSize = vertices.size();
 	IndiceSize = indices.size();
+	shader = Shader(DeviceInfo, swapChainExtent, renderPass, shaderInput);
 
 	CreateVertexBuffer(vertices);
 	CreateIndiceBuffer(indices);
@@ -61,17 +62,35 @@ void Mesh::CreateIndiceBuffer(std::vector<uint16_t> indices)
 	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
 }
 
-void Mesh::Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout)
+void Mesh::UpdateUniformBuffer(UniformBufferObject2 ubo2, FragmentUniformBufferObject ubo3, int currentImage)
+{
+	void* data;
+	vkMapMemory(DeviceInfo.Device, shader.uniformBuffersMemory[currentImage], 0, sizeof(ubo2), 0, &data);
+	memcpy(data, &ubo2, sizeof(ubo2));
+	vkUnmapMemory(DeviceInfo.Device, shader.uniformBuffersMemory[currentImage]);
+
+	void* data2;
+	vkMapMemory(DeviceInfo.Device, shader.FragmentUniformBuffersMemory[currentImage], 0, sizeof(ubo3), 0, &data2);
+	memcpy(data2, &ubo3, sizeof(ubo3));
+	vkUnmapMemory(DeviceInfo.Device, shader.FragmentUniformBuffersMemory[currentImage]);
+}
+
+void Mesh::Draw(VkCommandBuffer commandbuffer, int currentImage)
 {
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shader.ShaderPipeline);
 	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorset, 0, nullptr);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shader.ShaderPipelineLayout, 0, 1, &shader.descriptorSets[currentImage], 0, nullptr);
 	vkCmdDraw(commandbuffer, VerticeSize, 1, 0, 0);
 	//vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 	//vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+}
+
+void Mesh::RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs shaderInput)
+{
+	shader.RecreateSwapChainInfo(swapChainExtent, renderPass, shaderInput);
 }
 
 void Mesh::Destroy()
@@ -81,6 +100,13 @@ void Mesh::Destroy()
 
 	vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
 	vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
+
+	shader.Destory();
+}
+
+void Mesh::DestroySwapChainStage()
+{
+	shader.DestorySwapChain();
 }
 
 Mesh& Mesh::operator=(const Mesh& rhs)
@@ -89,6 +115,7 @@ Mesh& Mesh::operator=(const Mesh& rhs)
 
 	VerticeSize = rhs.VerticeSize;
 	IndiceSize = rhs.IndiceSize;
+	shader = rhs.shader;
 
 	vertexBuffer = rhs.vertexBuffer;
 	vertexBufferMemory = rhs.vertexBufferMemory;

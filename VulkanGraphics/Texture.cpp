@@ -1,4 +1,5 @@
 #include "Texture.h"
+#include "VulkanBufferManager.h"
 
 Texture::Texture()
 {

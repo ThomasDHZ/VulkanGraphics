@@ -3,11 +3,7 @@
 #include <string>
 #include <array>
 
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-#include "Mesh.h"
+#include "Structs.h"
 
 struct SkyBoxVertex 
 {
