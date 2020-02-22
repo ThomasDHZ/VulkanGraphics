@@ -34,6 +34,7 @@
 #include "FrameBuffer.h"
 #include "FrameBufferShader.h"
 #include "VulkanDebugger.h"
+#include "VulkanWindow.h"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
@@ -121,8 +122,9 @@ const std::vector<uint16_t> indices = {
 
 class HelloTriangleApplication {
 public:
-	void run() {
-		initWindow();
+	void run() 
+	{
+		Window = VulkanWindow(WIDTH, HEIGHT, "Vulkan");
 		initVulkan();
 		mainLoop();
 		cleanup();
@@ -130,7 +132,7 @@ public:
 
 private:
 	VulkanDebugger VulkanDebug;
-	GLFWwindow* window;
+	VulkanWindow Window;
 
 	Camera camera;
 	SkyBox Skybox;
@@ -159,9 +161,10 @@ private:
 	VkQueue presentQueue;
 
 	VkSwapchainKHR swapChain;
-	std::vector<VkImage> swapChainImages;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
+
+	std::vector<VkImage> swapChainImages;
 	std::vector<VkImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
@@ -184,21 +187,6 @@ private:
 
 	bool framebufferResized = false;
 
-	void initWindow() {
-		glfwInit();
-
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-		glfwSetWindowUserPointer(window, this);
-		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-	}
-
-	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-		auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
-		app->framebufferResized = true;
-	}
-
 	void initVulkan() {
 		createInstance();
 		SetUpDebugger();
@@ -209,8 +197,6 @@ private:
 		createImageViews();
 		createRenderPass();
 		createCommandPool();
-		createColorResources();
-		createDepthResources();
 
 		VulkanDevice DeviceInfo;
 		DeviceInfo.Device = device;
@@ -218,6 +204,9 @@ private:
 		DeviceInfo.CommandPool = commandPool;
 		DeviceInfo.GraphicsQueue = graphicsQueue;
 		DeviceInfo.SwapChainSize = swapChainImages.size();
+
+		ColorAttachment = InputAttachment(DeviceInfo, AttachmentType::VkColorAttachment, swapChainExtent.width, swapChainExtent.height);
+		DepthAttachment = InputAttachment(DeviceInfo, AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 
 		CubeMapLayout layout;
 		layout.Left = "texture/skybox/left.jpg";
@@ -252,8 +241,10 @@ private:
 		createSyncObjects();
 	}
 
-	void mainLoop() {
-		while (!glfwWindowShouldClose(window)) {
+	void mainLoop() 
+	{
+		while (!glfwWindowShouldClose(Window.GetWindowPtr())) 
+		{
 			glfwPollEvents();
 			drawFrame();
 			UpdateMouse();
@@ -312,16 +303,14 @@ private:
 		vkDestroySurfaceKHR(instance, surface, nullptr);
 		vkDestroyInstance(instance, nullptr);
 
-		glfwDestroyWindow(window);
-
-		glfwTerminate();
+		Window.CleanUp();
 	}
 
 	void recreateSwapChain() {
 		int width = 0, height = 0;
-		glfwGetFramebufferSize(window, &width, &height);
+		glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
 		while (width == 0 || height == 0) {
-			glfwGetFramebufferSize(window, &width, &height);
+			glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
 			glfwWaitEvents();
 		}
 
@@ -332,8 +321,18 @@ private:
 		createSwapChain();
 		createImageViews();
 		createRenderPass();
-		createColorResources();
-		createDepthResources();
+
+
+		VulkanDevice DeviceInfo;
+		DeviceInfo.Device = device;
+		DeviceInfo.PhysicalDevice = physicalDevice;
+		DeviceInfo.CommandPool = commandPool;
+		DeviceInfo.GraphicsQueue = graphicsQueue;
+		DeviceInfo.SwapChainSize = swapChainImages.size();
+
+		ColorAttachment = InputAttachment(DeviceInfo, AttachmentType::VkColorAttachment, swapChainExtent.width, swapChainExtent.height);
+		DepthAttachment = InputAttachment(DeviceInfo, AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
+
 		createFramebuffers();
 
 
@@ -351,7 +350,8 @@ private:
 		createCommandBuffers();
 	}
 
-	void createInstance() {
+	void createInstance() 
+	{
 		if (enableValidationLayers && !checkValidationLayerSupport()) {
 			throw std::runtime_error("validation layers requested, but not available!");
 		}
@@ -397,14 +397,14 @@ private:
 	{
 		if (!enableValidationLayers)
 		{
-			return;
+			VulkanDebug.SetUpDebugger(instance);
 		}
 
 		VulkanDebug.SetUpDebugger(instance);
 	}
 
 	void createSurface() {
-		if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
+		if (glfwCreateWindowSurface(instance, Window.GetWindowPtr(), nullptr, &surface) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
 		}
 	}
@@ -453,12 +453,9 @@ private:
 
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
 		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 		createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
 		createInfo.pEnabledFeatures = &deviceFeatures;
-
 		createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 		createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
@@ -691,29 +688,6 @@ private:
 		}
 	}
 
-	void createColorResources() {
-		VulkanDevice DeviceInfo;
-		DeviceInfo.Device = device;
-		DeviceInfo.PhysicalDevice = physicalDevice;
-		DeviceInfo.CommandPool = commandPool;
-		DeviceInfo.GraphicsQueue = graphicsQueue;
-		DeviceInfo.SwapChainSize = swapChainImages.size();
-
-		ColorAttachment = InputAttachment(DeviceInfo, AttachmentType::VkColorAttachment, swapChainExtent.width, swapChainExtent.height);
-	}
-
-	void createDepthResources() {
-
-		VulkanDevice DeviceInfo;
-		DeviceInfo.Device = device;
-		DeviceInfo.PhysicalDevice = physicalDevice;
-		DeviceInfo.CommandPool = commandPool;
-		DeviceInfo.GraphicsQueue = graphicsQueue;
-		DeviceInfo.SwapChainSize = swapChainImages.size();
-
-		DepthAttachment = InputAttachment(DeviceInfo, AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
-	}
-
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
 		for (VkFormat format : candidates) {
 			VkFormatProperties props;
@@ -846,55 +820,6 @@ private:
 		endSingleTimeCommands(commandBuffer);
 	}
 
-	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-
-		VkBufferImageCopy region = {};
-		region.bufferOffset = 0;
-		region.bufferRowLength = 0;
-		region.bufferImageHeight = 0;
-		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		region.imageSubresource.mipLevel = 0;
-		region.imageSubresource.baseArrayLayer = 0;
-		region.imageSubresource.layerCount = 1;
-		region.imageOffset = { 0, 0, 0 };
-		region.imageExtent = {
-			width,
-			height,
-			1
-		};
-
-		vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-		endSingleTimeCommands(commandBuffer);
-	}
-
-	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = size;
-		bufferInfo.usage = usage;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create buffer!");
-		}
-
-		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
-
-		VkMemoryAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-		if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate buffer memory!");
-		}
-
-		vkBindBufferMemory(device, buffer, bufferMemory, 0);
-	}
-
 	VkCommandBuffer beginSingleTimeCommands() {
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -926,16 +851,6 @@ private:
 		vkQueueWaitIdle(graphicsQueue);
 
 		vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-	}
-
-	void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-
-		VkBufferCopy copyRegion = {};
-		copyRegion.size = size;
-		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-		endSingleTimeCommands(commandBuffer);
 	}
 
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -1130,20 +1045,6 @@ private:
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
-	VkShaderModule createShaderModule(const std::vector<char>& code) {
-		VkShaderModuleCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-		VkShaderModule shaderModule;
-		if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create shader module!");
-		}
-
-		return shaderModule;
-	}
-
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
 		for (const auto& availableFormat : availableFormats) {
 			if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -1170,7 +1071,7 @@ private:
 		}
 		else {
 			int width, height;
-			glfwGetFramebufferSize(window, &width, &height);
+			glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
 
 			VkExtent2D actualExtent = {
 				static_cast<uint32_t>(width),
@@ -1314,9 +1215,9 @@ private:
 
 	void UpdateMouse()
 	{
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		if (glfwGetMouseButton(Window.GetWindowPtr(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
-			glfwGetCursorPos(window, &MouseXPos, &MouseYPos);
+			glfwGetCursorPos(Window.GetWindowPtr(), &MouseXPos, &MouseYPos);
 			if (firstMouse)
 			{
 				lastX = MouseXPos;
@@ -1344,13 +1245,13 @@ private:
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_W) == GLFW_PRESS)
 			camera.UpdateKeyboard(FORWARD, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_S) == GLFW_PRESS)
 			camera.UpdateKeyboard(BACKWARD, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_A) == GLFW_PRESS)
 			camera.UpdateKeyboard(LEFT, deltaTime);
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
 			camera.UpdateKeyboard(RIGHT, deltaTime);
 	}
 
