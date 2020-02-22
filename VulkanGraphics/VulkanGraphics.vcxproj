@@ -157,6 +157,7 @@
     <ClCompile Include="SkyBoxShader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="VulkanDebugger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\FrameBufferShader.frag" />
@@ -182,6 +183,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="VulkanBufferManager.h" />
+    <ClInclude Include="VulkanDebugger.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="texture\skybox\back.jpg" />
