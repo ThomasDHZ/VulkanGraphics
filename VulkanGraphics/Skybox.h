@@ -7,7 +7,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "VertexBufferObject.h"
 #include "Mesh.h"
 
 struct SkyBoxVertex 
@@ -91,22 +90,18 @@ class SkyBox
 {
 private:
 	VulkanDevice DeviceInfo;
-public:
+
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 
-	VkDescriptorSetLayout DescriptorSetLayout;
-	VkDescriptorPool descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
+	void SetUpVertexBuffer(VulkanDevice deviceInfo);
 
+public:
 	SkyBox();
 	SkyBox(VulkanDevice deviceInfo);
 	~SkyBox();
 
-	void SetUpVertexBuffer(VulkanDevice deviceInfo);
-
 	void Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout);
-	void DestorySwapChain(VkDevice device, int SwapChainSize);
-	void Destory(VkDevice device, int SwapChainSize);
+	void Destory();
 };
 

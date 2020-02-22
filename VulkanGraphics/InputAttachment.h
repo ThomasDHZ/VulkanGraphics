@@ -25,6 +25,9 @@ public:
 	InputAttachment(VulkanDevice deviceInfo, AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
 	~InputAttachment();
 
+	void ReCreateAttachment(AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
+	void Destroy();
+
 	VkImage AttachmentImage;
 	VkDeviceMemory AttachmentImageMemory;
 	VkImageView AttachmentImageView;

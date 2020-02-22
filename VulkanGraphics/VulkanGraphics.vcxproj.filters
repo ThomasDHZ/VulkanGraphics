@@ -77,9 +77,6 @@
     <None Include="Shaders\SkyboxShader.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shaders\frag.spv">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="Shaders\FrameBufferShader.frag">
       <Filter>Shader</Filter>
     </None>
@@ -95,9 +92,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VulkanBufferManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBufferObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">

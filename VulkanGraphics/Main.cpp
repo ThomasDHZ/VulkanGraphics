@@ -280,10 +280,10 @@ private:
 		vkDeviceWaitIdle(device);
 	}
 
-	void cleanupSwapChain() {
-		//vkDestroyImageView(device, depthImageView, nullptr);
-		//vkDestroyImage(device, depthImage, nullptr);
-		//vkFreeMemory(device, depthImageMemory, nullptr);
+	void cleanupSwapChain() 
+	{
+		ColorAttachment.Destroy();
+		DepthAttachment.Destroy();
 
 		for (auto framebuffer : swapChainFramebuffers) {
 			vkDestroyFramebuffer(device, framebuffer, nullptr);
@@ -300,17 +300,21 @@ private:
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
 	
 		shader.DestorySwapChain();
+		skyBoxShader.DestorySwapChain();
+		frameBufferShader.DestorySwapChain();
 	}
 
 	void cleanup() {
 		cleanupSwapChain();
 
-		Skybox.Destory(device, swapChainImages.size());
+		Skybox.Destory();
 		mesh.Destroy();
 		texture.Destroy();
 		texture2.Destroy();
 		cubeMapTexture.Destroy();
 		shader.Destory();
+		skyBoxShader.Destory();
+		frameBufferShader.Destory();
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -349,8 +353,10 @@ private:
 		createSwapChain();
 		createImageViews();
 		createRenderPass();
+		createColorResources();
 		createDepthResources();
 		createFramebuffers();
+
 
 		ShaderTextureInputs shaderInput{};
 		shaderInput.SkyboxtextureImageView = cubeMapTexture.textureImageView;
@@ -362,6 +368,7 @@ private:
 
 		shader.RecreateSwapChainInfo(swapChainExtent, renderPass, shaderInput);
 		skyBoxShader.RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
+		frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 		createCommandBuffers();
 	}
 
@@ -372,9 +379,9 @@ private:
 
 		VkApplicationInfo appInfo = {};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Hello Triangle";
+		appInfo.pApplicationName = "Vulkan Graphics";
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "No Engine";
+		appInfo.pEngineName = "Vulkan Graphics";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_1;
 

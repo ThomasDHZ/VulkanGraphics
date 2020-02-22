@@ -30,6 +30,25 @@ InputAttachment::~InputAttachment()
 {
 }
 
+void InputAttachment::ReCreateAttachment(AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight)
+{
+	Width = WindowWidth;
+	Height = WindowHeight;
+
+	if (attachmentType == AttachmentType::VkColorAttachment)
+	{
+		Format = VK_FORMAT_R8G8B8A8_UNORM;
+		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+	}
+	else if (attachmentType == AttachmentType::VkDepthAttachemnt)
+	{
+		Format = VK_FORMAT_D32_SFLOAT;
+		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(VK_IMAGE_ASPECT_DEPTH_BIT);
+	}
+}
+
 void InputAttachment::CreateAttachmentImage(VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
 {
 	VkImageCreateInfo imageInfo = {};
@@ -82,5 +101,12 @@ void InputAttachment::CreateAttachmentView(VkImageAspectFlags aspectFlags)
 	if (vkCreateImageView(DeviceInfo.Device, &viewInfo, nullptr, &AttachmentImageView) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create texture image view!");
 	}
+}
+
+void InputAttachment::Destroy()
+{
+	vkDestroyImageView(DeviceInfo.Device, AttachmentImageView, nullptr);
+	vkDestroyImage(DeviceInfo.Device, AttachmentImage, nullptr);
+	vkFreeMemory(DeviceInfo.Device, AttachmentImageMemory, nullptr);
 }
 

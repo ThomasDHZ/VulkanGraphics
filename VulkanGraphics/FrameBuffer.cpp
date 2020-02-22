@@ -15,32 +15,32 @@ FrameBuffer::~FrameBuffer()
 
 void FrameBuffer::CreateFrameBufferView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags)
 {
-	swapChainImageViews.resize(DeviceInfo.SwapChainSize);
+	//swapChainImageViews.resize(DeviceInfo.SwapChainSize);
 
-	for (uint32_t i = 0; i < DeviceInfo.SwapChainSize; i++)
-	{
-		VkImageViewCreateInfo viewInfo = {};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = format;
-		viewInfo.subresourceRange = {};
-		viewInfo.subresourceRange.aspectMask = aspectFlags;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
-		viewInfo.image = image;
+	//for (uint32_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	//{
+	//	VkImageViewCreateInfo viewInfo = {};
+	//	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	//	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	//	viewInfo.format = format;
+	//	viewInfo.subresourceRange = {};
+	//	viewInfo.subresourceRange.aspectMask = aspectFlags;
+	//	viewInfo.subresourceRange.baseMipLevel = 0;
+	//	viewInfo.subresourceRange.levelCount = 1;
+	//	viewInfo.subresourceRange.baseArrayLayer = 0;
+	//	viewInfo.subresourceRange.layerCount = 1;
+	//	viewInfo.image = image;
 
-		if (vkCreateImageView(DeviceInfo.Device, &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create texture image view!");
-		}
-	}
+	//	if (vkCreateImageView(DeviceInfo.Device, &viewInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
+	//	{
+	//		throw std::runtime_error("failed to create texture image view!");
+	//	}
+	//}
 }
 
 void FrameBuffer::CreateFrameBuffer()
 {
-	swapChainFramebuffers.resize(swapChainImageViews.size());
+	//swapChainFramebuffers.resize(swapChainImageViews.size());
 
 	//for (size_t i = 0; i < swapChainImageViews.size(); i++)
 	//{

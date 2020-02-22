@@ -49,21 +49,9 @@ void SkyBox::Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, 
 	vkCmdDraw(commandbuffer, vertices.size(), 1, 0, 0);
 }
 
-void SkyBox::DestorySwapChain(VkDevice device, int SwapChainSize)
+void SkyBox::Destory()
 {
-	if (descriptorPool != nullptr)
-	{
-		vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-		descriptorPool = nullptr;
-	}
-}
-
-void SkyBox::Destory(VkDevice device, int SwapChainSize)
-{
-	DestorySwapChain(device, SwapChainSize);
-
-	vkDestroyDescriptorSetLayout(device, DescriptorSetLayout, nullptr);
-	vkDestroyBuffer(device, vertexBuffer, nullptr);
-	vkFreeMemory(device, vertexBufferMemory, nullptr);
+	vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
 }
 

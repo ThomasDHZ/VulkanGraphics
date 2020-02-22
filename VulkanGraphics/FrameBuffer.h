@@ -4,8 +4,6 @@ class FrameBuffer
 {
 private:
 	VulkanDevice DeviceInfo;
-	std::vector<VkImageView> swapChainImageViews;
-	std::vector<VkFramebuffer> swapChainFramebuffers;
 public:
 	FrameBuffer();
 	FrameBuffer(VulkanDevice deviceInfo);
