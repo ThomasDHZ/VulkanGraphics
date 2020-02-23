@@ -46,7 +46,7 @@ void Shader::CreateDescriptorSetLayout()
 	LayoutBindingInfo[4].Binding = 4;
 	LayoutBindingInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	LayoutBindingInfo[4].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-	
+
 	BaseShader::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
@@ -189,12 +189,12 @@ void Shader::CreateUniformBuffers()
 		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 	}
 
-	VkDeviceSize FragmentbufferSize = sizeof(FragmentUniformBufferObject);
+	VkDeviceSize LightFragmentbufferSize = sizeof(LightingStruct);
 
-	FragmentUniformBuffers.resize(DeviceInfo.SwapChainSize);
-	FragmentUniformBuffersMemory.resize(DeviceInfo.SwapChainSize);
+	LightFragmentUniformBuffers.resize(DeviceInfo.SwapChainSize);
+	LightFragmentUniformBuffersMemory.resize(DeviceInfo.SwapChainSize);
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) {
-		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, FragmentbufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, FragmentUniformBuffers[i], FragmentUniformBuffersMemory[i]);
+		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, LightFragmentbufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, LightFragmentUniformBuffers[i], LightFragmentUniformBuffersMemory[i]);
 	}
 }
 
@@ -238,9 +238,9 @@ void Shader::CreateDescriptorSets(ShaderTextureInputs TextureInfo)
 		bufferInfo.range = sizeof(UniformBufferObject2);
 
 		VkDescriptorBufferInfo FragmentBufferInfo = {};
-		FragmentBufferInfo.buffer = FragmentUniformBuffers[i];
+		FragmentBufferInfo.buffer = LightFragmentUniformBuffers[i];
 		FragmentBufferInfo.offset = 0;
-		FragmentBufferInfo.range = sizeof(FragmentUniformBufferObject);
+		FragmentBufferInfo.range = sizeof(LightingStruct);
 
 		std::array<WriteDescriptorSetInfo, 5>  WriteDescriptorInfo = {};
 

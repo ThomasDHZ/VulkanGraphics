@@ -916,8 +916,8 @@ private:
 			}
 
 			VkClearValue clearValues[3];
-			clearValues[0].color = { { 0.0f, 0.0f, 1.0f, 0.0f } };
-			clearValues[1].color = { { 1.0f, 0.0f, 0.0f, 0.0f } };
+			clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
+			clearValues[1].color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
 			clearValues[2].depthStencil = { 1.0f, 0 };
 
 			VkRenderPassBeginInfo renderPassInfo = {};
@@ -933,7 +933,7 @@ private:
 
 			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			Skybox.Draw(commandBuffers[i], skyBoxShader.descriptorSets[i], skyBoxShader.ShaderPipeline, skyBoxShader.ShaderPipelineLayout);
+			//Skybox.Draw(commandBuffers[i], skyBoxShader.descriptorSets[i], skyBoxShader.ShaderPipeline, skyBoxShader.ShaderPipelineLayout);
 			for (auto mesh : MeshList)
 			{
 				mesh.Draw(commandBuffers[i], i);
@@ -987,10 +987,15 @@ private:
 			ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 			ubo2.proj[1][1] *= -1;
 
-			FragmentUniformBufferObject ubo3 = {};
-			ubo3.cameraPos = camera.GetCameraPos();
+			LightingStruct ubo4 = {};
+			ubo4.light.Ambient = glm::vec3(1.0f, 0.0f, 0.0f);
+			ubo4.light.Diffuse = glm::vec3(0.0f, 1.0f, 0.0f);
+			ubo4.light.Position = glm::vec3(1.0f, 0.0f, 1.0f);
+			ubo4.light.Specular = glm::vec3(1.0f, 1.0f, 0.0f);
+			ubo4.shininess = 4.0f;
+			ubo4.viewPos = glm::vec3(1.0f, 1.0f, 0.0f);;
 
-			MeshList[x].UpdateUniformBuffer(ubo2, ubo3, currentImage);
+			MeshList[x].UpdateUniformBuffer(ubo2, ubo4, currentImage);
 		}
 
 		SkyBoxUniformBufferObject ubo = {};
