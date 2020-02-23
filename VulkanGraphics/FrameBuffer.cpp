@@ -4,9 +4,10 @@ FrameBuffer::FrameBuffer()
 {
 }
 
-FrameBuffer::FrameBuffer(VulkanDevice deviceInfo)
+FrameBuffer::FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment)
 {
 	DeviceInfo = deviceInfo;
+	frameBufferShader = FrameBufferShader(DeviceInfo, swapChainExtent, renderPass, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 }
 
 FrameBuffer::~FrameBuffer()
@@ -65,9 +66,24 @@ void FrameBuffer::CreateFrameBuffer()
 	//}
 }
 
-void FrameBuffer::Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout)
+void FrameBuffer::Draw(VkCommandBuffer commandbuffer, int currentImage)
 {
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorset, 0, NULL);
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBufferShader.ShaderPipeline);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBufferShader.ShaderPipelineLayout, 0, 1, &frameBufferShader.descriptorSets[currentImage], 0, NULL);
 	vkCmdDraw(commandbuffer, 3, 1, 0, 0);
+}
+
+void FrameBuffer::RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment)
+{
+	frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
+}
+
+void FrameBuffer::DestroySwapChainStage()
+{
+	frameBufferShader.DestorySwapChain();
+}
+
+void FrameBuffer::Destory()
+{
+	frameBufferShader.Destory();
 }

@@ -9,6 +9,7 @@ struct ShaderTextureInputs
 	VkImageView textureImageView2;
 	VkSampler textureSampler2;
 };
+
 class Shader : public BaseShader
 {
 private:

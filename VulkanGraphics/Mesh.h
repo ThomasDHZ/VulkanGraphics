@@ -53,6 +53,19 @@ struct Vertex
 	}
 };
 
+struct UniformBufferObject2
+{
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 proj;
+};
+
+struct FragmentUniformBufferObject
+{
+	alignas(16) glm::vec3 cameraPos;
+};
+
+
 class Mesh
 {
 private:

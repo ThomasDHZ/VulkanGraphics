@@ -120,6 +120,20 @@ const std::vector<uint16_t> indices = {
 	4, 5, 6, 6, 7, 4
 };
 
+glm::vec3 cubePositions[] = 
+{
+	glm::vec3(0.0f,  0.0f,  0.0f),
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 class HelloTriangleApplication {
 public:
 	void run() 
@@ -172,7 +186,6 @@ private:
 	VkCommandPool commandPool;
 
 	FrameBuffer frameBuffer;
-	FrameBufferShader frameBufferShader;
 	InputAttachment ColorAttachment;
 	InputAttachment DepthAttachment;
 
@@ -229,7 +242,6 @@ private:
 		
 		
 		skyBoxShader = SkyBoxShader(DeviceInfo, swapChainExtent, renderPass, cubeMapTexture);
-		frameBufferShader = FrameBufferShader(DeviceInfo, swapChainExtent, renderPass, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 		
 		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
 		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
@@ -243,7 +255,7 @@ private:
 		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
 
 		Skybox = SkyBox(DeviceInfo);
-		frameBuffer = FrameBuffer(DeviceInfo);
+		frameBuffer = FrameBuffer(DeviceInfo, swapChainExtent, renderPass, ColorAttachment, DepthAttachment);
 
 		createFramebuffers();
 		createCommandBuffers();
@@ -286,7 +298,7 @@ private:
 			mesh.DestroySwapChainStage();
 		}
 		skyBoxShader.DestorySwapChain();
-		frameBufferShader.DestorySwapChain();
+		frameBuffer.DestroySwapChainStage();
 	}
 
 	void cleanup() {
@@ -301,7 +313,7 @@ private:
 		texture2.Destroy();
 		cubeMapTexture.Destroy();
 		skyBoxShader.Destory();
-		frameBufferShader.Destory();
+		frameBuffer.Destory();
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -362,7 +374,7 @@ private:
 			mesh.RecreateSwapChainStage(swapChainExtent, renderPass, shaderInput);
 		}
 		skyBoxShader.RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
-		frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
+		frameBuffer.RecreateSwapChainStage(swapChainExtent, renderPass, ColorAttachment, DepthAttachment);
 		createCommandBuffers();
 	}
 
@@ -928,7 +940,7 @@ private:
 			}
 
 			vkCmdNextSubpass(commandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);
-			frameBuffer.Draw(commandBuffers[i], frameBufferShader.descriptorSets[i], frameBufferShader.ShaderPipeline, frameBufferShader.ShaderPipelineLayout);
+			frameBuffer.Draw(commandBuffers[i], i);
 			vkCmdEndRenderPass(commandBuffers[i]);
 
 			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
@@ -964,19 +976,6 @@ private:
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-		glm::vec3 cubePositions[] = {
-	glm::vec3(0.0f,  0.0f,  0.0f),
-	glm::vec3(2.0f,  5.0f, -15.0f),
-	glm::vec3(-1.5f, -2.2f, -2.5f),
-	glm::vec3(-3.8f, -2.0f, -12.3f),
-	glm::vec3(2.4f, -0.4f, -3.5f),
-	glm::vec3(-1.7f,  3.0f, -7.5f),
-	glm::vec3(1.3f, -2.0f, -2.5f),
-	glm::vec3(1.5f,  2.0f, -2.5f),
-	glm::vec3(1.5f,  0.2f, -1.5f),
-	glm::vec3(-1.3f,  1.0f, -1.5f)
-		};
 
 		for (int x = 0; x < 10; x++)
 		{
