@@ -5,6 +5,9 @@
 enum AttachmentType
 {
 	VkColorAttachment,
+	VkPositionAttachment,
+	VkNormalAttachment,
+	VkAlbedoAttachment,
 	VkDepthAttachemnt
 };
 
@@ -17,6 +20,7 @@ private:
 	unsigned int Width;
 	unsigned int Height;
 
+	void GetAttachmentTypeInfo(AttachmentType attachmentType);
 	void CreateAttachmentImage(VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
 	void CreateAttachmentView(VkImageAspectFlags aspectFlags);
 public:

@@ -7,13 +7,13 @@ private:
 	void CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass);
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
-	void CreateDescriptorSets(VkImageView ColorImageView, VkImageView DepthImageView);
+	void CreateDescriptorSets(VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView);
 
 public:
 	FrameBufferShader();
-	FrameBufferShader(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView ColorImageView, VkImageView DepthImageView);
+	FrameBufferShader(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView);
 	~FrameBufferShader();
 
-	void RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView ColorImageView, VkImageView DepthImageView);
+	void RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView);
 };
 

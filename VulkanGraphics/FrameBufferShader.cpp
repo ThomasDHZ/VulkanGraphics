@@ -4,27 +4,27 @@ FrameBufferShader::FrameBufferShader() : BaseShader()
 {
 }
 
-FrameBufferShader::FrameBufferShader(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView ColorImageView, VkImageView DepthImageView) : BaseShader(deviceInfo)
+FrameBufferShader::FrameBufferShader(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView) : BaseShader(deviceInfo)
 {
 	CreateDescriptorSetLayout();
-	RecreateSwapChainInfo(swapChainExtent, renderPass, ColorImageView, DepthImageView);
+	RecreateSwapChainInfo(swapChainExtent, renderPass, PositionImageView, NormalImageView, AlbedoImageView, DepthImageView);
 }
 
 FrameBufferShader::~FrameBufferShader()
 {
 }
 
-void FrameBufferShader::RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView ColorImageView, VkImageView DepthImageView)
+void FrameBufferShader::RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView)
 {
 	CreateShaderPipeLine(swapChainExtent, renderPass);
 	CreateUniformBuffers();
 	CreateDescriptorPool();
-	CreateDescriptorSets(ColorImageView, DepthImageView);
+	CreateDescriptorSets(PositionImageView, NormalImageView, AlbedoImageView, DepthImageView);
 }
 
 void FrameBufferShader::CreateDescriptorSetLayout()
 {
-	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 4> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
@@ -33,6 +33,14 @@ void FrameBufferShader::CreateDescriptorSetLayout()
 	LayoutBindingInfo[1].Binding = 1;
 	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[2].Binding = 2;
+	LayoutBindingInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	LayoutBindingInfo[2].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[3].Binding = 3;
+	LayoutBindingInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	BaseShader::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
@@ -174,22 +182,34 @@ void FrameBufferShader::CreateUniformBuffers()
 
 void FrameBufferShader::CreateDescriptorPool()
 {
-	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 4>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 
 	BaseShader::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void FrameBufferShader::CreateDescriptorSets(VkImageView ColorImageView, VkImageView DepthImageView)
+void FrameBufferShader::CreateDescriptorSets(VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView)
 {
 	BaseShader::CreateDescriptorSets();
 
 	VkDescriptorImageInfo ColorImage = {};
 	ColorImage.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	ColorImage.imageView = ColorImageView;
+	ColorImage.imageView = PositionImageView;
 	ColorImage.sampler = VK_NULL_HANDLE;
+
+	VkDescriptorImageInfo NormalImage = {};
+	NormalImage.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	NormalImage.imageView = NormalImageView;
+	NormalImage.sampler = VK_NULL_HANDLE;
+
+	VkDescriptorImageInfo AlbedoImage = {};
+	AlbedoImage.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	AlbedoImage.imageView = AlbedoImageView;
+	AlbedoImage.sampler = VK_NULL_HANDLE;
 
 	VkDescriptorImageInfo DepthImage = {};
 	DepthImage.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -198,7 +218,7 @@ void FrameBufferShader::CreateDescriptorSets(VkImageView ColorImageView, VkImage
 
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{
-		std::array<WriteDescriptorSetInfo, 2>  WriteDescriptorInfo = {};
+		std::array<WriteDescriptorSetInfo, 4>  WriteDescriptorInfo = {};
 
 		WriteDescriptorInfo[0].DstBinding = 0;
 		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
@@ -208,7 +228,17 @@ void FrameBufferShader::CreateDescriptorSets(VkImageView ColorImageView, VkImage
 		WriteDescriptorInfo[1].DstBinding = 1;
 		WriteDescriptorInfo[1].DstSet = descriptorSets[i];
 		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		WriteDescriptorInfo[1].DescriptorImageInfo = DepthImage;
+		WriteDescriptorInfo[1].DescriptorImageInfo = NormalImage;
+
+		WriteDescriptorInfo[2].DstBinding = 2;
+		WriteDescriptorInfo[2].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		WriteDescriptorInfo[2].DescriptorImageInfo = AlbedoImage;
+
+		WriteDescriptorInfo[3].DstBinding = 3;
+		WriteDescriptorInfo[3].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		WriteDescriptorInfo[3].DescriptorImageInfo = DepthImage;
 
 		BaseShader::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}

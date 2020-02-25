@@ -25,7 +25,7 @@ void Shader::RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass rend
 
 void Shader::CreateDescriptorSetLayout()
 {
-	std::array<DescriptorSetLayoutBindingInfo, 5> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 4> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -39,13 +39,13 @@ void Shader::CreateDescriptorSetLayout()
 	LayoutBindingInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	LayoutBindingInfo[2].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	LayoutBindingInfo[3].Binding = 3;
-	LayoutBindingInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	//LayoutBindingInfo[3].Binding = 3;
+	//LayoutBindingInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	//LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	LayoutBindingInfo[4].Binding = 4;
-	LayoutBindingInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	LayoutBindingInfo[4].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	LayoutBindingInfo[3].Binding = 3;
+	LayoutBindingInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	BaseShader::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
@@ -130,16 +130,26 @@ void Shader::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass rende
 	depthStencil.depthBoundsTestEnable = VK_FALSE;
 	depthStencil.stencilTestEnable = VK_FALSE;
 
-	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	colorBlendAttachment.blendEnable = VK_FALSE;
+
+	std::array<VkPipelineColorBlendAttachmentState, 4> Attachments{};
+	Attachments[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	Attachments[0].blendEnable = VK_FALSE;
+
+	Attachments[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	Attachments[1].blendEnable = VK_FALSE;
+
+	Attachments[2].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	Attachments[2].blendEnable = VK_FALSE;
+
+	Attachments[3].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	Attachments[3].blendEnable = VK_FALSE;
 
 	VkPipelineColorBlendStateCreateInfo colorBlending = {};
 	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	colorBlending.logicOpEnable = VK_FALSE;
 	colorBlending.logicOp = VK_LOGIC_OP_COPY;
-	colorBlending.attachmentCount = 1;
-	colorBlending.pAttachments = &colorBlendAttachment;
+	colorBlending.attachmentCount = static_cast<uint32_t>(Attachments.size());
+	colorBlending.pAttachments = Attachments.data();
 	colorBlending.blendConstants[0] = 0.0f;
 	colorBlending.blendConstants[1] = 0.0f;
 	colorBlending.blendConstants[2] = 0.0f;
@@ -200,13 +210,13 @@ void Shader::CreateUniformBuffers()
 
 void Shader::CreateDescriptorPool()
 {
-	std::array<DescriptorPoolSizeInfo, 5>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 4>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	//DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	BaseShader::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -225,10 +235,10 @@ void Shader::CreateDescriptorSets(ShaderTextureInputs TextureInfo)
 	SpecularMap.imageView = TextureInfo.textureImageView2;
 	SpecularMap.sampler = TextureInfo.textureSampler2;
 
-	VkDescriptorImageInfo CubeMapInfo = {};
-	CubeMapInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	CubeMapInfo.imageView = TextureInfo.SkyboxtextureImageView;
-	CubeMapInfo.sampler = TextureInfo.SkyboxtextureSampler;
+	//VkDescriptorImageInfo CubeMapInfo = {};
+	//CubeMapInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	//CubeMapInfo.imageView = TextureInfo.SkyboxtextureImageView;
+	//CubeMapInfo.sampler = TextureInfo.SkyboxtextureSampler;
 
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{
@@ -242,7 +252,7 @@ void Shader::CreateDescriptorSets(ShaderTextureInputs TextureInfo)
 		FragmentBufferInfo.offset = 0;
 		FragmentBufferInfo.range = sizeof(LightingStruct);
 
-		std::array<WriteDescriptorSetInfo, 5>  WriteDescriptorInfo = {};
+		std::array<WriteDescriptorSetInfo, 4>  WriteDescriptorInfo = {};
 
 		WriteDescriptorInfo[0].DstBinding = 0;
 		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
@@ -259,15 +269,15 @@ void Shader::CreateDescriptorSets(ShaderTextureInputs TextureInfo)
 		WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
 
+		//WriteDescriptorInfo[3].DstBinding = 3;
+		//WriteDescriptorInfo[3].DstSet = descriptorSets[i];
+		//WriteDescriptorInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//WriteDescriptorInfo[3].DescriptorImageInfo = CubeMapInfo;
+
 		WriteDescriptorInfo[3].DstBinding = 3;
 		WriteDescriptorInfo[3].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		WriteDescriptorInfo[3].DescriptorImageInfo = CubeMapInfo;
-
-		WriteDescriptorInfo[4].DstBinding = 4;
-		WriteDescriptorInfo[4].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[4].DescriptorBufferInfo = FragmentBufferInfo;
+		WriteDescriptorInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		WriteDescriptorInfo[3].DescriptorBufferInfo = FragmentBufferInfo;
 
 		BaseShader::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}

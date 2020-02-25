@@ -149,7 +149,7 @@ private:
 	VulkanWindow Window;
 
 	Camera camera;
-	SkyBox Skybox;
+	//SkyBox Skybox;
 	std::vector<Mesh> MeshList;
 	SkyBoxShader skyBoxShader;
 	Texture2D texture;
@@ -186,7 +186,9 @@ private:
 	VkCommandPool commandPool;
 
 	FrameBuffer frameBuffer;
-	InputAttachment ColorAttachment;
+	InputAttachment PositionAttachment;
+	InputAttachment NormalAttachment;
+	InputAttachment AlbedoAttachment;
 	InputAttachment DepthAttachment;
 
 	std::vector<VkCommandBuffer> commandBuffers;
@@ -217,7 +219,9 @@ private:
 		DeviceInfo.GraphicsQueue = graphicsQueue;
 		DeviceInfo.SwapChainSize = swapChainImages.size();
 
-		ColorAttachment = InputAttachment(DeviceInfo, AttachmentType::VkColorAttachment, swapChainExtent.width, swapChainExtent.height);
+		PositionAttachment = InputAttachment(DeviceInfo, AttachmentType::VkPositionAttachment, swapChainExtent.width, swapChainExtent.height);
+		NormalAttachment = InputAttachment(DeviceInfo, AttachmentType::VkNormalAttachment, swapChainExtent.width, swapChainExtent.height);
+		AlbedoAttachment = InputAttachment(DeviceInfo, AttachmentType::VkAlbedoAttachment, swapChainExtent.width, swapChainExtent.height);
 		DepthAttachment = InputAttachment(DeviceInfo, AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 
 		CubeMapLayout layout;
@@ -241,7 +245,7 @@ private:
 			shaderInput.textureSampler2 = texture2.textureSampler;
 		
 		
-		skyBoxShader = SkyBoxShader(DeviceInfo, swapChainExtent, renderPass, cubeMapTexture);
+		//skyBoxShader = SkyBoxShader(DeviceInfo, swapChainExtent, renderPass, cubeMapTexture);
 		
 		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
 		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
@@ -254,8 +258,8 @@ private:
 		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
 		MeshList.emplace_back(Mesh(DeviceInfo, swapChainExtent, renderPass, shaderInput, vertices2, indices));
 
-		Skybox = SkyBox(DeviceInfo);
-		frameBuffer = FrameBuffer(DeviceInfo, swapChainExtent, renderPass, ColorAttachment, DepthAttachment);
+		//Skybox = SkyBox(DeviceInfo);
+		frameBuffer = FrameBuffer(DeviceInfo, swapChainExtent, renderPass, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
 
 		createFramebuffers();
 		createCommandBuffers();
@@ -277,7 +281,9 @@ private:
 
 	void cleanupSwapChain() 
 	{
-		ColorAttachment.Destroy();
+		PositionAttachment.Destroy();
+		NormalAttachment.Destroy();
+		AlbedoAttachment.Destroy();
 		DepthAttachment.Destroy();
 
 		for (auto framebuffer : swapChainFramebuffers) {
@@ -304,7 +310,7 @@ private:
 	void cleanup() {
 		cleanupSwapChain();
 
-		Skybox.Destory();
+		//Skybox.Destory();
 		for (auto mesh : MeshList)
 		{
 			mesh.Destroy();
@@ -355,7 +361,9 @@ private:
 		DeviceInfo.GraphicsQueue = graphicsQueue;
 		DeviceInfo.SwapChainSize = swapChainImages.size();
 
-		ColorAttachment = InputAttachment(DeviceInfo, AttachmentType::VkColorAttachment, swapChainExtent.width, swapChainExtent.height);
+		PositionAttachment = InputAttachment(DeviceInfo, AttachmentType::VkPositionAttachment, swapChainExtent.width, swapChainExtent.height);
+		NormalAttachment = InputAttachment(DeviceInfo, AttachmentType::VkNormalAttachment, swapChainExtent.width, swapChainExtent.height);
+		AlbedoAttachment = InputAttachment(DeviceInfo, AttachmentType::VkAlbedoAttachment, swapChainExtent.width, swapChainExtent.height);
 		DepthAttachment = InputAttachment(DeviceInfo, AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 
 		createFramebuffers();
@@ -374,7 +382,7 @@ private:
 			mesh.RecreateSwapChainStage(swapChainExtent, renderPass, shaderInput);
 		}
 		skyBoxShader.RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
-		frameBuffer.RecreateSwapChainStage(swapChainExtent, renderPass, ColorAttachment, DepthAttachment);
+		frameBuffer.RecreateSwapChainStage(swapChainExtent, renderPass, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
 		createCommandBuffers();
 	}
 
@@ -564,10 +572,8 @@ private:
 	}
 
 	void createRenderPass() {
-		std::array<VkAttachmentDescription, 3> attachments{};
-
-		// Swap chain image color attachment
-		// Will be transitioned to present layout
+		std::array<VkAttachmentDescription, 5> attachments{};
+		// Color attachment
 		attachments[0].format = swapChainImageFormat;
 		attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -577,12 +583,9 @@ private:
 		attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-		// Input attachments
-		// These will be written in the first subpass, transitioned to input attachments 
-		// and then read in the secod subpass
-
-		// Color
-		attachments[1].format = VK_FORMAT_R8G8B8A8_UNORM;
+		// Deferred attachments
+		// Position
+		attachments[1].format = VK_FORMAT_R16G16B16A16_SFLOAT;
 		attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -590,54 +593,74 @@ private:
 		attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		attachments[1].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		// Depth
-		attachments[2].format = findDepthFormat();
+		// Normals
+		attachments[2].format = VK_FORMAT_R16G16B16A16_SFLOAT;
 		attachments[2].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		attachments[2].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[2].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		attachments[2].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		attachments[2].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[2].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		// Albedo
+		attachments[3].format = VK_FORMAT_R8G8B8A8_UNORM;
+		attachments[3].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[3].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachments[3].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[3].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[3].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[3].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		attachments[3].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		// Depth attachment
+		attachments[4].format = findDepthFormat();
+		attachments[4].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[4].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		attachments[4].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[4].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[4].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[4].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		attachments[4].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+		// Three subpasses
 		std::array<VkSubpassDescription, 2> subpassDescriptions{};
 
-		/*
-			First subpass
-			Fill the color and depth attachments
-		*/
-		VkAttachmentReference colorReference = { 1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
-		VkAttachmentReference depthReference = { 2, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
+		// First subpass: Fill G-Buffer components
+		// ----------------------------------------------------------------------------------------
+
+		VkAttachmentReference colorReferences[4];
+		colorReferences[0] = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+		colorReferences[1] = { 1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+		colorReferences[2] = { 2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+		colorReferences[3] = { 3, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+		VkAttachmentReference depthReference = { 4, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
 
 		subpassDescriptions[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpassDescriptions[0].colorAttachmentCount = 1;
-		subpassDescriptions[0].pColorAttachments = &colorReference;
+		subpassDescriptions[0].colorAttachmentCount = 4;
+		subpassDescriptions[0].pColorAttachments = colorReferences;
 		subpassDescriptions[0].pDepthStencilAttachment = &depthReference;
 
-		/*
-			Second subpass
-			Input attachment read and swap chain color attachment write
-		*/
+		// Second subpass: Final composition (using G-Buffer components)
+		// ----------------------------------------------------------------------------------------
 
-		// Color reference (target) for this sub pass is the swap chain color attachment
-		VkAttachmentReference colorReferenceSwapchain = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+		VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+
+		VkAttachmentReference inputReferences[3];
+		inputReferences[0] = { 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		inputReferences[1] = { 2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+		inputReferences[2] = { 3, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+
+		uint32_t preserveAttachmentIndex = 1;
 
 		subpassDescriptions[1].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpassDescriptions[1].colorAttachmentCount = 1;
-		subpassDescriptions[1].pColorAttachments = &colorReferenceSwapchain;
-
-		// Color and depth attachment written to in first sub pass will be used as input attachments to be read in the fragment shader
-		VkAttachmentReference inputReferences[2];
-		inputReferences[0] = { 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-		inputReferences[1] = { 2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-
-		// Use the attachments filled in the first pass as input attachments
-		subpassDescriptions[1].inputAttachmentCount = 2;
+		subpassDescriptions[1].pColorAttachments = &colorReference;
+		subpassDescriptions[1].pDepthStencilAttachment = &depthReference;
+		// Use the color attachments filled in the first pass as input attachments
+		subpassDescriptions[1].inputAttachmentCount = 3;
 		subpassDescriptions[1].pInputAttachments = inputReferences;
 
-		/*
-			Subpass dependencies for layout transitions
-		*/
+
+		// Subpass dependencies for layout transitions
 		std::array<VkSubpassDependency, 3> dependencies;
 
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -665,16 +688,16 @@ private:
 		dependencies[2].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 		dependencies[2].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-		VkRenderPassCreateInfo renderPassInfoCI{};
-		renderPassInfoCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfoCI.attachmentCount = static_cast<uint32_t>(attachments.size());
-		renderPassInfoCI.pAttachments = attachments.data();
-		renderPassInfoCI.subpassCount = static_cast<uint32_t>(subpassDescriptions.size());
-		renderPassInfoCI.pSubpasses = subpassDescriptions.data();
-		renderPassInfoCI.dependencyCount = static_cast<uint32_t>(dependencies.size());
-		renderPassInfoCI.pDependencies = dependencies.data();
+		VkRenderPassCreateInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		renderPassInfo.pAttachments = attachments.data();
+		renderPassInfo.subpassCount = static_cast<uint32_t>(subpassDescriptions.size());
+		renderPassInfo.pSubpasses = subpassDescriptions.data();
+		renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+		renderPassInfo.pDependencies = dependencies.data();
 
-		if (vkCreateRenderPass(device, &renderPassInfoCI, nullptr, &renderPass) != VK_SUCCESS) {
+		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create render pass!");
 		}
 	}
@@ -683,9 +706,11 @@ private:
 		swapChainFramebuffers.resize(swapChainImageViews.size());
 
 		for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-			std::array<VkImageView, 3> attachments = {
+			std::array<VkImageView, 5> attachments = {
 				swapChainImageViews[i],
-				ColorAttachment.AttachmentImageView,
+				PositionAttachment.AttachmentImageView,
+				NormalAttachment.AttachmentImageView,
+				AlbedoAttachment.AttachmentImageView,
 				DepthAttachment.AttachmentImageView
 			};
 
@@ -915,10 +940,12 @@ private:
 				throw std::runtime_error("failed to begin recording command buffer!");
 			}
 
-			VkClearValue clearValues[3];
+			VkClearValue clearValues[5];
 			clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
 			clearValues[1].color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
-			clearValues[2].depthStencil = { 1.0f, 0 };
+			clearValues[2].color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
+			clearValues[3].color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
+			clearValues[4].depthStencil = { 1.0f, 0 };
 
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -928,7 +955,7 @@ private:
 			renderPassInfo.renderArea.offset.y = 0;
 			renderPassInfo.renderArea.extent.width = WIDTH;
 			renderPassInfo.renderArea.extent.height = HEIGHT;
-			renderPassInfo.clearValueCount = 3;
+			renderPassInfo.clearValueCount = 5;
 			renderPassInfo.pClearValues = clearValues;
 
 			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -998,15 +1025,15 @@ private:
 			MeshList[x].UpdateUniformBuffer(ubo2, ubo4, currentImage);
 		}
 
-		SkyBoxUniformBufferObject ubo = {};
-		ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-		ubo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
-		ubo.projection[1][1] *= -1;
+		//SkyBoxUniformBufferObject ubo = {};
+		//ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+		//ubo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+		//ubo.projection[1][1] *= -1;
 
-		void* data3;
-		vkMapMemory(device, skyBoxShader.uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data3);
-		memcpy(data3, &ubo, sizeof(ubo));
-		vkUnmapMemory(device, skyBoxShader.uniformBuffersMemory[currentImage]);
+		//void* data3;
+		//vkMapMemory(device, skyBoxShader.uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data3);
+		//memcpy(data3, &ubo, sizeof(ubo));
+		//vkUnmapMemory(device, skyBoxShader.uniformBuffersMemory[currentImage]);
 	}
 
 	void drawFrame() {

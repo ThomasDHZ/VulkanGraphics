@@ -4,10 +4,10 @@ FrameBuffer::FrameBuffer()
 {
 }
 
-FrameBuffer::FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment)
+FrameBuffer::FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment)
 {
 	DeviceInfo = deviceInfo;
-	frameBufferShader = FrameBufferShader(DeviceInfo, swapChainExtent, renderPass, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
+	frameBufferShader = FrameBufferShader(DeviceInfo, swapChainExtent, renderPass, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 }
 
 FrameBuffer::~FrameBuffer()
@@ -73,9 +73,9 @@ void FrameBuffer::Draw(VkCommandBuffer commandbuffer, int currentImage)
 	vkCmdDraw(commandbuffer, 3, 1, 0, 0);
 }
 
-void FrameBuffer::RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment)
+void FrameBuffer::RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment)
 {
-	frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
+	frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 }
 
 void FrameBuffer::DestroySwapChainStage()

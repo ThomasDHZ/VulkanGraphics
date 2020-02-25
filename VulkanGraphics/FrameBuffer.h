@@ -10,13 +10,13 @@ private:
 
 public:
 	FrameBuffer();
-	FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment);
+	FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment);
 	~FrameBuffer();
 
 	void CreateFrameBufferView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 	void CreateFrameBuffer();
 	void Draw(VkCommandBuffer commandbuffer, int currentImage);
-	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment);
+	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment);
 	void DestroySwapChainStage();
 	void Destory();
 };

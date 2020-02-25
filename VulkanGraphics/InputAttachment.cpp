@@ -11,42 +11,60 @@ InputAttachment::InputAttachment(VulkanDevice deviceInfo, AttachmentType attachm
 	DeviceInfo = deviceInfo;
 	Width = WindowWidth;
 	Height = WindowHeight;
-
-	if (attachmentType == AttachmentType::VkColorAttachment)
-	{
-		Format = VK_FORMAT_R8G8B8A8_UNORM;
-		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
-	}
-	else if (attachmentType == AttachmentType::VkDepthAttachemnt)
-	{
-		Format = VK_FORMAT_D32_SFLOAT;
-		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(VK_IMAGE_ASPECT_DEPTH_BIT);
-	}
+	GetAttachmentTypeInfo(attachmentType);
 }
 
 InputAttachment::~InputAttachment()
 {
 }
 
-void InputAttachment::ReCreateAttachment(AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight)
+void InputAttachment::GetAttachmentTypeInfo(AttachmentType attachmentType)
 {
-	Width = WindowWidth;
-	Height = WindowHeight;
-
-	if (attachmentType == AttachmentType::VkColorAttachment)
+	switch (attachmentType)
+	{
+	case AttachmentType::VkColorAttachment:
 	{
 		Format = VK_FORMAT_R8G8B8A8_UNORM;
 		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+		break;
 	}
-	else if (attachmentType == AttachmentType::VkDepthAttachemnt)
+	case AttachmentType::VkPositionAttachment:
+	{
+		Format = VK_FORMAT_R16G16B16A16_SFLOAT;
+		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+		break;
+	}
+	case AttachmentType::VkNormalAttachment:
+	{
+		Format = VK_FORMAT_R16G16B16A16_SFLOAT;
+		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+		break;
+	}
+	case AttachmentType::VkAlbedoAttachment:
+	{
+		Format = VK_FORMAT_R8G8B8A8_UNORM;
+		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+		break;
+	}
+	case AttachmentType::VkDepthAttachemnt:
 	{
 		Format = VK_FORMAT_D32_SFLOAT;
 		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		CreateAttachmentView(VK_IMAGE_ASPECT_DEPTH_BIT);
+		break;
 	}
+	}
+}
+
+void InputAttachment::ReCreateAttachment(AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight)
+{
+	Width = WindowWidth;
+	Height = WindowHeight;
+	GetAttachmentTypeInfo(attachmentType);
 }
 
 void InputAttachment::CreateAttachmentImage(VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
