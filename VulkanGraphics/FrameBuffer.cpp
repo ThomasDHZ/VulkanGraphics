@@ -66,6 +66,20 @@ void FrameBuffer::CreateFrameBuffer()
 	//}
 }
 
+void FrameBuffer::UpdateUniformBuffer(LightingStruct ubo4, DebugStruct debug, int currentImage)
+{
+
+	void* data2;
+	vkMapMemory(DeviceInfo.Device, frameBufferShader.LightFragmentUniformBuffersMemory[currentImage], 0, sizeof(ubo4), 0, &data2);
+	memcpy(data2, &ubo4, sizeof(ubo4));
+	vkUnmapMemory(DeviceInfo.Device, frameBufferShader.LightFragmentUniformBuffersMemory[currentImage]);
+
+	void* data3;
+	vkMapMemory(DeviceInfo.Device, frameBufferShader.DebugBuffersMemory[currentImage], 0, sizeof(debug), 0, &data3);
+	memcpy(data3, &debug, sizeof(debug));
+	vkUnmapMemory(DeviceInfo.Device, frameBufferShader.DebugBuffersMemory[currentImage]);
+}
+
 void FrameBuffer::Draw(VkCommandBuffer commandbuffer, int currentImage)
 {
 	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBufferShader.ShaderPipeline);

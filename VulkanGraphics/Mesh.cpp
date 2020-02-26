@@ -62,17 +62,12 @@ void Mesh::CreateIndiceBuffer(std::vector<uint16_t> indices)
 	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
 }
 
-void Mesh::UpdateUniformBuffer(UniformBufferObject2 ubo2, LightingStruct ubo4, int currentImage)
+void Mesh::UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage)
 {
 	void* data;
 	vkMapMemory(DeviceInfo.Device, shader.uniformBuffersMemory[currentImage], 0, sizeof(ubo2), 0, &data);
 	memcpy(data, &ubo2, sizeof(ubo2));
 	vkUnmapMemory(DeviceInfo.Device, shader.uniformBuffersMemory[currentImage]);
-
-	void* data2;
-	vkMapMemory(DeviceInfo.Device, shader.LightFragmentUniformBuffersMemory[currentImage], 0, sizeof(ubo4), 0, &data2);
-	memcpy(data2, &ubo4, sizeof(ubo4));
-	vkUnmapMemory(DeviceInfo.Device, shader.LightFragmentUniformBuffersMemory[currentImage]);
 }
 
 void Mesh::Draw(VkCommandBuffer commandbuffer, int currentImage)

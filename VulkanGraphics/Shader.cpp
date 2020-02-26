@@ -25,7 +25,7 @@ void Shader::RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass rend
 
 void Shader::CreateDescriptorSetLayout()
 {
-	std::array<DescriptorSetLayoutBindingInfo, 4> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 3> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -42,10 +42,6 @@ void Shader::CreateDescriptorSetLayout()
 	//LayoutBindingInfo[3].Binding = 3;
 	//LayoutBindingInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	//LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	LayoutBindingInfo[3].Binding = 3;
-	LayoutBindingInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	BaseShader::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
@@ -198,25 +194,16 @@ void Shader::CreateUniformBuffers()
 	{
 		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 	}
-
-	VkDeviceSize LightFragmentbufferSize = sizeof(LightingStruct);
-
-	LightFragmentUniformBuffers.resize(DeviceInfo.SwapChainSize);
-	LightFragmentUniformBuffersMemory.resize(DeviceInfo.SwapChainSize);
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) {
-		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, LightFragmentbufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, LightFragmentUniformBuffers[i], LightFragmentUniformBuffersMemory[i]);
-	}
 }
 
 void Shader::CreateDescriptorPool()
 {
-	std::array<DescriptorPoolSizeInfo, 4>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 3>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	//DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	BaseShader::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -247,12 +234,7 @@ void Shader::CreateDescriptorSets(ShaderTextureInputs TextureInfo)
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject2);
 
-		VkDescriptorBufferInfo FragmentBufferInfo = {};
-		FragmentBufferInfo.buffer = LightFragmentUniformBuffers[i];
-		FragmentBufferInfo.offset = 0;
-		FragmentBufferInfo.range = sizeof(LightingStruct);
-
-		std::array<WriteDescriptorSetInfo, 4>  WriteDescriptorInfo = {};
+		std::array<WriteDescriptorSetInfo, 3>  WriteDescriptorInfo = {};
 
 		WriteDescriptorInfo[0].DstBinding = 0;
 		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
@@ -273,11 +255,6 @@ void Shader::CreateDescriptorSets(ShaderTextureInputs TextureInfo)
 		//WriteDescriptorInfo[3].DstSet = descriptorSets[i];
 		//WriteDescriptorInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		//WriteDescriptorInfo[3].DescriptorImageInfo = CubeMapInfo;
-
-		WriteDescriptorInfo[3].DstBinding = 3;
-		WriteDescriptorInfo[3].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[3].DescriptorBufferInfo = FragmentBufferInfo;
 
 		BaseShader::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}

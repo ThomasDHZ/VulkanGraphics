@@ -56,9 +56,10 @@ struct Vertex
 struct Light
 {
 	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
+	alignas(16) glm::vec3 Color;
+	alignas(16) float Linear;
+	alignas(16) float Quadratic;
+	alignas(16) float Radius;
 };
 
 struct LightingStruct
@@ -66,6 +67,11 @@ struct LightingStruct
 	Light light;
 	alignas(16) glm::vec3 viewPos;
 	alignas(16) float shininess;
+};
+
+struct DebugStruct
+{
+	alignas(16) float DebugLayer;
 };
 
 struct UniformBufferObject2
@@ -98,7 +104,7 @@ public:
 	Mesh(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs shaderInput, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
 	~Mesh();
 
-	void UpdateUniformBuffer(UniformBufferObject2 ubo2, LightingStruct ubo4, int currentImage);
+	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 	void Draw(VkCommandBuffer commandbuffer, int currentImage);
 	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs shaderInput);
 	void Destroy();

@@ -1,23 +1,9 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-struct Light
-{
-	vec3 Position;
-    vec3 Ambient;
-    vec3 Diffuse;
-    vec3 Specular;
-};
-
 layout(binding = 1) uniform sampler2D DiffuseMap;
 layout(binding = 2) uniform sampler2D SpecularMap;
 //layout(binding = 3) uniform samplerCube skybox;
-layout(binding = 3) uniform LightingStruct 
-{
-	Light light;
-	vec3 viewPos;
-	float shininess;
-} Lighter;
 
 layout (constant_id = 0) const float NEAR_PLANE = 0.1f;
 layout (constant_id = 1) const float FAR_PLANE = 256.0f;
@@ -39,6 +25,9 @@ float linearDepth(float depth)
 
 void main() 
 {
+//	vec3 I = normalize(fragPosition - ubo.cameraPos);
+//    vec3 R = reflect(I, normalize(fragNormal));
+//    outColor = vec4(texture(skybox, R).rgb, 1.0);
 
 	outColor = vec4(0.0);
 	outPosition = vec4(fragPosition, 1.0);

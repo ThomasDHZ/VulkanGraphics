@@ -145,6 +145,7 @@ public:
 	}
 
 private:
+	int DebugLayer = 0;
 	VulkanDebugger VulkanDebug;
 	VulkanWindow Window;
 
@@ -1014,16 +1015,23 @@ private:
 			ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 			ubo2.proj[1][1] *= -1;
 
-			LightingStruct ubo4 = {};
-			ubo4.light.Ambient = glm::vec3(1.0f, 0.0f, 0.0f);
-			ubo4.light.Diffuse = glm::vec3(0.0f, 1.0f, 0.0f);
-			ubo4.light.Position = glm::vec3(1.0f, 0.0f, 1.0f);
-			ubo4.light.Specular = glm::vec3(1.0f, 1.0f, 0.0f);
-			ubo4.shininess = 4.0f;
-			ubo4.viewPos = glm::vec3(1.0f, 1.0f, 0.0f);;
-
-			MeshList[x].UpdateUniformBuffer(ubo2, ubo4, currentImage);
+			MeshList[x].UpdateUniformBuffer(ubo2, currentImage);
 		}
+
+		LightingStruct ubo4 = {};
+		ubo4.light.Position = glm::vec3(-1.0f, -2.0f, -2.0f);
+		ubo4.light.Color = glm::vec3(0.0f, 1.0f, 0.0f);
+		ubo4.light.Linear = 0.09f;
+		ubo4.light.Quadratic = 0.032f;
+		ubo4.light.Radius = 3000.0f;
+		ubo4.shininess = 0.5f;
+		ubo4.viewPos = camera.GetCameraPos();
+		//ubo4.DebugLayer = DebugLayer;
+
+		DebugStruct debug{};
+		debug.DebugLayer = 2.0f;
+
+		frameBuffer.UpdateUniformBuffer(ubo4, debug, currentImage);
 
 		//SkyBoxUniformBufferObject ubo = {};
 		//ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
@@ -1312,6 +1320,14 @@ private:
 			camera.UpdateKeyboard(LEFT, deltaTime);
 		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
 			camera.UpdateKeyboard(RIGHT, deltaTime);
+		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_0) == GLFW_PRESS)
+			DebugLayer = 0;
+		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_1) == GLFW_PRESS)
+			DebugLayer = 1;
+		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_2) == GLFW_PRESS)
+			DebugLayer = 2;
+		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_3) == GLFW_PRESS)
+			DebugLayer = 3;
 	}
 
 	static std::vector<char> readFile(const std::string& filename) {
