@@ -1019,17 +1019,17 @@ private:
 		}
 
 		LightingStruct ubo4 = {};
-		ubo4.light.Position = glm::vec3(-1.0f, -2.0f, -2.0f);
+		ubo4.light.Position = glm::vec3(cos(time), -2.0f, sin(time));
 		ubo4.light.Color = glm::vec3(0.0f, 1.0f, 0.0f);
 		ubo4.light.Linear = 0.09f;
 		ubo4.light.Quadratic = 0.032f;
-		ubo4.light.Radius = 3000.0f;
+		ubo4.light.Radius = 5.2f;
 		ubo4.shininess = 0.5f;
 		ubo4.viewPos = camera.GetCameraPos();
 		//ubo4.DebugLayer = DebugLayer;
 
 		DebugStruct debug{};
-		debug.DebugLayer = 2.0f;
+		debug.DebugLayer = DebugLayer;
 
 		frameBuffer.UpdateUniformBuffer(ubo4, debug, currentImage);
 

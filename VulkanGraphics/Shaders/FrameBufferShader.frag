@@ -54,9 +54,9 @@ void main()
 		vec3 viewDir  = normalize(Lighter.viewPos - FragPos);
 	
 			// calculate distance between light source and current fragment
-			//float distance = length(Lighter.light.Position - FragPos);
-			//if(distance < Lighter.light.Radius)
-			//{
+			float distance = length(Lighter.light.Position - FragPos);
+			if(distance < Lighter.light.Radius)
+			{
 				// diffuse
 				vec3 lightDir = normalize(Lighter.light.Position - FragPos);
 				vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * Lighter.light.Color;
@@ -65,11 +65,11 @@ void main()
 				float spec = pow(max(dot(Normal, halfwayDir), 0.0), 16.0);
 				vec3 specular = Lighter.light.Color * spec * Specular;
 				// attenuation
-				//float attenuation = 1.0 / (1.0 + Lighter.light.Linear * distance + Lighter.light.Quadratic * distance * distance);
-				//diffuse *= attenuation;
-				//specular *= attenuation;
+				float attenuation = 1.0 / (1.0 + Lighter.light.Linear * distance + Lighter.light.Quadratic * distance * distance);
+				diffuse *= attenuation;
+				specular *= attenuation;
 				lighting += diffuse + specular;
-			//}
+			}
 	}
 	outColor = vec4(lighting, 1.0f);
 }

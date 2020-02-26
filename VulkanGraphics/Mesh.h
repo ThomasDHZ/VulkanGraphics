@@ -57,9 +57,9 @@ struct Light
 {
 	alignas(16) glm::vec3 Position;
 	alignas(16) glm::vec3 Color;
-	alignas(16) float Linear;
-	alignas(16) float Quadratic;
-	alignas(16) float Radius;
+	alignas(4) float Linear;
+	alignas(4) float Quadratic;
+	alignas(4) float Radius;
 };
 
 struct LightingStruct
@@ -71,7 +71,7 @@ struct LightingStruct
 
 struct DebugStruct
 {
-	alignas(16) float DebugLayer;
+	alignas(4) int DebugLayer;
 };
 
 struct UniformBufferObject2
