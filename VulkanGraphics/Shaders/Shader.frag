@@ -25,10 +25,6 @@ float linearDepth(float depth)
 
 void main() 
 {
-//	vec3 I = normalize(fragPosition - ubo.cameraPos);
-//    vec3 R = reflect(I, normalize(fragNormal));
-//    outColor = vec4(texture(skybox, R).rgb, 1.0);
-
 	outColor = vec4(0.0);
 	outPosition = vec4(fragPosition, 1.0);
 	

@@ -29,12 +29,12 @@ layout (location = 0) out vec4 outColor;
 
 void main() 
 {
-	vec3 lighting = vec3(0.0f);
-
-		vec3 FragPos = subpassLoad(inputPosition).rgb;
-		vec3 Normal = subpassLoad(inputNormal).rgb;
-		vec3 Diffuse = subpassLoad(inputAlbedo).rgb;
-		float Specular = subpassLoad(inputAlbedo).a;
+	vec3 lighting = vec3(1.0f, 0.0f, 1.0f);
+	vec3 FragPos = subpassLoad(inputPosition).rgb;
+	vec3 Normal = subpassLoad(inputNormal).rgb;
+	vec3 Diffuse = subpassLoad(inputAlbedo).rgb;
+	float Specular = subpassLoad(inputAlbedo).a;
+	
 
 	if(Debug.DebugLayer == 0)
 	{
@@ -50,7 +50,11 @@ void main()
 	}
 	else
 	{
-		 lighting  = Diffuse * 0.1; 
+	  if(FragPos.r != 0.0f &&
+		  FragPos.g != 0.0f &&
+		  FragPos.b != 0.0f)
+		{
+		lighting  = Diffuse * 0.1; 
 		vec3 viewDir  = normalize(Lighter.viewPos - FragPos);
 	
 			// calculate distance between light source and current fragment
@@ -70,6 +74,10 @@ void main()
 				specular *= attenuation;
 				lighting += diffuse + specular;
 			}
+		}
 	}
+
+
+
 	outColor = vec4(lighting, 1.0f);
 }
