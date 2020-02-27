@@ -64,10 +64,7 @@ void Mesh::CreateIndiceBuffer(std::vector<uint16_t> indices)
 
 void Mesh::UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage)
 {
-	void* data;
-	vkMapMemory(DeviceInfo.Device, shader.uniformBuffersMemory[currentImage], 0, sizeof(ubo2), 0, &data);
-	memcpy(data, &ubo2, sizeof(ubo2));
-	vkUnmapMemory(DeviceInfo.Device, shader.uniformBuffersMemory[currentImage]);
+	shader.UpdateUniformBuffer(shader.uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
 }
 
 void Mesh::Draw(VkCommandBuffer commandbuffer, int currentImage)

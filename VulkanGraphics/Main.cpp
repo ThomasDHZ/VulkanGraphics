@@ -319,7 +319,7 @@ private:
 		texture.Destroy();
 		texture2.Destroy();
 		cubeMapTexture.Destroy();
-		skyBoxShader.Destory();
+		//skyBoxShader.Destory();
 		frameBuffer.Destory();
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {

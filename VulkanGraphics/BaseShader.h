@@ -29,7 +29,13 @@ protected:
 
 	std::vector<char> ReadShaderFile(const std::string& filename);
 	VkShaderModule CreateShaderModule(const std::vector<char>& code);
+
 	void CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo> LayoutBindingInfo);
+	void CreateShaderPipeLine();
+	void CreateUniformBuffers();
+	void CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
+	void CreateDescriptorSets();
+	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> DescriptorList);
 
 public:
 	VkDescriptorSetLayout descriptorSetLayout;
@@ -52,15 +58,7 @@ public:
 	BaseShader(VulkanDevice deviceInfo);
 	~BaseShader();
 
-	void CreateShaderPipeLine();
-	void CreateUniformBuffers();
-	void CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
-	void CreateDescriptorSets();
-	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> DescriptorList);
-
-	VkBuffer GetUniformBuffers(int i) { return uniformBuffers[i]; }
-	VkDescriptorSet GetDescriptorSet(int i) { return descriptorSets[i]; }
-
+	void UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize);
 	void Destory();
 	void DestorySwapChain();
 };

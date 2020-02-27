@@ -160,6 +160,14 @@ void BaseShader::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> de
 	vkUpdateDescriptorSets(DeviceInfo.Device, static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
+void BaseShader::UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize)
+{
+	void* UniformData;
+	vkMapMemory(DeviceInfo.Device, UniformBufferMemory, 0, UniformSize, 0, &UniformData);
+	memcpy(UniformData, UniformObjectData, UniformSize);
+	vkUnmapMemory(DeviceInfo.Device, UniformBufferMemory);
+}
+
 void BaseShader::Destory()
 {
 	vkDestroyDescriptorSetLayout(DeviceInfo.Device, descriptorSetLayout, nullptr);
