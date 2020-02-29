@@ -46,12 +46,6 @@ public:
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
-	std::vector<VkBuffer> LightFragmentUniformBuffers;
-	std::vector<VkDeviceMemory> LightFragmentUniformBuffersMemory;
-
-	std::vector<VkBuffer> DebugUniformBuffers;
-	std::vector<VkDeviceMemory> DebugBuffersMemory;
-
 	VkPipelineLayout ShaderPipelineLayout;
 	VkPipeline ShaderPipeline;
 

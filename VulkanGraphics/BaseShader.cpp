@@ -197,12 +197,6 @@ void BaseShader::DestorySwapChain()
 			vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[x], nullptr);
 			vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[x], nullptr);
 		}
-
-		if (LightFragmentUniformBuffers.size() > 0)
-		{
-			vkDestroyBuffer(DeviceInfo.Device, LightFragmentUniformBuffers[x], nullptr);
-			vkFreeMemory(DeviceInfo.Device, LightFragmentUniformBuffersMemory[x], nullptr);
-		}
 	}
 
 	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
