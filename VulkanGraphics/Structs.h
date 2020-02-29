@@ -14,3 +14,24 @@ struct VulkanDevice
 	VkQueue GraphicsQueue;
 	int SwapChainSize;
 };
+
+struct DescriptorSetLayoutBindingInfo
+{
+	uint32_t Binding;
+	VkDescriptorType DescriptorType;
+	VkShaderStageFlags StageFlags;
+};
+
+struct DescriptorPoolSizeInfo
+{
+	VkDescriptorType DescriptorType;
+};
+
+struct WriteDescriptorSetInfo
+{
+	uint32_t DstBinding;
+	VkDescriptorSet DstSet;
+	VkDescriptorType DescriptorType;
+	VkDescriptorBufferInfo DescriptorBufferInfo;
+	VkDescriptorImageInfo DescriptorImageInfo;
+};

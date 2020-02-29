@@ -1,26 +1,18 @@
 #pragma once
-#include "SkyBox.h"
-
-struct DescriptorSetLayoutBindingInfo
-{
-	uint32_t Binding;
-	VkDescriptorType DescriptorType;
-	VkShaderStageFlags StageFlags;
-};
-
-struct DescriptorPoolSizeInfo
-{
-	VkDescriptorType DescriptorType;
-};
-
-struct WriteDescriptorSetInfo
-{
-	uint32_t DstBinding;
-	VkDescriptorSet DstSet;
-	VkDescriptorType DescriptorType;
-	VkDescriptorBufferInfo DescriptorBufferInfo;
-	VkDescriptorImageInfo DescriptorImageInfo;
-};
+#include "Structs.h"
+#include <array>
+#include <iostream>
+#include <fstream>
+#include <stdexcept>
+#include <algorithm>
+#include <chrono>
+#include <vector>
+#include <cstring>
+#include <cstdlib>
+#include <cstdint>
+#include <array>
+#include <optional>
+#include <set>
 
 class BaseShader
 {
@@ -48,6 +40,7 @@ public:
 
 	VkPipelineLayout ShaderPipelineLayout;
 	VkPipeline ShaderPipeline;
+
 
 	BaseShader();
 	BaseShader(VulkanDevice deviceInfo);
