@@ -34,6 +34,7 @@ protected:
 	void CreateShaderPipeLine();
 	void CreateUniformBuffers();
 	void CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
+	void CreateDescriptorSets(VkDescriptorSetLayout layout);
 	void CreateDescriptorSets();
 	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> DescriptorList);
 

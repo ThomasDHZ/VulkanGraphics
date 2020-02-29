@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan\vulkan_core.h>
 #include "Texture.h"
-#include "Mesh.h"
+#include "Model.h"
 
 class Texture2D : public Texture
 {

@@ -50,10 +50,6 @@ void main()
 	}
 	else
 	{
-	  if(FragPos.r != 0.0f &&
-		  FragPos.g != 0.0f &&
-		  FragPos.b != 0.0f)
-		{
 		lighting  = Diffuse * 0.1; 
 		vec3 viewDir  = normalize(Lighter.viewPos - FragPos);
 	
@@ -74,7 +70,6 @@ void main()
 				specular *= attenuation;
 				lighting += diffuse + specular;
 			}
-		}
 	}
 
 

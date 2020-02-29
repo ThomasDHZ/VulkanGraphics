@@ -151,6 +151,7 @@
     <ClCompile Include="InputAttachment.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="BaseShader.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SkyBox.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="FrameBufferShader.h" />
     <ClInclude Include="InputAttachment.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="BaseShader.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SkyBox.h" />

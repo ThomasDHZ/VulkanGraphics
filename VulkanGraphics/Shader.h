@@ -13,17 +13,14 @@ struct ShaderTextureInputs
 class Shader : public BaseShader
 {
 private:
-
-	void CreateDescriptorSetLayout();
-	void CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass);
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
-	void CreateDescriptorSets(ShaderTextureInputs TextureInfo);
+	void CreateDescriptorSets(VkDescriptorSetLayout layout, ShaderTextureInputs TextureInfo);
 public:
 	Shader();
-	Shader(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs ShaderInput);
+	Shader(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDescriptorSetLayout layout, ShaderTextureInputs ShaderInput);
 	~Shader();
 
-	void RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs ShaderInput);
+	void RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDescriptorSetLayout layout,  ShaderTextureInputs ShaderInput);
 };
 

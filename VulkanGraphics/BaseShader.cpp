@@ -133,6 +133,21 @@ void BaseShader::CreateDescriptorSets()
 	}
 }
 
+void BaseShader::CreateDescriptorSets(VkDescriptorSetLayout layout)
+{
+	std::vector<VkDescriptorSetLayout> layouts(DeviceInfo.SwapChainSize, layout);
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = descriptorPool;
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
+	allocInfo.pSetLayouts = layouts.data();
+
+	descriptorSets.resize(DeviceInfo.SwapChainSize);
+	if (vkAllocateDescriptorSets(DeviceInfo.Device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+}
+
 void BaseShader::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWritesList)
 {
 	std::vector<VkWriteDescriptorSet>  WriteDescriptorInfo = {};
@@ -170,7 +185,7 @@ void BaseShader::UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* U
 
 void BaseShader::Destory()
 {
-	vkDestroyDescriptorSetLayout(DeviceInfo.Device, descriptorSetLayout, nullptr);
+	//vkDestroyDescriptorSetLayout(DeviceInfo.Device, descriptorSetLayout, nullptr);
 }
 
 void BaseShader::DestorySwapChain()
@@ -192,6 +207,6 @@ void BaseShader::DestorySwapChain()
 
 	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
 	vkDestroyPipeline(DeviceInfo.Device, ShaderPipeline, nullptr);
-    vkDestroyPipelineLayout(DeviceInfo.Device, ShaderPipelineLayout, nullptr);
+ //   vkDestroyPipelineLayout(DeviceInfo.Device, ShaderPipelineLayout, nullptr);
 }
 
