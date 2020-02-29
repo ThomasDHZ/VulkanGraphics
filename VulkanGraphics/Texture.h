@@ -1,5 +1,5 @@
 #pragma once
-#include "Model.h"
+#include "Structs.h"
 class Texture
 {
 protected:

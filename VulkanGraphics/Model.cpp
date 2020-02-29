@@ -4,11 +4,11 @@ Model::Model() : Mesh()
 {
 }
 
-Model::Model(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs shaderInput, std::vector<Vertex> vertices, std::vector<uint16_t> indices, VkDescriptorSetLayout layout) : Mesh(deviceInfo)
+Model::Model(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices, VkDescriptorSetLayout layout) : Mesh(deviceInfo)
 {
-	VerticeSize = vertices.size();
+	VertexSize = vertices.size();
 	IndiceSize = indices.size();
-	RecreateSwapChainStage(swapChainExtent, renderPass, layout, shaderInput);
+	RecreateSwapChainStage(swapChainExtent, renderPass, layout, TextureSet);
 
 	CreateVertexBuffer(vertices);
 	CreateIndiceBuffer(indices);
@@ -41,23 +41,26 @@ void Model::CreateVertexBuffer(std::vector<Vertex> vertices)
 
 void Model::CreateIndiceBuffer(std::vector<uint16_t> indices)
 {
-	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+	if (IndiceSize != 0)
+	{
+		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-	void* data;
-	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, indices.data(), (size_t)bufferSize);
-	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+		void* data;
+		vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, indices.data(), (size_t)bufferSize);
+		vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
 
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, indexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+		VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, indexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
 
-	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+		vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
+		vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+	}
 }
 
 void Model::CreateUniformBuffers()
@@ -83,19 +86,19 @@ void Model::CreateDescriptorPool()
 	Mesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Model::CreateDescriptorSets(VkDescriptorSetLayout layout, ShaderTextureInputs TextureInfo)
+void Model::CreateDescriptorSets(VkDescriptorSetLayout layout, std::vector<Texture2D> TextureSet)
 {
 	Mesh::CreateDescriptorSets(layout);
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	DiffuseMap.imageView = TextureInfo.textureImageView;
-	DiffuseMap.sampler = TextureInfo.textureSampler;
+	DiffuseMap.imageView = TextureSet[0].textureImageView;
+	DiffuseMap.sampler = TextureSet[0].textureSampler;
 
 	VkDescriptorImageInfo SpecularMap = {};
 	SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	SpecularMap.imageView = TextureInfo.textureImageView2;
-	SpecularMap.sampler = TextureInfo.textureSampler2;
+	SpecularMap.imageView = TextureSet[1].textureImageView;
+	SpecularMap.sampler = TextureSet[1].textureSampler;
 
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{
@@ -130,20 +133,25 @@ void Model::UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage)
 	Mesh::UpdateUniformBuffer(uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
 }
 
-void Model::RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDescriptorSetLayout layout, ShaderTextureInputs shaderInput)
+void Model::RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDescriptorSetLayout layout, std::vector<Texture2D> TextureSet)
 {
 	CreateUniformBuffers();
 	CreateDescriptorPool();
-	CreateDescriptorSets(layout, shaderInput);
+	CreateDescriptorSets(layout, TextureSet);
 }
 
 void Model::Destroy()
 {
-	vkDestroyBuffer(DeviceInfo.Device, indexBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, indexBufferMemory, nullptr);
-
-	vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
-
 	Mesh::Destory();
+}
+
+void Model::DestorySwapChain()
+{
+	for (int x = 0; x < DeviceInfo.SwapChainSize; x++)
+	{
+		vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[x], nullptr);
+		vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[x], nullptr);
+	}
+
+	Mesh::DestorySwapChain();
 }

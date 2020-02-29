@@ -23,14 +23,7 @@ void Shader::RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass rend
 
 void Shader::CreateUniformBuffers()
 {
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject2);
 
-	uniformBuffers.resize(DeviceInfo.SwapChainSize);
-	uniformBuffersMemory.resize(DeviceInfo.SwapChainSize);
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
-	{
-		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
-	}
 }
 
 void Shader::CreateDescriptorPool()

@@ -9,7 +9,7 @@ class Mesh
 private:
 
 protected:
-	int VerticeSize;
+	int VertexSize;
 	int IndiceSize;
 
 	VulkanDevice DeviceInfo;
@@ -23,9 +23,6 @@ protected:
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
-
 	void CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
 	void CreateDescriptorSets(VkDescriptorSetLayout layout);
 	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWritesList);
@@ -36,7 +33,7 @@ public:
 	~Mesh();
 
 	void UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize);
-	void Draw(VkCommandBuffer commandbuffer, VkPipeline pipeline, VkPipelineLayout layout, int currentImage);
+	virtual void Draw(VkCommandBuffer commandbuffer, VkPipeline pipeline, VkPipelineLayout layout, int currentImage);
 
 	void Destory();
 	void DestorySwapChain();

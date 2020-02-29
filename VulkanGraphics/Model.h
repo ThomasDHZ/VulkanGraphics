@@ -10,6 +10,7 @@
 #include "BaseShader.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "Texture2D.h"
 
 struct Vertex
 {
@@ -105,22 +106,25 @@ struct UniformBufferObject2
 class Model : public Mesh
 {
 private:
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	void CreateVertexBuffer(std::vector<Vertex> vertices);
 	void CreateIndiceBuffer(std::vector<uint16_t> indices);
 
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
-	void CreateDescriptorSets(VkDescriptorSetLayout layout, ShaderTextureInputs TextureInfo);
+	void CreateDescriptorSets(VkDescriptorSetLayout layout, std::vector<Texture2D> TextureSet);
 
 public:
 	Model();
-	Model(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, ShaderTextureInputs shaderInput, std::vector<Vertex> vertices, std::vector<uint16_t> indices, VkDescriptorSetLayout layout);
+	Model(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices, VkDescriptorSetLayout layout);
 	~Model();
 
 	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 
-	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDescriptorSetLayout layout, ShaderTextureInputs shaderInput);
+	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDescriptorSetLayout layout, std::vector<Texture2D> TextureSet);
 	void Destroy();
+	void DestorySwapChain();
 };
 
