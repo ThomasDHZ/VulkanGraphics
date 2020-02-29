@@ -4,14 +4,13 @@ FrameBuffer::FrameBuffer() : Mesh()
 {
 }
 
-FrameBuffer::FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment) : Mesh(deviceInfo)
+FrameBuffer::FrameBuffer(FramebufferPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment) : Mesh(deviceInfo)
 {
 	DeviceInfo = deviceInfo;
-	frameBufferShader = FrameBufferShader(DeviceInfo, swapChainExtent, renderPass, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 
 	CreateUniformBuffers();
 	CreateDescriptorPool();
-	CreateDescriptorSets(PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
+	CreateDescriptorSets(pipeline, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 }
 
 FrameBuffer::~FrameBuffer()
@@ -53,9 +52,9 @@ void FrameBuffer::CreateDescriptorPool()
 	Mesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void FrameBuffer::CreateDescriptorSets(VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView)
+void FrameBuffer::CreateDescriptorSets(FramebufferPipeline pipeline, VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView)
 {
-	Mesh::CreateDescriptorSets(frameBufferShader.descriptorSetLayout);
+	Mesh::CreateDescriptorSets(pipeline.ShaderPipelineDescriptorLayout);
 
 	VkDescriptorImageInfo ColorImage = {};
 	ColorImage.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -131,19 +130,19 @@ void FrameBuffer::UpdateUniformBuffer(LightingStruct ubo4, DebugStruct debug, in
 	Mesh::UpdateUniformBuffer(DebugBuffersMemory[currentImage], static_cast<void*>(&debug), sizeof(debug));
 }
 
-void FrameBuffer::Draw(VkCommandBuffer commandbuffer, int currentImage)
+void FrameBuffer::Draw(FramebufferPipeline pipeline, VkCommandBuffer commandbuffer, int currentImage)
 {
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBufferShader.ShaderPipeline);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBufferShader.ShaderPipelineLayout, 0, 1, &descriptorSets[currentImage], 0, NULL);
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &descriptorSets[currentImage], 0, NULL);
 	vkCmdDraw(commandbuffer, 3, 1, 0, 0);
 }
 
-void FrameBuffer::RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment)
+void FrameBuffer::RecreateSwapChainStage(FramebufferPipeline pipeline, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment)
 {
-	frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
+	//frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 }
 
-void FrameBuffer::DestroySwapChainStage()
+void FrameBuffer::DestroySwapChainStage(FramebufferPipeline pipeline)
 {
 	for (int x = 0; x < DeviceInfo.SwapChainSize; x++)
 	{
@@ -154,10 +153,10 @@ void FrameBuffer::DestroySwapChainStage()
 		}
 	}
 
-	frameBufferShader.DestorySwapChain();
+	pipeline.DestorySwapChain();
 }
 
-void FrameBuffer::Destory()
+void FrameBuffer::Destory(FramebufferPipeline pipeline)
 {
-	frameBufferShader.Destory();
+	pipeline.Destory();
 }

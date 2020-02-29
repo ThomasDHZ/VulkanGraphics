@@ -9,16 +9,18 @@ class GraphicsPipeline
 protected:
 	VulkanDevice DeviceInfo;
 
-	VkPipelineLayout ShaderPipelineLayout;
-	VkPipeline ShaderPipeline;
-	VkDescriptorSetLayout ShaderPipelineDescriptorLayout;
-
 	std::vector<char> ReadShaderFile(const std::string& filename);
 	VkShaderModule CreateShaderModule(const std::vector<char>& code);
 
 	void CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo> LayoutBindingInfo);
+	void CreatePipeLineLayout(VkPipelineLayoutCreateInfo PipelineLayoutInfo);
+	void CreatePipeLine(VkGraphicsPipelineCreateInfo PipeLineInfo);
 
 public:
+	VkPipelineLayout ShaderPipelineLayout;
+	VkPipeline ShaderPipeline;
+	VkDescriptorSetLayout ShaderPipelineDescriptorLayout;
+
 	GraphicsPipeline();
 	GraphicsPipeline(VulkanDevice deviceInfo);
 	~GraphicsPipeline();

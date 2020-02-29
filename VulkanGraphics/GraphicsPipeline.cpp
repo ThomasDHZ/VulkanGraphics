@@ -1,4 +1,4 @@
-#include "Pipeline.h"
+#include "GraphicsPipeline.h"
 #include <array>
 #include <iostream>
 #include <fstream>
@@ -85,6 +85,21 @@ void GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayout
 
 	if (vkCreateDescriptorSetLayout(DeviceInfo.Device, &layoutInfo, nullptr, &ShaderPipelineDescriptorLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor set layout!");
+	}
+}
+
+void GraphicsPipeline::CreatePipeLineLayout(VkPipelineLayoutCreateInfo PipelineLayoutInfo)
+{
+	if (vkCreatePipelineLayout(DeviceInfo.Device, &PipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create pipeline layout!");
+	}
+}
+
+void GraphicsPipeline::CreatePipeLine(VkGraphicsPipelineCreateInfo PipeLineInfo)
+{
+	if (vkCreateGraphicsPipelines(DeviceInfo.Device, VK_NULL_HANDLE, 1, &PipeLineInfo, nullptr, &ShaderPipeline) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 }
 

@@ -149,6 +149,7 @@ private:
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkPipelineLayout ShaderPipelineLayout;
 	VkPipeline ShaderPipeline;
+	FramebufferPipeline frameBufferPipeline;
 
 	Camera camera;
 	//SkyBox Skybox;
@@ -225,6 +226,8 @@ private:
 		NormalAttachment = InputAttachment(DeviceInfo, AttachmentType::VkNormalAttachment, swapChainExtent.width, swapChainExtent.height);
 		AlbedoAttachment = InputAttachment(DeviceInfo, AttachmentType::VkAlbedoAttachment, swapChainExtent.width, swapChainExtent.height);
 		DepthAttachment = InputAttachment(DeviceInfo, AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
+
+		frameBufferPipeline = FramebufferPipeline(swapChainExtent, renderPass, DeviceInfo);
 
 		CubeMapLayout layout;
 		layout.Left = "texture/skybox/left.jpg";
@@ -416,7 +419,7 @@ private:
 		MeshList.emplace_back(Model(DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices, descriptorSetLayout));
 
 		//Skybox = SkyBox(DeviceInfo);
-		frameBuffer = FrameBuffer(DeviceInfo, swapChainExtent, renderPass, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
+		frameBuffer = FrameBuffer(frameBufferPipeline, DeviceInfo, swapChainExtent, renderPass, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
 
 		createFramebuffers();
 		createCommandBuffers();
@@ -461,7 +464,7 @@ private:
 			mesh.DestorySwapChain();
 		}
 		skyBoxShader.DestorySwapChain();
-		frameBuffer.DestroySwapChainStage();
+		frameBuffer.DestroySwapChainStage(frameBufferPipeline);
 	}
 
 	void cleanup() {
@@ -476,7 +479,7 @@ private:
 		texture2.Destroy();
 		cubeMapTexture.Destroy();
 		//skyBoxShader.Destory();
-		frameBuffer.Destory();
+		frameBuffer.Destory(frameBufferPipeline);
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -534,7 +537,7 @@ private:
 			mesh.RecreateSwapChainStage(swapChainExtent, renderPass, descriptorSetLayout, TextureList);
 		}
 		skyBoxShader.RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
-		frameBuffer.RecreateSwapChainStage(swapChainExtent, renderPass, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
+		frameBuffer.RecreateSwapChainStage(frameBufferPipeline, swapChainExtent, renderPass, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
 		createCommandBuffers();
 	}
 
@@ -1119,7 +1122,7 @@ private:
 			}
 
 			vkCmdNextSubpass(commandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);
-			frameBuffer.Draw(commandBuffers[i], i);
+			frameBuffer.Draw(frameBufferPipeline, commandBuffers[i], i);
 			vkCmdEndRenderPass(commandBuffers[i]);
 
 			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
