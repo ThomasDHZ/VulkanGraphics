@@ -277,10 +277,21 @@ private:
 
 	void cleanupSwapChain() 
 	{
-		PositionAttachment.Destroy();
-		NormalAttachment.Destroy();
-		AlbedoAttachment.Destroy();
-		DepthAttachment.Destroy();
+		vkDestroyImageView(device, PositionAttachment.AttachmentImageView, nullptr);
+		vkDestroyImage(device, PositionAttachment.AttachmentImage, nullptr);
+		vkFreeMemory(device, PositionAttachment.AttachmentImageMemory, nullptr);
+
+		vkDestroyImageView(device, NormalAttachment.AttachmentImageView, nullptr);
+		vkDestroyImage(device, NormalAttachment.AttachmentImage, nullptr);
+		vkFreeMemory(device, NormalAttachment.AttachmentImageMemory, nullptr);
+
+		vkDestroyImageView(device, AlbedoAttachment.AttachmentImageView, nullptr);
+		vkDestroyImage(device, AlbedoAttachment.AttachmentImage, nullptr);
+		vkFreeMemory(device, AlbedoAttachment.AttachmentImageMemory, nullptr);
+
+		vkDestroyImageView(device, DepthAttachment.AttachmentImageView, nullptr);
+		vkDestroyImage(device, DepthAttachment.AttachmentImage, nullptr);
+		vkFreeMemory(device, DepthAttachment.AttachmentImageMemory, nullptr);
 
 		for (auto framebuffer : swapChainFramebuffers) {
 			vkDestroyFramebuffer(device, framebuffer, nullptr);
@@ -288,6 +299,12 @@ private:
 
 		vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
+		vkDestroyPipeline(device, mainPipeline.ShaderPipeline, nullptr);
+		vkDestroyPipelineLayout(device, mainPipeline.ShaderPipelineLayout, nullptr);
+
+		vkDestroyPipeline(device, frameBufferPipeline.ShaderPipeline, nullptr);
+		vkDestroyPipelineLayout(device, frameBufferPipeline.ShaderPipelineLayout, nullptr);
+		
 		vkDestroyRenderPass(device, renderPass, nullptr);
 
 		for (auto imageView : swapChainImageViews) {
@@ -295,14 +312,26 @@ private:
 		}
 
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
-		for (auto mesh : MeshList)
-		{
-			mesh.Destroy();
-		}
-		frameBuffer.Destory();
 
-		mainPipeline.Destory();
-		frameBufferPipeline.Destory();
+		//for (auto mesh : MeshList)
+		//{
+		//	for (size_t i = 0; i < swapChainImages.size(); i++) {
+		//		vkDestroyBuffer(device, mesh.uniformBuffers[i], nullptr);
+		//		vkFreeMemory(device, mesh.uniformBuffersMemory[i], nullptr);
+		//	}
+		//}
+		for (size_t i = 0; i < swapChainImages.size(); i++) {
+			vkDestroyBuffer(device, frameBuffer.LightFragmentUniformBuffers[i], nullptr);
+			vkFreeMemory(device, frameBuffer.LightFragmentUniformBuffersMemory[i], nullptr);
+
+			vkDestroyBuffer(device, frameBuffer.DebugUniformBuffers[i], nullptr);
+			vkFreeMemory(device, frameBuffer.DebugBuffersMemory[i], nullptr);
+		}
+		//for (auto mesh : MeshList)
+		//{
+		//	vkDestroyDescriptorPool(device, mesh.descriptorPool, nullptr);
+		//}
+		vkDestroyDescriptorPool(device, frameBuffer.descriptorPool, nullptr);
 	}
 
 	void cleanup() {
@@ -347,17 +376,17 @@ private:
 		mainPipeline.RecreatePipeline(swapChainExtent, renderPass);
 		frameBufferPipeline.RecreatePipeline(swapChainExtent, renderPass);
 
-		VulkanDevice DeviceInfo;
-		DeviceInfo.Device = device;
-		DeviceInfo.PhysicalDevice = physicalDevice;
-		DeviceInfo.CommandPool = commandPool;
-		DeviceInfo.GraphicsQueue = graphicsQueue;
-		DeviceInfo.SwapChainSize = swapChainImages.size();
+		PositionAttachment.CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		PositionAttachment.CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
 
-		PositionAttachment = InputAttachment(DeviceInfo, AttachmentType::VkPositionAttachment, swapChainExtent.width, swapChainExtent.height);
-		NormalAttachment = InputAttachment(DeviceInfo, AttachmentType::VkNormalAttachment, swapChainExtent.width, swapChainExtent.height);
-		AlbedoAttachment = InputAttachment(DeviceInfo, AttachmentType::VkAlbedoAttachment, swapChainExtent.width, swapChainExtent.height);
-		DepthAttachment = InputAttachment(DeviceInfo, AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
+		NormalAttachment.CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		NormalAttachment.CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+
+		AlbedoAttachment.CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		AlbedoAttachment.CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+
+		DepthAttachment.CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		DepthAttachment.CreateAttachmentView(VK_IMAGE_ASPECT_DEPTH_BIT);
 
 		createFramebuffers();
 
@@ -367,10 +396,15 @@ private:
 
 		for (auto mesh : MeshList)
 		{
-			mesh.RecreateSwapChainStage(mainPipeline, swapChainExtent, renderPass, TextureList);
+			mesh.CreateUniformBuffers();
+			mesh.CreateDescriptorPool();
+			mesh.CreateDescriptorSets(mainPipeline, TextureList);
 		}
-		//skyBoxShader.RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
-		frameBuffer.RecreateSwapChainStage(frameBufferPipeline, swapChainExtent, renderPass, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
+
+		frameBuffer.CreateUniformBuffers();
+		frameBuffer.CreateDescriptorPool();
+		frameBuffer.CreateDescriptorSets(frameBufferPipeline, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
+
 		createCommandBuffers();
 	}
 
@@ -951,7 +985,13 @@ private:
 			//Skybox.Draw(commandBuffers[i], skyBoxShader.descriptorSets[i], skyBoxShader.ShaderPipeline, skyBoxShader.ShaderPipelineLayout);
 			for (auto mesh : MeshList)
 			{
-				mesh.Draw(commandBuffers[i], mainPipeline, i);
+				VkBuffer vertexBuffers[] = { mesh.vertexBuffer };
+				VkDeviceSize offsets[] = { 0 };
+
+				vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, mainPipeline.ShaderPipeline);
+				vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+				vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, mainPipeline.ShaderPipelineLayout, 0, 1, &mesh.descriptorSets[i], 0, nullptr);
+				vkCmdDraw(commandBuffers[i], 36, 1, 0, 0);
 			}
 
 			vkCmdNextSubpass(commandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);

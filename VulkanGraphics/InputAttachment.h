@@ -20,15 +20,15 @@ private:
 	unsigned int Width;
 	unsigned int Height;
 
-	void GetAttachmentTypeInfo(AttachmentType attachmentType);
-	void CreateAttachmentImage(VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
-	void CreateAttachmentView(VkImageAspectFlags aspectFlags);
+
 public:
 
 	InputAttachment();
 	InputAttachment(VulkanDevice deviceInfo, AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
 	~InputAttachment();
-
+	void CreateAttachmentImage(VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
+	void GetAttachmentTypeInfo(AttachmentType attachmentType);
+	void CreateAttachmentView(VkImageAspectFlags aspectFlags);
 	void ReCreateAttachment(AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
 	void Destroy();
 

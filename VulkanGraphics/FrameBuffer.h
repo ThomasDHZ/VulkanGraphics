@@ -7,6 +7,10 @@ class FrameBuffer : public Mesh
 private:
 	VulkanDevice DeviceInfo;
 
+
+
+public:
+
 	std::vector<VkBuffer> LightFragmentUniformBuffers;
 	std::vector<VkDeviceMemory> LightFragmentUniformBuffersMemory;
 
@@ -17,7 +21,6 @@ private:
 	void CreateDescriptorPool();
 	void CreateDescriptorSets(FramebufferPipeline pipeline, VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView);
 
-public:
 	FrameBuffer();
 	FrameBuffer(FramebufferPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment);
 	~FrameBuffer();

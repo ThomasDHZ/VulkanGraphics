@@ -105,20 +105,22 @@ struct UniformBufferObject2
 class Model : public Mesh
 {
 private:
+	void CreateVertexBuffer(std::vector<Vertex> vertices);
+	void CreateIndiceBuffer(std::vector<uint16_t> indices);
+
+
+
+public:
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
-	void CreateVertexBuffer(std::vector<Vertex> vertices);
-	void CreateIndiceBuffer(std::vector<uint16_t> indices);
+	Model();
+	Model(MainPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
+	~Model();
 
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> TextureSet);
-
-public:
-	Model();
-	Model(MainPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
-	~Model();
 
 	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 

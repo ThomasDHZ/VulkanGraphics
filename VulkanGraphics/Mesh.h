@@ -14,20 +14,22 @@ protected:
 
 	VulkanDevice DeviceInfo;
 
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
 
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
-
-	VkDescriptorPool descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
 
 	void CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
 	void CreateDescriptorSets(VkDescriptorSetLayout layout);
 	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 
 public:
+
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
+
+	VkBuffer indexBuffer;
+	VkDeviceMemory indexBufferMemory;
+
+	std::vector<VkDescriptorSet> descriptorSets;
+	VkDescriptorPool descriptorPool;
 	Mesh();
 	Mesh(VulkanDevice deviceInfo);
 	~Mesh();
