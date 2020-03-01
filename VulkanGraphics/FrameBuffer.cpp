@@ -142,21 +142,19 @@ void FrameBuffer::RecreateSwapChainStage(FramebufferPipeline pipeline, VkExtent2
 	//frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 }
 
-void FrameBuffer::DestroySwapChainStage(FramebufferPipeline pipeline)
+void FrameBuffer::Destory()
 {
 	for (int x = 0; x < DeviceInfo.SwapChainSize; x++)
 	{
-		if (LightFragmentUniformBuffers.size() > 0)
-		{
-			vkDestroyBuffer(DeviceInfo.Device, LightFragmentUniformBuffers[x], nullptr);
-			vkFreeMemory(DeviceInfo.Device, LightFragmentUniformBuffersMemory[x], nullptr);
-		}
+		vkDestroyBuffer(DeviceInfo.Device, LightFragmentUniformBuffers[x], nullptr);
+		vkFreeMemory(DeviceInfo.Device, LightFragmentUniformBuffersMemory[x], nullptr);
 	}
 
-	pipeline.DestorySwapChain();
-}
+	for (int x = 0; x < DeviceInfo.SwapChainSize; x++)
+	{
+		vkDestroyBuffer(DeviceInfo.Device, DebugUniformBuffers[x], nullptr);
+		vkFreeMemory(DeviceInfo.Device, DebugBuffersMemory[x], nullptr);
+	}
 
-void FrameBuffer::Destory(FramebufferPipeline pipeline)
-{
-	pipeline.Destory();
+	Mesh::Destory();
 }

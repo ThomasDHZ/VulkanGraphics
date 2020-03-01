@@ -10,5 +10,7 @@ public:
 	FramebufferPipeline();
 	FramebufferPipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass, VulkanDevice deviceInfo);
 	~FramebufferPipeline();
+
+	void RecreatePipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass);
 };
 

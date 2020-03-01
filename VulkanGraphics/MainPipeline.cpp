@@ -204,3 +204,8 @@ void MainPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass
 	vkDestroyShaderModule(DeviceInfo.Device, fragShaderModule, nullptr);
 	vkDestroyShaderModule(DeviceInfo.Device, vertShaderModule, nullptr);
 }
+
+void MainPipeline::RecreatePipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass)
+{
+	CreateShaderPipeLine(swapChainExtent, renderPass);
+}

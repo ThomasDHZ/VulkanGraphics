@@ -26,6 +26,5 @@ public:
 	~GraphicsPipeline();
 
 	void Destory();
-	void DestorySwapChain();
 };
 

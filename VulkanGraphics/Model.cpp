@@ -142,16 +142,11 @@ void Model::RecreateSwapChainStage(MainPipeline pipeline, VkExtent2D swapChainEx
 
 void Model::Destroy()
 {
-	Mesh::Destory();
-}
-
-void Model::DestorySwapChain()
-{
 	for (int x = 0; x < DeviceInfo.SwapChainSize; x++)
 	{
 		vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[x], nullptr);
 		vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[x], nullptr);
 	}
 
-	Mesh::DestorySwapChain();
+	Mesh::Destory();
 }

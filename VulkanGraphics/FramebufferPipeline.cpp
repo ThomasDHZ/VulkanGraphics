@@ -174,3 +174,9 @@ void FramebufferPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRen
 	vkDestroyShaderModule(DeviceInfo.Device, FrameBufferFragShaderModule, nullptr);
 	vkDestroyShaderModule(DeviceInfo.Device, FrameBufferVertShaderModule, nullptr);
 }
+
+void FramebufferPipeline::RecreatePipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass)
+{
+	CreateDescriptorSetLayout();
+	CreateShaderPipeLine(swapChainExtent, renderPass);
+}

@@ -297,25 +297,20 @@ private:
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
 		for (auto mesh : MeshList)
 		{
-			mesh.DestorySwapChain();
+			mesh.Destroy();
 		}
-		//skyBoxShader.DestorySwapChain();
-		frameBuffer.DestroySwapChainStage(frameBufferPipeline);
+		frameBuffer.Destory();
+
+		mainPipeline.Destory();
+		frameBufferPipeline.Destory();
 	}
 
 	void cleanup() {
 		cleanupSwapChain();
 
-		//Skybox.Destory();
-		for (auto mesh : MeshList)
-		{
-			mesh.Destroy();
-		}
 		texture.Destroy();
 		texture2.Destroy();
 		cubeMapTexture.Destroy();
-		//skyBoxShader.Destory();
-		frameBuffer.Destory(frameBufferPipeline);
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -349,6 +344,8 @@ private:
 		createImageViews();
 		createRenderPass();
 
+		mainPipeline.RecreatePipeline(swapChainExtent, renderPass);
+		frameBufferPipeline.RecreatePipeline(swapChainExtent, renderPass);
 
 		VulkanDevice DeviceInfo;
 		DeviceInfo.Device = device;

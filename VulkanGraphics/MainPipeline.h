@@ -9,5 +9,7 @@ public:
 	MainPipeline();
 	MainPipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass, VulkanDevice deviceInfo);
 	~MainPipeline();
+
+	void RecreatePipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass);
 };
 

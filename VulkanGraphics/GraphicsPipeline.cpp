@@ -105,11 +105,7 @@ void GraphicsPipeline::CreatePipeLine(VkGraphicsPipelineCreateInfo PipeLineInfo)
 
 void GraphicsPipeline::Destory()
 {
-	DestorySwapChain();
-}
-
-void GraphicsPipeline::DestorySwapChain()
-{
+	vkDestroyDescriptorSetLayout(DeviceInfo.Device, ShaderPipelineDescriptorLayout, nullptr);
 	vkDestroyPipeline(DeviceInfo.Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(DeviceInfo.Device, ShaderPipelineLayout, nullptr);
 }

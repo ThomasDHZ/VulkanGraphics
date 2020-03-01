@@ -110,16 +110,17 @@ void Mesh::Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int curren
 
 void Mesh::Destory()
 {
-	vkDestroyBuffer(DeviceInfo.Device, indexBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, indexBufferMemory, nullptr);
+	//if (indexBufferMemory != VK_NULL_HANDLE)
+	//{
+	//	vkDestroyBuffer(DeviceInfo.Device, indexBuffer, nullptr);
+	//	vkFreeMemory(DeviceInfo.Device, indexBufferMemory, nullptr);
+	//}
 
-	vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
+	if (VertexSize >= 0)
+	{
+		vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
+		vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
+	}
 
-	DestorySwapChain();
-}
-
-void Mesh::DestorySwapChain()
-{
 	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
 }

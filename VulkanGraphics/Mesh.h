@@ -36,6 +36,5 @@ public:
 	virtual void Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int currentImage);
 
 	void Destory();
-	void DestorySwapChain();
 };
 

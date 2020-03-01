@@ -124,6 +124,5 @@ public:
 
 	void RecreateSwapChainStage(MainPipeline pipeline, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet);
 	void Destroy();
-	void DestorySwapChain();
 };
 
