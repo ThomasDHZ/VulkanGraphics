@@ -1,25 +1,21 @@
-#include "SkyBoxShader.h"
+#include "SkyBoxPipeline.h"
+#include <array>
+#include "Model.h"
+#include "Skybox.h"
 
-SkyBoxShader::SkyBoxShader() : BaseShader()
+SkyBoxPipeline::SkyBoxPipeline()
 {
 }
 
-SkyBoxShader::SkyBoxShader(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, CubeMapTexture cubeMapTexture) : BaseShader(deviceInfo)
-{
-	CreateDescriptorSetLayout();
-	RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
-}
-
-SkyBoxShader::~SkyBoxShader()
+SkyBoxPipeline::SkyBoxPipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass, VulkanDevice deviceInfo)
 {
 }
 
-void SkyBoxShader::RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass renderPass, CubeMapTexture cubeMapTexture)
+SkyBoxPipeline::~SkyBoxPipeline()
 {
-	CreateShaderPipeLine(swapChainExtent, renderPass);
 }
 
-void SkyBoxShader::CreateDescriptorSetLayout()
+void SkyBoxPipeline::CreateDescriptorSetLayout()
 {
 	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
 
@@ -31,10 +27,10 @@ void SkyBoxShader::CreateDescriptorSetLayout()
 	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	BaseShader::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
+	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void SkyBoxShader::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass)
+void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass)
 {
 	auto SkyBoxvertShaderCode = ReadShaderFile("Shaders/SkyBoxVert.spv");
 	auto SkyBoxfragShaderCode = ReadShaderFile("Shaders/SkyBoxFrag.spv");
@@ -132,7 +128,7 @@ void SkyBoxShader::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass
 	VkPipelineLayoutCreateInfo SkyBoxpipelineLayoutInfo = {};
 	SkyBoxpipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	SkyBoxpipelineLayoutInfo.setLayoutCount = 1;
-	SkyBoxpipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+	SkyBoxpipelineLayoutInfo.pSetLayouts = &ShaderPipelineDescriptorLayout;
 
 	if (vkCreatePipelineLayout(DeviceInfo.Device, &SkyBoxpipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create pipeline layout!");

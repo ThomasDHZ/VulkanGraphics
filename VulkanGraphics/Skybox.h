@@ -4,6 +4,9 @@
 #include <array>
 
 #include "Structs.h"
+#include "Mesh.h"
+#include "CubeMapTexture.h"
+#include "SkyBoxPipeline.h"
 
 struct SkyBoxVertex 
 {
@@ -82,14 +85,17 @@ const std::vector<SkyBoxVertex> vertices =
 	{{	 1.0f, -1.0f,  1.0f }}
 };
 
-class SkyBox
+class SkyBox : public Mesh
 {
 private:
 	VulkanDevice DeviceInfo;
 
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
+	void CreateUniformBuffers();
+	void CreateDescriptorPool();
+	void CreateDescriptorSets(SkyBoxPipeline pipeline, CubeMapTexture cubeMapTexture);
 	void SetUpVertexBuffer(VulkanDevice deviceInfo);
 
 public:
@@ -97,7 +103,7 @@ public:
 	SkyBox(VulkanDevice deviceInfo);
 	~SkyBox();
 
-	void Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, VkPipeline pipeline, VkPipelineLayout pipelineLayout);
+	void Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, SkyBoxPipeline pipeline);
 	void Destory();
 };
 

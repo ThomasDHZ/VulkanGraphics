@@ -158,6 +158,7 @@
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="SkyBoxPipeline.cpp" />
     <ClCompile Include="SkyBoxShader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="SkyBoxPipeline.h" />
     <ClInclude Include="SkyBoxShader.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="Texture.h" />

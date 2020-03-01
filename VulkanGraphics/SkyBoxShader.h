@@ -8,9 +8,6 @@ class SkyBoxShader : public BaseShader
 private:
 	void CreateDescriptorSetLayout();
 	void CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass);
-	void CreateUniformBuffers();
-	void CreateDescriptorPool();
-	void CreateDescriptorSets(CubeMapTexture cubeMapTexture);
 
 public:
 	SkyBoxShader();
