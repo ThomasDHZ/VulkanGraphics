@@ -1,17 +1,27 @@
 #include "Model.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 Model::Model() : Mesh()
 {
 }
 
-Model::Model(MainPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices) : Mesh(deviceInfo)
+Model::Model(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices) : Mesh(deviceInfo)
 {
 	VertexSize = vertices.size();
 	IndiceSize = indices.size();
-	RecreateSwapChainStage(pipeline, swapChainExtent, renderPass, TextureSet);
 
+	CreateUniformBuffers();
+	CreateDescriptorPool();
+	CreateDescriptorSets(pipeline, TextureSet);
 	CreateVertexBuffer(vertices);
 	CreateIndiceBuffer(indices);
+}
+
+Model::Model(std::string& FilePath)
+{
+	ModelLoader(FilePath);
 }
 
 Model::~Model()
@@ -125,6 +135,18 @@ void Model::CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> T
 		WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
 
 		Mesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
+	}
+}
+
+void Model::ModelLoader(std::string& FilePath)
+{
+	Assimp::Importer ModelImporter;
+
+	const aiScene* scene = ModelImporter.ReadFile(FilePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+	{
+		std::cout << "Error loading model:" << ModelImporter.GetErrorString() << std::endl;
+		return;
 	}
 }
 

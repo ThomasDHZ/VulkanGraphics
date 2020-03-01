@@ -115,12 +115,15 @@ public:
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	Model();
-	Model(MainPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
+	Model(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
+	Model(std::string& FilePath);
 	~Model();
 
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> TextureSet);
+
+	void ModelLoader(std::string& FilePath);
 
 	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 
