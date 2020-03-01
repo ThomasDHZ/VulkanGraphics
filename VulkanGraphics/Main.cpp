@@ -25,14 +25,10 @@
 #include "SkyBox.h"
 #include "camera.h"
 #include "Model.h"
-#include "BaseShader.h"
-#include "Shader.h"
 #include "Texture2D.h"
 #include "CubeMapTexture.h"
-#include "SkyBoxShader.h"
 #include "InputAttachment.h"
 #include "FrameBuffer.h"
-#include "FrameBufferShader.h"
 #include "VulkanDebugger.h"
 #include "VulkanWindow.h"
 
@@ -152,7 +148,7 @@ private:
 	Camera camera;
 	//SkyBox Skybox;
 	std::vector<Model> MeshList;
-	SkyBoxShader skyBoxShader;
+	//SkyBoxShader skyBoxShader;
 	Texture2D texture;
 	Texture2D texture2;
 	CubeMapTexture cubeMapTexture;
@@ -303,7 +299,7 @@ private:
 		{
 			mesh.DestorySwapChain();
 		}
-		skyBoxShader.DestorySwapChain();
+		//skyBoxShader.DestorySwapChain();
 		frameBuffer.DestroySwapChainStage(frameBufferPipeline);
 	}
 
@@ -376,7 +372,7 @@ private:
 		{
 			mesh.RecreateSwapChainStage(mainPipeline, swapChainExtent, renderPass, TextureList);
 		}
-		skyBoxShader.RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
+		//skyBoxShader.RecreateSwapChainInfo(swapChainExtent, renderPass, cubeMapTexture);
 		frameBuffer.RecreateSwapChainStage(frameBufferPipeline, swapChainExtent, renderPass, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
 		createCommandBuffers();
 	}

@@ -7,9 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "VulkanBufferManager.h"
-#include "BaseShader.h"
 #include "Mesh.h"
-#include "Shader.h"
 #include "Texture2D.h"
 #include "MainPipeline.h"
 
