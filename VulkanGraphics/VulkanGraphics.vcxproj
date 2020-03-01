@@ -151,6 +151,7 @@
     <ClCompile Include="FrameBufferShader.cpp" />
     <ClCompile Include="InputAttachment.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MainPipeline.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="BaseShader.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="FramebufferPipeline.h" />
     <ClInclude Include="FrameBufferShader.h" />
     <ClInclude Include="InputAttachment.h" />
+    <ClInclude Include="MainPipeline.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="BaseShader.h" />

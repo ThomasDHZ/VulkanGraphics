@@ -3,6 +3,7 @@
 #include <vector>
 #include "Structs.h"
 #include "BaseShader.h"
+#include "MainPipeline.h"
 
 class Mesh
 {
@@ -33,7 +34,7 @@ public:
 	~Mesh();
 
 	void UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize);
-	virtual void Draw(VkCommandBuffer commandbuffer, VkPipeline pipeline, VkPipelineLayout layout, int currentImage);
+	virtual void Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int currentImage);
 
 	void Destory();
 	void DestorySwapChain();

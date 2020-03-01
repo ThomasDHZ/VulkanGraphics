@@ -4,11 +4,11 @@ Model::Model() : Mesh()
 {
 }
 
-Model::Model(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices, VkDescriptorSetLayout layout) : Mesh(deviceInfo)
+Model::Model(MainPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices) : Mesh(deviceInfo)
 {
 	VertexSize = vertices.size();
 	IndiceSize = indices.size();
-	RecreateSwapChainStage(swapChainExtent, renderPass, layout, TextureSet);
+	RecreateSwapChainStage(pipeline, swapChainExtent, renderPass, TextureSet);
 
 	CreateVertexBuffer(vertices);
 	CreateIndiceBuffer(indices);
@@ -86,9 +86,9 @@ void Model::CreateDescriptorPool()
 	Mesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Model::CreateDescriptorSets(VkDescriptorSetLayout layout, std::vector<Texture2D> TextureSet)
+void Model::CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> TextureSet)
 {
-	Mesh::CreateDescriptorSets(layout);
+	Mesh::CreateDescriptorSets(pipeline.ShaderPipelineDescriptorLayout);
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -133,11 +133,11 @@ void Model::UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage)
 	Mesh::UpdateUniformBuffer(uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
 }
 
-void Model::RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDescriptorSetLayout layout, std::vector<Texture2D> TextureSet)
+void Model::RecreateSwapChainStage(MainPipeline pipeline, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet)
 {
 	CreateUniformBuffers();
 	CreateDescriptorPool();
-	CreateDescriptorSets(layout, TextureSet);
+	CreateDescriptorSets(pipeline, TextureSet);
 }
 
 void Model::Destroy()

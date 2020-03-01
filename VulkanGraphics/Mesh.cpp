@@ -88,14 +88,14 @@ void Mesh::UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* Uniform
 	vkUnmapMemory(DeviceInfo.Device, UniformBufferMemory);
 }
 
-void Mesh::Draw(VkCommandBuffer commandbuffer, VkPipeline pipeline, VkPipelineLayout layout, int currentImage)
+void Mesh::Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int currentImage)
 {
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
 	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
 	
 	if (IndiceSize == 0)
 	{

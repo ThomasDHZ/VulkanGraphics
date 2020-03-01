@@ -11,6 +11,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture2D.h"
+#include "MainPipeline.h"
 
 struct Vertex
 {
@@ -114,16 +115,16 @@ private:
 
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
-	void CreateDescriptorSets(VkDescriptorSetLayout layout, std::vector<Texture2D> TextureSet);
+	void CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> TextureSet);
 
 public:
 	Model();
-	Model(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices, VkDescriptorSetLayout layout);
+	Model(MainPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
 	~Model();
 
 	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 
-	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDescriptorSetLayout layout, std::vector<Texture2D> TextureSet);
+	void RecreateSwapChainStage(MainPipeline pipeline, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet);
 	void Destroy();
 	void DestorySwapChain();
 };
