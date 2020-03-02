@@ -52,7 +52,7 @@ void InputAttachment::GetAttachmentTypeInfo(AttachmentType attachmentType)
 	}
 	case AttachmentType::VkDepthAttachemnt:
 	{
-		Format = VK_FORMAT_D32_SFLOAT;
+		Format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		CreateAttachmentView(VK_IMAGE_ASPECT_DEPTH_BIT);
 		break;
