@@ -243,10 +243,8 @@ private:
 		TextureList.emplace_back(texture);
 		TextureList.emplace_back(texture2);
 
-		std::string a = "C://Users//ZZT//source//repos//VulkanGraphics//VulkanGraphics//Models//Nanosuit";
-
 		MeshList = Model(mainPipeline, DeviceInfo, TextureList, vertices2, indices);
-		Nanosuit = Model(a);
+		Nanosuit = Model("Models/Nanosuit.obj");
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
@@ -599,7 +597,7 @@ private:
 
 	void createRenderPass() {
 		std::array<VkAttachmentDescription, 5> attachments{};
-		// Color attachment
+
 		attachments[0].format = swapChainImageFormat;
 		attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -609,8 +607,6 @@ private:
 		attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-		// Deferred attachments
-		// Position
 		attachments[1].format = VK_FORMAT_R16G16B16A16_SFLOAT;
 		attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -619,7 +615,7 @@ private:
 		attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		attachments[1].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		// Normals
+
 		attachments[2].format = VK_FORMAT_R16G16B16A16_SFLOAT;
 		attachments[2].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -628,7 +624,7 @@ private:
 		attachments[2].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		attachments[2].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		// Albedo
+
 		attachments[3].format = VK_FORMAT_R8G8B8A8_UNORM;
 		attachments[3].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[3].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -637,7 +633,7 @@ private:
 		attachments[3].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[3].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		attachments[3].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		// Depth attachment
+
 		attachments[4].format = findDepthFormat();
 		attachments[4].samples = VK_SAMPLE_COUNT_1_BIT;
 		attachments[4].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -647,11 +643,7 @@ private:
 		attachments[4].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		attachments[4].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		// Three subpasses
 		std::array<VkSubpassDescription, 2> subpassDescriptions{};
-
-		// First subpass: Fill G-Buffer components
-		// ----------------------------------------------------------------------------------------
 
 		VkAttachmentReference colorReferences[4];
 		colorReferences[0] = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
@@ -665,8 +657,6 @@ private:
 		subpassDescriptions[0].pColorAttachments = colorReferences;
 		subpassDescriptions[0].pDepthStencilAttachment = &depthReference;
 
-		// Second subpass: Final composition (using G-Buffer components)
-		// ----------------------------------------------------------------------------------------
 
 		VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
 
@@ -681,12 +671,10 @@ private:
 		subpassDescriptions[1].colorAttachmentCount = 1;
 		subpassDescriptions[1].pColorAttachments = &colorReference;
 		subpassDescriptions[1].pDepthStencilAttachment = &depthReference;
-		// Use the color attachments filled in the first pass as input attachments
 		subpassDescriptions[1].inputAttachmentCount = 3;
 		subpassDescriptions[1].pInputAttachments = inputReferences;
 
 
-		// Subpass dependencies for layout transitions
 		std::array<VkSubpassDependency, 3> dependencies;
 
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -697,7 +685,6 @@ private:
 		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-		// This dependency transitions the input attachment from color attachment to shader read
 		dependencies[1].srcSubpass = 0;
 		dependencies[1].dstSubpass = 1;
 		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -1359,46 +1346,6 @@ private:
 			DebugLayer = 2;
 		if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_3) == GLFW_PRESS)
 			DebugLayer = 3;
-	}
-
-	std::vector<char> ReadShaderFile(const std::string& filename)
-	{
-		std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-		if (!file.is_open()) {
-			throw std::runtime_error("failed to open file!");
-		}
-
-		size_t fileSize = (size_t)file.tellg();
-		std::vector<char> buffer(fileSize);
-
-		file.seekg(0);
-		file.read(buffer.data(), fileSize);
-
-		file.close();
-
-		return buffer;
-	}
-
-	VkShaderModule CreateShaderModule(const std::vector<char>& code)
-	{
-		VkShaderModuleCreateInfo createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		createInfo.codeSize = code.size();
-		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-		VkShaderModule shaderModule;
-		if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create shader module!");
-		}
-
-		return shaderModule;
-	}
-
-	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-		std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
-		return VK_FALSE;
 	}
 };
 

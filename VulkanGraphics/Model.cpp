@@ -19,7 +19,7 @@ Model::Model(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Texture
 	CreateIndiceBuffer(indices);
 }
 
-Model::Model(std::string& FilePath)
+Model::Model(const std::string& FilePath)
 {
 	ModelLoader(FilePath);
 }
@@ -138,12 +138,12 @@ void Model::CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> T
 	}
 }
 
-void Model::ModelLoader(std::string& FilePath)
+void Model::ModelLoader(const std::string& FilePath)
 {
 	Assimp::Importer ModelImporter;
 
 	const aiScene* scene = ModelImporter.ReadFile(FilePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		std::cout << "Error loading model:" << ModelImporter.GetErrorString() << std::endl;
 		return;

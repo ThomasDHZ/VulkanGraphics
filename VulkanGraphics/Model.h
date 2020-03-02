@@ -116,14 +116,14 @@ public:
 
 	Model();
 	Model(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
-	Model(std::string& FilePath);
+	Model(const std::string& FilePath);
 	~Model();
 
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> TextureSet);
 
-	void ModelLoader(std::string& FilePath);
+	void ModelLoader(const std::string& FilePath);
 
 	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 
