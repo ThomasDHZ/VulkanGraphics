@@ -31,6 +31,7 @@
 #include "FrameBuffer.h"
 #include "VulkanDebugger.h"
 #include "VulkanWindow.h"
+#include <FileSystem.h>
 
 const int WIDTH = 1800;
 const int HEIGHT = 1600;
@@ -233,7 +234,7 @@ private:
 		TextureList.emplace_back(texture2);
 
 		MeshList = Model(mainPipeline, DeviceInfo, TextureList, vertices2, indices);
-		Nanosuit = Model("Models/Nanosuit.obj");
+		Nanosuit = Model(FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
@@ -298,20 +299,25 @@ private:
 		
 		vkDestroyRenderPass(DeviceInfo.Device, renderPass, nullptr);
 
-		for (auto imageView : swapChainImageViews) {
-			vkDestroyImageView(DeviceInfo.Device, imageView, nullptr);
+		for (size_t i = 0; i < swapChainImages.size(); i++)
+		{
+			vkDestroyImageView(DeviceInfo.Device, swapChainImageViews[i], nullptr);
 		}
 
 		vkDestroySwapchainKHR(DeviceInfo.Device, swapChain, nullptr);
-
+		swapChainImages[0] = VK_NULL_HANDLE;
+		swapChainImages[1] = VK_NULL_HANDLE;
+		swapChainImages[2] = VK_NULL_HANDLE;
+		//vkDestroyImage(DeviceInfo.Device, swapChainImages[1], nullptr);
+		//vkDestroyImage(DeviceInfo.Device, swapChainImages[2], nullptr);
 		//for (auto mesh : MeshList)
 		//{
-			for (size_t i = 0; i < swapChainImages.size(); i++) {
+			for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) {
 				vkDestroyBuffer(DeviceInfo.Device, MeshList.uniformBuffers[i], nullptr);
 				vkFreeMemory(DeviceInfo.Device, MeshList.uniformBuffersMemory[i], nullptr);
 			}
 		//}
-		for (size_t i = 0; i < swapChainImages.size(); i++) {
+		for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) {
 			vkDestroyBuffer(DeviceInfo.Device, frameBuffer.LightFragmentUniformBuffers[i], nullptr);
 			vkFreeMemory(DeviceInfo.Device, frameBuffer.LightFragmentUniformBuffersMemory[i], nullptr);
 
@@ -367,17 +373,10 @@ private:
 		mainPipeline.RecreatePipeline(swapChainExtent, renderPass);
 		frameBufferPipeline.RecreatePipeline(swapChainExtent, renderPass);
 
-		PositionAttachment.CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		PositionAttachment.CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
-
-		NormalAttachment.CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		NormalAttachment.CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
-
-		AlbedoAttachment.CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		AlbedoAttachment.CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
-
-		DepthAttachment.CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		DepthAttachment.CreateAttachmentView(VK_IMAGE_ASPECT_DEPTH_BIT);
+		PositionAttachment = InputAttachment(DeviceInfo, AttachmentType::VkPositionAttachment, swapChainExtent.width, swapChainExtent.height);
+		NormalAttachment = InputAttachment(DeviceInfo, AttachmentType::VkNormalAttachment, swapChainExtent.width, swapChainExtent.height);
+		AlbedoAttachment = InputAttachment(DeviceInfo, AttachmentType::VkAlbedoAttachment, swapChainExtent.width, swapChainExtent.height);
+		DepthAttachment = InputAttachment(DeviceInfo, AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 
 		createFramebuffers();
 
@@ -818,8 +817,8 @@ private:
 			renderPassInfo.framebuffer = swapChainFramebuffers[i];
 			renderPassInfo.renderArea.offset.x = 0;
 			renderPassInfo.renderArea.offset.y = 0;
-			renderPassInfo.renderArea.extent.width = WIDTH;
-			renderPassInfo.renderArea.extent.height = HEIGHT;
+			renderPassInfo.renderArea.extent.width = swapChainExtent.width;
+			renderPassInfo.renderArea.extent.height = swapChainExtent.height;
 			renderPassInfo.clearValueCount = 5;
 			renderPassInfo.pClearValues = clearValues;
 
