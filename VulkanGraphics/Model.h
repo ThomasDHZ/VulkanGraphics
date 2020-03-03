@@ -5,17 +5,23 @@
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "VulkanBufferManager.h"
 #include "Mesh.h"
 #include "Texture2D.h"
 #include "MainPipeline.h"
 
+
 struct Vertex
 {
-	glm::vec3 pos;
-	glm::vec3 normal;
-	glm::vec2 texCoord;
+	glm::vec3 Position;
+	glm::vec3 Normal;
+	glm::vec2 TexureCoord;
+	glm::vec3 Tangant;
+	glm::vec3 BiTangant;
 
 	static VkVertexInputBindingDescription GetBindingDescription()
 	{
@@ -36,19 +42,31 @@ struct Vertex
 		AttributeDescription.binding = 0;
 		AttributeDescription.location = 0;
 		AttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
-		AttributeDescription.offset = offsetof(Vertex, pos);
+		AttributeDescription.offset = offsetof(Vertex, Position);
 		AttributeDescriptions.emplace_back(AttributeDescription);
 
 		AttributeDescription.binding = 0;
 		AttributeDescription.location = 1;
 		AttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
-		AttributeDescription.offset = offsetof(Vertex, normal);
+		AttributeDescription.offset = offsetof(Vertex, Normal);
 		AttributeDescriptions.emplace_back(AttributeDescription);
 
 		AttributeDescription.binding = 0;
 		AttributeDescription.location = 2;
 		AttributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
-		AttributeDescription.offset = offsetof(Vertex, texCoord);
+		AttributeDescription.offset = offsetof(Vertex, TexureCoord);
+		AttributeDescriptions.emplace_back(AttributeDescription);
+
+		AttributeDescription.binding = 0;
+		AttributeDescription.location = 3;
+		AttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+		AttributeDescription.offset = offsetof(Vertex, Tangant);
+		AttributeDescriptions.emplace_back(AttributeDescription);
+
+		AttributeDescription.binding = 0;
+		AttributeDescription.location = 4;
+		AttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+		AttributeDescription.offset = offsetof(Vertex, BiTangant);
 		AttributeDescriptions.emplace_back(AttributeDescription);
 
 		return AttributeDescriptions;
@@ -105,11 +123,12 @@ struct UniformBufferObject2
 class Model : public Mesh
 {
 private:
+	std::vector<Vertex> Vertices;
+	std::vector<Mesh> meshing;
+
+	void MapVertices(aiMesh* mesh);
 	void CreateVertexBuffer(std::vector<Vertex> vertices);
 	void CreateIndiceBuffer(std::vector<uint16_t> indices);
-
-
-
 public:
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;

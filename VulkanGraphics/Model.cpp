@@ -1,7 +1,4 @@
 #include "Model.h"
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 Model::Model() : Mesh()
 {
@@ -26,6 +23,29 @@ Model::Model(const std::string& FilePath)
 
 Model::~Model()
 {
+}
+
+void Model::MapVertices(aiMesh* mesh)
+{
+	for (unsigned int x = 0; x < mesh->mNumVertices; x++)
+	{
+		Vertex vertex;
+		vertex.Position = glm::vec3{ mesh->mVertices[x].x, mesh->mVertices[x].y, mesh->mVertices[x].z };
+		vertex.Normal = glm::vec3{ mesh->mNormals[x].x, mesh->mNormals[x].y, mesh->mNormals[x].z };
+		vertex.Tangant = glm::vec3{ mesh->mTangents[x].x, mesh->mTangents[x].y, mesh->mTangents[x].z };
+		vertex.BiTangant = glm::vec3{ mesh->mBitangents[x].x, mesh->mBitangents[x].y, mesh->mBitangents[x].z };
+
+		if (mesh->mTextureCoords[0])
+		{
+			vertex.TexureCoord = glm::vec2{ mesh->mTextureCoords[0][x].x, mesh->mTextureCoords[0][x].y };
+		}
+		else
+		{
+			vertex.TexureCoord = glm::vec2{ 0.0f, 0.0f };
+		}
+
+		Vertices.emplace_back(vertex);
+	}
 }
 
 void Model::CreateVertexBuffer(std::vector<Vertex> vertices)
@@ -142,11 +162,21 @@ void Model::ModelLoader(const std::string& FilePath)
 {
 	Assimp::Importer ModelImporter;
 
-	const aiScene* scene = ModelImporter.ReadFile(FilePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	const aiScene* Scene = ModelImporter.ReadFile(FilePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
 	{
 		std::cout << "Error loading model:" << ModelImporter.GetErrorString() << std::endl;
 		return;
+	}
+
+	auto node = Scene->mRootNode;
+	MapVertices(Scene->mMeshes[0]);
+	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	{
+		// the node object only contains indices to index the actual objects in the scene. 
+		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
+		aiMesh* mesh = Scene->mMeshes[node->mMeshes[i]];
+		MapVertices(mesh);
 	}
 }
 
