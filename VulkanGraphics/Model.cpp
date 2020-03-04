@@ -50,7 +50,7 @@ void Model::LoadVertices(aiMesh* mesh)
 
 void Model::LoadIndices(aiMesh* mesh)
 {
-	for (int x = 0; x < mesh->mNumVertices; x++)
+	for (int x = 0; x < mesh->mNumFaces; x++)
 	{
 		aiFace Faces = mesh->mFaces[x];
 		for (int y = 0; y < Faces.mNumIndices; y++)
@@ -68,8 +68,6 @@ void Model::LoadTextures(const std::string& FilePath, aiMesh* mesh, const aiScen
 	//{
 		for (unsigned int y = 0; y < material->GetTextureCount(aiTextureType_DIFFUSE); y++)
 		{
-
-
 			aiString TextureLocation;
 			material->GetTexture(aiTextureType_DIFFUSE, y, &TextureLocation);
 			TexureList.emplace_back(Texture2D(DeviceInfo, directory + TextureLocation.C_Str()));
@@ -208,7 +206,7 @@ void Model::ProcessNode(const std::string& FilePath, aiNode* node, const aiScene
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		LoadVertices(mesh);
-		//LoadIndices(mesh);
+		LoadIndices(mesh);
 		LoadTextures(FilePath, mesh, scene);
 	}
 
