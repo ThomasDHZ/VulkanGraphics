@@ -125,8 +125,13 @@ class Model : public Mesh
 private:
 	std::vector<Vertex> Vertices;
 	std::vector<Mesh> meshing;
+	std::vector<unsigned int> Indices;
+	std::vector<Texture2D> TexureList;
 
-	void MapVertices(aiMesh* mesh);
+	void ProcessNode(const std::string& FilePath, aiNode* node, const aiScene* scene);
+	void LoadVertices(aiMesh* mesh);
+	void LoadIndices(aiMesh* mesh);
+	void LoadTextures(const std::string& FilePath, aiMesh* mesh, const aiScene* scene);
 	void CreateVertexBuffer(std::vector<Vertex> vertices);
 	void CreateIndiceBuffer(std::vector<uint16_t> indices);
 public:
@@ -135,7 +140,7 @@ public:
 
 	Model();
 	Model(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<uint16_t> indices);
-	Model(const std::string& FilePath);
+	Model(VulkanDevice deviceInfo, const std::string& FilePath);
 	~Model();
 
 	void CreateUniformBuffers();

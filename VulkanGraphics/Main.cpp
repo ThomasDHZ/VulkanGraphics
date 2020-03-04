@@ -234,7 +234,7 @@ private:
 		TextureList.emplace_back(texture2);
 
 		MeshList = Model(mainPipeline, DeviceInfo, TextureList, vertices2, indices);
-		Nanosuit = Model(FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+		Nanosuit = Model(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));

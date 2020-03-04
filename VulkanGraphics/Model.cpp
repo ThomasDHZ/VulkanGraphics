@@ -16,7 +16,7 @@ Model::Model(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Texture
 	CreateIndiceBuffer(indices);
 }
 
-Model::Model(const std::string& FilePath)
+Model::Model(VulkanDevice deviceInfo, const std::string& FilePath) : Mesh(deviceInfo)
 {
 	ModelLoader(FilePath);
 }
@@ -25,9 +25,9 @@ Model::~Model()
 {
 }
 
-void Model::MapVertices(aiMesh* mesh)
+void Model::LoadVertices(aiMesh* mesh)
 {
-	for (unsigned int x = 0; x < mesh->mNumVertices; x++)
+	for (int x = 0; x < mesh->mNumVertices; x++)
 	{
 		Vertex vertex;
 		vertex.Position = glm::vec3{ mesh->mVertices[x].x, mesh->mVertices[x].y, mesh->mVertices[x].z };
@@ -46,6 +46,35 @@ void Model::MapVertices(aiMesh* mesh)
 
 		Vertices.emplace_back(vertex);
 	}
+}
+
+void Model::LoadIndices(aiMesh* mesh)
+{
+	for (int x = 0; x < mesh->mNumVertices; x++)
+	{
+		aiFace Faces = mesh->mFaces[x];
+		for (int y = 0; y < Faces.mNumIndices; y++)
+		{
+			Indices.emplace_back(Faces.mIndices[y]);
+		}
+	}
+}
+
+void Model::LoadTextures(const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
+{
+	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+	auto directory = FilePath.substr(0, FilePath.find_last_of('/')) + '/';
+	//for (int x = 0; x <= aiTextureType_UNKNOWN; x++)
+	//{
+		for (unsigned int y = 0; y < material->GetTextureCount(aiTextureType_DIFFUSE); y++)
+		{
+
+
+			aiString TextureLocation;
+			material->GetTexture(aiTextureType_DIFFUSE, y, &TextureLocation);
+			TexureList.emplace_back(Texture2D(DeviceInfo, directory + TextureLocation.C_Str()));
+		}
+	//}
 }
 
 void Model::CreateVertexBuffer(std::vector<Vertex> vertices)
@@ -165,19 +194,29 @@ void Model::ModelLoader(const std::string& FilePath)
 	const aiScene* Scene = ModelImporter.ReadFile(FilePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 	if (!Scene || Scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !Scene->mRootNode)
 	{
-		std::cout << "Error loading model:" << ModelImporter.GetErrorString() << std::endl;
+		std::cout << "Error loading model: " << ModelImporter.GetErrorString() << std::endl;
 		return;
 	}
 
-	auto node = Scene->mRootNode;
-	MapVertices(Scene->mMeshes[0]);
+	ProcessNode(FilePath, Scene->mRootNode, Scene);
+}
+
+void Model::ProcessNode(const std::string& FilePath, aiNode* node, const aiScene* scene)
+{
+
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
-		// the node object only contains indices to index the actual objects in the scene. 
-		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-		aiMesh* mesh = Scene->mMeshes[node->mMeshes[i]];
-		MapVertices(mesh);
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		LoadVertices(mesh);
+		//LoadIndices(mesh);
+		LoadTextures(FilePath, mesh, scene);
 	}
+
+	for (unsigned int i = 0; i < node->mNumChildren; i++)
+	{
+		ProcessNode(FilePath, node->mChildren[i], scene);
+	}
+
 }
 
 void Model::UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage)
