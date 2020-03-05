@@ -3,6 +3,9 @@
 
 Texture::Texture()
 {
+	FileName = "";
+	Width = 0;
+	Height = 0;
 }
 
 Texture::Texture(VulkanDevice deviceInfo, TextureType textureType)

@@ -24,7 +24,7 @@
 
 #include "SkyBox.h"
 #include "camera.h"
-#include "Model.h"
+#include "Mesh.h"
 #include "Texture2D.h"
 #include "CubeMapTexture.h"
 #include "InputAttachment.h"
@@ -32,6 +32,7 @@
 #include "VulkanDebugger.h"
 #include "VulkanWindow.h"
 #include <FileSystem.h>
+#include "Model.h"
 
 const int WIDTH = 1800;
 const int HEIGHT = 1600;
@@ -112,7 +113,7 @@ const std::vector<Vertex> vertices2 =
 	{{-0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}}
 };
 
-const std::vector<uint16_t> indices = {};
+const std::vector<unsigned int> indices = {};
 
 glm::vec3 cubePositions[] = 
 {
@@ -150,7 +151,7 @@ private:
 
 	Camera camera;
 	//SkyBox Skybox;
-	Model MeshList;
+	Mesh MeshList;
 	Model Nanosuit;
 	//SkyBoxShader skyBoxShader;
 	Texture2D texture;
@@ -233,8 +234,8 @@ private:
 		TextureList.emplace_back(texture);
 		TextureList.emplace_back(texture2);
 
-		MeshList = Model(mainPipeline, DeviceInfo, TextureList, vertices2, indices);
-		Nanosuit = Model(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+		MeshList = Mesh(mainPipeline, DeviceInfo, TextureList, vertices2, indices);
+		Nanosuit = Model(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"), mainPipeline);
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
@@ -831,6 +832,7 @@ private:
 				VkDeviceSize offsets[] = { 0 };
 
 				MeshList.Draw(commandBuffers[i], mainPipeline, i);
+				Nanosuit.Draw(commandBuffers[i], mainPipeline, i);
 			/*}*/
 
 			vkCmdNextSubpass(commandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);
@@ -882,6 +884,7 @@ private:
 			ubo2.proj[1][1] *= -1;
 
 			MeshList.UpdateUniformBuffer(ubo2, currentImage);
+			Nanosuit.UpdateUniformBuffer(ubo2, currentImage);
 		/*}*/
 
 		LightingStruct ubo4 = {};

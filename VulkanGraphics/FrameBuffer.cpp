@@ -1,10 +1,10 @@
 #include "FrameBuffer.h"
 
-FrameBuffer::FrameBuffer() : Mesh()
+FrameBuffer::FrameBuffer() : BaseMesh()
 {
 }
 
-FrameBuffer::FrameBuffer(FramebufferPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment) : Mesh(deviceInfo)
+FrameBuffer::FrameBuffer(FramebufferPipeline pipeline, VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment) : BaseMesh(deviceInfo)
 {
 	DeviceInfo = deviceInfo;
 
@@ -49,12 +49,12 @@ void FrameBuffer::CreateDescriptorPool()
 	DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
-	Mesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
 void FrameBuffer::CreateDescriptorSets(FramebufferPipeline pipeline, VkImageView PositionImageView, VkImageView NormalImageView, VkImageView AlbedoImageView, VkImageView DepthImageView)
 {
-	Mesh::CreateDescriptorSets(pipeline.ShaderPipelineDescriptorLayout);
+	BaseMesh::CreateDescriptorSets(pipeline.ShaderPipelineDescriptorLayout);
 
 	VkDescriptorImageInfo ColorImage = {};
 	ColorImage.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -120,14 +120,14 @@ void FrameBuffer::CreateDescriptorSets(FramebufferPipeline pipeline, VkImageView
 		WriteDescriptorInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		WriteDescriptorInfo[5].DescriptorBufferInfo = DebugInfo;
 
-		Mesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
+		BaseMesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
 }
 
 void FrameBuffer::UpdateUniformBuffer(LightingStruct ubo4, DebugStruct debug, int currentImage)
 {
-	Mesh::UpdateUniformBuffer(LightFragmentUniformBuffersMemory[currentImage], static_cast<void*>(&ubo4), sizeof(ubo4));
-	Mesh::UpdateUniformBuffer(DebugBuffersMemory[currentImage], static_cast<void*>(&debug), sizeof(debug));
+	BaseMesh::UpdateUniformBuffer(LightFragmentUniformBuffersMemory[currentImage], static_cast<void*>(&ubo4), sizeof(ubo4));
+	BaseMesh::UpdateUniformBuffer(DebugBuffersMemory[currentImage], static_cast<void*>(&debug), sizeof(debug));
 }
 
 void FrameBuffer::Draw(FramebufferPipeline pipeline, VkCommandBuffer commandbuffer, int currentImage)
@@ -156,5 +156,5 @@ void FrameBuffer::Destory()
 		vkFreeMemory(DeviceInfo.Device, DebugBuffersMemory[x], nullptr);
 	}
 
-	Mesh::Destory();
+	BaseMesh::Destory();
 }

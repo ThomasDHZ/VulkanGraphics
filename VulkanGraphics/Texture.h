@@ -1,5 +1,7 @@
 #pragma once
 #include "Structs.h"
+#include <string>
+
 class Texture
 {
 protected:
@@ -9,6 +11,7 @@ protected:
 		vkTextureCube
 	};
 
+	std::string FileName;
 	int Width;
 	int Height;
 
@@ -32,5 +35,7 @@ public:
 	void CreateImageView();
 	void CreateTextureSampler(VkSamplerCreateInfo SamplerInfo);
 	void Destroy();
+
+	std::string GetTextureName() { return FileName; }
 };
 

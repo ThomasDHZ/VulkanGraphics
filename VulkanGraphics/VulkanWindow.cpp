@@ -2,6 +2,10 @@
 
 VulkanWindow::VulkanWindow()
 {
+	FramebufferResized = false;
+	Width = 0;
+	Height = 0;
+	GLFWindow = nullptr;
 }
 
 VulkanWindow::VulkanWindow(unsigned int width, unsigned int height, const char* WindowName)

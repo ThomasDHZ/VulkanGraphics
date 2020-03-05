@@ -1,6 +1,6 @@
 #include "MainPipeline.h"
 #include <array>
-#include "Model.h"
+#include "Mesh.h"
 
 MainPipeline::MainPipeline() : GraphicsPipeline()
 {

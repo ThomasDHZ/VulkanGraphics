@@ -1,6 +1,6 @@
 #pragma once
 #include <vulkan\vulkan_core.h>
-#include "Model.h"
+#include "Mesh.h"
 
 enum AttachmentType
 {

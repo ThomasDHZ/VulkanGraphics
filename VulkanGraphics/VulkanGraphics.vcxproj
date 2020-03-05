@@ -153,9 +153,10 @@
     <ClCompile Include="InputAttachment.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainPipeline.cpp" />
+    <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="SkyBoxPipeline.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -180,9 +181,10 @@
     <ClInclude Include="FramebufferPipeline.h" />
     <ClInclude Include="InputAttachment.h" />
     <ClInclude Include="MainPipeline.h" />
+    <ClInclude Include="BaseMesh.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="GraphicsPipeline.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="SkyBoxPipeline.h" />
     <ClInclude Include="Structs.h" />

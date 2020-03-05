@@ -1,6 +1,6 @@
 #pragma once
 #include "Texture.h"
-#include "Model.h"
+#include "Mesh.h"
 
 struct CubeMapLayout
 {

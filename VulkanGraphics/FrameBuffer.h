@@ -2,7 +2,7 @@
 #include "InputAttachment.h"
 #include "FramebufferPipeline.h"
 
-class FrameBuffer : public Mesh
+class FrameBuffer : public BaseMesh
 {
 private:
 	VulkanDevice DeviceInfo;

@@ -36,12 +36,12 @@ void SkyBox::CreateDescriptorPool()
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-	Mesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
 void SkyBox::CreateDescriptorSets(SkyBoxPipeline pipeline, CubeMapTexture cubeMapTexture)
 {
-	Mesh::CreateDescriptorSets(pipeline.ShaderPipelineDescriptorLayout);
+	BaseMesh::CreateDescriptorSets(pipeline.ShaderPipelineDescriptorLayout);
 
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{

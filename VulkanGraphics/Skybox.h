@@ -4,7 +4,7 @@
 #include <array>
 
 #include "Structs.h"
-#include "Mesh.h"
+#include "BaseMesh.h"
 #include "CubeMapTexture.h"
 #include "SkyBoxPipeline.h"
 

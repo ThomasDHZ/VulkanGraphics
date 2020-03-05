@@ -1,126 +1,154 @@
 #include "Mesh.h"
-#include <stdexcept>
 
-Mesh::Mesh()
+Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(VulkanDevice deviceInfo)
+Mesh::Mesh(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<unsigned int> indices) : BaseMesh(deviceInfo)
 {
-	DeviceInfo = deviceInfo;
+	VertexSize = vertices.size();
+	IndiceSize = indices.size();
+
+	CreateUniformBuffers();
+	CreateDescriptorPool();
+	CreateDescriptorSets(pipeline, TextureSet);
+	CreateVertexBuffer(vertices);
+	CreateIndiceBuffer(indices);
 }
 
 Mesh::~Mesh()
 {
 }
 
-void Mesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)
+void Mesh::CreateVertexBuffer(std::vector<Vertex> vertices)
 {
-	std::vector<VkDescriptorPoolSize> DescriptorPoolList = {};
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-	for (auto DescriptorPool : DescriptorPoolInfo)
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+
+	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+}
+
+void Mesh::CreateIndiceBuffer(std::vector<unsigned int> indices)
+{
+	if (IndiceSize != 0)
 	{
-		VkDescriptorPoolSize DescriptorPoolBinding = {};
-		DescriptorPoolBinding.type = DescriptorPool.DescriptorType;
-		DescriptorPoolBinding.descriptorCount = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
-		DescriptorPoolList.emplace_back(DescriptorPoolBinding);
-	}
+		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
-	VkDescriptorPoolCreateInfo poolInfo = {};
-	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = static_cast<uint32_t>(DescriptorPoolList.size());
-	poolInfo.pPoolSizes = DescriptorPoolList.data();
-	poolInfo.maxSets = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-	if (vkCreateDescriptorPool(DeviceInfo.Device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create descriptor pool!");
+		void* data;
+		vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, indices.data(), (size_t)bufferSize);
+		vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+
+		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+
+		VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, indexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+
+		vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
+		vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
 	}
 }
 
-void Mesh::CreateDescriptorSets(VkDescriptorSetLayout layout)
+void Mesh::CreateUniformBuffers()
 {
-	std::vector<VkDescriptorSetLayout> layouts(DeviceInfo.SwapChainSize, layout);
-	VkDescriptorSetAllocateInfo allocInfo = {};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
-	allocInfo.pSetLayouts = layouts.data();
+	VkDeviceSize bufferSize = sizeof(UniformBufferObject2);
 
-	descriptorSets.resize(DeviceInfo.SwapChainSize);
-	if (vkAllocateDescriptorSets(DeviceInfo.Device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
+	uniformBuffers.resize(DeviceInfo.SwapChainSize);
+	uniformBuffersMemory.resize(DeviceInfo.SwapChainSize);
+	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	{
+		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 	}
 }
 
-void Mesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWritesList)
+void Mesh::CreateDescriptorPool()
 {
-	std::vector<VkWriteDescriptorSet>  WriteDescriptorInfo = {};
+	std::array<DescriptorPoolSizeInfo, 3>  DescriptorPoolInfo = {};
 
-	for (int x = 0; x < descriptorWritesList.size(); x++)
-	{
-		VkWriteDescriptorSet DescriptorSet = {};
-		DescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		DescriptorSet.dstSet = descriptorWritesList[x].DstSet;
-		DescriptorSet.dstBinding = descriptorWritesList[x].DstBinding;
-		DescriptorSet.dstArrayElement = 0;
-		DescriptorSet.descriptorType = descriptorWritesList[x].DescriptorType;
-		DescriptorSet.descriptorCount = 1;
-		if (descriptorWritesList[x].DescriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
-		{
-			DescriptorSet.pBufferInfo = &descriptorWritesList[x].DescriptorBufferInfo;
-		}
-		else
-		{
-			DescriptorSet.pImageInfo = &descriptorWritesList[x].DescriptorImageInfo;
-		}
-		WriteDescriptorInfo.emplace_back(DescriptorSet);
-	}
+	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-	vkUpdateDescriptorSets(DeviceInfo.Device, static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
+	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-
-void Mesh::UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize)
+void Mesh::CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> TextureSet)
 {
-	void* UniformData;
-	vkMapMemory(DeviceInfo.Device, UniformBufferMemory, 0, UniformSize, 0, &UniformData);
-	memcpy(UniformData, UniformObjectData, UniformSize);
-	vkUnmapMemory(DeviceInfo.Device, UniformBufferMemory);
-}
+	BaseMesh::CreateDescriptorSets(pipeline.ShaderPipelineDescriptorLayout);
 
-void Mesh::Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int currentImage)
-{
-	VkBuffer vertexBuffers[] = { vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
+	VkDescriptorImageInfo DiffuseMap = {};
+	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	DiffuseMap.imageView = TextureSet[0].textureImageView;
+	DiffuseMap.sampler = TextureSet[0].textureSampler;
 
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
-	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
-	vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
-	if (IndiceSize == 0)
+	VkDescriptorImageInfo SpecularMap = {};
+	SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	SpecularMap.imageView = TextureSet[1].textureImageView;
+	SpecularMap.sampler = TextureSet[1].textureSampler;
+
+	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{
-		vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
-	}
-	else
-	{
-		vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-		vkCmdDrawIndexed(commandbuffer, static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
+		VkDescriptorBufferInfo bufferInfo = {};
+		bufferInfo.buffer = uniformBuffers[i];
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(UniformBufferObject2);
+
+		std::array<WriteDescriptorSetInfo, 3>  WriteDescriptorInfo = {};
+
+		WriteDescriptorInfo[0].DstBinding = 0;
+		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		WriteDescriptorInfo[0].DescriptorBufferInfo = bufferInfo;
+
+		WriteDescriptorInfo[1].DstBinding = 1;
+		WriteDescriptorInfo[1].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		WriteDescriptorInfo[1].DescriptorImageInfo = DiffuseMap;
+
+		WriteDescriptorInfo[2].DstBinding = 2;
+		WriteDescriptorInfo[2].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
+
+		Mesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
 }
 
-void Mesh::Destory()
+void Mesh::UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage)
 {
-	//if (indexBufferMemory != VK_NULL_HANDLE)
-	//{
-	//	vkDestroyBuffer(DeviceInfo.Device, indexBuffer, nullptr);
-	//	vkFreeMemory(DeviceInfo.Device, indexBufferMemory, nullptr);
-	//}
+	BaseMesh::UpdateUniformBuffer(uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
+}
 
-	if (VertexSize >= 0)
+void Mesh::RecreateSwapChainStage(MainPipeline pipeline, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet)
+{
+	CreateUniformBuffers();
+	CreateDescriptorPool();
+	CreateDescriptorSets(pipeline, TextureSet);
+}
+
+void Mesh::Destroy()
+{
+	for (int x = 0; x < DeviceInfo.SwapChainSize; x++)
 	{
-		vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
-		vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
+		vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[x], nullptr);
+		vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[x], nullptr);
 	}
 
-	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
+	BaseMesh::Destory();
 }
