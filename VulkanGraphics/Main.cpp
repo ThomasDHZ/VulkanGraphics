@@ -234,7 +234,7 @@ private:
 		TextureList.emplace_back(texture);
 		TextureList.emplace_back(texture2);
 
-		MeshList = Mesh(mainPipeline, DeviceInfo, TextureList, vertices2, indices);
+		MeshList = Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList);
 		Nanosuit = Model(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"), mainPipeline);
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
 		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
@@ -387,14 +387,11 @@ private:
 
 	/*	for (auto mesh : MeshList)
 		{*/
-		MeshList.CreateUniformBuffers();
-		MeshList.CreateDescriptorPool();
-		MeshList.CreateDescriptorSets(mainPipeline, TextureList);
+		MeshList.RecreateSwapChainStage(mainPipeline);
+		Nanosuit.RecreateSwapChainStage(mainPipeline);
+		frameBuffer.RecreateSwapChainStage(frameBufferPipeline, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
 	/*	}*/
 
-		frameBuffer.CreateUniformBuffers();
-		frameBuffer.CreateDescriptorPool();
-		frameBuffer.CreateDescriptorSets(frameBufferPipeline, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 
 		createCommandBuffers();
 	}
@@ -884,7 +881,16 @@ private:
 			ubo2.proj[1][1] *= -1;
 
 			MeshList.UpdateUniformBuffer(ubo2, currentImage);
-			Nanosuit.UpdateUniformBuffer(ubo2, currentImage);
+
+			UniformBufferObject2 ubo22 = {};
+			ubo22.model = glm::mat4(1.0f);
+			ubo22.model = glm::translate(ubo2.model, cubePositions[0]);
+			ubo22.model = glm::rotate(ubo2.model, glm::radians(time), glm::vec3(0.0f, 1.0f, 0.0f));
+			ubo22.view = camera.GetViewMatrix();
+			ubo22.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+			ubo22.proj[1][1] *= -1;
+
+			Nanosuit.UpdateUniformBuffer(ubo22, currentImage);
 		/*}*/
 
 		LightingStruct ubo4 = {};

@@ -27,7 +27,7 @@ public:
 
 	void UpdateUniformBuffer(LightingStruct ubo4, DebugStruct debug, int currentImage);
 	void Draw(FramebufferPipeline pipeline, VkCommandBuffer commandbuffer, int currentImage);
-	void RecreateSwapChainStage(FramebufferPipeline pipeline, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment);
+	void RecreateSwapChainStage(FramebufferPipeline pipeline, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment);
 	void Destory();
 };
 

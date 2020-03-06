@@ -4,25 +4,29 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<unsigned int> indices) : BaseMesh(deviceInfo)
+Mesh::Mesh(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Vertex> vertexList, std::vector<unsigned int> indexList, std::vector<Texture2D> textureList) : BaseMesh(deviceInfo)
 {
-	VertexSize = vertices.size();
-	IndiceSize = indices.size();
+	VertexSize = vertexList.size();
+	IndiceSize = indexList.size();
+
+	VertexList = vertexList;
+	IndexList = indexList;
+	TextureList = textureList;
 
 	CreateUniformBuffers();
 	CreateDescriptorPool();
-	CreateDescriptorSets(pipeline, TextureSet);
-	CreateVertexBuffer(vertices);
-	CreateIndiceBuffer(indices);
+	CreateDescriptorSets(pipeline);
+	CreateVertexBuffer();
+	CreateIndiceBuffer();
 }
 
 Mesh::~Mesh()
 {
 }
 
-void Mesh::CreateVertexBuffer(std::vector<Vertex> vertices)
+void Mesh::CreateVertexBuffer()
 {
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	VkDeviceSize bufferSize = sizeof(VertexList[0]) * VertexList.size();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -30,7 +34,7 @@ void Mesh::CreateVertexBuffer(std::vector<Vertex> vertices)
 
 	void* data;
 	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferSize);
+	memcpy(data, VertexList.data(), (size_t)bufferSize);
 	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
 
 	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
@@ -41,11 +45,11 @@ void Mesh::CreateVertexBuffer(std::vector<Vertex> vertices)
 	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
 }
 
-void Mesh::CreateIndiceBuffer(std::vector<unsigned int> indices)
+void Mesh::CreateIndiceBuffer()
 {
 	if (IndiceSize != 0)
 	{
-		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+		VkDeviceSize bufferSize = sizeof(IndexList[0]) * IndexList.size();
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
@@ -53,7 +57,7 @@ void Mesh::CreateIndiceBuffer(std::vector<unsigned int> indices)
 
 		void* data;
 		vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, indices.data(), (size_t)bufferSize);
+		memcpy(data, IndexList.data(), (size_t)bufferSize);
 		vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
 
 		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
@@ -88,19 +92,19 @@ void Mesh::CreateDescriptorPool()
 	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Mesh::CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> TextureSet)
+void Mesh::CreateDescriptorSets(MainPipeline pipeline)
 {
 	BaseMesh::CreateDescriptorSets(pipeline.ShaderPipelineDescriptorLayout);
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	DiffuseMap.imageView = TextureSet[0].textureImageView;
-	DiffuseMap.sampler = TextureSet[0].textureSampler;
+	DiffuseMap.imageView = TextureList[0].textureImageView;
+	DiffuseMap.sampler = TextureList[0].textureSampler;
 
 	VkDescriptorImageInfo SpecularMap = {};
 	SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	SpecularMap.imageView = TextureSet[1].textureImageView;
-	SpecularMap.sampler = TextureSet[1].textureSampler;
+	SpecularMap.imageView = TextureList[1].textureImageView;
+	SpecularMap.sampler = TextureList[1].textureSampler;
 
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{
@@ -135,11 +139,11 @@ void Mesh::UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage)
 	BaseMesh::UpdateUniformBuffer(uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
 }
 
-void Mesh::RecreateSwapChainStage(MainPipeline pipeline, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet)
+void Mesh::RecreateSwapChainStage(MainPipeline pipeline)
 {
 	CreateUniformBuffers();
 	CreateDescriptorPool();
-	CreateDescriptorSets(pipeline, TextureSet);
+	CreateDescriptorSets(pipeline);
 }
 
 void Mesh::Destroy()

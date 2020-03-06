@@ -21,5 +21,6 @@ public:
 
 	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 	void Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int currentImage);
+	void RecreateSwapChainStage(MainPipeline pipeline);
 };
 

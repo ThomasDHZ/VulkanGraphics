@@ -39,7 +39,7 @@ void Model::ProcessNode(const std::string& FilePath, aiNode* node, const aiScene
 		std::vector<Vertex> VertexList = LoadVertices(mesh);
 		std::vector<unsigned int> IndexList = LoadIndices(mesh);
 		std::vector<Texture2D> TextureList = LoadTextures(FilePath, mesh, scene);
-		MeshList.emplace_back(Mesh(Pipeline, DeviceInfo, TextureList, VertexList, IndexList));
+		MeshList.emplace_back(Mesh(Pipeline, DeviceInfo, VertexList, IndexList, TextureList));
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -124,5 +124,13 @@ void Model::Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int curre
 	for (auto mesh : MeshList)
 	{
 		mesh.Draw(commandbuffer, pipeline, currentImage);
+	}
+}
+
+void Model::RecreateSwapChainStage(MainPipeline pipeline)
+{
+	for (auto mesh : MeshList)
+	{
+		mesh.RecreateSwapChainStage(pipeline);
 	}
 }

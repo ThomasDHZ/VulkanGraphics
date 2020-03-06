@@ -137,9 +137,11 @@ void FrameBuffer::Draw(FramebufferPipeline pipeline, VkCommandBuffer commandbuff
 	vkCmdDraw(commandbuffer, 3, 1, 0, 0);
 }
 
-void FrameBuffer::RecreateSwapChainStage(FramebufferPipeline pipeline, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment)
+void FrameBuffer::RecreateSwapChainStage(FramebufferPipeline pipeline, InputAttachment PositionAttachment, InputAttachment NormalAttachment, InputAttachment AlbedoAttachment, InputAttachment DepthAttachment)
 {
-	//frameBufferShader.RecreateSwapChainInfo(swapChainExtent, renderPass, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
+	CreateUniformBuffers();
+	CreateDescriptorPool();
+	CreateDescriptorSets(pipeline, PositionAttachment.AttachmentImageView, NormalAttachment.AttachmentImageView, AlbedoAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView);
 }
 
 void FrameBuffer::Destory()

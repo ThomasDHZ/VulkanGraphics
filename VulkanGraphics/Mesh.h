@@ -125,25 +125,25 @@ class Mesh : public BaseMesh
 private:
 	std::vector<Vertex> VertexList;
 	std::vector<unsigned int> IndexList;
-	std::vector<Texture2D> TextureList;
 
-	void CreateVertexBuffer(std::vector<Vertex> vertices);
-	void CreateIndiceBuffer(std::vector<unsigned int> indices);
+	void CreateVertexBuffer();
+	void CreateIndiceBuffer();
+
+	void CreateUniformBuffers();
+	void CreateDescriptorPool();
+	void CreateDescriptorSets(MainPipeline pipeline);
 public:
+	std::vector<Texture2D> TextureList;
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	Mesh();
-	Mesh(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Texture2D> TextureSet, std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+	Mesh(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture2D> textureList);
 	~Mesh();
-
-	void CreateUniformBuffers();
-	void CreateDescriptorPool();
-	void CreateDescriptorSets(MainPipeline pipeline, std::vector<Texture2D> TextureSet);
 
 	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 
-	void RecreateSwapChainStage(MainPipeline pipeline, VkExtent2D swapChainExtent, VkRenderPass renderPass, std::vector<Texture2D> TextureSet);
+	void RecreateSwapChainStage(MainPipeline pipeline);
 	void Destroy();
 };
 
