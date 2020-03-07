@@ -227,7 +227,7 @@ private:
 
 		texture = Texture2D(DeviceInfo, "texture/container2.png");
 		texture2 = Texture2D(DeviceInfo, "texture/container2_specular.png");
-		EmptyTexture = Texture2D(DeviceInfo, 1000, 1000);
+		EmptyTexture = Texture2D(DeviceInfo, 1000, 1000, Pixel(glm::vec3(0x98, 0x34, 0xFF)));
 		cubeMapTexture = CubeMapTexture(DeviceInfo, layout);
 
 		//skyBoxShader = SkyBoxShader(DeviceInfo, swapChainExtent, renderPass, cubeMapTexture);

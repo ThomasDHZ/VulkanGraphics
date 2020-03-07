@@ -42,14 +42,14 @@ Texture2D::Texture2D(VulkanDevice deviceInfo, std::string TexturePath) : Texture
 	CreateTextureSampler();
 }
 
-Texture2D::Texture2D(VulkanDevice deviceInfo, int width, int height) : Texture(deviceInfo, TextureType::vkTexture2D)
+Texture2D::Texture2D(VulkanDevice deviceInfo, int width, int height, Pixel TextureColor) : Texture(deviceInfo, TextureType::vkTexture2D)
 {
 	Width = width;
 	Height = height;
 
-	VkDeviceSize imageSize = Width * Height * 4;
-	std::vector<unsigned char> TextureBytes;
-	TextureBytes.resize(imageSize, 145);
+	VkDeviceSize imageSize = Width * Height * sizeof(Pixel);
+	std::vector<Pixel> TextureBytes;
+	TextureBytes.resize(Width * Height, TextureColor);
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;

@@ -27,7 +27,7 @@ public:
 
 	Texture2D();
 	Texture2D(VulkanDevice deviceInfo, std::string TexturePath);
-	Texture2D(VulkanDevice deviceInfo, int width, int height);
+	Texture2D(VulkanDevice deviceInfo, int width, int height, Pixel TextureColor);
 	~Texture2D();
 };
 
