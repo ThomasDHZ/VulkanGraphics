@@ -145,14 +145,3 @@ void Mesh::RecreateSwapChainStage(MainPipeline pipeline)
 	CreateDescriptorPool();
 	CreateDescriptorSets(pipeline);
 }
-
-void Mesh::Destroy()
-{
-	for (int x = 0; x < DeviceInfo.SwapChainSize; x++)
-	{
-		vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[x], nullptr);
-		vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[x], nullptr);
-	}
-
-	BaseMesh::Destory();
-}

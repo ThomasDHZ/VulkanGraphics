@@ -110,17 +110,15 @@ void BaseMesh::Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int cu
 
 void BaseMesh::Destory()
 {
-	//if (indexBufferMemory != VK_NULL_HANDLE)
-	//{
-	//	vkDestroyBuffer(DeviceInfo.Device, indexBuffer, nullptr);
-	//	vkFreeMemory(DeviceInfo.Device, indexBufferMemory, nullptr);
-	//}
+	if (IndiceSize > 0)
+	{
+		vkDestroyBuffer(DeviceInfo.Device, indexBuffer, nullptr);
+		vkFreeMemory(DeviceInfo.Device, indexBufferMemory, nullptr);
+	}
 
 	if (VertexSize >= 0)
 	{
 		vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
 		vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
 	}
-
-	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
 }

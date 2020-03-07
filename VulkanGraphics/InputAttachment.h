@@ -30,7 +30,7 @@ public:
 	void GetAttachmentTypeInfo(AttachmentType attachmentType);
 	void CreateAttachmentView(VkImageAspectFlags aspectFlags);
 	void ReCreateAttachment(AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
-	void Destroy();
+	void ResizeFrameBuffer();
 
 	VkImage AttachmentImage;
 	VkDeviceMemory AttachmentImageMemory;

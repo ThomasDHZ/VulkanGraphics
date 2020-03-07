@@ -151,11 +151,12 @@ private:
 
 	Camera camera;
 	//SkyBox Skybox;
-	Mesh MeshList;
-	Model Nanosuit;
+	std::vector<Mesh> MeshList;
+	//Model Nanosuit;
 	//SkyBoxShader skyBoxShader;
 	Texture2D texture;
 	Texture2D texture2;
+	Texture2D EmptyTexture;
 	CubeMapTexture cubeMapTexture;
 
 	float deltaTime = 0.0f;	// time between current frame and last frame
@@ -226,26 +227,28 @@ private:
 
 		texture = Texture2D(DeviceInfo, "texture/container2.png");
 		texture2 = Texture2D(DeviceInfo, "texture/container2_specular.png");
+		EmptyTexture = Texture2D(DeviceInfo, 1000, 1000);
 		cubeMapTexture = CubeMapTexture(DeviceInfo, layout);
 
 		//skyBoxShader = SkyBoxShader(DeviceInfo, swapChainExtent, renderPass, cubeMapTexture);
 
 		std::vector<Texture2D> TextureList;
-		TextureList.emplace_back(texture);
-		TextureList.emplace_back(texture2);
+		TextureList.emplace_back(EmptyTexture);
+		TextureList.emplace_back(EmptyTexture);
 
-		MeshList = Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList);
-		Nanosuit = Model(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"), mainPipeline);
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
-		//MeshList.emplace_back(Model(mainPipeline, DeviceInfo, swapChainExtent, renderPass, TextureList, vertices2, indices));
+
+		//Nanosuit = Model(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"), mainPipeline);
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
+		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
 
 		//Skybox = SkyBox(DeviceInfo);
 		frameBuffer = FrameBuffer(frameBufferPipeline, DeviceInfo, swapChainExtent, renderPass, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
@@ -306,30 +309,6 @@ private:
 		}
 
 		vkDestroySwapchainKHR(DeviceInfo.Device, swapChain, nullptr);
-		swapChainImages[0] = VK_NULL_HANDLE;
-		swapChainImages[1] = VK_NULL_HANDLE;
-		swapChainImages[2] = VK_NULL_HANDLE;
-		//vkDestroyImage(DeviceInfo.Device, swapChainImages[1], nullptr);
-		//vkDestroyImage(DeviceInfo.Device, swapChainImages[2], nullptr);
-		//for (auto mesh : MeshList)
-		//{
-			for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) {
-				vkDestroyBuffer(DeviceInfo.Device, MeshList.uniformBuffers[i], nullptr);
-				vkFreeMemory(DeviceInfo.Device, MeshList.uniformBuffersMemory[i], nullptr);
-			}
-		//}
-		for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) {
-			vkDestroyBuffer(DeviceInfo.Device, frameBuffer.LightFragmentUniformBuffers[i], nullptr);
-			vkFreeMemory(DeviceInfo.Device, frameBuffer.LightFragmentUniformBuffersMemory[i], nullptr);
-
-			vkDestroyBuffer(DeviceInfo.Device, frameBuffer.DebugUniformBuffers[i], nullptr);
-			vkFreeMemory(DeviceInfo.Device, frameBuffer.DebugBuffersMemory[i], nullptr);
-		}
-		//for (auto mesh : MeshList)
-		//{
-			vkDestroyDescriptorPool(DeviceInfo.Device, MeshList.descriptorPool, nullptr);
-		//}
-		vkDestroyDescriptorPool(DeviceInfo.Device, frameBuffer.descriptorPool, nullptr);
 	}
 
 	void cleanup() {
@@ -338,6 +317,30 @@ private:
 		texture.Destroy();
 		texture2.Destroy();
 		cubeMapTexture.Destroy();
+
+		mainPipeline.Destory();
+		frameBufferPipeline.Destory();
+
+		for (auto mesh : MeshList)
+		{
+			for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+			{
+				vkDestroyBuffer(DeviceInfo.Device, mesh.uniformBuffers[i], nullptr);
+				vkFreeMemory(DeviceInfo.Device, mesh.uniformBuffersMemory[i], nullptr);
+			}
+
+			vkDestroyDescriptorPool(DeviceInfo.Device, mesh.descriptorPool, nullptr);
+			mesh.Destory();
+		}
+
+		for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) {
+			vkDestroyBuffer(DeviceInfo.Device, frameBuffer.LightFragmentUniformBuffers[i], nullptr);
+			vkFreeMemory(DeviceInfo.Device, frameBuffer.LightFragmentUniformBuffersMemory[i], nullptr);
+
+			vkDestroyBuffer(DeviceInfo.Device, frameBuffer.DebugUniformBuffers[i], nullptr);
+			vkFreeMemory(DeviceInfo.Device, frameBuffer.DebugBuffersMemory[i], nullptr);
+		}
+		vkDestroyDescriptorPool(DeviceInfo.Device, frameBuffer.descriptorPool, nullptr);
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(DeviceInfo.Device, renderFinishedSemaphores[i], nullptr);
@@ -348,6 +351,7 @@ private:
 		vkDestroyCommandPool(DeviceInfo.Device, DeviceInfo.CommandPool, nullptr);
 
 		vkDestroyDevice(DeviceInfo.Device, nullptr);
+
 		VulkanDebug.CleanUp(instance);
 		vkDestroySurfaceKHR(instance, surface, nullptr);
 		vkDestroyInstance(instance, nullptr);
@@ -385,12 +389,12 @@ private:
 		TextureList.emplace_back(texture);
 		TextureList.emplace_back(texture2);
 
-	/*	for (auto mesh : MeshList)
-		{*/
-		MeshList.RecreateSwapChainStage(mainPipeline);
-		Nanosuit.RecreateSwapChainStage(mainPipeline);
+		for (auto mesh : MeshList)
+		{
+			mesh.RecreateSwapChainStage(mainPipeline);
+		}
+		//Nanosuit.RecreateSwapChainStage(mainPipeline);
 		frameBuffer.RecreateSwapChainStage(frameBufferPipeline, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
-	/*	}*/
 
 
 		createCommandBuffers();
@@ -823,15 +827,12 @@ private:
 			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 			//Skybox.Draw(commandBuffers[i], skyBoxShader.descriptorSets[i], skyBoxShader.ShaderPipeline, skyBoxShader.ShaderPipelineLayout);
-			/*for (auto mesh : MeshList)
-			{*/
-				VkBuffer vertexBuffers[] = { MeshList.vertexBuffer };
-				VkDeviceSize offsets[] = { 0 };
+			for (auto mesh : MeshList)
+			{
+				mesh.Draw(commandBuffers[i], mainPipeline, i);
+			}
 
-				MeshList.Draw(commandBuffers[i], mainPipeline, i);
-				Nanosuit.Draw(commandBuffers[i], mainPipeline, i);
-			/*}*/
-
+								//Nanosuit.Draw(commandBuffers[i], mainPipeline, i);
 			vkCmdNextSubpass(commandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);
 			frameBuffer.Draw(frameBufferPipeline, commandBuffers[i], i);
 			vkCmdEndRenderPass(commandBuffers[i]);
@@ -870,28 +871,28 @@ private:
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	/*	for (int x = 0; x < 10; x++)
-		{*/
+		for (int x = 0; x < 10; x++)
+		{
 			UniformBufferObject2 ubo2 = {};
 			ubo2.model = glm::mat4(1.0f);
-			ubo2.model = glm::translate(ubo2.model, cubePositions[0]);
+			ubo2.model = glm::translate(ubo2.model, cubePositions[x]);
 			ubo2.model = glm::rotate(ubo2.model, glm::radians(0 * 20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 			ubo2.view = camera.GetViewMatrix();
 			ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 			ubo2.proj[1][1] *= -1;
 
-			MeshList.UpdateUniformBuffer(ubo2, currentImage);
+			MeshList[x].UpdateUniformBuffer(ubo2, currentImage);
+		}
 
 			UniformBufferObject2 ubo22 = {};
 			ubo22.model = glm::mat4(1.0f);
-			ubo22.model = glm::translate(ubo2.model, cubePositions[0]);
-			ubo22.model = glm::rotate(ubo2.model, glm::radians(time), glm::vec3(0.0f, 1.0f, 0.0f));
+			ubo22.model = glm::translate(ubo22.model, cubePositions[0]);
+			ubo22.model = glm::rotate(ubo22.model, glm::radians(time), glm::vec3(0.0f, 1.0f, 0.0f));
 			ubo22.view = camera.GetViewMatrix();
 			ubo22.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 			ubo22.proj[1][1] *= -1;
 
-			Nanosuit.UpdateUniformBuffer(ubo22, currentImage);
-		/*}*/
+			//Nanosuit.UpdateUniformBuffer(ubo22, currentImage);
 
 		LightingStruct ubo4 = {};
 		ubo4.light.Position = glm::vec3(cos(time), -2.0f, sin(time));

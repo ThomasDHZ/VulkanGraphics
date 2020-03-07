@@ -37,6 +37,6 @@ public:
 	void UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize);
 	virtual void Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int currentImage);
 
-	void Destory();
+	virtual void Destory();
 };
 

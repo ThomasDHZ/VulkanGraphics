@@ -106,6 +106,4 @@ void GraphicsPipeline::CreatePipeLine(VkGraphicsPipelineCreateInfo PipeLineInfo)
 void GraphicsPipeline::Destory()
 {
 	vkDestroyDescriptorSetLayout(DeviceInfo.Device, ShaderPipelineDescriptorLayout, nullptr);
-	vkDestroyPipeline(DeviceInfo.Device, ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(DeviceInfo.Device, ShaderPipelineLayout, nullptr);
 }

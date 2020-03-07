@@ -144,6 +144,5 @@ public:
 	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 
 	void RecreateSwapChainStage(MainPipeline pipeline);
-	void Destroy();
 };
 
