@@ -18,16 +18,22 @@
 class Texture2D : public Texture
 {
 private:
+
+
 	void LoadTexture();
 	void CreateTexture();
 	void CreateTextureImage(std::string TexturePath);
 	void CreateTextureSampler();
-
 public:
+
+	std::vector<Pixel> textureBytes;
 
 	Texture2D();
 	Texture2D(VulkanDevice deviceInfo, std::string TexturePath);
 	Texture2D(VulkanDevice deviceInfo, int width, int height, Pixel TextureColor);
 	~Texture2D();
+
+	void SetTextureColor(Pixel pixel);
+
 };
 

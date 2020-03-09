@@ -3,16 +3,16 @@ typedef unsigned char byte;
 
 struct Pixel
 {
-	byte Red = 0x0;
-	byte Green = 0x0;
-	byte Blue = 0x0;
-	byte Alpha = 0xFF;
+	byte Red;
+	byte Green;
+	byte Blue;
+	byte Alpha;
 
 	Pixel()
 	{
-		Red = 0x0;
-		Green = 0x0;
-		Blue = 0x0;
+		Red = 0xFF;
+		Green = 0xFF;
+		Blue = 0xFF;
 		Alpha = 0xFF;
 	}
 

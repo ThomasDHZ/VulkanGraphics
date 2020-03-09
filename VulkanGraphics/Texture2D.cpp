@@ -77,6 +77,14 @@ Texture2D::~Texture2D()
 {
 }
 
+void Texture2D::SetTextureColor(Pixel pixel)
+{
+	for (auto pixels : textureBytes)
+	{
+		pixels = pixels;
+	}
+}
+
 void Texture2D::CreateTextureSampler()
 {
 	VkSamplerCreateInfo SamplerInfo = {};

@@ -33,6 +33,7 @@
 #include "VulkanWindow.h"
 #include <FileSystem.h>
 #include "Model.h"
+#include "ModelLoader.h"
 
 const int WIDTH = 1800;
 const int HEIGHT = 1600;
@@ -152,11 +153,12 @@ private:
 	Camera camera;
 	//SkyBox Skybox;
 	std::vector<Mesh> MeshList;
-	//Model Nanosuit;
+	std::vector<Model> NanosuitList;
+	ModelLoader NanosuitModel;
+	ModelLoader CyborgModel;
 	//SkyBoxShader skyBoxShader;
 	Texture2D texture;
 	Texture2D texture2;
-	Texture2D EmptyTexture;
 	CubeMapTexture cubeMapTexture;
 
 	float deltaTime = 0.0f;	// time between current frame and last frame
@@ -227,17 +229,26 @@ private:
 
 		texture = Texture2D(DeviceInfo, "texture/container2.png");
 		texture2 = Texture2D(DeviceInfo, "texture/container2_specular.png");
-		EmptyTexture = Texture2D(DeviceInfo, 1000, 1000, Pixel(glm::vec3(0x98, 0x34, 0xFF)));
 		cubeMapTexture = CubeMapTexture(DeviceInfo, layout);
 
 		//skyBoxShader = SkyBoxShader(DeviceInfo, swapChainExtent, renderPass, cubeMapTexture);
 
 		std::vector<Texture2D> TextureList;
-		TextureList.emplace_back(EmptyTexture);
-		TextureList.emplace_back(EmptyTexture);
+		TextureList.emplace_back(texture);
+		TextureList.emplace_back(texture2);
 
-
-		//Nanosuit = Model(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"), mainPipeline);
+		NanosuitModel = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+		CyborgModel = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Cyborg/cyborg.obj"));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, NanosuitModel.GetModelMeshs()));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, CyborgModel.GetModelMeshs()));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, NanosuitModel.GetModelMeshs()));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, CyborgModel.GetModelMeshs()));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, NanosuitModel.GetModelMeshs()));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, CyborgModel.GetModelMeshs()));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, NanosuitModel.GetModelMeshs()));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, CyborgModel.GetModelMeshs()));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, NanosuitModel.GetModelMeshs()));
+		NanosuitList.emplace_back(Model(mainPipeline, DeviceInfo, CyborgModel.GetModelMeshs()));
 		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
 		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
 		MeshList.emplace_back(Mesh(mainPipeline, DeviceInfo, vertices2, indices, TextureList));
@@ -323,14 +334,11 @@ private:
 
 		for (auto mesh : MeshList)
 		{
-			for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
-			{
-				vkDestroyBuffer(DeviceInfo.Device, mesh.uniformBuffers[i], nullptr);
-				vkFreeMemory(DeviceInfo.Device, mesh.uniformBuffersMemory[i], nullptr);
-			}
-
-			vkDestroyDescriptorPool(DeviceInfo.Device, mesh.descriptorPool, nullptr);
 			mesh.Destory();
+		}
+		for (auto Nanosuit : NanosuitList)
+		{
+			Nanosuit.Destory();
 		}
 
 		for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) {
@@ -393,7 +401,10 @@ private:
 		{
 			mesh.RecreateSwapChainStage(mainPipeline);
 		}
-		//Nanosuit.RecreateSwapChainStage(mainPipeline);
+		for (auto Nanosuit : NanosuitList)
+		{
+			Nanosuit.RecreateSwapChainStage(mainPipeline);
+		}
 		frameBuffer.RecreateSwapChainStage(frameBufferPipeline, PositionAttachment, NormalAttachment, AlbedoAttachment, DepthAttachment);
 
 
@@ -831,8 +842,10 @@ private:
 			{
 				mesh.Draw(commandBuffers[i], mainPipeline, i);
 			}
-
-								//Nanosuit.Draw(commandBuffers[i], mainPipeline, i);
+			for (auto Nanosuit : NanosuitList)
+			{
+				Nanosuit.Draw(commandBuffers[i], mainPipeline, i);
+			}
 			vkCmdNextSubpass(commandBuffers[i], VK_SUBPASS_CONTENTS_INLINE);
 			frameBuffer.Draw(frameBufferPipeline, commandBuffers[i], i);
 			vkCmdEndRenderPass(commandBuffers[i]);
@@ -876,23 +889,14 @@ private:
 			UniformBufferObject2 ubo2 = {};
 			ubo2.model = glm::mat4(1.0f);
 			ubo2.model = glm::translate(ubo2.model, cubePositions[x]);
-			ubo2.model = glm::rotate(ubo2.model, glm::radians(0 * 20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			ubo2.model = glm::rotate(ubo2.model, glm::radians(x * 20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
 			ubo2.view = camera.GetViewMatrix();
 			ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
 			ubo2.proj[1][1] *= -1;
 
 			MeshList[x].UpdateUniformBuffer(ubo2, currentImage);
+			NanosuitList[x].UpdateUniformBuffer(ubo2, currentImage);
 		}
-
-			UniformBufferObject2 ubo22 = {};
-			ubo22.model = glm::mat4(1.0f);
-			ubo22.model = glm::translate(ubo22.model, cubePositions[0]);
-			ubo22.model = glm::rotate(ubo22.model, glm::radians(time), glm::vec3(0.0f, 1.0f, 0.0f));
-			ubo22.view = camera.GetViewMatrix();
-			ubo22.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
-			ubo22.proj[1][1] *= -1;
-
-			//Nanosuit.UpdateUniformBuffer(ubo22, currentImage);
 
 		LightingStruct ubo4 = {};
 		ubo4.light.Position = glm::vec3(cos(time), -2.0f, sin(time));

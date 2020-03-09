@@ -4,7 +4,7 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(MainPipeline pipeline, VulkanDevice deviceInfo, std::vector<Vertex> vertexList, std::vector<unsigned int> indexList, std::vector<Texture2D> textureList) : BaseMesh(deviceInfo)
+Mesh::Mesh(MainPipeline pipeline, VulkanDevice deviceInfo, const std::vector<Vertex>& vertexList, const std::vector<unsigned int>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(deviceInfo)
 {
 	VertexSize = vertexList.size();
 	IndiceSize = indexList.size();
@@ -141,7 +141,21 @@ void Mesh::UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage)
 
 void Mesh::RecreateSwapChainStage(MainPipeline pipeline)
 {
+	vkResetDescriptorPool(DeviceInfo.Device, descriptorPool, false);
 	CreateUniformBuffers();
 	CreateDescriptorPool();
 	CreateDescriptorSets(pipeline);
+}
+
+void Mesh::Destory()
+{
+	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	{
+		vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[i], nullptr);
+		vkFreeMemory(DeviceInfo.Device,uniformBuffersMemory[i], nullptr);
+	}
+
+	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
+
+	BaseMesh::Destory();
 }
