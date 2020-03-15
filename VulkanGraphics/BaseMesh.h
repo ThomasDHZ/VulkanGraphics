@@ -14,8 +14,6 @@ protected:
 
 	VulkanDevice DeviceInfo;
 
-
-
 	void CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
 	void CreateDescriptorSets(VkDescriptorSetLayout layout);
 	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWritesList);

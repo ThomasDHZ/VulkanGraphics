@@ -81,6 +81,12 @@ void Mesh::CreateUniformBuffers()
 	}
 }
 
+void Mesh::UpdateTextures(const std::vector<Texture2D>& textureList)
+{
+	TextureList.clear();
+	TextureList = textureList;
+}
+
 void Mesh::CreateDescriptorPool()
 {
 	std::array<DescriptorPoolSizeInfo, 3>  DescriptorPoolInfo = {};

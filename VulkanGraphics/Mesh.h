@@ -130,8 +130,7 @@ private:
 	void CreateIndiceBuffer();
 
 	void CreateUniformBuffers();
-	void CreateDescriptorPool();
-	void CreateDescriptorSets(MainPipeline pipeline);
+
 public:
 
 	std::vector<Texture2D> TextureList;
@@ -142,6 +141,9 @@ public:
 	Mesh(MainPipeline pipeline, VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture2D>& textureList);
 	~Mesh();
 
+	void UpdateTextures(const std::vector<Texture2D>& textureList);
+	void CreateDescriptorPool();
+	void CreateDescriptorSets(MainPipeline pipeline);
 	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
 	void RecreateSwapChainStage(MainPipeline pipeline);
 	void Destory();
