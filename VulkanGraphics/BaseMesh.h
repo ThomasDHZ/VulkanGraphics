@@ -9,8 +9,6 @@ class BaseMesh
 private:
 
 protected:
-	int VertexSize;
-	int IndiceSize;
 
 	VulkanDevice DeviceInfo;
 
@@ -19,6 +17,8 @@ protected:
 	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 
 public:
+	int VertexSize;
+	uint16_t IndiceSize;
 
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
@@ -33,7 +33,6 @@ public:
 	~BaseMesh();
 
 	void UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize);
-	virtual void Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int currentImage);
 
 	virtual void Destory();
 };

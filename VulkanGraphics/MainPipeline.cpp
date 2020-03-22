@@ -52,17 +52,17 @@ void MainPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass
 {
 	std::vector<VkDescriptorSetLayoutBinding> LayoutBindingList = {};
 
-	for (auto Binding : UniformBufferObject2::GetDescriptorSetLayoutBindingInfo())
-	{
-		VkDescriptorSetLayoutBinding LayoutBinding = {};
-		LayoutBinding.binding = Binding.Binding;
-		LayoutBinding.descriptorCount = 1;
-		LayoutBinding.descriptorType = Binding.DescriptorType;
-		LayoutBinding.pImmutableSamplers = nullptr;
-		LayoutBinding.stageFlags = Binding.StageFlags;
+	//for (auto Binding : UniformBufferObject::GetDescriptorSetLayoutBindingInfo())
+	//{
+	//	VkDescriptorSetLayoutBinding LayoutBinding = {};
+	//	LayoutBinding.binding = Binding.Binding;
+	//	LayoutBinding.descriptorCount = 1;
+	//	LayoutBinding.descriptorType = Binding.DescriptorType;
+	//	LayoutBinding.pImmutableSamplers = nullptr;
+	//	LayoutBinding.stageFlags = Binding.StageFlags;
 
-		LayoutBindingList.emplace_back(LayoutBinding);
-	}
+	//	LayoutBindingList.emplace_back(LayoutBinding);
+	//}
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

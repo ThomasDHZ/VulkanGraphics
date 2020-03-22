@@ -12,6 +12,7 @@ struct VulkanDevice
 	VkPhysicalDevice PhysicalDevice;
 	VkCommandPool CommandPool;
 	VkQueue GraphicsQueue;
+	VkDescriptorSetLayout descriptorSetLayout;
 	int SwapChainSize;
 };
 

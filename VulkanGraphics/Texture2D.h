@@ -14,18 +14,21 @@
 #include <optional>
 #include <set>
 #include "Texture.h"
+#include <future>
+#include <thread>
+#include <chrono>
+#include <iostream>
 
 class Texture2D : public Texture
 {
 private:
-
 
 	void LoadTexture();
 	void CreateTexture();
 	void CreateTextureImage(std::string TexturePath);
 	void CreateTextureSampler();
 public:
-
+	std::vector<Pixel> PixelImage;
 	std::vector<Pixel> textureBytes;
 
 	Texture2D();
@@ -33,7 +36,7 @@ public:
 	Texture2D(VulkanDevice deviceInfo, int width, int height, Pixel TextureColor);
 	~Texture2D();
 
-	void SetTextureColor(Pixel pixel);
+	void UpdateTexture(Pixel pixel);
 
 };
 

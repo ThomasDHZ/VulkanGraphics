@@ -324,12 +324,7 @@ void SwapChain::UpdateSwapChain()
 	SetUpSwapChainImageViews();
 }
 
-void SwapChain::Destory()
+void SwapChain::DestorySwapChain()
 {
-	for (auto imageView : swapChainImageViews) 
-	{
-		vkDestroyImageView(DeviceInfo.Device, imageView, nullptr);
-	}
-
 	vkDestroySwapchainKHR(DeviceInfo.Device, swapChain, nullptr);
 }

@@ -88,26 +88,6 @@ void BaseMesh::UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* Uni
 	vkUnmapMemory(DeviceInfo.Device, UniformBufferMemory);
 }
 
-void BaseMesh::Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int currentImage)
-{
-	VkBuffer vertexBuffers[] = { vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
-
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
-	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
-	vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
-	if (IndiceSize == 0)
-	{
-		vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
-	}
-	else
-	{
-		vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-		vkCmdDrawIndexed(commandbuffer, static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
-	}
-}
-
 void BaseMesh::Destory()
 {
 	if (IndiceSize > 0)

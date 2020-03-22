@@ -13,65 +13,7 @@
 #include "BaseMesh.h"
 #include "Texture2D.h"
 #include "MainPipeline.h"
-
-
-struct Vertex
-{
-	glm::vec3 Position;
-	glm::vec3 Normal;
-	glm::vec2 TexureCoord;
-	glm::vec3 Tangant;
-	glm::vec3 BiTangant;
-
-	static VkVertexInputBindingDescription GetBindingDescription()
-	{
-		VkVertexInputBindingDescription BindingDescription = {};
-		BindingDescription.binding = 0;
-		BindingDescription.stride = sizeof(Vertex);
-		BindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-		return BindingDescription;
-	}
-
-	static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
-	{
-		std::vector<VkVertexInputAttributeDescription> AttributeDescriptions = {};
-
-		VkVertexInputAttributeDescription AttributeDescription;
-
-		AttributeDescription.binding = 0;
-		AttributeDescription.location = 0;
-		AttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
-		AttributeDescription.offset = offsetof(Vertex, Position);
-		AttributeDescriptions.emplace_back(AttributeDescription);
-
-		AttributeDescription.binding = 0;
-		AttributeDescription.location = 1;
-		AttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
-		AttributeDescription.offset = offsetof(Vertex, Normal);
-		AttributeDescriptions.emplace_back(AttributeDescription);
-
-		AttributeDescription.binding = 0;
-		AttributeDescription.location = 2;
-		AttributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
-		AttributeDescription.offset = offsetof(Vertex, TexureCoord);
-		AttributeDescriptions.emplace_back(AttributeDescription);
-
-		AttributeDescription.binding = 0;
-		AttributeDescription.location = 3;
-		AttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
-		AttributeDescription.offset = offsetof(Vertex, Tangant);
-		AttributeDescriptions.emplace_back(AttributeDescription);
-
-		AttributeDescription.binding = 0;
-		AttributeDescription.location = 4;
-		AttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
-		AttributeDescription.offset = offsetof(Vertex, BiTangant);
-		AttributeDescriptions.emplace_back(AttributeDescription);
-
-		return AttributeDescriptions;
-	}
-};
+#include "Vertex.h"
 
 struct Light
 {
@@ -94,37 +36,18 @@ struct DebugStruct
 	alignas(4) int DebugLayer;
 };
 
-struct UniformBufferObject2
+struct UniformBufferObject
 {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
-
-	static std::vector<DescriptorSetLayoutBindingInfo> GetDescriptorSetLayoutBindingInfo()
-	{
-		std::array<DescriptorSetLayoutBindingInfo, 3> LayoutBindingInfo = {};
-
-		LayoutBindingInfo[0].Binding = 0;
-		LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		LayoutBindingInfo[0].StageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-		LayoutBindingInfo[1].Binding = 1;
-		LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-		LayoutBindingInfo[2].Binding = 2;
-		LayoutBindingInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		LayoutBindingInfo[2].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-		return std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end());
-	}
 };
 
 class Mesh : public BaseMesh
 {
 private:
 	std::vector<Vertex> VertexList;
-	std::vector<unsigned int> IndexList;
+	std::vector<uint32_t> IndexList;
 
 	void CreateVertexBuffer();
 	void CreateIndiceBuffer();
@@ -138,14 +61,15 @@ public:
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	Mesh();
-	Mesh(MainPipeline pipeline, VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture2D>& textureList);
+	Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::vector<Texture2D>& textureList);
 	~Mesh();
 
 	void UpdateTextures(const std::vector<Texture2D>& textureList);
 	void CreateDescriptorPool();
-	void CreateDescriptorSets(MainPipeline pipeline);
-	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
-	void RecreateSwapChainStage(MainPipeline pipeline);
+	void CreateDescriptorSets();
+	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
+	void RecreateSwapChainStage();
+	void ClearSwapChain();
 	void Destory();
 };
 

@@ -75,9 +75,9 @@ std::vector<Vertex> ModelLoader::LoadVertices(aiMesh* mesh)
 	return VertexList;
 }
 
-std::vector<unsigned int> ModelLoader::LoadIndices(aiMesh* mesh)
+std::vector<uint32_t> ModelLoader::LoadIndices(aiMesh* mesh)
 {
-	std::vector<unsigned int> IndexList;
+	std::vector<uint32_t> IndexList;
 
 	for (int x = 0; x < mesh->mNumFaces; x++)
 	{

@@ -1,6 +1,6 @@
 #pragma once
 #include <vulkan\vulkan_core.h>
-#include "Mesh.h"
+#include "Structs.h"
 
 enum AttachmentType
 {
@@ -30,7 +30,7 @@ public:
 	void GetAttachmentTypeInfo(AttachmentType attachmentType);
 	void CreateAttachmentView(VkImageAspectFlags aspectFlags);
 	void ReCreateAttachment(AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
-	void ResizeFrameBuffer();
+	void UpdateFrameBuffer();
 
 	VkImage AttachmentImage;
 	VkDeviceMemory AttachmentImageMemory;

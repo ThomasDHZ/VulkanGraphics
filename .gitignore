@@ -252,3 +252,4 @@ ModelManifest.xml
 *.db
 *.jpg
 *.png
+*.ipch

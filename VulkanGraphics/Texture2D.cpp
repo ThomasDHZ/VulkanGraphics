@@ -48,8 +48,7 @@ Texture2D::Texture2D(VulkanDevice deviceInfo, int width, int height, Pixel Textu
 	Height = height;
 
 	VkDeviceSize imageSize = Width * Height * sizeof(Pixel);
-	std::vector<Pixel> TextureBytes;
-	TextureBytes.resize(Width * Height, TextureColor);
+	PixelImage.resize(Width * Height, Pixel(TextureColor));
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -57,7 +56,7 @@ Texture2D::Texture2D(VulkanDevice deviceInfo, int width, int height, Pixel Textu
 
 	void* data;
 	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, imageSize, 0, &data);
-	memcpy(data, TextureBytes.data(), static_cast<size_t>(imageSize));
+	memcpy(data, PixelImage.data(), static_cast<size_t>(imageSize));
 	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
 
 	CreateImage();
@@ -77,12 +76,32 @@ Texture2D::~Texture2D()
 {
 }
 
-void Texture2D::SetTextureColor(Pixel pixel)
+void Texture2D::UpdateTexture(Pixel pixel)
 {
-	for (auto pixels : textureBytes)
-	{
-		pixels = pixels;
-	}
+	VkDeviceSize imageSize = Width * Height * sizeof(Pixel);
+	textureBytes.clear();
+	textureBytes.resize(Width * Height, pixel);
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, imageSize, 0, &data);
+	memcpy(data, textureBytes.data(), static_cast<size_t>(imageSize));
+	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+
+	CreateImage();
+
+	TransitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	CopyBufferToImage(stagingBuffer);
+	TransitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+
+	CreateImageView();
+	CreateTextureSampler();
 }
 
 void Texture2D::CreateTextureSampler()

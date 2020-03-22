@@ -11,12 +11,12 @@ private:
 
 public:
 	Model();
-	Model(MainPipeline pipeline, VulkanDevice deviceInfo, const std::vector<SubMesh>& SubMeshList);
+	Model( VulkanDevice deviceInfo, const std::vector<SubMesh>& SubMeshList);
 	~Model();
 
-	void UpdateUniformBuffer(UniformBufferObject2 ubo2, int currentImage);
-	void Draw(VkCommandBuffer commandbuffer, MainPipeline pipeline, int currentImage);
-	void RecreateSwapChainStage(MainPipeline pipeline);
+	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
+	void Draw(VkCommandBuffer commandbuffer, int currentImage);
+	void RecreateSwapChainStage();
 	void Destory();
 };
 

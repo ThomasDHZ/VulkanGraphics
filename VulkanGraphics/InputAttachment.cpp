@@ -121,7 +121,7 @@ void InputAttachment::CreateAttachmentView(VkImageAspectFlags aspectFlags)
 	}
 }
 
-void InputAttachment::ResizeFrameBuffer()
+void InputAttachment::UpdateFrameBuffer()
 {
 	vkDestroyImageView(DeviceInfo.Device, AttachmentImageView, nullptr);
 	vkDestroyImage(DeviceInfo.Device, AttachmentImage, nullptr);

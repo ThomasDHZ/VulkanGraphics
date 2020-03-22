@@ -51,8 +51,7 @@ private:
 	void SetUpSurface();
 	void SetPhysicalDevice();
 	void CreateLogicalDevice();
-	void SetUpSwapChain();
-	void SetUpSwapChainImageViews();
+
 
 public:
 	VulkanDevice DeviceInfo;
@@ -74,7 +73,10 @@ public:
 	SwapChain(VkInstance instance, GLFWwindow* window);
 	~SwapChain();
 
+	void SetUpSwapChain();
+	void SetUpSwapChainImageViews();
+
 	void UpdateSwapChain();
-	void Destory();
+	void DestorySwapChain();
 };
 
