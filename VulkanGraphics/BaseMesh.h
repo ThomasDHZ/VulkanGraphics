@@ -2,7 +2,6 @@
 #include <vulkan\vulkan_core.h>
 #include <vector>
 #include "Structs.h"
-#include "MainPipeline.h"
 
 class BaseMesh
 {

@@ -12,7 +12,6 @@
 #include "VulkanBufferManager.h"
 #include "BaseMesh.h"
 #include "Texture2D.h"
-#include "MainPipeline.h"
 #include "Vertex.h"
 
 struct Light
@@ -54,6 +53,7 @@ private:
 
 	void CreateUniformBuffers();
 
+
 public:
 
 	std::vector<Texture2D> TextureList;
@@ -67,6 +67,7 @@ public:
 	void UpdateTextures(const std::vector<Texture2D>& textureList);
 	void CreateDescriptorPool();
 	void CreateDescriptorSets();
+	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
 	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
 	void RecreateSwapChainStage();
 	void ClearSwapChain();

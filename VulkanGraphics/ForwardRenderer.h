@@ -138,7 +138,7 @@ public:
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
 
-	void createCommandBuffers(const std::vector<Mesh>& meshList);
+	void createCommandBuffers(const std::vector<Mesh>& mesh);
 	void createSyncObjects();
 	void UpdateSwapChain();
 	void DeleteSwapChain();
