@@ -28,11 +28,15 @@
 #include "Mesh.h"
 #include "VulkanDebugger.h"
 #include "VulkanWindow.h"
+#include "Model.h"
+#include <FileSystem.h>
+#include "Camera.h"
 
 class VulkanGraphics
 {
 
 private:
+	Camera camera;
 	VulkanDevice DeviceInfo;
 	VulkanDebugger VulkanDebug;
 	VulkanWindow Window;
@@ -42,8 +46,19 @@ private:
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
+	ModelLoader NanoSuit;
+
 	Texture2D texture;
 	std::vector<Mesh> meshList;
+	//std::vector<Model> ModelList;
+
+	float deltaTime = 0.0f;
+	float lastFrame = 0.0f;
+	float lastX;
+	float lastY;
+	bool firstMouse;
+	double MouseXPos;
+	double MouseYPos;
 
 	size_t currentFrame = 0;
 
@@ -56,6 +71,8 @@ private:
 	void drawFrame();
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();
+	void UpdateKeyboard();
+	void UpdateMouse();
 
 public:
 
@@ -119,10 +136,16 @@ VulkanGraphics::VulkanGraphics(unsigned int Width, unsigned int Height, const ch
 
 	renderer = ForwardRenderer(instance, Window.GetWindowPtr());
 	DeviceInfo = renderer.UpdateDeviceInfo();
+
+	//NanoSuit = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+	
+
 	texture = Texture2D(DeviceInfo, "texture/texture.jpg");
 	std::vector<Texture2D> textures = { texture, texture };
 	Mesh mesh = Mesh(DeviceInfo, vertices, indices, textures);
 	meshList.emplace_back(mesh);
+
+	//ModelList.emplace_back(Model(DeviceInfo, NanoSuit.GetModelMeshs()));
 
 	renderer.createCommandBuffers(meshList);
 	renderer.createSyncObjects();
@@ -134,16 +157,13 @@ VulkanGraphics::~VulkanGraphics()
 
 	texture.Destroy();
 
-	for (auto mesh : meshList)
-		{
-			vkDestroyBuffer(DeviceInfo.Device, mesh.indexBuffer, nullptr);
-			vkFreeMemory(DeviceInfo.Device, mesh.indexBufferMemory, nullptr);
+	vkDestroyBuffer(DeviceInfo.Device, meshList[0].indexBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, meshList[0].indexBufferMemory, nullptr);
 
-			vkDestroyBuffer(DeviceInfo.Device, mesh.vertexBuffer, nullptr);
-			vkFreeMemory(DeviceInfo.Device, mesh.vertexBufferMemory, nullptr);
-		}
+	vkDestroyBuffer(DeviceInfo.Device, meshList[0].vertexBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, meshList[0].vertexBufferMemory, nullptr);
 
-		vkDestroyDescriptorSetLayout(DeviceInfo.Device, renderer.descriptorSetLayout, nullptr);
+	vkDestroyDescriptorSetLayout(DeviceInfo.Device, renderer.descriptorSetLayout, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		vkDestroySemaphore(DeviceInfo.Device, renderer.renderFinishedSemaphores[i], nullptr);
@@ -152,6 +172,8 @@ VulkanGraphics::~VulkanGraphics()
 	}
 
 	vkDestroyCommandPool(DeviceInfo.Device, renderer.commandPool, nullptr);
+
+
 
 	VulkanDebug.CleanUp(instance);
 
@@ -165,9 +187,12 @@ VulkanGraphics::~VulkanGraphics()
 
 
 void VulkanGraphics::mainLoop() {
-	while (!glfwWindowShouldClose(Window.GetWindowPtr())) {
+	while (!glfwWindowShouldClose(Window.GetWindowPtr())) 
+	{
 		glfwPollEvents();
 		drawFrame();
+		UpdateMouse();
+		UpdateKeyboard();
 	}
 
 	vkDeviceWaitIdle(DeviceInfo.Device);
@@ -177,6 +202,12 @@ void VulkanGraphics::cleanupSwapChain()
 {
 	renderer.DeleteSwapChain();
 	
+	//for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) {
+	//	vkDestroyBuffer(DeviceInfo.Device, meshList[0].uniformBuffers[i], nullptr);
+	//	vkFreeMemory(DeviceInfo.Device, meshList[0].uniformBuffersMemory[i], nullptr);
+	//}
+
+	//vkDestroyDescriptorPool(DeviceInfo.Device, meshList[0].descriptorPool, nullptr);
 	for (auto mesh : meshList)
 	{
 		mesh.ClearSwapChain();
@@ -196,10 +227,11 @@ void VulkanGraphics::recreateSwapChain() {
 	cleanupSwapChain();
 
 	renderer.UpdateSwapChain();
-	for (auto mesh : meshList)
-	{
-		mesh.RecreateSwapChainStage();
-	}
+	//for (auto mesh : meshList)
+	//{
+	//	mesh.UpdateSwapChain();
+	//}
+	meshList[0].UpdateSwapChain();
 	renderer.createCommandBuffers(meshList);
 }
 
@@ -210,15 +242,60 @@ void VulkanGraphics::updateUniformBuffer(uint32_t currentImage) {
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	UniformBufferObject ubo = {};
-	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 10.0f);
+	ubo.model = glm::mat4(1.0f);
+	ubo.model = glm::translate(ubo.model, glm::vec3());
+	ubo.model = glm::rotate(ubo.model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+	ubo.model = glm::scale(ubo.model, glm::vec3(0.2f, 0.2f, 0.2f));
+	ubo.view = camera.GetViewMatrix();
+	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), Window.GetWindowWidth() / (float)Window.GetWindowHeight(), 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
 	for (auto mesh : meshList)
 	{
 		mesh.UpdateUniformBuffer(ubo, currentImage);
 	}
+}
+
+void VulkanGraphics::UpdateMouse()
+{
+	if (glfwGetMouseButton(Window.GetWindowPtr(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	{
+		glfwGetCursorPos(Window.GetWindowPtr(), &MouseXPos, &MouseYPos);
+		if (firstMouse)
+		{
+			lastX = MouseXPos;
+			lastY = MouseYPos;
+			firstMouse = false;
+		}
+
+		float xoffset = MouseXPos - lastX;
+		float yoffset = lastY - MouseYPos;
+
+		lastX = MouseXPos;
+		lastY = MouseYPos;
+
+		camera.UpdateMouse(xoffset, yoffset);
+	}
+	else
+	{
+		firstMouse = true;
+	}
+}
+
+void VulkanGraphics::UpdateKeyboard()
+{
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_W) == GLFW_PRESS)
+		camera.UpdateKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_S) == GLFW_PRESS)
+		camera.UpdateKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_A) == GLFW_PRESS)
+		camera.UpdateKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
+		camera.UpdateKeyboard(RIGHT, deltaTime);
 }
 
 void VulkanGraphics::drawFrame() {

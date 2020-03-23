@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseRenderer.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="DeferredRenderer.cpp" />
@@ -178,6 +179,7 @@
     <None Include="Shaders\SkyboxShader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseRenderer.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="DeferredRenderer.h" />

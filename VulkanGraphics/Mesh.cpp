@@ -166,9 +166,9 @@ void Mesh::UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage)
 	BaseMesh::UpdateUniformBuffer(uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
 }
 
-void Mesh::RecreateSwapChainStage()
+void Mesh::UpdateSwapChain()
 {
-	CreateUniformBuffers();
+ 	CreateUniformBuffers();
 	CreateDescriptorPool();
 	CreateDescriptorSets();
 }

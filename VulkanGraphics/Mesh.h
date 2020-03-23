@@ -69,7 +69,7 @@ public:
 	void CreateDescriptorSets();
 	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
 	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
-	void RecreateSwapChainStage();
+	void UpdateSwapChain();
 	void ClearSwapChain();
 	void Destory();
 };

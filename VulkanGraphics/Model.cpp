@@ -27,12 +27,19 @@ void Model::UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage)
 	}
 }
 
-
-void Model::RecreateSwapChainStage()
+void Model::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage)
 {
 	for (auto mesh : MeshList)
 	{
-		mesh.RecreateSwapChainStage();
+		mesh.Draw(commandbuffer, ShaderPipeline, ShaderPipelineLayout, currentImage);
+	}
+}
+
+void Model::UpdateSwapChain()
+{
+	for (auto mesh : MeshList)
+	{
+		mesh.UpdateSwapChain();
 	}
 }
 

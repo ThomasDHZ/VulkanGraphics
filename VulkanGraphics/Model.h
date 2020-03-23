@@ -15,8 +15,8 @@ public:
 	~Model();
 
 	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
-	void Draw(VkCommandBuffer commandbuffer, int currentImage);
-	void RecreateSwapChainStage();
+	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
+	void UpdateSwapChain();
 	void Destory();
 };
 
