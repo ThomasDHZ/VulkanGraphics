@@ -74,16 +74,6 @@ protected:
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
-	void createSurface(VkInstance instance);
-	void pickPhysicalDevice(VkInstance instance);
-	void createLogicalDevice();
-	void createSwapChain();
-	void createImageViews();
-	void createRenderPass(VkSubpassDescription subpass, VkSubpassDependency dependency, std::vector<VkAttachmentDescription> attachments);
-	void createDescriptorSetLayout(std::vector<VkDescriptorSetLayoutBinding> bindings);
-	void createFramebuffers(std::vector<VkImageView> attachments, int Image);
-	void createCommandPool();
-	void createDepthResources();
 public:
 	BaseRenderer();
 	BaseRenderer(VkInstance instance, GLFWwindow* window);
@@ -121,6 +111,18 @@ public:
 	std::vector<VkSemaphore> renderFinishedSemaphores;
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
+
+	void createSurface(VkInstance instance);
+	void pickPhysicalDevice(VkInstance instance);
+	void createLogicalDevice();
+	void createSwapChain();
+	void createImageViews();
+	void createRenderPass(VkSubpassDescription subpass, VkSubpassDependency dependency, std::vector<VkAttachmentDescription> attachments);
+	void createDescriptorSetLayout(std::vector<VkDescriptorSetLayoutBinding> bindings);
+	void createFramebuffers(std::vector<VkImageView> attachments, int Image);
+	void createCommandPool();
+	void createDepthResources();
+
 
 	void createCommandBuffers(std::vector<VkClearValue> clearValues, const std::vector<Mesh>& mesh);
 	void createSyncObjects();

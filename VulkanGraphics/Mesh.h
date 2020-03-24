@@ -46,12 +46,12 @@ class Mesh : public BaseMesh
 {
 private:
 	std::vector<Vertex> VertexList;
-	std::vector<uint32_t> IndexList;
+	std::vector<uint16_t> IndexList;
 
 	void CreateVertexBuffer();
 	void CreateIndiceBuffer();
 
-	void CreateUniformBuffers();
+
 
 
 public:
@@ -61,10 +61,11 @@ public:
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	Mesh();
-	Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const std::vector<Texture2D>& textureList);
+	Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
 	~Mesh();
 
 	void UpdateTextures(const std::vector<Texture2D>& textureList);
+	void CreateUniformBuffers();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets();
 	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);

@@ -13,7 +13,7 @@ const std::vector<Vertex> vertices = {
 	{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}}
 };
 
-const std::vector<uint32_t> indices = {
+const std::vector<uint16_t> indices = {
 	0, 1, 2, 2, 3, 0,
 	4, 5, 6, 6, 7, 4
 };
@@ -21,16 +21,16 @@ const std::vector<uint32_t> indices = {
 class ForwardRenderer : public BaseRenderer
 {
 private:
-	void createRenderPass();
-	void createDescriptorSetLayout();
-	void createGraphicsPipeline();
-	void createFramebuffers();
 
 public:
 	ForwardRenderer();
 	ForwardRenderer(VkInstance instance, GLFWwindow* window);
 	~ForwardRenderer();
 
+	void createRenderPass();
+	void createDescriptorSetLayout();
+	void createGraphicsPipeline();
+	void createFramebuffers();
 	void createCommandBuffers(const std::vector<Mesh>& mesh);
 	void UpdateSwapChain();
 };

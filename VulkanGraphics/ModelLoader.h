@@ -6,7 +6,7 @@
 struct SubMesh
 {
 	std::vector<Vertex> VertexList;
-	std::vector<uint32_t> IndexList;
+	std::vector<uint16_t> IndexList;
 	std::vector<Texture2D> TextureList;
 };
 
@@ -19,7 +19,7 @@ private:
 	void LoadModel(const std::string& FilePath);
 	void ProcessNode(const std::string& FilePath, aiNode* node, const aiScene* scene);
 	std::vector<Vertex> LoadVertices(aiMesh* mesh);
-	std::vector<uint32_t> LoadIndices(aiMesh* mesh);
+	std::vector<uint16_t> LoadIndices(aiMesh* mesh);
 	std::vector<Texture2D> LoadTextures(const std::string& FilePath, aiMesh* mesh, const aiScene* scene);
 
 public:

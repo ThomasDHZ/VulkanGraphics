@@ -4,7 +4,7 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertexList, const std::vector<uint32_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(deviceInfo)
+Mesh::Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(deviceInfo)
 {
 	VertexSize = vertexList.size();
 	IndiceSize = indexList.size();
@@ -156,7 +156,7 @@ void Mesh::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipe
 	}
 	else
 	{
-		vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(commandbuffer, static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
 	}
 }
@@ -175,11 +175,11 @@ void Mesh::UpdateSwapChain()
 
 void Mesh::ClearSwapChain()
 {
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
-	{
-		vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[i], nullptr);
-		vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[i], nullptr);
-	}
+	//for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	//{
+	//	vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[i], nullptr);
+	//	vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[i], nullptr);
+	//}
 
 	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
 }
