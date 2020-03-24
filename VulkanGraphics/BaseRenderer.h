@@ -76,7 +76,7 @@ protected:
 
 public:
 	BaseRenderer();
-	BaseRenderer(VkInstance instance, GLFWwindow* window);
+	BaseRenderer(std::vector<Mesh>* meshList, VkInstance instance, GLFWwindow* window);
 	~BaseRenderer();
 
 	VkSwapchainKHR swapChain;
@@ -112,6 +112,8 @@ public:
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
 
+	std::vector<Mesh>* MeshList;
+
 	void createSurface(VkInstance instance);
 	void pickPhysicalDevice(VkInstance instance);
 	void createLogicalDevice();
@@ -124,7 +126,7 @@ public:
 	void createDepthResources();
 
 
-	void createCommandBuffers(std::vector<VkClearValue> clearValues, const std::vector<Mesh>& mesh);
+	void createCommandBuffers(std::vector<VkClearValue> clearValues);
 	void createSyncObjects();
 	void DeleteSwapChain();
 	VulkanDevice UpdateDeviceInfo();

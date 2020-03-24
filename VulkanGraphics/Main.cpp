@@ -142,7 +142,7 @@ private:
 		createInstance();
 		setupDebugMessenger();
 
-		renderer = ForwardRenderer(instance, window);
+		renderer = ForwardRenderer(&meshList, instance, window);
 		DeviceInfo = renderer.UpdateDeviceInfo();
 
 		texture = Texture2D(DeviceInfo, "texture/texture.jpg");
@@ -158,7 +158,7 @@ private:
 		meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
 		meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
 
-		renderer.createCommandBuffers(meshList);
+		renderer.createCommandBuffers();
 		renderer.createSyncObjects();
 	}
 
@@ -267,7 +267,7 @@ private:
 		{
 			meshList[x].UpdateSwapChain();
 		}
-		renderer.createCommandBuffers(meshList);
+		renderer.createCommandBuffers();
 	}
 
 	void createInstance() {

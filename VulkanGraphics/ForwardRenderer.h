@@ -24,14 +24,14 @@ private:
 
 public:
 	ForwardRenderer();
-	ForwardRenderer(VkInstance instance, GLFWwindow* window);
+	ForwardRenderer(std::vector<Mesh>* meshList, VkInstance instance, GLFWwindow* window);
 	~ForwardRenderer();
 
 	void createRenderPass();
 	void createDescriptorSetLayout();
 	void createGraphicsPipeline();
 	void createFramebuffers();
-	void createCommandBuffers(const std::vector<Mesh>& mesh);
+	void createCommandBuffers();
 	void UpdateSwapChain();
 };
 

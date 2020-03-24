@@ -4,8 +4,9 @@ BaseRenderer::BaseRenderer()
 {
 }
 
-BaseRenderer::BaseRenderer(VkInstance instance, GLFWwindow* window)
+BaseRenderer::BaseRenderer(std::vector<Mesh>* meshList, VkInstance instance, GLFWwindow* window)
 {
+	MeshList = meshList,
 	Window = window;
 }
 
@@ -467,7 +468,7 @@ void BaseRenderer::createDepthResources() {
 	depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 
-void BaseRenderer::createCommandBuffers(std::vector<VkClearValue> clearValues, const std::vector<Mesh>& meshList)
+void BaseRenderer::createCommandBuffers(std::vector<VkClearValue> clearValues)
 {
 	commandBuffers.resize(swapChainFramebuffers.size());
 
@@ -500,7 +501,7 @@ void BaseRenderer::createCommandBuffers(std::vector<VkClearValue> clearValues, c
 
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		for (auto mesh : meshList)
+		for (auto mesh : *MeshList)
 		{
 			mesh.Draw(commandBuffers[i], graphicsPipeline, pipelineLayout, i);
 		}

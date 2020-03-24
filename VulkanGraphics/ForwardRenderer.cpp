@@ -5,7 +5,7 @@ ForwardRenderer::ForwardRenderer() : BaseRenderer()
 {
 }
 
-ForwardRenderer::ForwardRenderer(VkInstance instance, GLFWwindow* window) : BaseRenderer(instance, window)
+ForwardRenderer::ForwardRenderer(std::vector<Mesh>* meshList, VkInstance instance, GLFWwindow* window) : BaseRenderer(meshList, instance, window)
 {
 	createSurface(instance);
 	pickPhysicalDevice(instance);
@@ -232,7 +232,7 @@ void ForwardRenderer::createFramebuffers() {
 	}
 }
 
-void ForwardRenderer::createCommandBuffers(const std::vector<Mesh>& meshList)
+void ForwardRenderer::createCommandBuffers()
 {
 	std::vector<VkClearValue> clearValues = {};
 	clearValues.resize(2);
@@ -240,7 +240,7 @@ void ForwardRenderer::createCommandBuffers(const std::vector<Mesh>& meshList)
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 	clearValues[1].depthStencil = { 1.0f, 0 };
 
-	BaseRenderer::createCommandBuffers(clearValues, meshList);
+	BaseRenderer::createCommandBuffers(clearValues);
 }
 
 void ForwardRenderer::UpdateSwapChain()
