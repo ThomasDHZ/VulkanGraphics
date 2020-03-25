@@ -33,6 +33,7 @@ public:
 
 	void UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize);
 
+	virtual void ClearSwapChain();
 	virtual void Destory();
 };
 

@@ -24,7 +24,7 @@ private:
 
 public:
 	ForwardRenderer();
-	ForwardRenderer(std::vector<Mesh>* meshList, VkInstance instance, GLFWwindow* window);
+	ForwardRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, VkInstance instance, GLFWwindow* window);
 	~ForwardRenderer();
 
 	void createRenderPass();

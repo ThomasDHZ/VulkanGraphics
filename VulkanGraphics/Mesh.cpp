@@ -175,23 +175,12 @@ void Mesh::UpdateSwapChain()
 
 void Mesh::ClearSwapChain()
 {
-	//for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
-	//{
-	//	vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[i], nullptr);
-	//	vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[i], nullptr);
-	//}
-
-	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
-}
-void Mesh::Destory()
-{
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) 
 	{
 		vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[i], nullptr);
-		vkFreeMemory(DeviceInfo.Device,uniformBuffersMemory[i], nullptr);
+		vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[i], nullptr);
 	}
 
-	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
-
-	BaseMesh::Destory();
+	BaseMesh::ClearSwapChain();
 }
+

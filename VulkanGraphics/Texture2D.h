@@ -22,10 +22,6 @@
 class Texture2D : public Texture
 {
 private:
-
-	void LoadTexture();
-	void CreateTexture();
-	void CreateTextureImage(std::string TexturePath);
 	void CreateTextureSampler();
 public:
 	std::vector<Pixel> PixelImage;

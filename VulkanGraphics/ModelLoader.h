@@ -24,7 +24,7 @@ private:
 
 public:
 	ModelLoader();
-	ModelLoader(VulkanDevice deviceInfo, const std::string& FilePath);
+	ModelLoader(VulkanDevice deviceInfo,const std::string& FilePath);
 	~ModelLoader();
 
 	std::vector<SubMesh> GetModelMeshs() { return ModelMeshList; }

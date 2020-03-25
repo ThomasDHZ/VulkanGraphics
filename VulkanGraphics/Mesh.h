@@ -51,9 +51,6 @@ private:
 	void CreateVertexBuffer();
 	void CreateIndiceBuffer();
 
-
-
-
 public:
 
 	std::vector<Texture2D> TextureList;
@@ -72,6 +69,5 @@ public:
 	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
 	void UpdateSwapChain();
 	void ClearSwapChain();
-	void Destory();
 };
 

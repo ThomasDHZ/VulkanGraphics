@@ -17,6 +17,7 @@ public:
 	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
 	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
 	void UpdateSwapChain();
+	void ClearSwapChain();
 	void Destory();
 };
 

@@ -88,6 +88,11 @@ void BaseMesh::UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* Uni
 	vkUnmapMemory(DeviceInfo.Device, UniformBufferMemory);
 }
 
+void BaseMesh::ClearSwapChain()
+{
+	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
+}
+
 void BaseMesh::Destory()
 {
 	if (IndiceSize > 0)

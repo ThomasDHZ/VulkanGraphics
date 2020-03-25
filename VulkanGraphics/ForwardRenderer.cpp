@@ -5,7 +5,7 @@ ForwardRenderer::ForwardRenderer() : BaseRenderer()
 {
 }
 
-ForwardRenderer::ForwardRenderer(std::vector<Mesh>* meshList, VkInstance instance, GLFWwindow* window) : BaseRenderer(meshList, instance, window)
+ForwardRenderer::ForwardRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, VkInstance instance, GLFWwindow* window) : BaseRenderer(meshList, modelList, instance, window)
 {
 	createSurface(instance);
 	pickPhysicalDevice(instance);

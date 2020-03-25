@@ -4,9 +4,10 @@ BaseRenderer::BaseRenderer()
 {
 }
 
-BaseRenderer::BaseRenderer(std::vector<Mesh>* meshList, VkInstance instance, GLFWwindow* window)
+BaseRenderer::BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, VkInstance instance, GLFWwindow* window)
 {
-	MeshList = meshList,
+	MeshList = meshList;
+	ModelList = modelList;
 	Window = window;
 }
 
@@ -505,6 +506,10 @@ void BaseRenderer::createCommandBuffers(std::vector<VkClearValue> clearValues)
 		{
 			mesh.Draw(commandBuffers[i], graphicsPipeline, pipelineLayout, i);
 		}
+		for (auto model : *ModelList)
+		{
+			model.Draw(commandBuffers[i], graphicsPipeline, pipelineLayout, i);
+		}
 
 		vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -537,7 +542,7 @@ void BaseRenderer::createSyncObjects()
 	}
 }
 
-void BaseRenderer::DeleteSwapChain()
+void BaseRenderer::ClearSwapChain()
 {
 	vkDestroyImageView(device, depthImageView, nullptr);
 	vkDestroyImage(device, depthImage, nullptr);
@@ -558,6 +563,20 @@ void BaseRenderer::DeleteSwapChain()
 	}
 
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
+}
+
+void BaseRenderer::Destory()
+{
+	vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+	{
+		vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(device, inFlightFences[i], nullptr);
+	}
+
+	vkDestroyCommandPool(device, commandPool, nullptr);
 }
 
 VulkanDevice BaseRenderer::UpdateDeviceInfo()

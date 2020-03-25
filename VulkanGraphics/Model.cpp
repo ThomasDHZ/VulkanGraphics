@@ -37,9 +37,17 @@ void Model::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPip
 
 void Model::UpdateSwapChain()
 {
+	for (int x = 0; x < MeshList.size(); x++)
+	{
+		MeshList[x].UpdateSwapChain();
+	}
+}
+
+void Model::ClearSwapChain()
+{
 	for (auto mesh : MeshList)
 	{
-		mesh.UpdateSwapChain();
+		mesh.ClearSwapChain();
 	}
 }
 
