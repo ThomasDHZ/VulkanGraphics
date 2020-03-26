@@ -83,7 +83,7 @@ private:
 
 	std::vector<Mesh> meshList;
 	std::vector<Model> modelList;
-	std::vector<Texture2D> TextureList;
+	std::vector<Texture2D*> TextureList;
 
 	size_t currentFrame = 0;
 
@@ -111,7 +111,7 @@ private:
 		renderer = ForwardRenderer(&meshList, &modelList, instance, window);
 		DeviceInfo = renderer.UpdateDeviceInfo();
 
-		//modelLoader = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+		modelLoader = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
 		texture = Texture2D(DeviceInfo, "texture/texture.jpg");
 		std::vector<Texture2D> textureList = { texture, texture };
@@ -125,8 +125,16 @@ private:
 		meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
 		meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
 		meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-		//modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
-
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
+		modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
 
 		renderer.createCommandBuffers();
 		renderer.createSyncObjects();
@@ -162,6 +170,7 @@ private:
 		cleanupSwapChain();
 
 		texture.Destroy();
+		modelLoader.CleanTextureMemory();
 		renderer.Destory();
 
 		for (auto mesh : meshList)
@@ -302,7 +311,7 @@ private:
 			ubo2.proj[1][1] *= -1;
 
 			meshList[x].UpdateUniformBuffer(ubo2, currentImage);
-			//modelList[0].UpdateUniformBuffer(ubo2, currentImage);
+			modelList[x].UpdateUniformBuffer(ubo2, currentImage);
 		}
 
 	}

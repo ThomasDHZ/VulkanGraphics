@@ -109,3 +109,14 @@ std::vector<Texture2D> ModelLoader::LoadTextures(const std::string& FilePath, ai
 
 	return TextureList;
 }
+
+void ModelLoader::CleanTextureMemory()
+{
+	for (auto subMesh : ModelMeshList)
+	{
+		for (auto texture : subMesh.TextureList)
+		{
+			texture.Destroy();
+		}
+	}
+}

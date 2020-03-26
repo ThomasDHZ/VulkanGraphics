@@ -28,5 +28,6 @@ public:
 	~ModelLoader();
 
 	std::vector<SubMesh> GetModelMeshs() { return ModelMeshList; }
+	void CleanTextureMemory();
 };
 
