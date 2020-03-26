@@ -16,7 +16,7 @@ ForwardRenderer::ForwardRenderer(std::vector<Mesh>* meshList, std::vector<Model>
 	createDescriptorSetLayout();
 	createGraphicsPipeline();
 	createCommandPool();
-	createDepthResources();
+	DepthAttachment = InputAttachment(UpdateDeviceInfo(), AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
 }
 
@@ -36,7 +36,7 @@ void ForwardRenderer::createRenderPass() {
 	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 	VkAttachmentDescription depthAttachment = {};
-	depthAttachment.format = findDepthFormat();
+	depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -93,8 +93,8 @@ void ForwardRenderer::createDescriptorSetLayout()
 }
 
 void ForwardRenderer::createGraphicsPipeline() {
-	auto vertShaderCode = readFile("shaders/vert.spv");
-	auto fragShaderCode = readFile("shaders/frag.spv");
+	auto vertShaderCode = readFile("shaders/ForwardRendererVert.spv");
+	auto fragShaderCode = readFile("shaders/ForwardRendererFrag.spv");
 
 	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
 	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -225,7 +225,7 @@ void ForwardRenderer::createFramebuffers() {
 	{
 		std::vector<VkImageView> attachments = {
 			swapChainImageViews[i],
-			depthImageView
+			DepthAttachment.AttachmentImageView
 		};
 
 		BaseRenderer::createFramebuffers(attachments, i);
@@ -249,6 +249,6 @@ void ForwardRenderer::UpdateSwapChain()
 	createImageViews();
 	createRenderPass();
 	createGraphicsPipeline();
-	createDepthResources();
+	DepthAttachment.ReCreateAttachment(AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
 }

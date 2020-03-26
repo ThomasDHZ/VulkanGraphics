@@ -462,13 +462,6 @@ void BaseRenderer::createCommandPool() {
 	}
 }
 
-void BaseRenderer::createDepthResources() {
-	VkFormat depthFormat = findDepthFormat();
-
-	createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImage, depthImageMemory);
-	depthImageView = createImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-}
-
 void BaseRenderer::createCommandBuffers(std::vector<VkClearValue> clearValues)
 {
 	commandBuffers.resize(swapChainFramebuffers.size());
@@ -544,9 +537,7 @@ void BaseRenderer::createSyncObjects()
 
 void BaseRenderer::ClearSwapChain()
 {
-	vkDestroyImageView(device, depthImageView, nullptr);
-	vkDestroyImage(device, depthImage, nullptr);
-	vkFreeMemory(device, depthImageMemory, nullptr);
+	DepthAttachment.UpdateFrameBuffer();
 
 	for (auto framebuffer : swapChainFramebuffers) {
 		vkDestroyFramebuffer(device, framebuffer, nullptr);

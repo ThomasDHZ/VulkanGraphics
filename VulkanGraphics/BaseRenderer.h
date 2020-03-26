@@ -20,6 +20,7 @@
 #include "Vertex.h"
 #include "Mesh.h"
 #include "Model.h"
+#include "InputAttachment.h"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -74,6 +75,7 @@ protected:
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
+
 public:
 	BaseRenderer();
 	BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, VkInstance instance, GLFWwindow* window);
@@ -103,9 +105,7 @@ public:
 	VkDevice device;
 	VkCommandPool commandPool;
 
-	VkImage depthImage;
-	VkDeviceMemory depthImageMemory;
-	VkImageView depthImageView;
+	InputAttachment DepthAttachment;
 
 	std::vector<VkSemaphore> imageAvailableSemaphores;
 	std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -124,7 +124,6 @@ public:
 	void createDescriptorSetLayout(std::vector<VkDescriptorSetLayoutBinding> bindings);
 	void createFramebuffers(std::vector<VkImageView> attachments, int Image);
 	void createCommandPool();
-	void createDepthResources();
 
 
 	void createCommandBuffers(std::vector<VkClearValue> clearValues);
