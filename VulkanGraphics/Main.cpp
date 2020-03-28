@@ -142,36 +142,13 @@ private:
 		vkDeviceWaitIdle(DeviceInfo.Device);
 	}
 
-	void cleanupSwapChain() 
-	{
-		renderer.ClearSwapChain();
-
-		for (auto mesh : meshList)
-		{
-			mesh.ClearSwapChain();
-		}
-		for (auto model : modelList)
-		{
-			model.ClearSwapChain();
-		}
-	}
-
 	void cleanup() 
 	{
-		cleanupSwapChain();
-
 		texture.Destroy();
 		modelLoader.CleanTextureMemory();
-		renderer.Destory();
 
-		for (auto mesh : meshList)
-		{
-			mesh.Destory();
-		}
-		for (auto model : modelList)
-		{
-			model.Destory();
-		}
+		renderer.ClearSwapChain();
+		renderer.Destory();
 
         vkDestroyDevice(DeviceInfo.Device, nullptr);
 
@@ -192,7 +169,7 @@ private:
 
 		vkDeviceWaitIdle(DeviceInfo.Device);
 
-		cleanupSwapChain();
+		renderer.ClearSwapChain();
 
 		renderer.UpdateSwapChain();
 		for (int x = 0; x < meshList.size(); x++)

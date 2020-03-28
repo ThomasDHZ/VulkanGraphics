@@ -554,6 +554,15 @@ void BaseRenderer::ClearSwapChain()
 	}
 
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
+
+	for (auto mesh : *MeshList)
+	{
+		mesh.ClearSwapChain();
+	}
+	for (auto model : *ModelList)
+	{
+		model.ClearSwapChain();
+	}
 }
 
 void BaseRenderer::Destory()
@@ -568,6 +577,15 @@ void BaseRenderer::Destory()
 	}
 
 	vkDestroyCommandPool(device, commandPool, nullptr);
+
+	for (auto mesh : *MeshList)
+	{
+		mesh.Destory();
+	}
+	for (auto model : *ModelList)
+	{
+		model.Destory();
+	}
 }
 
 VulkanDevice BaseRenderer::UpdateDeviceInfo()

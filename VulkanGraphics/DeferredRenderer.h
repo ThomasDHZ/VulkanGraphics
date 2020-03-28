@@ -4,6 +4,10 @@
 class DeferredRenderer : public BaseRenderer
 {
 private:
+	InputAttachment PositionAttachment;
+	InputAttachment NormalAttachment;
+	InputAttachment AlbedoAttachment;
+
 	void createRenderPass();
 	void createDescriptorSetLayout();
 	void createGraphicsPipeline();
