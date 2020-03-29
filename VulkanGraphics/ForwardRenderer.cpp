@@ -24,7 +24,8 @@ ForwardRenderer::~ForwardRenderer()
 {
 }
 
-void ForwardRenderer::createRenderPass() {
+void ForwardRenderer::createRenderPass() 
+{
 	VkAttachmentDescription colorAttachment = {};
 	colorAttachment.format = swapChainImageFormat;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -81,14 +82,21 @@ void ForwardRenderer::createDescriptorSetLayout()
 	uboLayoutBinding.pImmutableSamplers = nullptr;
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-	VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-	samplerLayoutBinding.binding = 1;
-	samplerLayoutBinding.descriptorCount = 1;
-	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding.pImmutableSamplers = nullptr;
-	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	VkDescriptorSetLayoutBinding DiffuseMapLayoutBinding = {};
+	DiffuseMapLayoutBinding.binding = 1;
+	DiffuseMapLayoutBinding.descriptorCount = 1;
+	DiffuseMapLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	DiffuseMapLayoutBinding.pImmutableSamplers = nullptr;
+	DiffuseMapLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::vector<VkDescriptorSetLayoutBinding> bindings = { uboLayoutBinding, samplerLayoutBinding };
+	VkDescriptorSetLayoutBinding SpecularMapLayoutBinding = {};
+	SpecularMapLayoutBinding.binding = 2;
+	SpecularMapLayoutBinding.descriptorCount = 1;
+	SpecularMapLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	SpecularMapLayoutBinding.pImmutableSamplers = nullptr;
+	SpecularMapLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::vector<VkDescriptorSetLayoutBinding> bindings = { uboLayoutBinding, DiffuseMapLayoutBinding, SpecularMapLayoutBinding };
 	BaseRenderer::createDescriptorSetLayout(bindings);
 }
 

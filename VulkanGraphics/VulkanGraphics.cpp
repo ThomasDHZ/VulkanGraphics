@@ -77,7 +77,8 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 	modelLoader = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
 	texture = Texture2D(DeviceInfo, "texture/texture.jpg");
-	std::vector<Texture2D> textureList = { texture, texture };
+	texture2 = Texture2D(DeviceInfo, "texture/cat.png");
+	std::vector<Texture2D> textureList = { texture, texture2 };
 	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
 	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
 	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
@@ -106,6 +107,7 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 VulkanGraphics::~VulkanGraphics()
 {
 	texture.Destroy();
+	texture2.Destroy();
 	modelLoader.CleanTextureMemory();
 
 	renderer.ClearSwapChain();

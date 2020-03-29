@@ -89,11 +89,11 @@ void Mesh::UpdateTextures(const std::vector<Texture2D>& textureList)
 
 void Mesh::CreateDescriptorPool()
 {
-	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 3>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	/*DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;*/
+	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
 	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -119,7 +119,7 @@ void Mesh::CreateDescriptorSets()
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
-		std::array<WriteDescriptorSetInfo, 2>  WriteDescriptorInfo = {};
+		std::array<WriteDescriptorSetInfo, 3>  WriteDescriptorInfo = {};
 
 		WriteDescriptorInfo[0].DstBinding = 0;
 		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
@@ -131,10 +131,10 @@ void Mesh::CreateDescriptorSets()
 		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		WriteDescriptorInfo[1].DescriptorImageInfo = DiffuseMap;
 
-		//WriteDescriptorInfo[2].DstBinding = 2;
-		//WriteDescriptorInfo[2].DstSet = descriptorSets[i];
-		//WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
+		WriteDescriptorInfo[2].DstBinding = 2;
+		WriteDescriptorInfo[2].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
 
 		Mesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
