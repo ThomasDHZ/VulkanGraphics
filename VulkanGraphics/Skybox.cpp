@@ -3,14 +3,16 @@
 #include "VulkanBufferManager.h"
 #include <vector>
 
-SkyBox::SkyBox()
+SkyBox::SkyBox() : BaseMesh()
 {
 }
 
-SkyBox::SkyBox(VulkanDevice deviceInfo)
+SkyBox::SkyBox(VulkanDevice deviceInfo, SkyBoxPipeline pipeline, CubeMapTexture cubeMapTexture) : BaseMesh(deviceInfo)
 {
-	DeviceInfo = deviceInfo;
-	SetUpVertexBuffer(deviceInfo);
+	CreateUniformBuffers();
+	CreateDescriptorPool();
+	CreateDescriptorSets(pipeline, cubeMapTexture);
+	CreateVertexBuffer(deviceInfo);
 }
 
 SkyBox::~SkyBox()
@@ -77,9 +79,9 @@ void SkyBox::CreateDescriptorSets(SkyBoxPipeline pipeline, CubeMapTexture cubeMa
 	}
 }
 
-void SkyBox::SetUpVertexBuffer(VulkanDevice deviceInfo)
+void SkyBox::CreateVertexBuffer(VulkanDevice deviceInfo)
 {
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	VkDeviceSize bufferSize = sizeof(SkyboxVertices[0]) * SkyboxVertices.size();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -87,7 +89,7 @@ void SkyBox::SetUpVertexBuffer(VulkanDevice deviceInfo)
 
 	void* data;
 	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, vertices.data(), (size_t)bufferSize);
+	memcpy(data, SkyboxVertices.data(), (size_t)bufferSize);
 	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
 
 	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
@@ -98,15 +100,16 @@ void SkyBox::SetUpVertexBuffer(VulkanDevice deviceInfo)
 	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
 }
 
-void SkyBox::Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, SkyBoxPipeline pipeline)
+void SkyBox::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage)
 {
+
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipeline);
 	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &descriptorset, 0, nullptr);
-	vkCmdDraw(commandbuffer, vertices.size(), 1, 0, 0);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
+	vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
 }
 
 void SkyBox::Destory()

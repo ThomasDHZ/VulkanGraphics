@@ -3,12 +3,14 @@
 #include "Mesh.h"
 #include "Skybox.h"
 
-SkyBoxPipeline::SkyBoxPipeline()
+SkyBoxPipeline::SkyBoxPipeline() : GraphicsPipeline()
 {
 }
 
-SkyBoxPipeline::SkyBoxPipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass, VulkanDevice deviceInfo)
+SkyBoxPipeline::SkyBoxPipeline(VkExtent2D& swapChainExtent, VkRenderPass& renderPass, VulkanDevice deviceInfo) : GraphicsPipeline(deviceInfo)
 {
+	CreateDescriptorSetLayout();
+	CreateShaderPipeLine(swapChainExtent, renderPass);
 }
 
 SkyBoxPipeline::~SkyBoxPipeline()
@@ -30,7 +32,7 @@ void SkyBoxPipeline::CreateDescriptorSetLayout()
 	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass)
+void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D& swapChainExtent, VkRenderPass& renderPass)
 {
 	auto SkyBoxvertShaderCode = ReadShaderFile("Shaders/SkyBoxVert.spv");
 	auto SkyBoxfragShaderCode = ReadShaderFile("Shaders/SkyBoxFrag.spv");
@@ -156,4 +158,10 @@ void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPa
 
 	vkDestroyShaderModule(DeviceInfo.Device, SkyBoxfragShaderModule, nullptr);
 	vkDestroyShaderModule(DeviceInfo.Device, SkyBoxvertShaderModule, nullptr);
+}
+
+void SkyBoxPipeline::RecreatePipeline(VkExtent2D& swapChainExtent, VkRenderPass& renderPass)
+{
+	CreateDescriptorSetLayout();
+	CreateShaderPipeLine(swapChainExtent, renderPass);
 }

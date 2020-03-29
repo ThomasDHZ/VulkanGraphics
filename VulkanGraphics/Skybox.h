@@ -40,7 +40,7 @@ struct SkyBoxUniformBufferObject
 	alignas(16) glm::mat4 projection;
 };
 
-const std::vector<SkyBoxVertex> vertices =
+const std::vector<SkyBoxVertex> SkyboxVertices =
 {
 	{{	-1.0f,  1.0f, -1.0f }},
 	{{	-1.0f, -1.0f, -1.0f }},
@@ -85,25 +85,24 @@ const std::vector<SkyBoxVertex> vertices =
 	{{	 1.0f, -1.0f,  1.0f }}
 };
 
-class SkyBox : public Mesh
+class SkyBox : public BaseMesh
 {
 private:
-	VulkanDevice DeviceInfo;
-
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets(SkyBoxPipeline pipeline, CubeMapTexture cubeMapTexture);
-	void SetUpVertexBuffer(VulkanDevice deviceInfo);
+	void CreateVertexBuffer(VulkanDevice deviceInfo);
 
 public:
 	SkyBox();
-	SkyBox(VulkanDevice deviceInfo);
+	SkyBox(VulkanDevice deviceInfo, SkyBoxPipeline pipeline, CubeMapTexture cubeMapTexture);
 	~SkyBox();
 
-	void Draw(VkCommandBuffer commandbuffer, VkDescriptorSet descriptorset, SkyBoxPipeline pipeline);
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+
+	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
 	void Destory();
 };
 
