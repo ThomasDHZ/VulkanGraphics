@@ -75,6 +75,15 @@ protected:
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
+	void createSurface(VkInstance instance);
+	void pickPhysicalDevice(VkInstance instance);
+	void createLogicalDevice();
+	void createSwapChain();
+	void createImageViews();
+	void createRenderPass(VkSubpassDescription subpass, VkSubpassDependency dependency, std::vector<VkAttachmentDescription> attachments);
+	void createDescriptorSetLayout(std::vector<VkDescriptorSetLayoutBinding> bindings);
+	void createFramebuffers(std::vector<VkImageView> attachments, int Image);
+	void createCommandPool();
 
 public:
 	BaseRenderer();
@@ -114,17 +123,6 @@ public:
 
 	std::vector<Mesh>* MeshList;
 	std::vector<Model>* ModelList;
-
-	void createSurface(VkInstance instance);
-	void pickPhysicalDevice(VkInstance instance);
-	void createLogicalDevice();
-	void createSwapChain();
-	void createImageViews();
-	void createRenderPass(VkSubpassDescription subpass, VkSubpassDependency dependency, std::vector<VkAttachmentDescription> attachments);
-	void createDescriptorSetLayout(std::vector<VkDescriptorSetLayoutBinding> bindings);
-	void createFramebuffers(std::vector<VkImageView> attachments, int Image);
-	void createCommandPool();
-
 
 	void createCommandBuffers(std::vector<VkClearValue> clearValues);
 	void createSyncObjects();
