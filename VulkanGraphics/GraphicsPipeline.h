@@ -25,6 +25,7 @@ public:
 	GraphicsPipeline(VulkanDevice deviceInfo);
 	~GraphicsPipeline();
 
+	virtual void ClearSwapChain();
 	virtual void Destory();
 };
 
