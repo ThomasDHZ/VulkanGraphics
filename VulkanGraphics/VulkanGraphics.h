@@ -8,8 +8,11 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "ForwardRenderer.h"
+#include "SkyBox.h"
+#include "CubeMapTexture.h"
+#include "SkyBoxPipeline.h"
 
-const std::vector<Vertex> vertices = {
+const std::vector<Vertex> meshvertices = {
 	{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
 	{{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
 	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
@@ -45,6 +48,10 @@ private:
 	bool firstMouse;
 	double MouseXPos;
 	double MouseYPos;
+
+	SkyBox skybox;
+	CubeMapTexture cubeTexture;
+	SkyBoxPipeline skyPipeline;
 
 	Texture2D texture;
 	Texture2D texture2;

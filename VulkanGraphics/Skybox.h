@@ -3,16 +3,18 @@
 #include <string>
 #include <array>
 
-#include "Structs.h"
-#include "BaseMesh.h"
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "CubeMapTexture.h"
 #include "SkyBoxPipeline.h"
 
-struct SkyBoxVertex 
+struct SkyBoxVertex
 {
 	glm::vec3 pos;
 
-	static VkVertexInputBindingDescription getBindingDescription() 
+	static VkVertexInputBindingDescription getBindingDescription()
 	{
 		VkVertexInputBindingDescription bindingDescription = {};
 		bindingDescription.binding = 0;
@@ -40,7 +42,7 @@ struct SkyBoxUniformBufferObject
 	alignas(16) glm::mat4 projection;
 };
 
-const std::vector<SkyBoxVertex> SkyboxVertices =
+const std::vector<SkyBoxVertex> vertices =
 {
 	{{	-1.0f,  1.0f, -1.0f }},
 	{{	-1.0f, -1.0f, -1.0f }},
@@ -88,21 +90,25 @@ const std::vector<SkyBoxVertex> SkyboxVertices =
 class SkyBox : public BaseMesh
 {
 private:
-
-	void CreateUniformBuffers();
-	void CreateDescriptorPool();
-	void CreateDescriptorSets(SkyBoxPipeline pipeline, CubeMapTexture cubeMapTexture);
-	void CreateVertexBuffer(VulkanDevice deviceInfo);
+	void SetUpVertexBuffer();
+	void SetUpUniformBuffers();
+	void SetUpDescriptorPool();
+	void SetUpDescriptorSets(SkyBoxPipeline pipeline);
 
 public:
-	SkyBox();
-	SkyBox(VulkanDevice deviceInfo, SkyBoxPipeline pipeline, CubeMapTexture cubeMapTexture);
-	~SkyBox();
+	CubeMapTexture CubeMap;
 
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
-	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
-	void Destory();
+	SkyBox();
+	SkyBox(VulkanDevice vulkanDevice, CubeMapTexture texture, SkyBoxPipeline pipeline);
+	~SkyBox();
+
+	void UpdateUniformBuffer(SkyBoxUniformBufferObject ubo, uint32_t currentImage);
+	void Draw(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkCommandBuffer commandBuffer, size_t currentImage);
+	void UpdateSwapChain(SkyBoxPipeline pipeline);
+	void DestorySwapChain();
 };
+
 

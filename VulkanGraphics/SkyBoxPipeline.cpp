@@ -7,7 +7,7 @@ SkyBoxPipeline::SkyBoxPipeline() : GraphicsPipeline()
 {
 }
 
-SkyBoxPipeline::SkyBoxPipeline(VkExtent2D& swapChainExtent, VkRenderPass& renderPass, VulkanDevice deviceInfo) : GraphicsPipeline(deviceInfo)
+SkyBoxPipeline::SkyBoxPipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass, VulkanDevice deviceInfo) : GraphicsPipeline(deviceInfo)
 {
 	CreateDescriptorSetLayout();
 	CreateShaderPipeLine(swapChainExtent, renderPass);
@@ -32,7 +32,7 @@ void SkyBoxPipeline::CreateDescriptorSetLayout()
 	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D& swapChainExtent, VkRenderPass& renderPass)
+void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass)
 {
 	auto SkyBoxvertShaderCode = ReadShaderFile("Shaders/SkyBoxVert.spv");
 	auto SkyBoxfragShaderCode = ReadShaderFile("Shaders/SkyBoxFrag.spv");
@@ -160,7 +160,7 @@ void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D& swapChainExtent, VkRenderP
 	vkDestroyShaderModule(DeviceInfo.Device, SkyBoxvertShaderModule, nullptr);
 }
 
-void SkyBoxPipeline::RecreatePipeline(VkExtent2D& swapChainExtent, VkRenderPass& renderPass)
+void SkyBoxPipeline::UpdateSwapChain(VkExtent2D swapChainExtent, VkRenderPass renderPass)
 {
 	CreateDescriptorSetLayout();
 	CreateShaderPipeLine(swapChainExtent, renderPass);

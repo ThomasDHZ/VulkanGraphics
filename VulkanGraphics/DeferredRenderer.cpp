@@ -5,7 +5,7 @@ DeferredRenderer::DeferredRenderer() : BaseRenderer()
 {
 }
 
-DeferredRenderer::DeferredRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, VkInstance instance, GLFWwindow* window) : BaseRenderer(meshList, modelList, instance, window)
+DeferredRenderer::DeferredRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, SkyBoxPipeline* skyboxpipeline, VkInstance instance, GLFWwindow* window) : BaseRenderer(meshList, modelList, skybox, skyboxpipeline, instance, window)
 {
 	createSurface(instance);
 	pickPhysicalDevice(instance);

@@ -2,6 +2,7 @@
 #include <vector>
 #include "Mesh.h"
 #include "Vertex.h"
+#include "Texture2D.h"
 
 struct SubMesh
 {

@@ -8,17 +8,16 @@ class BaseMesh
 private:
 
 protected:
-
 	VulkanDevice DeviceInfo;
+
+	int VertexSize;
+	uint16_t IndiceSize;
 
 	void CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
 	void CreateDescriptorSets(VkDescriptorSetLayout layout);
 	void CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 
 public:
-	int VertexSize;
-	uint16_t IndiceSize;
-
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 

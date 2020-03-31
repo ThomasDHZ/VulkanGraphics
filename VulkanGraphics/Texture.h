@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "Structs.h"
 #include "Pixel.h"
 #include <string>

@@ -161,8 +161,8 @@
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
-    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="SkyBoxPipeline.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="VulkanDebugger.cpp" />
@@ -195,9 +195,9 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="Pixel.h" />
-    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="SkyBoxPipeline.h" />
     <ClInclude Include="Structs.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Vertex.h" />

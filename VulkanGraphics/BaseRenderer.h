@@ -21,6 +21,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "InputAttachment.h"
+#include "SkyBox.h"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -84,10 +85,11 @@ protected:
 	void createDescriptorSetLayout(std::vector<VkDescriptorSetLayoutBinding> bindings);
 	void createFramebuffers(std::vector<VkImageView> attachments, int Image);
 	void createCommandPool();
+	void createSkyboxDesriptorSetLayout(std::vector<VkDescriptorSetLayoutBinding> bindings);
 
 public:
 	BaseRenderer();
-	BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, VkInstance instance, GLFWwindow* window);
+	BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skyBox, SkyBoxPipeline* skyboxpipeline, VkInstance instance, GLFWwindow* window);
 	~BaseRenderer();
 
 	VkSwapchainKHR swapChain;
@@ -101,6 +103,10 @@ public:
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
+
+	VkDescriptorSetLayout skyboxdescriptorSetLayout;
+	VkPipelineLayout skyboxpipelineLayout;
+	VkPipeline skyboxgraphicsPipeline;
 
 	VkSurfaceKHR surface;
 
@@ -123,6 +129,8 @@ public:
 
 	std::vector<Mesh>* MeshList;
 	std::vector<Model>* ModelList;
+	SkyBox* skyBox;
+	SkyBoxPipeline* skyboxPipeline;
 
 	void createCommandBuffers(std::vector<VkClearValue> clearValues);
 	void createSyncObjects();

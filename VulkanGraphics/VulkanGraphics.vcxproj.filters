@@ -24,9 +24,6 @@
     <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SkyBox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CubeMapTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,6 +81,9 @@
     <ClCompile Include="ForwardRenderingPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SkyBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\light.frag">
@@ -113,9 +113,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SkyBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VulkanBufferManager.h">
@@ -185,6 +182,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ForwardRenderingPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #include "VulkanGraphics.h"
 
 int main() {
-	VulkanGraphics app = VulkanGraphics(1600, 1200, "VulkanGarphics");
+	VulkanGraphics app(1600,1200, "VulkanGraphics");
 
 	try {
 		app.VulkanRun();

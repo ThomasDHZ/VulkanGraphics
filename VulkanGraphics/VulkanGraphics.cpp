@@ -71,24 +71,36 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 
 	VulkanDebug.SetUpDebugger(instance);
 
-	renderer = ForwardRenderer(&meshList, &modelList, instance, Window.GetWindowPtr());
+	renderer = ForwardRenderer(&meshList, &modelList, &skybox, &skyPipeline, instance, Window.GetWindowPtr());
 	DeviceInfo = renderer.UpdateDeviceInfo();
+
+	skyPipeline = SkyBoxPipeline(renderer.swapChainExtent, renderer.renderPass, DeviceInfo);
+
+	CubeMapLayout layout;
+	layout.Left = "texture/skybox/left.jpg";
+	layout.Right = "texture/skybox/right.jpg";
+	layout.Top = "texture/skybox/top.jpg";
+	layout.Bottom = "texture/skybox/bottom.jpg";
+	layout.Back = "texture/skybox/back.jpg";
+	layout.Front = "texture/skybox/front.jpg";
+	cubeTexture = CubeMapTexture(DeviceInfo, layout);
+	skybox = SkyBox(DeviceInfo, cubeTexture, skyPipeline);
 
 	modelLoader = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
 	texture = Texture2D(DeviceInfo, "texture/texture.jpg");
 	texture2 = Texture2D(DeviceInfo, "texture/cat.png");
 	std::vector<Texture2D> textureList = { texture, texture2 };
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
 	modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
 	modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
 	modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
@@ -108,11 +120,13 @@ VulkanGraphics::~VulkanGraphics()
 {
 	texture.Destroy();
 	texture2.Destroy();
+	cubeTexture.Destroy();
 	modelLoader.CleanTextureMemory();
 
 	renderer.ClearSwapChain();
 	renderer.Destory();
-
+	skyPipeline.ClearSwapChain();
+	skyPipeline.Destory();
 
 	vkDestroyDevice(DeviceInfo.Device, nullptr);
 
@@ -146,8 +160,11 @@ void VulkanGraphics::recreateSwapChain() {
 	vkDeviceWaitIdle(DeviceInfo.Device);
 
 	renderer.ClearSwapChain();
+	skybox.ClearSwapChain();
 
 	renderer.UpdateSwapChain();
+	skyPipeline.UpdateSwapChain(renderer.swapChainExtent, renderer.renderPass);
+	skybox.UpdateSwapChain(skyPipeline);
 	for (int x = 0; x < meshList.size(); x++)
 	{
 		meshList[x].UpdateSwapChain();
@@ -194,6 +211,12 @@ void VulkanGraphics::updateUniformBuffer(uint32_t currentImage) {
 		modelList[x].UpdateUniformBuffer(ubo2, currentImage);
 	}
 
+	SkyBoxUniformBufferObject ubo = {};
+	ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+	ubo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 100.0f);
+	ubo.projection[1][1] *= -1;
+
+	skybox.UpdateUniformBuffer(ubo, currentImage);
 }
 
 void VulkanGraphics::drawFrame() {

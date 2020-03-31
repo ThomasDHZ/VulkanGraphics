@@ -7,19 +7,44 @@ SkyBox::SkyBox() : BaseMesh()
 {
 }
 
-SkyBox::SkyBox(VulkanDevice deviceInfo, SkyBoxPipeline pipeline, CubeMapTexture cubeMapTexture) : BaseMesh(deviceInfo)
+SkyBox::SkyBox(VulkanDevice vulkanDevice, CubeMapTexture texture, SkyBoxPipeline pipeline) : BaseMesh(vulkanDevice)
 {
-	CreateUniformBuffers();
-	CreateDescriptorPool();
-	CreateDescriptorSets(pipeline, cubeMapTexture);
-	CreateVertexBuffer(deviceInfo);
+	CubeMap = texture;
+	VertexSize = vertices.size();
+	IndiceSize = 0;
+
+	SetUpVertexBuffer();
+	SetUpUniformBuffers();
+	SetUpDescriptorPool();
+	SetUpDescriptorSets(pipeline);
 }
 
 SkyBox::~SkyBox()
 {
 }
 
-void SkyBox::CreateUniformBuffers()
+void SkyBox::SetUpVertexBuffer()
+{
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+
+	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+}
+
+void SkyBox::SetUpUniformBuffers()
 {
 	VkDeviceSize bufferSize = sizeof(SkyBoxUniformBufferObject);
 
@@ -31,17 +56,17 @@ void SkyBox::CreateUniformBuffers()
 	}
 }
 
-void SkyBox::CreateDescriptorPool()
+void SkyBox::SetUpDescriptorPool()
 {
-	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
-
-	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-
-	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+		std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
+	
+		DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	
+		BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void SkyBox::CreateDescriptorSets(SkyBoxPipeline pipeline, CubeMapTexture cubeMapTexture)
+void SkyBox::SetUpDescriptorSets(SkyBoxPipeline pipeline)
 {
 	BaseMesh::CreateDescriptorSets(pipeline.ShaderPipelineDescriptorLayout);
 
@@ -54,8 +79,8 @@ void SkyBox::CreateDescriptorSets(SkyBoxPipeline pipeline, CubeMapTexture cubeMa
 
 		VkDescriptorImageInfo imageInfo = {};
 		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = cubeMapTexture.textureImageView;
-		imageInfo.sampler = cubeMapTexture.textureSampler;
+		imageInfo.imageView = CubeMap.textureImageView;
+		imageInfo.sampler = CubeMap.textureSampler;
 
 		std::array<VkWriteDescriptorSet, 2>  descriptorWrites = {};
 
@@ -79,42 +104,37 @@ void SkyBox::CreateDescriptorSets(SkyBoxPipeline pipeline, CubeMapTexture cubeMa
 	}
 }
 
-void SkyBox::CreateVertexBuffer(VulkanDevice deviceInfo)
+void SkyBox::UpdateUniformBuffer(SkyBoxUniformBufferObject ubo, uint32_t currentImage)
 {
-	VkDeviceSize bufferSize = sizeof(SkyboxVertices[0]) * SkyboxVertices.size();
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-	void* data;
-	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, SkyboxVertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
-
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
-
-	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
-
-	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+	BaseMesh::UpdateUniformBuffer(uniformBuffersMemory[currentImage], static_cast<void*>(&ubo), sizeof(ubo));
 }
 
-void SkyBox::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage)
+void SkyBox::Draw(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkCommandBuffer commandBuffer, size_t currentImage)
 {
-
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipeline);
-	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
-	vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
+	vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
 }
 
-void SkyBox::Destory()
+void SkyBox::UpdateSwapChain(SkyBoxPipeline pipeline)
 {
-	vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
+	SetUpUniformBuffers();
+	SetUpDescriptorPool();
+	SetUpDescriptorSets(pipeline);
+}
+
+void SkyBox::DestorySwapChain()
+{
+	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	{
+		vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[i], nullptr);
+		vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[i], nullptr);
+	}
+
+	BaseMesh::ClearSwapChain();
 }
 

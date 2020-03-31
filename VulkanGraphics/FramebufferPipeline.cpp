@@ -1,6 +1,7 @@
 #include "FramebufferPipeline.h"
 #include <array>
 #include "Mesh.h"
+#include "Vertex.h"
 
 FramebufferPipeline::FramebufferPipeline() : GraphicsPipeline()
 {
