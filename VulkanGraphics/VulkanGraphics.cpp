@@ -126,6 +126,7 @@ VulkanGraphics::~VulkanGraphics()
 	renderer.ClearSwapChain();
 	renderer.Destory();
 
+	skyPipeline.ClearSwapChain();
 	skyPipeline.Destory();
 
 	skybox.ClearSwapChain();
@@ -163,7 +164,6 @@ void VulkanGraphics::recreateSwapChain() {
 	vkDeviceWaitIdle(DeviceInfo.Device);
 
 	renderer.ClearSwapChain();
-	skyPipeline.ClearSwapChain();
 	skybox.ClearSwapChain();
 
 	renderer.UpdateSwapChain();
