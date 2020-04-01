@@ -107,9 +107,5 @@ void GraphicsPipeline::ClearSwapChain()
 {
 	vkDestroyPipeline(DeviceInfo.Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(DeviceInfo.Device, ShaderPipelineLayout, nullptr);
-}
-
-void GraphicsPipeline::Destory()
-{
 	vkDestroyDescriptorSetLayout(DeviceInfo.Device, ShaderPipelineDescriptorLayout, nullptr);
 }

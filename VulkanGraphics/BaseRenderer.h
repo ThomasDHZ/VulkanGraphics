@@ -21,6 +21,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "InputAttachment.h"
+#include "SkyBox.h"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -88,7 +89,7 @@ protected:
 
 public:
 	BaseRenderer();
-	BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, VkInstance instance, GLFWwindow* window);
+	BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, SkyBoxPipeline* skyboxPipeline, VkInstance instance, GLFWwindow* window);
 	~BaseRenderer();
 
 	VkSwapchainKHR swapChain;
@@ -128,6 +129,8 @@ public:
 
 	std::vector<Mesh>* MeshList;
 	std::vector<Model>* ModelList;
+	SkyBox* skyBox;
+	SkyBoxPipeline* skyBoxPipeline;
 
 	void createCommandBuffers(std::vector<VkClearValue> clearValues);
 	void createSyncObjects();
