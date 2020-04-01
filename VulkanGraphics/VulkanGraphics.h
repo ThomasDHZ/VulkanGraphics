@@ -51,7 +51,6 @@ private:
 
 	SkyBox skybox;
 	CubeMapTexture cubeTexture;
-	SkyBoxPipeline skyPipeline;
 
 	Texture2D texture;
 	Texture2D texture2;

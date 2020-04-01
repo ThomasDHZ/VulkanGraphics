@@ -71,10 +71,8 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 
 	VulkanDebug.SetUpDebugger(instance);
 
-	renderer = ForwardRenderer(&meshList, &modelList, &skybox, &skyPipeline, instance, Window.GetWindowPtr());
+	renderer = ForwardRenderer(&meshList, &modelList, &skybox, instance, Window.GetWindowPtr());
 	DeviceInfo = renderer.UpdateDeviceInfo();
-
-	skyPipeline = SkyBoxPipeline(renderer.swapChainExtent, renderer.renderPass, DeviceInfo);
 
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
@@ -84,7 +82,7 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
 	cubeTexture = CubeMapTexture(DeviceInfo, layout);
-	skybox = SkyBox(DeviceInfo, cubeTexture, skyPipeline);
+	skybox = SkyBox(DeviceInfo, cubeTexture, renderer.skyBoxPipeline);
 
 	modelLoader = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
@@ -126,12 +124,6 @@ VulkanGraphics::~VulkanGraphics()
 	renderer.ClearSwapChain();
 	renderer.Destory();
 
-	//skyPipeline.ClearSwapChain();
-	//skyPipeline.Destory();
-
-	//skybox.ClearSwapChain();
-	//skybox.Destory();
-
 	vkDestroyDevice(DeviceInfo.Device, nullptr);
 
 	VulkanDebug.CleanUp(instance);
@@ -164,11 +156,8 @@ void VulkanGraphics::recreateSwapChain() {
 	vkDeviceWaitIdle(DeviceInfo.Device);
 
 	renderer.ClearSwapChain();
-	//skybox.ClearSwapChain();
-
 	renderer.UpdateSwapChain();
-	skyPipeline.UpdateSwapChain(renderer.swapChainExtent, renderer.renderPass);
-	skybox.UpdateSwapChain(skyPipeline);
+	skybox.UpdateSwapChain(renderer.skyBoxPipeline);
 	for (int x = 0; x < meshList.size(); x++)
 	{
 		meshList[x].UpdateSwapChain();

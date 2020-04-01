@@ -5,7 +5,7 @@ ForwardRenderer::ForwardRenderer() : BaseRenderer()
 {
 }
 
-ForwardRenderer::ForwardRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, SkyBoxPipeline* skyboxPipeline, VkInstance instance, GLFWwindow* window) : BaseRenderer(meshList, modelList, skybox, skyboxPipeline,  instance, window)
+ForwardRenderer::ForwardRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, VkInstance instance, GLFWwindow* window) : BaseRenderer(meshList, modelList, skybox,  instance, window)
 {
 	createSurface(instance);
 	pickPhysicalDevice(instance);
@@ -15,6 +15,7 @@ ForwardRenderer::ForwardRenderer(std::vector<Mesh>* meshList, std::vector<Model>
 	createRenderPass();
 	createDescriptorSetLayout();
 	createGraphicsPipeline();
+	skyBoxPipeline = SkyBoxPipeline(swapChainExtent, renderPass, UpdateDeviceInfo());
 	createCommandPool();
 	DepthAttachment = InputAttachment(UpdateDeviceInfo(), AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
@@ -257,6 +258,7 @@ void ForwardRenderer::UpdateSwapChain()
 	createImageViews();
 	createRenderPass();
 	createGraphicsPipeline();
+	skyBoxPipeline.UpdateSwapChain(swapChainExtent, renderPass);
 	DepthAttachment.ReCreateAttachment(AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
 }

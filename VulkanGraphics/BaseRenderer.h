@@ -89,7 +89,7 @@ protected:
 
 public:
 	BaseRenderer();
-	BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, SkyBoxPipeline* skyboxPipeline, VkInstance instance, GLFWwindow* window);
+	BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, VkInstance instance, GLFWwindow* window);
 	~BaseRenderer();
 
 	VkSwapchainKHR swapChain;
@@ -130,7 +130,7 @@ public:
 	std::vector<Mesh>* MeshList;
 	std::vector<Model>* ModelList;
 	SkyBox* skyBox;
-	SkyBoxPipeline* skyBoxPipeline;
+	SkyBoxPipeline skyBoxPipeline;
 
 	void createCommandBuffers(std::vector<VkClearValue> clearValues);
 	void createSyncObjects();
