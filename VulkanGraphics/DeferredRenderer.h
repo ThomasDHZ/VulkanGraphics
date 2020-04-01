@@ -15,7 +15,7 @@ private:
 
 public:
 	DeferredRenderer();
-	DeferredRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, SkyBoxPipeline* skyboxpipeline, VkInstance instance, GLFWwindow* window);
+	DeferredRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, VkInstance instance, GLFWwindow* window);
 	~DeferredRenderer();
 
 	void createCommandBuffers();

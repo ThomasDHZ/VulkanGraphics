@@ -4,12 +4,10 @@ BaseRenderer::BaseRenderer()
 {
 }
 
-BaseRenderer::BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, SkyBoxPipeline* skyboxpipeline, VkInstance instance, GLFWwindow* window)
+BaseRenderer::BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, VkInstance instance, GLFWwindow* window)
 {
 	MeshList = meshList;
 	ModelList = modelList;
-	skyBox = skybox;
-	skyboxPipeline = skyboxpipeline;
 	Window = window;
 }
 
@@ -509,7 +507,6 @@ void BaseRenderer::createCommandBuffers(std::vector<VkClearValue> clearValues)
 
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		skyBox->Draw(skyboxPipeline->ShaderPipeline, skyboxPipeline->ShaderPipelineLayout, commandBuffers[i], i);
 		for (auto mesh : *MeshList)
 		{
 			mesh.Draw(commandBuffers[i], graphicsPipeline, pipelineLayout, i);
@@ -570,7 +567,6 @@ void BaseRenderer::ClearSwapChain()
 
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
 
-	skyBox->DestorySwapChain();
 	for (auto mesh : *MeshList)
 	{
 		mesh.ClearSwapChain();
@@ -594,7 +590,6 @@ void BaseRenderer::Destory()
 
 	vkDestroyCommandPool(device, commandPool, nullptr);
 
-	skyBox->Destory();
 	for (auto mesh : *MeshList)
 	{
 		mesh.Destory();

@@ -108,7 +108,7 @@ public:
 	void UpdateUniformBuffer(SkyBoxUniformBufferObject ubo, uint32_t currentImage);
 	void Draw(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkCommandBuffer commandBuffer, size_t currentImage);
 	void UpdateSwapChain(SkyBoxPipeline pipeline);
-	void DestorySwapChain();
+	void ClearSwapChain();
 };
 
 

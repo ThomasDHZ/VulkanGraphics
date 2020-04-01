@@ -127,7 +127,7 @@ void SkyBox::UpdateSwapChain(SkyBoxPipeline pipeline)
 	SetUpDescriptorSets(pipeline);
 }
 
-void SkyBox::DestorySwapChain()
+void SkyBox::ClearSwapChain()
 {
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{

@@ -71,7 +71,7 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 
 	VulkanDebug.SetUpDebugger(instance);
 
-	renderer = ForwardRenderer(&meshList, &modelList, &skybox, &skyPipeline, instance, Window.GetWindowPtr());
+	renderer = ForwardRenderer(&meshList, &modelList, instance, Window.GetWindowPtr());
 	DeviceInfo = renderer.UpdateDeviceInfo();
 
 	skyPipeline = SkyBoxPipeline(renderer.swapChainExtent, renderer.renderPass, DeviceInfo);
@@ -125,8 +125,11 @@ VulkanGraphics::~VulkanGraphics()
 
 	renderer.ClearSwapChain();
 	renderer.Destory();
-	skyPipeline.ClearSwapChain();
+
 	skyPipeline.Destory();
+
+	skybox.ClearSwapChain();
+	skybox.Destory();
 
 	vkDestroyDevice(DeviceInfo.Device, nullptr);
 
@@ -160,10 +163,10 @@ void VulkanGraphics::recreateSwapChain() {
 	vkDeviceWaitIdle(DeviceInfo.Device);
 
 	renderer.ClearSwapChain();
+	skyPipeline.ClearSwapChain();
 	skybox.ClearSwapChain();
 
 	renderer.UpdateSwapChain();
-	skyPipeline.UpdateSwapChain(renderer.swapChainExtent, renderer.renderPass);
 	skybox.UpdateSwapChain(skyPipeline);
 	for (int x = 0; x < meshList.size(); x++)
 	{
