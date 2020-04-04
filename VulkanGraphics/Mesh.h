@@ -45,15 +45,8 @@ struct UniformBufferObject
 class Mesh : public BaseMesh
 {
 private:
-	std::vector<Vertex> VertexList;
-	std::vector<uint16_t> IndexList;
-
-	void CreateVertexBuffer();
-	void CreateIndiceBuffer();
 
 public:
-
-	std::vector<Texture2D> TextureList;
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
@@ -61,7 +54,6 @@ public:
 	Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
 	~Mesh();
 
-	void UpdateTextures(const std::vector<Texture2D>& textureList);
 	void CreateUniformBuffers();
 	void CreateDescriptorPool();
 	void CreateDescriptorSets();

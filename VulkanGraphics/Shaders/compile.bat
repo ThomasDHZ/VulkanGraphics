@@ -6,5 +6,7 @@ C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe SkyboxShader.vert -o SkyBoxVert.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe SkyboxShader.frag -o SkyBoxFrag.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe FrameBufferShader.vert -o FrameBufferVert.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe FrameBufferShader.frag -o FrameBufferFrag.spv
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe Renderer2DShader.vert -o Renderer2DVert.spv
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe Renderer2DShader.frag -o Renderer2DFrag.spv
 
 pause

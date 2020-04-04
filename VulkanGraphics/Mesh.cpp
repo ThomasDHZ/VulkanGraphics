@@ -4,69 +4,15 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(deviceInfo)
+Mesh::Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(deviceInfo, vertexList, indexList, textureList)
 {
-	VertexSize = vertexList.size();
-	IndiceSize = indexList.size();
-
-	VertexList = vertexList;
-	IndexList = indexList;
-	TextureList = textureList;
-
 	CreateUniformBuffers();
 	CreateDescriptorPool();
 	CreateDescriptorSets();
-	CreateVertexBuffer();
-	CreateIndiceBuffer();
 }
 
 Mesh::~Mesh()
 {
-}
-
-void Mesh::CreateVertexBuffer()
-{
-	VkDeviceSize bufferSize = sizeof(VertexList[0]) * VertexList.size();
-
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-	void* data;
-	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, VertexList.data(), (size_t)bufferSize);
-	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
-
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
-
-	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
-
-	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
-}
-
-void Mesh::CreateIndiceBuffer()
-{
-	if (IndiceSize != 0)
-	{
-		VkDeviceSize bufferSize = sizeof(IndexList[0]) * IndexList.size();
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, IndexList.data(), (size_t)bufferSize);
-		vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
-
-		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
-
-		VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, indexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
-
-		vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
-		vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
-	}
 }
 
 void Mesh::CreateUniformBuffers()
@@ -79,12 +25,6 @@ void Mesh::CreateUniformBuffers()
 	{
 		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 	}
-}
-
-void Mesh::UpdateTextures(const std::vector<Texture2D>& textureList)
-{
-	TextureList.clear();
-	TextureList = textureList;
 }
 
 void Mesh::CreateDescriptorPool()
