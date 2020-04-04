@@ -89,6 +89,7 @@ protected:
 
 public:
 	BaseRenderer();
+	BaseRenderer(VkInstance instance, GLFWwindow* window);
 	BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, VkInstance instance, GLFWwindow* window);
 	~BaseRenderer();
 

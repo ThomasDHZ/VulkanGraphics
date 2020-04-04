@@ -4,6 +4,11 @@ BaseRenderer::BaseRenderer()
 {
 }
 
+BaseRenderer::BaseRenderer(VkInstance instance, GLFWwindow* window)
+{
+	Window = window;
+}
+
 BaseRenderer::BaseRenderer(std::vector<Mesh>* meshList, std::vector<Model>* modelList, SkyBox* skybox, VkInstance instance, GLFWwindow* window)
 {
 	MeshList = meshList;
