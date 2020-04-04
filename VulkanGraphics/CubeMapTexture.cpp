@@ -1,6 +1,7 @@
 #include "CubeMapTexture.h"
 #include <stb_image.h>
 #include "VulkanBufferManager.h"
+#include "Image.h"
 
 CubeMapTexture::CubeMapTexture() : Texture()
 {
@@ -19,17 +20,21 @@ CubeMapTexture::~CubeMapTexture()
 
 void CubeMapTexture::SetUpCubeMapImage(CubeMapLayout CubeMapFiles)
 {
-	unsigned char* textureData[6];
-	int texChannels;
+	std::vector<Image> SkyBoxLayout;
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Left));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Right));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Top));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Bottom));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Back));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Front));
 
-	textureData[0] = stbi_load(CubeMapFiles.Left.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
-	textureData[1] = stbi_load(CubeMapFiles.Right.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
-	textureData[2] = stbi_load(CubeMapFiles.Top.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
-	textureData[3] = stbi_load(CubeMapFiles.Bottom.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
-	textureData[4] = stbi_load(CubeMapFiles.Back.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
-	textureData[5] = stbi_load(CubeMapFiles.Front.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
+	SkyBoxLayout[2].FlipHorizontally();
+	SkyBoxLayout[3].FlipHorizontally();
 
-	const VkDeviceSize imageSize = Width * Height * 4 * 6;
+	Width = SkyBoxLayout[0].GetWidth();
+	Height = SkyBoxLayout[0].GetHeight();
+
+	const VkDeviceSize imageSize = SkyBoxLayout[0].GetImageSize() * 6;
 	const VkDeviceSize layerSize = imageSize / 6;
 
 	VkBuffer stagingBuffer;
@@ -41,7 +46,7 @@ void CubeMapTexture::SetUpCubeMapImage(CubeMapLayout CubeMapFiles)
 
 	for (int i = 0; i < 6; ++i)
 	{
-		memcpy(static_cast<char*>(data) + (i * layerSize), textureData[i], static_cast<size_t>(layerSize));
+		memcpy(static_cast<char*>(data) + (i * layerSize), SkyBoxLayout[i].GetImageData(), static_cast<size_t>(layerSize));
 	}
 
 	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
@@ -72,7 +77,6 @@ void CubeMapTexture::CreateTextureSampler()
 	SamplerInfo.unnormalizedCoordinates = VK_FALSE;
 	SamplerInfo.compareEnable = VK_FALSE;
 	SamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-	SamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
 	Texture::CreateTextureSampler(SamplerInfo);
 }

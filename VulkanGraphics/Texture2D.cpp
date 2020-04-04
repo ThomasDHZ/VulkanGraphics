@@ -1,6 +1,7 @@
 #include "Texture2D.h"
 #include <stb_image.h>
 #include "VulkanBufferManager.h"
+#include "Image.h"
 
 Texture2D::Texture2D() : Texture()
 {
@@ -8,14 +9,10 @@ Texture2D::Texture2D() : Texture()
 
 Texture2D::Texture2D(VulkanDevice deviceInfo, std::string TexturePath) : Texture(deviceInfo, TextureType::vkTexture2D)
 {
-	int texChannels;
-	stbi_uc* pixels = stbi_load(TexturePath.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
-	VkDeviceSize imageSize = Width * Height * 4;
-
-	if (!pixels)
-	{
-		throw std::runtime_error("failed to load texture image!");
-	}
+	Image image = Image(TexturePath);
+	Width = image.GetWidth();
+	Height = image.GetHeight();
+	VkDeviceSize imageSize = image.GetImageSize();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -23,10 +20,8 @@ Texture2D::Texture2D(VulkanDevice deviceInfo, std::string TexturePath) : Texture
 
 	void* data;
 	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, imageSize, 0, &data);
-	memcpy(data, pixels, static_cast<size_t>(imageSize));
+	memcpy(data, image.GetImageData(), static_cast<size_t>(imageSize));
 	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
-
-	stbi_image_free(pixels);
 
 	CreateImage();
 
