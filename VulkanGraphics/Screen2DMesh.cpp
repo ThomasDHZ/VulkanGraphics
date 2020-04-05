@@ -1,11 +1,15 @@
 #include "Screen2DMesh.h"
+#include "VulkanBufferManager.h"
 
 Screen2DMesh::Screen2DMesh() : BaseMesh()
 {
 }
 
-Screen2DMesh::Screen2DMesh(VulkanDevice deviceInfo) : BaseMesh(deviceInfo)
+Screen2DMesh::Screen2DMesh(VulkanDevice deviceInfo, std::vector<Texture2D>& TextureList) : BaseMesh(deviceInfo, TextureList)
 {
+	VertexSize = ScreenVertices.size();
+
+	CreateVertexBuffer();
 	CreateDescriptorPool();
 	CreateDescriptorSets();
 }
@@ -14,11 +18,32 @@ Screen2DMesh::~Screen2DMesh()
 {
 }
 
+void Screen2DMesh::CreateVertexBuffer()
+{
+	VkDeviceSize bufferSize = sizeof(ScreenVertices[0]) * ScreenVertices.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, ScreenVertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+
+	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+
+	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
+	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+}
+
 void Screen2DMesh::CreateDescriptorPool()
 {
 	std::array<DescriptorPoolSizeInfo, 1>  DescriptorPoolInfo = {};
 
-	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
 	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }

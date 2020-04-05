@@ -23,6 +23,12 @@ BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices)
 	CreateVertexBuffer();
 }
 
+BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Texture2D>& textureList)
+{
+	DeviceInfo = deviceInfo;
+	TextureList = textureList;
+}
+
 BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
 {
 	DeviceInfo = deviceInfo;
@@ -35,6 +41,19 @@ BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices,
 
 	CreateVertexBuffer();
 	CreateIndiceBuffer();
+}
+
+BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<Texture2D>& textureList)
+{
+	DeviceInfo = deviceInfo;
+
+	VertexSize = vertices.size();
+	IndiceSize = 0;
+
+	VertexList = vertices;
+	TextureList = textureList;
+
+	CreateVertexBuffer();
 }
 
 BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList)

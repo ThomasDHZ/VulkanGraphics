@@ -11,6 +11,7 @@
 #include "SkyBox.h"
 #include "CubeMapTexture.h"
 #include "SkyBoxPipeline.h"
+#include "Renderer2D.h"
 
 const std::vector<Vertex> meshvertices = {
 	{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
@@ -38,7 +39,7 @@ private:
 	VulkanDebugger VulkanDebug;
 
 	VulkanDevice DeviceInfo;
-	ForwardRenderer renderer;
+	Renderer2D renderer;
 	Camera camera;
 
 	float deltaTime = 0.0f;

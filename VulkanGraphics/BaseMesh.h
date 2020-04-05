@@ -39,7 +39,9 @@ public:
 	BaseMesh();
 	BaseMesh(VulkanDevice deviceInfo);
 	BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices);
+	BaseMesh(VulkanDevice deviceInfo, const std::vector<Texture2D>& textureList);
 	BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
+	BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<Texture2D>& textureList);
 	BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
 	~BaseMesh();
 
