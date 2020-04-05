@@ -22,6 +22,7 @@ public:
 	void SetPixel(glm::ivec2 position, glm::vec4 Color);
 	void SetPixel(glm::ivec2 position, Pixel pixel);
 
+	void LoadImage(std::string TexturePath);
 	void FlipVertically();
 	void FlipHorizontally();
 	void UpdateColor(Pixel pixel);

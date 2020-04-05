@@ -8,6 +8,31 @@ Image::Image()
 
 Image::Image(std::string TexturePath)
 {
+	LoadImage(TexturePath);
+}
+
+Image::~Image()
+{
+}
+
+void Image::SetPixel(glm::ivec2 position, glm::vec3 Color)
+{
+	SetPixel(position, Pixel(Color));
+}
+
+void Image::SetPixel(glm::ivec2 position, glm::vec4 Color)
+{
+	SetPixel(position, Pixel(Color));
+}
+
+void Image::SetPixel(glm::ivec2 position, Pixel pixel)
+{
+	int pos = position.x + (position.y * Width);
+	ImageData[pos] = pixel;
+}
+
+void Image::LoadImage(std::string TexturePath)
+{
 	int texChannels;
 	stbi_uc* pixels = stbi_load(TexturePath.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
 	ImageSize = Width * Height * 4;
@@ -31,32 +56,12 @@ Image::Image(std::string TexturePath)
 	stbi_image_free(pixels);
 }
 
-Image::~Image()
-{
-}
-
-void Image::SetPixel(glm::ivec2 position, glm::vec3 Color)
-{
-	SetPixel(position, Pixel(Color));
-}
-
-void Image::SetPixel(glm::ivec2 position, glm::vec4 Color)
-{
-	SetPixel(position, Pixel(Color));
-}
-
-void Image::SetPixel(glm::ivec2 position, Pixel pixel)
-{
-	int pos = position.x + (position.y * Width);
-	ImageData[pos] = pixel;
-}
-
 void Image::FlipVertically()
 {
 	std::vector<Pixel> TempImageData;
 	TempImageData.resize(ImageData.size(), Pixel(0xFF, 0x00, 0x00));
 
-	for (int x = 0; x < Width; x++)
+	for (int x = 0; x <= Width; x++)
 	{
 		for (int y = 0; y < Height; y++)
 		{
@@ -74,7 +79,7 @@ void Image::FlipHorizontally()
 	std::vector<Pixel> TempImageData;
 	TempImageData.resize(ImageData.size(), Pixel(0xFF, 0x00, 0x00));
 
-	for (int x = 0; x < Width; x++)
+	for (int x = 0; x <= Width; x++)
 	{
 		for (int y = 0; y < Height; y++)
 		{

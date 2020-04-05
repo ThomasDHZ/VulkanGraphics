@@ -74,32 +74,34 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 
 
 
-	renderer = Renderer2D(instance, Window.GetWindowPtr());
+	renderer = ForwardRenderer(&meshList, &modelList, &skybox, instance, Window.GetWindowPtr());
 	DeviceInfo = renderer.UpdateDeviceInfo();
 
-	//CubeMapLayout layout;
-	//layout.Left = "texture/skybox/left.jpg";
-	//layout.Right = "texture/skybox/right.jpg";
-	//layout.Top = "texture/skybox/top.jpg";
-	//layout.Bottom = "texture/skybox/bottom.jpg";
-	//layout.Back = "texture/skybox/back.jpg";
-	//layout.Front = "texture/skybox/front.jpg";
-	//cubeTexture = CubeMapTexture(DeviceInfo, layout);
-//	skybox = SkyBox(DeviceInfo, cubeTexture, renderer.skyBoxPipeline);
+	CubeMapLayout layout;
+	layout.Left = "texture/skybox/left.jpg";
+	layout.Right = "texture/skybox/right.jpg";
+	layout.Top = "texture/skybox/top4.jpg";
+	layout.Bottom = "texture/skybox/bottom.jpg";
+	layout.Back = "texture/skybox/back.jpg";
+	layout.Front = "texture/skybox/front.jpg";
+	cubeTexture = CubeMapTexture(DeviceInfo, layout);
+	skybox = SkyBox(DeviceInfo, cubeTexture, renderer.skyBoxPipeline);
 
 	//modelLoader = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
-	//std::vector<Texture2D> textureList = { texture, texture2 };
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	texture = Texture2D(DeviceInfo, "texture/texture.jpg");
+	texture2 = Texture2D(DeviceInfo, "texture/cat.png");
+	std::vector<Texture2D> textureList = { texture, texture2 };
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
 	//modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
 	//modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
 	//modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
@@ -117,10 +119,10 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 
 VulkanGraphics::~VulkanGraphics()
 {
-//	texture.Destroy();
-//	texture2.Destroy();
-//	cubeTexture.Destroy();
-//	modelLoader.CleanTextureMemory();
+	texture.Destroy();
+	texture2.Destroy();
+	cubeTexture.Destroy();
+	modelLoader.CleanTextureMemory();
 
 	renderer.ClearSwapChain();
 	renderer.Destory();
@@ -158,15 +160,15 @@ void VulkanGraphics::recreateSwapChain() {
 
 	renderer.ClearSwapChain();
 	renderer.UpdateSwapChain();
-	//skybox.UpdateSwapChain(renderer.skyBoxPipeline);
-	//for (int x = 0; x < meshList.size(); x++)
-	//{
-	//	meshList[x].UpdateSwapChain();
-	//}
-	//for (int x = 0; x < modelList.size(); x++)
-	//{
-	//	modelList[x].UpdateSwapChain();
-	//}
+	skybox.UpdateSwapChain(renderer.skyBoxPipeline);
+	for (int x = 0; x < meshList.size(); x++)
+	{
+		meshList[x].UpdateSwapChain();
+	}
+	for (int x = 0; x < modelList.size(); x++)
+	{
+		modelList[x].UpdateSwapChain();
+	}
 	renderer.createCommandBuffers();
 }
 
@@ -191,26 +193,26 @@ void VulkanGraphics::updateUniformBuffer(uint32_t currentImage) {
 	};
 
 
-	//for (int x = 0; x < meshList.size(); x++)
-	//{
-	//	UniformBufferObject ubo2 = {};
-	//	ubo2.model = glm::mat4(1.0f);
-	//	ubo2.model = glm::translate(ubo2.model, cubePositions[x]);
-	//	ubo2.model = glm::rotate(ubo2.model, glm::radians(x * 20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
-	//	ubo2.view = camera.GetViewMatrix();
-	//	ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 100.0f);
-	//	ubo2.proj[1][1] *= -1;
+	for (int x = 0; x < meshList.size(); x++)
+	{
+		UniformBufferObject ubo2 = {};
+		ubo2.model = glm::mat4(1.0f);
+		ubo2.model = glm::translate(ubo2.model, cubePositions[x]);
+		ubo2.model = glm::rotate(ubo2.model, glm::radians(x * 20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+		ubo2.view = camera.GetViewMatrix();
+		ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 100.0f);
+		ubo2.proj[1][1] *= -1;
 
-	//	meshList[x].UpdateUniformBuffer(ubo2, currentImage);
+		meshList[x].UpdateUniformBuffer(ubo2, currentImage);
 	//	modelList[x].UpdateUniformBuffer(ubo2, currentImage);
-	//}
+	}
 
-	//SkyBoxUniformBufferObject ubo = {};
-	//ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-	//ubo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 100.0f);
-	//ubo.projection[1][1] *= -1;
+	SkyBoxUniformBufferObject ubo = {};
+	ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+	ubo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 100.0f);
+	ubo.projection[1][1] *= -1;
 
-	//skybox.UpdateUniformBuffer(ubo, currentImage);
+	skybox.UpdateUniformBuffer(ubo, currentImage);
 }
 
 void VulkanGraphics::drawFrame() {
@@ -227,7 +229,7 @@ void VulkanGraphics::drawFrame() {
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
-	//updateUniformBuffer(imageIndex);
+	updateUniformBuffer(imageIndex);
 
 	if (renderer.imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(DeviceInfo.Device, 1, &renderer.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
