@@ -19,8 +19,8 @@ Renderer2D::Renderer2D(VkInstance instance, GLFWwindow* window) : BaseRenderer(i
 	DepthAttachment = InputAttachment(UpdateDeviceInfo(), AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
 
-	auto texture = Texture2D(UpdateDeviceInfo(), "texture/skybox/front.jpg");
-	std::vector<Texture2D> textureList2 = { texture };
+	DisplayTexture = Texture2D(UpdateDeviceInfo(), "texture/skybox/front.jpg");
+	std::vector<Texture2D> textureList2 = { DisplayTexture };
 
 	Display2D = Screen2DMesh(UpdateDeviceInfo(), textureList2);
 }
@@ -286,4 +286,20 @@ void Renderer2D::UpdateSwapChain()
 	createGraphicsPipeline();
 	DepthAttachment.ReCreateAttachment(AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
+	Display2D.UpdateSwapChain();
+}
+
+void Renderer2D::ClearSwapChain()
+{
+	Display2D.ClearSwapChain();
+
+	BaseRenderer::ClearSwapChain();
+}
+
+void Renderer2D::Destory()
+{
+	DisplayTexture.Destroy();
+	Display2D.Destory();
+
+	BaseRenderer::Destory();
 }

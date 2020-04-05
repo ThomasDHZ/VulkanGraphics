@@ -5,6 +5,7 @@
 class Renderer2D : public BaseRenderer
 {
 	Screen2DMesh Display2D;
+	Texture2D DisplayTexture;
 
 	void createRenderPass();
 	void createDescriptorSetLayout();
@@ -18,5 +19,7 @@ public:
 
 	void createCommandBuffers();
 	void UpdateSwapChain();
+	void ClearSwapChain();
+	void Destory();
 };
 

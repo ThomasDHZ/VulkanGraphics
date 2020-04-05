@@ -8,6 +8,7 @@ Screen2DMesh::Screen2DMesh() : BaseMesh()
 Screen2DMesh::Screen2DMesh(VulkanDevice deviceInfo, std::vector<Texture2D>& TextureList) : BaseMesh(deviceInfo, TextureList)
 {
 	VertexSize = ScreenVertices.size();
+	IndiceSize = 0;
 
 	CreateVertexBuffer();
 	CreateDescriptorPool();

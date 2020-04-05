@@ -26,6 +26,9 @@ BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices)
 BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Texture2D>& textureList)
 {
 	DeviceInfo = deviceInfo;
+
+	IndiceSize = 0;
+
 	TextureList = textureList;
 }
 
