@@ -74,34 +74,34 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 
 
 
-	renderer = ForwardRenderer(&meshList, &modelList, &skybox, instance, Window.GetWindowPtr());
+	renderer = Renderer2D(instance, Window.GetWindowPtr());
 	DeviceInfo = renderer.UpdateDeviceInfo();
 
-	CubeMapLayout layout;
-	layout.Left = "texture/skybox/left.jpg";
-	layout.Right = "texture/skybox/right.jpg";
-	layout.Top = "texture/skybox/top4.jpg";
-	layout.Bottom = "texture/skybox/bottom.jpg";
-	layout.Back = "texture/skybox/back.jpg";
-	layout.Front = "texture/skybox/front.jpg";
-	cubeTexture = CubeMapTexture(DeviceInfo, layout);
-	skybox = SkyBox(DeviceInfo, cubeTexture, renderer.skyBoxPipeline);
+	//CubeMapLayout layout;
+	//layout.Left = "texture/skybox/left.jpg";
+	//layout.Right = "texture/skybox/right.jpg";
+	//layout.Top = "texture/skybox/top4.jpg";
+	//layout.Bottom = "texture/skybox/bottom.jpg";
+	//layout.Back = "texture/skybox/back.jpg";
+	//layout.Front = "texture/skybox/front.jpg";
+	//cubeTexture = CubeMapTexture(DeviceInfo, layout);
+	//skybox = SkyBox(DeviceInfo, cubeTexture, renderer.skyBoxPipeline);
 
 	//modelLoader = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
-	texture = Texture2D(DeviceInfo, "texture/texture.jpg");
-	texture2 = Texture2D(DeviceInfo, "texture/cat.png");
-	std::vector<Texture2D> textureList = { texture, texture2 };
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
-	meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//texture = Texture2D(DeviceInfo, "texture/texture.jpg");
+	//texture2 = Texture2D(DeviceInfo, "texture/cat.png");
+	//std::vector<Texture2D> textureList = { texture, texture2 };
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
+	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
 	//modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
 	//modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
 	//modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
@@ -114,15 +114,16 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 	//modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
 
 	renderer.createCommandBuffers();
+	//renderer.UpdateCommandBuffer();
 	renderer.createSyncObjects();
 }
 
 VulkanGraphics::~VulkanGraphics()
 {
-	texture.Destroy();
-	texture2.Destroy();
-	cubeTexture.Destroy();
-	modelLoader.CleanTextureMemory();
+	//texture.Destroy();
+	//texture2.Destroy();
+	//cubeTexture.Destroy();
+	//modelLoader.CleanTextureMemory();
 
 	renderer.ClearSwapChain();
 	renderer.Destory();
@@ -140,6 +141,7 @@ void VulkanGraphics::mainLoop() {
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
+		renderer.UpdateFrame();
 		drawFrame();
 		UpdateMouse();
 		UpdateKeyboard();
@@ -160,15 +162,15 @@ void VulkanGraphics::recreateSwapChain() {
 
 	renderer.ClearSwapChain();
 	renderer.UpdateSwapChain();
-	skybox.UpdateSwapChain(renderer.skyBoxPipeline);
-	for (int x = 0; x < meshList.size(); x++)
-	{
-		meshList[x].UpdateSwapChain();
-	}
-	for (int x = 0; x < modelList.size(); x++)
-	{
-		modelList[x].UpdateSwapChain();
-	}
+	//skybox.UpdateSwapChain(renderer.skyBoxPipeline);
+	//for (int x = 0; x < meshList.size(); x++)
+	//{
+	//	meshList[x].UpdateSwapChain();
+	//}
+	//for (int x = 0; x < modelList.size(); x++)
+	//{
+	//	modelList[x].UpdateSwapChain();
+	//}
 	renderer.createCommandBuffers();
 }
 
@@ -229,7 +231,7 @@ void VulkanGraphics::drawFrame() {
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
-	updateUniformBuffer(imageIndex);
+	//updateUniformBuffer(imageIndex);
 
 	if (renderer.imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(DeviceInfo.Device, 1, &renderer.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);

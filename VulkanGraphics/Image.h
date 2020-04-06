@@ -16,6 +16,7 @@ private:
 public:
 	Image();
 	Image(std::string TexturePath);
+	Image(int width, int height, Pixel pixel);
 	~Image();
 
 	void SetPixel(glm::ivec2 position, glm::vec3 Color);

@@ -19,10 +19,12 @@ Renderer2D::Renderer2D(VkInstance instance, GLFWwindow* window) : BaseRenderer(i
 	DepthAttachment = InputAttachment(UpdateDeviceInfo(), AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
 
-	DisplayTexture = Texture2D(UpdateDeviceInfo(), "texture/skybox/front.jpg");
-	std::vector<Texture2D> textureList2 = { DisplayTexture };
+	DisplayTexture[0] = Texture2D(UpdateDeviceInfo(), swapChainExtent.width, swapChainExtent.height, Pixel(0x00, 0x00, 0x00));
+	DisplayTexture[1] = Texture2D(UpdateDeviceInfo(), swapChainExtent.width, swapChainExtent.height, Pixel(0x00, 0x00, 0x00));
+	DisplayTexture[2] = Texture2D(UpdateDeviceInfo(), swapChainExtent.width, swapChainExtent.height, Pixel(0x00, 0x00, 0x00));
+	std::vector<Texture2D> textureList = { DisplayTexture[0], DisplayTexture[1], DisplayTexture[2] };
 
-	Display2D = Screen2DMesh(UpdateDeviceInfo(), textureList2);
+	Display2D = Screen2DMesh(UpdateDeviceInfo(), textureList);
 }
 
 Renderer2D::~Renderer2D()
@@ -278,15 +280,32 @@ void Renderer2D::createCommandBuffers()
 	}
 }
 
+void Renderer2D::UpdateFrame()
+{
+	currentFrame = (currentFrame + 1) % 3;
+
+	for (int x = 0; x <= 99; x++)
+	{
+		DisplayTexture[currentFrame].SetPixel(glm::ivec2(x), Pixel(0xFF, 0x00, 0x00));
+	}
+
+	Display2D.ClearSwapChain();
+	DisplayTexture[currentFrame].UpdateTexture();
+	Display2D.UpdateSwapChain(DisplayTexture[currentFrame]);
+	createCommandBuffers();
+}
+
 void Renderer2D::UpdateSwapChain()
 {
+	currentFrame = (currentFrame + 1) % 3;
+
 	createSwapChain();
 	createImageViews();
 	createRenderPass();
 	createGraphicsPipeline();
 	DepthAttachment.ReCreateAttachment(AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
-	Display2D.UpdateSwapChain();
+	Display2D.UpdateSwapChain(DisplayTexture[currentFrame]);
 }
 
 void Renderer2D::ClearSwapChain()
@@ -298,7 +317,9 @@ void Renderer2D::ClearSwapChain()
 
 void Renderer2D::Destory()
 {
-	DisplayTexture.Destroy();
+	DisplayTexture[0].Destroy();
+	DisplayTexture[1].Destroy();
+	DisplayTexture[2].Destroy();
 	Display2D.Destory();
 
 	BaseRenderer::Destory();

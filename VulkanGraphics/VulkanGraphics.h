@@ -39,7 +39,7 @@ private:
 	VulkanDebugger VulkanDebug;
 
 	VulkanDevice DeviceInfo;
-	ForwardRenderer renderer;
+	Renderer2D renderer;
 	Camera camera;
 
 	float deltaTime = 0.0f;

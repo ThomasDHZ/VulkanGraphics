@@ -12,7 +12,7 @@ Screen2DMesh::Screen2DMesh(VulkanDevice deviceInfo, std::vector<Texture2D>& Text
 
 	CreateVertexBuffer();
 	CreateDescriptorPool();
-	CreateDescriptorSets();
+	CreateDescriptorSets(TextureList[0]);
 }
 
 Screen2DMesh::~Screen2DMesh()
@@ -49,14 +49,14 @@ void Screen2DMesh::CreateDescriptorPool()
 	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Screen2DMesh::CreateDescriptorSets()
+void Screen2DMesh::CreateDescriptorSets(const Texture2D& CurrentScreenTexture)
 {
 	BaseMesh::CreateDescriptorSets(DeviceInfo.descriptorSetLayout);
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	DiffuseMap.imageView = TextureList[0].textureImageView;
-	DiffuseMap.sampler = TextureList[0].textureSampler;
+	DiffuseMap.imageView = CurrentScreenTexture.textureImageView;
+	DiffuseMap.sampler = CurrentScreenTexture.textureSampler;
 
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{
@@ -83,8 +83,8 @@ void Screen2DMesh::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline
 	vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
 }
 
-void Screen2DMesh::UpdateSwapChain()
+void Screen2DMesh::UpdateSwapChain(const Texture2D& CurrentScreenTexture)
 {
 	CreateDescriptorPool();
-	CreateDescriptorSets();
+	CreateDescriptorSets(CurrentScreenTexture);
 }

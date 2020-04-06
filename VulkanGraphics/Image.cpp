@@ -11,6 +11,15 @@ Image::Image(std::string TexturePath)
 	LoadImage(TexturePath);
 }
 
+Image::Image(int width, int height, Pixel pixel)
+{
+	Width = width;
+	Height = height;
+
+	ImageSize = Width * Height * sizeof(Pixel);
+	ImageData.resize(Width * Height, pixel);
+}
+
 Image::~Image()
 {
 }

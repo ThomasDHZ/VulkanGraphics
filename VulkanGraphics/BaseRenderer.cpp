@@ -574,16 +574,16 @@ void BaseRenderer::ClearSwapChain()
 
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
 
-	skyBox->ClearSwapChain();
-	skyBoxPipeline.ClearSwapChain();
-	for (auto mesh : *MeshList)
-	{
-		mesh.ClearSwapChain();
-	}
-	for (auto model : *ModelList)
-	{
-		model.ClearSwapChain();
-	}
+	//skyBox->ClearSwapChain();
+	//skyBoxPipeline.ClearSwapChain();
+	//for (auto mesh : *MeshList)
+	//{
+	//	mesh.ClearSwapChain();
+	//}
+	//for (auto model : *ModelList)
+	//{
+	//	model.ClearSwapChain();
+	//}
 }
 
 void BaseRenderer::Destory()
@@ -599,15 +599,15 @@ void BaseRenderer::Destory()
 
 	vkDestroyCommandPool(device, commandPool, nullptr);
 
-	skyBox->Destory();
-	for (auto mesh : *MeshList)
-	{
-		mesh.Destory();
-	}
-	for (auto model : *ModelList)
-	{
-		model.Destory();
-	}
+	//skyBox->Destory();
+	//for (auto mesh : *MeshList)
+	//{
+	//	mesh.Destory();
+	//}
+	//for (auto model : *ModelList)
+	//{
+	//	model.Destory();
+	//}
 }
 
 VulkanDevice BaseRenderer::UpdateDeviceInfo()
