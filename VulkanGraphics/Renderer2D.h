@@ -12,6 +12,7 @@ class Renderer2D : public BaseRenderer
 	void createDescriptorSetLayout();
 	void createGraphicsPipeline();
 	void createFramebuffers();
+	void createCommandBuffers();
 
 public:
 	Renderer2D();
@@ -19,8 +20,12 @@ public:
 	~Renderer2D();
 
 	VkCommandBuffer commandBuffer2D;
+	VkCommandBuffer DrawBuffer2D;
+	VkCommandPool SecondCommandPool;
 
-	void createCommandBuffers();
+	void createSyncObjects();
+	void UpdateSecondaryCommandBuffer(VkCommandBufferInheritanceInfo inheritanceInfo);
+	void UpdateCommandBuffers();
 	void UpdateFrame();
 	void UpdateSwapChain();
 	void ClearSwapChain();
