@@ -20,23 +20,16 @@ CubeMapTexture::~CubeMapTexture()
 
 void CubeMapTexture::SetUpCubeMapImage(CubeMapLayout CubeMapFiles)
 {
-	std::vector<std::future<void>> CubeMapLoaded;
-	CubeMapLoaded.resize(6);
-
 	std::vector<Image> SkyBoxLayout;
-	SkyBoxLayout.resize(6);
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Left));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Right));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Top));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Bottom));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Back));
+	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Front));
 
-	CubeMapLoaded[0] = std::async(std::launch::async, &Image::LoadImage, &SkyBoxLayout[0], CubeMapFiles.Left);
-	CubeMapLoaded[1] = std::async(std::launch::async, &Image::LoadImage, &SkyBoxLayout[1], CubeMapFiles.Right);
-	CubeMapLoaded[2] = std::async(std::launch::async, &Image::LoadImage, &SkyBoxLayout[2], CubeMapFiles.Top);
-	CubeMapLoaded[3] = std::async(std::launch::async, &Image::LoadImage, &SkyBoxLayout[3], CubeMapFiles.Bottom);
-	CubeMapLoaded[4] = std::async(std::launch::async, &Image::LoadImage, &SkyBoxLayout[4], CubeMapFiles.Back);
-	CubeMapLoaded[5] = std::async(std::launch::async, &Image::LoadImage, &SkyBoxLayout[5], CubeMapFiles.Front);
-
-	for (int x = 0; x < 5; x++)
-	{
-		CubeMapLoaded[x].get();
-	}
+	SkyBoxLayout[2].FlipHorizontally();
+	SkyBoxLayout[3].FlipHorizontally();
 
 	Width = SkyBoxLayout[0].GetWidth();
 	Height = SkyBoxLayout[0].GetHeight();

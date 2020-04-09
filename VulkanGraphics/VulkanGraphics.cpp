@@ -80,17 +80,15 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 	//CubeMapLayout layout;
 	//layout.Left = "texture/skybox/left.jpg";
 	//layout.Right = "texture/skybox/right.jpg";
-	//layout.Top = "texture/skybox/top4.jpg";
+	//layout.Top = "texture/skybox/top.jpg";
 	//layout.Bottom = "texture/skybox/bottom.jpg";
 	//layout.Back = "texture/skybox/back.jpg";
 	//layout.Front = "texture/skybox/front.jpg";
 	//cubeTexture = CubeMapTexture(DeviceInfo, layout);
-	//skybox = SkyBox(DeviceInfo, cubeTexture, renderer.skyBoxPipeline);
+//	skybox = SkyBox(DeviceInfo, cubeTexture, renderer.skyBoxPipeline);
 
 	//modelLoader = ModelLoader(DeviceInfo, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
-	//texture = Texture2D(DeviceInfo, "texture/texture.jpg");
-	//texture2 = Texture2D(DeviceInfo, "texture/cat.png");
 	//std::vector<Texture2D> textureList = { texture, texture2 };
 	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
 	//meshList.emplace_back(Mesh(DeviceInfo, meshvertices, indices, textureList));
@@ -114,16 +112,15 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 	//modelList.emplace_back(Model(DeviceInfo, modelLoader.GetModelMeshs()));
 
 	renderer.createCommandBuffers();
-	//renderer.UpdateCommandBuffer();
 	renderer.createSyncObjects();
 }
 
 VulkanGraphics::~VulkanGraphics()
 {
-	//texture.Destroy();
-	//texture2.Destroy();
-	//cubeTexture.Destroy();
-	//modelLoader.CleanTextureMemory();
+//	texture.Destroy();
+//	texture2.Destroy();
+//	cubeTexture.Destroy();
+//	modelLoader.CleanTextureMemory();
 
 	renderer.ClearSwapChain();
 	renderer.Destory();
@@ -141,7 +138,6 @@ void VulkanGraphics::mainLoop() {
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
-		renderer.UpdateFrame();
 		drawFrame();
 		UpdateMouse();
 		UpdateKeyboard();
@@ -195,92 +191,97 @@ void VulkanGraphics::updateUniformBuffer(uint32_t currentImage) {
 	};
 
 
-	for (int x = 0; x < meshList.size(); x++)
-	{
-		UniformBufferObject ubo2 = {};
-		ubo2.model = glm::mat4(1.0f);
-		ubo2.model = glm::translate(ubo2.model, cubePositions[x]);
-		ubo2.model = glm::rotate(ubo2.model, glm::radians(x * 20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
-		ubo2.view = camera.GetViewMatrix();
-		ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 100.0f);
-		ubo2.proj[1][1] *= -1;
+	//for (int x = 0; x < meshList.size(); x++)
+	//{
+	//	UniformBufferObject ubo2 = {};
+	//	ubo2.model = glm::mat4(1.0f);
+	//	ubo2.model = glm::translate(ubo2.model, cubePositions[x]);
+	//	ubo2.model = glm::rotate(ubo2.model, glm::radians(x * 20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+	//	ubo2.view = camera.GetViewMatrix();
+	//	ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 100.0f);
+	//	ubo2.proj[1][1] *= -1;
 
-		meshList[x].UpdateUniformBuffer(ubo2, currentImage);
+	//	meshList[x].UpdateUniformBuffer(ubo2, currentImage);
 	//	modelList[x].UpdateUniformBuffer(ubo2, currentImage);
-	}
+	//}
 
-	SkyBoxUniformBufferObject ubo = {};
-	ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-	ubo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 100.0f);
-	ubo.projection[1][1] *= -1;
+	//SkyBoxUniformBufferObject ubo = {};
+	//ubo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+	//ubo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), (float)renderer.swapChainExtent.width / (float)renderer.swapChainExtent.height, 0.1f, 100.0f);
+	//ubo.projection[1][1] *= -1;
 
-	skybox.UpdateUniformBuffer(ubo, currentImage);
+	//skybox.UpdateUniformBuffer(ubo, currentImage);
 }
 
-void VulkanGraphics::drawFrame() {
-	vkWaitForFences(DeviceInfo.Device, 1, &renderer.inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-
+void VulkanGraphics::drawFrame() 
+{
 	uint32_t imageIndex;
-	VkResult result = vkAcquireNextImageKHR(DeviceInfo.Device, renderer.swapChain, UINT64_MAX, renderer.imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkSemaphore image_acquired_semaphore = renderer.imageAvailableSemaphores[currentFrame];
+	VkSemaphore render_complete_semaphore = renderer.renderFinishedSemaphores[currentFrame];
+	VkResult result = vkAcquireNextImageKHR(renderer.device, renderer.swapChain, UINT64_MAX, image_acquired_semaphore, VK_NULL_HANDLE, &imageIndex);
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-		recreateSwapChain();
-		return;
+
+	vkDeviceWaitIdle(DeviceInfo.Device);
+	vkWaitForFences(renderer.device, 1, &renderer.inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+	vkResetFences(renderer.device, 1, &renderer.inFlightFences[currentFrame]);
+	vkResetCommandPool(renderer.device, renderer.commandPool, 0);
+
+	renderer.UpdateFrame(currentFrame);
+
+	VkCommandBufferBeginInfo beginInfo = {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	if (vkBeginCommandBuffer(renderer.commandBuffers[currentFrame], &beginInfo) != VK_SUCCESS) {
+		throw std::runtime_error("failed to begin recording command buffer!");
 	}
-	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-		throw std::runtime_error("failed to acquire swap chain image!");
-	}
 
-	//updateUniformBuffer(imageIndex);
+	std::array<VkClearValue, 2> clearValues = {};
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
 
-	if (renderer.imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
-		vkWaitForFences(DeviceInfo.Device, 1, &renderer.imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
-	}
-	renderer.imagesInFlight[imageIndex] = renderer.inFlightFences[currentFrame];
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = renderer.renderPass;
+	renderPassInfo.framebuffer = renderer.swapChainFramebuffers[currentFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = renderer.swapChainExtent;
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
 
+	vkCmdBeginRenderPass(renderer.commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	renderer.Display2D.Draw(renderer.commandBuffers[currentFrame], renderer.graphicsPipeline, renderer.pipelineLayout, currentFrame);
+	vkCmdEndRenderPass(renderer.commandBuffers[currentFrame]);
+
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-	VkSemaphore waitSemaphores[] = { renderer.imageAvailableSemaphores[currentFrame] };
-	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
-	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitSemaphores = &image_acquired_semaphore;
 	submitInfo.pWaitDstStageMask = waitStages;
-
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &renderer.commandBuffers[imageIndex];
-
-	VkSemaphore signalSemaphores[] = { renderer.renderFinishedSemaphores[currentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = signalSemaphores;
+	submitInfo.pSignalSemaphores = &render_complete_semaphore;
 
-	vkResetFences(DeviceInfo.Device, 1, &renderer.inFlightFences[currentFrame]);
+	if (vkEndCommandBuffer(renderer.commandBuffers[currentFrame]) != VK_SUCCESS) {
+		throw std::runtime_error("failed to record command buffer!");
+	}
 
 	if (vkQueueSubmit(renderer.graphicsQueue, 1, &submitInfo, renderer.inFlightFences[currentFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
 
+	VkSwapchainKHR swapChains[] = { renderer.swapChain };
+
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
 	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = signalSemaphores;
-
-	VkSwapchainKHR swapChains[] = { renderer.swapChain };
+	presentInfo.pWaitSemaphores = &render_complete_semaphore;
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
-
 	presentInfo.pImageIndices = &imageIndex;
-
 	result = vkQueuePresentKHR(renderer.presentQueue, &presentInfo);
-
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-		framebufferResized = false;
-		recreateSwapChain();
-	}
-	else if (result != VK_SUCCESS) {
-		throw std::runtime_error("failed to present swap chain image!");
-	}
 
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

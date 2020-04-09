@@ -25,8 +25,6 @@ Renderer2D::Renderer2D(VkInstance instance, GLFWwindow* window) : BaseRenderer(i
 	std::vector<Texture2D> textureList = { DisplayTexture[0], DisplayTexture[1], DisplayTexture[2] };
 
 	Display2D = Screen2DMesh(UpdateDeviceInfo(), textureList);
-
-	createCommandBuffers();
 }
 
 Renderer2D::~Renderer2D()
@@ -237,155 +235,67 @@ void Renderer2D::createFramebuffers() {
 
 void Renderer2D::createCommandBuffers()
 {
+	std::vector<VkClearValue> clearValues = {};
+	clearValues.resize(2);
+
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	commandBuffers.resize(swapChainFramebuffers.size());
+
 	VkCommandBufferAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = commandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = 1;
+	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-	if (vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer2D) != VK_SUCCESS) {
+	if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 
-	QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+	for (size_t i = 0; i < commandBuffers.size(); i++) {
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-	VkCommandPoolCreateInfo SecondPoolInfo = {};
-	SecondPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	SecondPoolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-	SecondPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
 
-	if (vkCreateCommandPool(device, &SecondPoolInfo, nullptr, &SecondCommandPool) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create graphics command pool!");
-	}
+		VkRenderPassBeginInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = renderPass;
+		renderPassInfo.framebuffer = swapChainFramebuffers[i];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = swapChainExtent;
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
-	VkCommandBufferAllocateInfo SecondInfo = {};
-	SecondInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	SecondInfo.commandPool = SecondCommandPool;
-	SecondInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	SecondInfo.commandBufferCount = 1;
+		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		Display2D.Draw(commandBuffers[i], graphicsPipeline, pipelineLayout, i);
+		vkCmdEndRenderPass(commandBuffers[i]);
 
-	if (vkAllocateCommandBuffers(device, &SecondInfo, &DrawBuffer2D) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate command buffers!");
-	}
-}
-
-
-void Renderer2D::UpdateSecondaryCommandBuffer(VkCommandBufferInheritanceInfo inheritanceInfo)
-{
-	VkCommandBufferBeginInfo SecondaryCommandBuffer = {};
-	SecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	SecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-	SecondaryCommandBuffer.pInheritanceInfo = &inheritanceInfo;
-
-	VkBuffer vertexBuffers[] = { Display2D.vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
-
-	vkBeginCommandBuffer(DrawBuffer2D, &SecondaryCommandBuffer);
-	vkCmdBindPipeline(DrawBuffer2D, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-	vkCmdBindVertexBuffers(DrawBuffer2D, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(DrawBuffer2D, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &Display2D.descriptorSets[currentFrame], 0, nullptr);
-	vkCmdDraw(DrawBuffer2D, 6, 1, 0, 0);
-	vkEndCommandBuffer(DrawBuffer2D);
-}
-
-void Renderer2D::UpdateCommandBuffers()
-{
-	std::vector<VkCommandBuffer> CommandList;
-
-	VkCommandBufferBeginInfo beginInfo = {};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-	std::array<VkClearValue, 2> clearValues = {};
-	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	clearValues[1].depthStencil = { 1.0f, 0 };
-
-	VkRenderPassBeginInfo renderPassInfo = {};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = renderPass;
-	renderPassInfo.framebuffer = swapChainFramebuffers[currentFrame];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = swapChainExtent;
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
-
-	if (vkBeginCommandBuffer(commandBuffer2D, &beginInfo) != VK_SUCCESS) {
-		throw std::runtime_error("failed to begin recording command buffer!");
-	}
-
-	vkCmdBeginRenderPass(commandBuffer2D, &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-
-	VkCommandBufferInheritanceInfo InheritCommandBufferInfo{};
-	InheritCommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-	InheritCommandBufferInfo.renderPass = renderPass;
-	InheritCommandBufferInfo.framebuffer = swapChainFramebuffers[currentFrame];
-
-	VkCommandBufferBeginInfo SecondaryCommandBuffer = {};
-	SecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	SecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-	SecondaryCommandBuffer.pInheritanceInfo = &InheritCommandBufferInfo;
-
-	VkBuffer vertexBuffers[] = { Display2D.vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
-
-	vkBeginCommandBuffer(DrawBuffer2D, &SecondaryCommandBuffer);
-	vkCmdBindPipeline(DrawBuffer2D, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-	vkCmdBindVertexBuffers(DrawBuffer2D, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(DrawBuffer2D, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &Display2D.descriptorSets[currentFrame], 0, nullptr);
-	vkCmdDraw(DrawBuffer2D, 6, 1, 0, 0);
-	vkEndCommandBuffer(DrawBuffer2D);
-	CommandList.emplace_back(DrawBuffer2D);
-
-	vkCmdExecuteCommands(commandBuffer2D, CommandList.size(), CommandList.data());
-	vkCmdEndRenderPass(commandBuffer2D);
-
-	if (vkEndCommandBuffer(commandBuffer2D) != VK_SUCCESS) {
-		throw std::runtime_error("failed to record command buffer!");
-	}
-}
-
-void Renderer2D::createSyncObjects()
-{
-	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-	imagesInFlight.resize(1, VK_NULL_HANDLE);
-
-	VkSemaphoreCreateInfo semaphoreInfo = {};
-	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-	VkFenceCreateInfo fenceInfo = {};
-	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-			vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create synchronization objects for a frame!");
+		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
 		}
 	}
 }
 
-void Renderer2D::UpdateFrame()
+void Renderer2D::UpdateFrame(size_t currentFrame)
 {
-	currentFrame = (currentFrame + 1) % 3;
-
-	DisplayTexture[currentFrame].UpdateTexture();
+	DisplayTexture[currentFrame].UpdateTexture(Pixel(rand() % 0xFF, rand() % 0xFF, rand() % 0xFF));
 	Display2D.UpdateSwapChain(DisplayTexture[currentFrame]);
-	UpdateCommandBuffers();
+	createCommandBuffers();
 }
 
 void Renderer2D::UpdateSwapChain()
 {
-	currentFrame = (currentFrame + 1) % 3;
-
 	createSwapChain();
 	createImageViews();
 	createRenderPass();
 	createGraphicsPipeline();
 	DepthAttachment.ReCreateAttachment(AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
-	Display2D.UpdateSwapChain(DisplayTexture[currentFrame]);
+	//Display2D.UpdateSwapChain();
 }
 
 void Renderer2D::ClearSwapChain()
@@ -397,9 +307,7 @@ void Renderer2D::ClearSwapChain()
 
 void Renderer2D::Destory()
 {
-	DisplayTexture[0].Destroy();
-	DisplayTexture[1].Destroy();
-	DisplayTexture[2].Destroy();
+	//DisplayTexture.Destroy();
 	Display2D.Destory();
 
 	BaseRenderer::Destory();

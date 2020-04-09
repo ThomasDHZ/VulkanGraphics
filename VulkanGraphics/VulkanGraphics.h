@@ -50,16 +50,16 @@ private:
 	double MouseXPos;
 	double MouseYPos;
 
-	SkyBox skybox;
-	CubeMapTexture cubeTexture;
+	//SkyBox skybox;
+	//CubeMapTexture cubeTexture;
 
-	Texture2D texture;
-	Texture2D texture2;
+	//Texture2D texture;
+	//Texture2D texture2;
 
-	ModelLoader modelLoader;
+	//ModelLoader modelLoader;
 
-	std::vector<Mesh> meshList;
-	std::vector<Model> modelList;
+//	std::vector<Mesh> meshList;
+	//std::vector<Model> modelList;
 
 	size_t currentFrame = 0;
 

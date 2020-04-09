@@ -18,26 +18,21 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
-#include "Image.h"
 
 class Texture2D : public Texture
 {
 private:
-	Image TextureImage;
-
 	void CreateTextureSampler();
 public:
+	std::vector<Pixel> PixelImage;
+	std::vector<Pixel> textureBytes;
+
 	Texture2D();
 	Texture2D(VulkanDevice deviceInfo, std::string TexturePath);
 	Texture2D(VulkanDevice deviceInfo, int width, int height, Pixel TextureColor);
 	~Texture2D();
 
-	void SetPixel(glm::ivec2 position, glm::vec3 color);
-	void SetPixel(glm::ivec2 position, glm::vec4 color);
-	void SetPixel(glm::ivec2 position, Pixel pixel);
-	void UpdateTexture();
+	void UpdateTexture(Pixel pixel);
 
-	Pixel GetPixel(glm::ivec2 position);
-	VkDeviceSize GetImageSize();
 };
 

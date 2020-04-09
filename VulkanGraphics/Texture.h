@@ -14,6 +14,8 @@ protected:
 	};
 
 	std::string FileName;
+	int Width;
+	int Height;
 
 	VulkanDevice DeviceInfo;
 	TextureType TypeOfTexture;
@@ -23,8 +25,6 @@ protected:
 	void CreateImage();
 
 public:
-	int Width;
-	int Height;
 	VkImage textureImage;
 	VkDeviceMemory textureImageMemory;
 	VkImageView textureImageView;
