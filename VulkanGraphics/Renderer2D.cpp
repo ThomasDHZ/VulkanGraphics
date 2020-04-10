@@ -355,7 +355,8 @@ void Renderer2D::DrawFrame()
 
 void Renderer2D::UpdateFrame(size_t currentFrame)
 {
-	vkDestroyDescriptorPool(device, Display2D.descriptorPool, nullptr);
+	Display2D.ClearSwapChain();
+	vkDestroyImageView(device, DisplayTexture[currentFrame].textureImageView, nullptr);
 	DisplayTexture[currentFrame].UpdateTexture(Pixel(rand() % 0xFF, rand() % 0xFF, rand() % 0xFF));
 	Display2D.UpdateSwapChain(DisplayTexture[currentFrame]);
 	createCommandBuffers();
@@ -381,7 +382,9 @@ void Renderer2D::ClearSwapChain()
 
 void Renderer2D::Destory()
 {
-	//DisplayTexture.Destroy();
+	DisplayTexture[0].Destroy();
+	DisplayTexture[1].Destroy();
+	DisplayTexture[2].Destroy();
 	Display2D.Destory();
 
 	BaseRenderer::Destory();
