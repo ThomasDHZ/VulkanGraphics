@@ -280,8 +280,82 @@ void Renderer2D::createCommandBuffers()
 	}
 }
 
+void Renderer2D::DrawFrame()
+{
+	//uint32_t imageIndex;
+	//VkSemaphore image_acquired_semaphore = renderer.imageAvailableSemaphores[currentFrame];
+	//VkSemaphore render_complete_semaphore = renderer.renderFinishedSemaphores[currentFrame];
+	//VkResult result = vkAcquireNextImageKHR(renderer.device, renderer.swapChain, UINT64_MAX, image_acquired_semaphore, VK_NULL_HANDLE, &imageIndex);
+
+
+	//vkDeviceWaitIdle(DeviceInfo.Device);
+	//vkWaitForFences(renderer.device, 1, &renderer.inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+	//vkResetFences(renderer.device, 1, &renderer.inFlightFences[currentFrame]);
+	//vkResetCommandPool(renderer.device, renderer.commandPool, 0);
+
+	//renderer.UpdateFrame(currentFrame);
+
+	//VkCommandBufferBeginInfo beginInfo = {};
+	//beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	//beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	//if (vkBeginCommandBuffer(renderer.commandBuffers[currentFrame], &beginInfo) != VK_SUCCESS) {
+	//	throw std::runtime_error("failed to begin recording command buffer!");
+	//}
+
+	//std::array<VkClearValue, 2> clearValues = {};
+	//clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//clearValues[1].depthStencil = { 1.0f, 0 };
+
+	//VkRenderPassBeginInfo renderPassInfo = {};
+	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	//renderPassInfo.renderPass = renderer.renderPass;
+	//renderPassInfo.framebuffer = renderer.swapChainFramebuffers[currentFrame];
+	//renderPassInfo.renderArea.offset = { 0, 0 };
+	//renderPassInfo.renderArea.extent = renderer.swapChainExtent;
+	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	//renderPassInfo.pClearValues = clearValues.data();
+
+	//vkCmdBeginRenderPass(renderer.commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	//renderer.Display2D.Draw(renderer.commandBuffers[currentFrame], renderer.graphicsPipeline, renderer.pipelineLayout, currentFrame);
+	//vkCmdEndRenderPass(renderer.commandBuffers[currentFrame]);
+
+	//VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	//VkSubmitInfo submitInfo = {};
+	//submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	//submitInfo.waitSemaphoreCount = 1;
+	//submitInfo.pWaitSemaphores = &image_acquired_semaphore;
+	//submitInfo.pWaitDstStageMask = waitStages;
+	//submitInfo.commandBufferCount = 1;
+	//submitInfo.pCommandBuffers = &renderer.commandBuffers[imageIndex];
+	//submitInfo.signalSemaphoreCount = 1;
+	//submitInfo.pSignalSemaphores = &render_complete_semaphore;
+
+	//if (vkEndCommandBuffer(renderer.commandBuffers[currentFrame]) != VK_SUCCESS) {
+	//	throw std::runtime_error("failed to record command buffer!");
+	//}
+
+	//if (vkQueueSubmit(renderer.graphicsQueue, 1, &submitInfo, renderer.inFlightFences[currentFrame]) != VK_SUCCESS) {
+	//	throw std::runtime_error("failed to submit draw command buffer!");
+	//}
+
+	//VkSwapchainKHR swapChains[] = { renderer.swapChain };
+
+	//VkPresentInfoKHR presentInfo = {};
+	//presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	//presentInfo.waitSemaphoreCount = 1;
+	//presentInfo.pWaitSemaphores = &render_complete_semaphore;
+	//presentInfo.swapchainCount = 1;
+	//presentInfo.pSwapchains = swapChains;
+	//presentInfo.pImageIndices = &imageIndex;
+	//result = vkQueuePresentKHR(renderer.presentQueue, &presentInfo);
+
+	//currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
 void Renderer2D::UpdateFrame(size_t currentFrame)
 {
+	vkDestroyDescriptorPool(device, Display2D.descriptorPool, nullptr);
 	DisplayTexture[currentFrame].UpdateTexture(Pixel(rand() % 0xFF, rand() % 0xFF, rand() % 0xFF));
 	Display2D.UpdateSwapChain(DisplayTexture[currentFrame]);
 	createCommandBuffers();

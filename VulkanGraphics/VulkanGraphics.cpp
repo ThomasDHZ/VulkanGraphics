@@ -158,6 +158,7 @@ void VulkanGraphics::recreateSwapChain() {
 
 	renderer.ClearSwapChain();
 	renderer.UpdateSwapChain();
+	renderer.Display2D.UpdateSwapChain(renderer.DisplayTexture[currentFrame]);
 	//skybox.UpdateSwapChain(renderer.skyBoxPipeline);
 	//for (int x = 0; x < meshList.size(); x++)
 	//{
@@ -220,6 +221,13 @@ void VulkanGraphics::drawFrame()
 	VkSemaphore render_complete_semaphore = renderer.renderFinishedSemaphores[currentFrame];
 	VkResult result = vkAcquireNextImageKHR(renderer.device, renderer.swapChain, UINT64_MAX, image_acquired_semaphore, VK_NULL_HANDLE, &imageIndex);
 
+	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		recreateSwapChain();
+		return;
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		throw std::runtime_error("failed to acquire swap chain image!");
+	}
 
 	vkDeviceWaitIdle(DeviceInfo.Device);
 	vkWaitForFences(renderer.device, 1, &renderer.inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -282,6 +290,13 @@ void VulkanGraphics::drawFrame()
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &imageIndex;
 	result = vkQueuePresentKHR(renderer.presentQueue, &presentInfo);
+	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+		recreateSwapChain();
+		return;
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		throw std::runtime_error("failed to acquire swap chain image!");
+	}
 
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }

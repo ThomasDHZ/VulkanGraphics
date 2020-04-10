@@ -4,9 +4,6 @@
 
 class Renderer2D : public BaseRenderer
 {
-
-	std::array<Texture2D, 3> DisplayTexture;
-
 	void createRenderPass();
 	void createDescriptorSetLayout();
 	void createGraphicsPipeline();
@@ -17,9 +14,11 @@ public:
 	Renderer2D(VkInstance instance, GLFWwindow* window);
 	~Renderer2D();
 
+	std::array<Texture2D, 3> DisplayTexture;
 	Screen2DMesh Display2D;
 
 	void createCommandBuffers();
+	void DrawFrame();
 	void UpdateFrame(size_t currentFrame);
 	void UpdateSwapChain();
 	void ClearSwapChain();
