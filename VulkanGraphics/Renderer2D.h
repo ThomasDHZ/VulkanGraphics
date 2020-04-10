@@ -1,9 +1,13 @@
 #pragma once
 #include "BaseRenderer.h"
 #include "Screen2DMesh.h"
+#include "Canvas2D.h"
 
 class Renderer2D : public BaseRenderer
 {
+	Texture2D MapTexture;
+	Canvas2D canvas;
+
 	void createRenderPass();
 	void createDescriptorSetLayout();
 	void createGraphicsPipeline();
@@ -14,13 +18,10 @@ public:
 	Renderer2D(VkInstance instance, GLFWwindow* window);
 	~Renderer2D();
 
-	std::array<Texture2D, 3> DisplayTexture;
-	Screen2DMesh Display2D;
-
 	void createCommandBuffers();
-	void DrawFrame();
+	void DrawFrame(size_t currentFrame);
 	void UpdateFrame(size_t currentFrame);
-	void UpdateSwapChain();
+	void UpdateSwapChain(size_t currentFrame);
 	void ClearSwapChain();
 	void Destory();
 };

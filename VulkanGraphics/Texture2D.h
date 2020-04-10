@@ -18,10 +18,12 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include "Image.h"
 
 class Texture2D : public Texture
 {
 private:
+	//Image image;
 	VkDeviceSize imageSize;
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -39,5 +41,6 @@ public:
 	void UpdateTexture(Pixel pixel);
 	void UpdateTexture();
 
+	Pixel GetPixel(glm::ivec2 pos);
 };
 

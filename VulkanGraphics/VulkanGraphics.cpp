@@ -157,8 +157,7 @@ void VulkanGraphics::recreateSwapChain() {
 	vkDeviceWaitIdle(DeviceInfo.Device);
 
 	renderer.ClearSwapChain();
-	renderer.UpdateSwapChain();
-	renderer.Display2D.UpdateSwapChain(renderer.DisplayTexture[currentFrame]);
+	renderer.UpdateSwapChain(currentFrame);
 	//skybox.UpdateSwapChain(renderer.skyBoxPipeline);
 	//for (int x = 0; x < meshList.size(); x++)
 	//{
@@ -258,7 +257,7 @@ void VulkanGraphics::drawFrame()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(renderer.commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	renderer.Display2D.Draw(renderer.commandBuffers[currentFrame], renderer.graphicsPipeline, renderer.pipelineLayout, currentFrame);
+	renderer.DrawFrame(currentFrame);
 	vkCmdEndRenderPass(renderer.commandBuffers[currentFrame]);
 
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };

@@ -19,12 +19,8 @@ Renderer2D::Renderer2D(VkInstance instance, GLFWwindow* window) : BaseRenderer(i
 	DepthAttachment = InputAttachment(UpdateDeviceInfo(), AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
 
-	DisplayTexture[0] = Texture2D(UpdateDeviceInfo(), swapChainExtent.width, swapChainExtent.height, Pixel(0x00, 0x00, 0x00));
-	DisplayTexture[1] = Texture2D(UpdateDeviceInfo(), swapChainExtent.width, swapChainExtent.height, Pixel(0x00, 0x00, 0x00));
-	DisplayTexture[2] = Texture2D(UpdateDeviceInfo(), swapChainExtent.width, swapChainExtent.height, Pixel(0x00, 0x00, 0x00));
-	std::vector<Texture2D> textureList = { DisplayTexture[0], DisplayTexture[1], DisplayTexture[2] };
-
-	Display2D = Screen2DMesh(UpdateDeviceInfo(), textureList);
+	MapTexture = Texture2D(UpdateDeviceInfo(), "texture/alefgardfull.bmp");
+	canvas = Canvas2D(UpdateDeviceInfo(), Pixel(0x00, 0x00, 0x00), glm::ivec2(swapChainExtent.width, swapChainExtent.height), MapTexture);
 }
 
 Renderer2D::~Renderer2D()
@@ -271,7 +267,7 @@ void Renderer2D::createCommandBuffers()
 		renderPassInfo.pClearValues = clearValues.data();
 
 		vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		Display2D.Draw(commandBuffers[i], graphicsPipeline, pipelineLayout, i);
+		canvas.Draw(commandBuffers[i], graphicsPipeline, pipelineLayout, i);
 		vkCmdEndRenderPass(commandBuffers[i]);
 
 		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
@@ -280,8 +276,9 @@ void Renderer2D::createCommandBuffers()
 	}
 }
 
-void Renderer2D::DrawFrame()
+void Renderer2D::DrawFrame(size_t currentFrame)
 {
+	canvas.Draw(commandBuffers[currentFrame], graphicsPipeline, pipelineLayout, currentFrame);
 	//uint32_t imageIndex;
 	//VkSemaphore image_acquired_semaphore = renderer.imageAvailableSemaphores[currentFrame];
 	//VkSemaphore render_complete_semaphore = renderer.renderFinishedSemaphores[currentFrame];
@@ -355,14 +352,11 @@ void Renderer2D::DrawFrame()
 
 void Renderer2D::UpdateFrame(size_t currentFrame)
 {
-	Display2D.ClearSwapChain();
-	vkDestroyImageView(device, DisplayTexture[currentFrame].textureImageView, nullptr);
-	DisplayTexture[currentFrame].UpdateTexture(Pixel(rand() % 0xFF, rand() % 0xFF, rand() % 0xFF));
-	Display2D.UpdateSwapChain(DisplayTexture[currentFrame]);
+	canvas.UpdateFrame(currentFrame);
 	createCommandBuffers();
 }
 
-void Renderer2D::UpdateSwapChain()
+void Renderer2D::UpdateSwapChain(size_t currentFrame)
 {
 	createSwapChain();
 	createImageViews();
@@ -370,22 +364,18 @@ void Renderer2D::UpdateSwapChain()
 	createGraphicsPipeline();
 	DepthAttachment.ReCreateAttachment(AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
-	//Display2D.UpdateSwapChain();
+	canvas.UpdateSwapChain(currentFrame);
 }
 
 void Renderer2D::ClearSwapChain()
 {
-	Display2D.ClearSwapChain();
-
+	canvas.ClearSwapChain();
 	BaseRenderer::ClearSwapChain();
 }
 
 void Renderer2D::Destory()
 {
-	DisplayTexture[0].Destroy();
-	DisplayTexture[1].Destroy();
-	DisplayTexture[2].Destroy();
-	Display2D.Destory();
-
+	MapTexture.Destroy();
+	canvas.Destory();
 	BaseRenderer::Destory();
 }

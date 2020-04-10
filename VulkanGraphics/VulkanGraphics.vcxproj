@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="BaseRenderer.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="Canvas2D.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="DeferredRenderer.cpp" />
     <ClCompile Include="ForwardRenderer.cpp" />
@@ -187,6 +188,7 @@
   <ItemGroup>
     <ClInclude Include="BaseRenderer.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="Canvas2D.h" />
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="DeferredRenderer.h" />
     <ClInclude Include="ForwardRenderer.h" />
