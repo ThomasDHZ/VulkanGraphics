@@ -23,7 +23,6 @@
 class Texture2D : public Texture
 {
 private:
-	//Image image;
 	VkDeviceSize imageSize;
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -31,16 +30,18 @@ private:
 	void CreateTextureSampler();
 public:
 	std::vector<Pixel> PixelImage;
-	void* PicturePointer;
+
 	Texture2D();
 	Texture2D(VulkanDevice deviceInfo, std::string TexturePath);
 	Texture2D(VulkanDevice deviceInfo, int width, int height, Pixel TextureColor);
 	~Texture2D();
 
 	void SetPixel(glm::ivec2 pos, Pixel pixel);
+	void CopyRange(const Texture2D& texture);
 	void UpdateTexture(Pixel pixel);
 	void UpdateTexture();
 
 	Pixel GetPixel(glm::ivec2 pos);
+	void* GetPixelPtr(glm::ivec2 pos);
 };
 

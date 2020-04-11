@@ -11,9 +11,9 @@ Canvas2D::Canvas2D(VulkanDevice deviceInfo, Pixel clearColor, glm::ivec2 canvasS
 	CanvasSize = canvasSize;
 
 
-		CanvasTexture[0] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
-		CanvasTexture[1] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
-		CanvasTexture[2] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
+	CanvasTexture[0] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
+	CanvasTexture[1] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
+	CanvasTexture[2] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
 
 	std::vector<Texture2D> textureList = { CanvasTexture[0], CanvasTexture[1], CanvasTexture[2] };
 	CanvasMesh = Screen2DMesh(deviceInfo, textureList);
@@ -25,9 +25,10 @@ Canvas2D::Canvas2D(VulkanDevice deviceInfo, Pixel clearColor, glm::ivec2 canvasS
 	ClearColor = clearColor;
 	CanvasSize = canvasSize;
 
-	CanvasTexture[0] = backgroundTexture;
-	CanvasTexture[1] = backgroundTexture;
-	CanvasTexture[2] = backgroundTexture;
+	background = backgroundTexture;
+	CanvasTexture[0] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
+	CanvasTexture[1] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
+	CanvasTexture[2] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
 
 	std::vector<Texture2D> textureList = { CanvasTexture[0], CanvasTexture[1], CanvasTexture[2] };
 
@@ -44,8 +45,8 @@ void Canvas2D::SetPixel(glm::ivec2 position, Pixel pixel)
 
 void Canvas2D::UpdateFrame(size_t currentFrame)
 {
-	//CanvasTexture[currentFrame].SetPixel(glm::ivec2(rand() % CanvasSize.x, rand() % CanvasSize.y), Pixel(rand() % 0xFF, rand() % 0xFF, rand() % 0xFF));
 	CanvasMesh.ClearSwapChain();
+	CanvasTexture[currentFrame].CopyRange(background);
 	CanvasMesh.UpdateSwapChain(CanvasTexture[currentFrame]);
 }
 

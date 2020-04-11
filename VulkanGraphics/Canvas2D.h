@@ -8,6 +8,7 @@ private:
 	VulkanDevice DeviceInfo;
 	Screen2DMesh CanvasMesh;
 	std::array<Texture2D, 3> CanvasTexture;
+	Texture2D background;
 	Pixel ClearColor;
 	glm::ivec2 CanvasSize;
 
