@@ -19,8 +19,10 @@ Renderer2D::Renderer2D(VkInstance instance, GLFWwindow* window) : BaseRenderer(i
 	DepthAttachment = InputAttachment(UpdateDeviceInfo(), AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
 
-	MapTexture = Texture2D(UpdateDeviceInfo(), "texture/alefgardfull4KTest.png");
-	canvas = Canvas2D(UpdateDeviceInfo(), Pixel(0x00, 0x00, 0x00), glm::ivec2(swapChainExtent.width, swapChainExtent.height), MapTexture);
+	MapTexture = Texture2D(UpdateDeviceInfo(), "texture/alefgardfull.bmp");
+	SpriteLayer = Texture2D(UpdateDeviceInfo(), 256, 256, Pixel(0x00, 0x00, 0x00, 0x00));
+
+	canvas = Canvas2D(UpdateDeviceInfo(), Pixel(0x00, 0x00, 0x00), glm::ivec2(256, 240), MapTexture, SpriteLayer);
 }
 
 Renderer2D::~Renderer2D()
@@ -78,14 +80,21 @@ void Renderer2D::createRenderPass()
 
 void Renderer2D::createDescriptorSetLayout()
 {
-	VkDescriptorSetLayoutBinding DiffuseMapLayoutBinding = {};
-	DiffuseMapLayoutBinding.binding = 0;
-	DiffuseMapLayoutBinding.descriptorCount = 1;
-	DiffuseMapLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	DiffuseMapLayoutBinding.pImmutableSamplers = nullptr;
-	DiffuseMapLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	VkDescriptorSetLayoutBinding BackGroundLayerLayoutBinding = {};
+	BackGroundLayerLayoutBinding.binding = 0;
+	BackGroundLayerLayoutBinding.descriptorCount = 1;
+	BackGroundLayerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	BackGroundLayerLayoutBinding.pImmutableSamplers = nullptr;
+	BackGroundLayerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::vector<VkDescriptorSetLayoutBinding> bindings = { DiffuseMapLayoutBinding };
+	VkDescriptorSetLayoutBinding SpriteLayerLayoutBinding = {};
+	SpriteLayerLayoutBinding.binding = 1;
+	SpriteLayerLayoutBinding.descriptorCount = 1;
+	SpriteLayerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	SpriteLayerLayoutBinding.pImmutableSamplers = nullptr;
+	SpriteLayerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::vector<VkDescriptorSetLayoutBinding> bindings = { BackGroundLayerLayoutBinding, SpriteLayerLayoutBinding };
 	BaseRenderer::createDescriptorSetLayout(bindings);
 }
 
@@ -350,13 +359,13 @@ void Renderer2D::DrawFrame(size_t currentFrame)
 	//currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void Renderer2D::UpdateFrame(size_t currentFrame, int x, int y)
+void Renderer2D::UpdateFrame(int MapX, int MapY, int SpriteX, int SpriteY)
 {
-	canvas.UpdateFrame(currentFrame, x, y);
+	canvas.UpdateFrame(MapX, MapY, SpriteX, SpriteY);
 	createCommandBuffers();
 }
 
-void Renderer2D::UpdateSwapChain(size_t currentFrame)
+void Renderer2D::UpdateSwapChain()
 {
 	createSwapChain();
 	createImageViews();
@@ -364,7 +373,7 @@ void Renderer2D::UpdateSwapChain(size_t currentFrame)
 	createGraphicsPipeline();
 	DepthAttachment.ReCreateAttachment(AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
-	canvas.UpdateSwapChain(currentFrame);
+	canvas.UpdateSwapChain();
 }
 
 void Renderer2D::ClearSwapChain()

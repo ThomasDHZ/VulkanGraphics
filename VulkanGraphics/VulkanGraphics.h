@@ -34,8 +34,11 @@ class VulkanGraphics
 {
 
 private:
-	int DirX = 0;
-	int DirY = 0;
+	int MapX = 0;
+	int MapY = 0;
+	int SpriteX = 0;
+	int SpriteY = 0;
+
 	VulkanWindow Window;
 	VkInstance instance;
 	VulkanDebugger VulkanDebug;

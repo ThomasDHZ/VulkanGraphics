@@ -157,7 +157,7 @@ void VulkanGraphics::recreateSwapChain() {
 	vkDeviceWaitIdle(DeviceInfo.Device);
 
 	renderer.ClearSwapChain();
-	renderer.UpdateSwapChain(currentFrame);
+	renderer.UpdateSwapChain();
 	//skybox.UpdateSwapChain(renderer.skyBoxPipeline);
 	//for (int x = 0; x < meshList.size(); x++)
 	//{
@@ -233,7 +233,7 @@ void VulkanGraphics::drawFrame()
 	vkResetFences(renderer.device, 1, &renderer.inFlightFences[currentFrame]);
 	vkResetCommandPool(renderer.device, renderer.commandPool, 0);
 
-	renderer.UpdateFrame(currentFrame, DirX, DirY);
+	renderer.UpdateFrame(MapX, MapY, SpriteX, SpriteY);
 
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -388,21 +388,33 @@ void VulkanGraphics::UpdateKeyboard()
 	lastFrame = currentFrame;
 
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_W) == GLFW_PRESS)
+	{
 		camera.UpdateKeyboard(FORWARD, deltaTime);
+		MapY -= 25;
+	}
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_S) == GLFW_PRESS)
+	{
 		camera.UpdateKeyboard(BACKWARD, deltaTime);
+		MapY += 25;
+	}
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_A) == GLFW_PRESS)
+	{
 		camera.UpdateKeyboard(LEFT, deltaTime);
+		MapX -= 25;
+	}
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
+	{
 		camera.UpdateKeyboard(RIGHT, deltaTime);
+		MapX += 25;
+	}
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_LEFT) == GLFW_PRESS)
-		DirX -= 25;
+		SpriteX -= 25;
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_RIGHT) == GLFW_PRESS)
-		DirX += 25;
+		SpriteX += 25;
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_UP) == GLFW_PRESS)
-		DirY -= 25;
+		SpriteY -= 25;
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_DOWN) == GLFW_PRESS)
-		DirY += 25;
+		SpriteY += 25;
 }
 
 void VulkanGraphics::VulkanRun()

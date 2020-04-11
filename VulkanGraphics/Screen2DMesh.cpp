@@ -12,7 +12,7 @@ Screen2DMesh::Screen2DMesh(VulkanDevice deviceInfo, std::vector<Texture2D>& Text
 
 	CreateVertexBuffer();
 	CreateDescriptorPool();
-	CreateDescriptorSets(TextureList[0]);
+	CreateDescriptorSets(TextureList[0], TextureList[1]);
 }
 
 Screen2DMesh::~Screen2DMesh()
@@ -42,30 +42,41 @@ void Screen2DMesh::CreateVertexBuffer()
 
 void Screen2DMesh::CreateDescriptorPool()
 {
-	std::array<DescriptorPoolSizeInfo, 1>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
 	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Screen2DMesh::CreateDescriptorSets(const Texture2D& CurrentScreenTexture)
+void Screen2DMesh::CreateDescriptorSets(const Texture2D& CurrentScreenTexture, const Texture2D& spriteLayer)
 {
 	BaseMesh::CreateDescriptorSets(DeviceInfo.descriptorSetLayout);
 
-	VkDescriptorImageInfo DiffuseMap = {};
-	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	DiffuseMap.imageView = CurrentScreenTexture.textureImageView;
-	DiffuseMap.sampler = CurrentScreenTexture.textureSampler;
+	VkDescriptorImageInfo BackGroundLayer = {};
+	BackGroundLayer.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	BackGroundLayer.imageView = CurrentScreenTexture.textureImageView;
+	BackGroundLayer.sampler = CurrentScreenTexture.textureSampler;
+
+	VkDescriptorImageInfo SpriteLayer = {};
+	SpriteLayer.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	SpriteLayer.imageView = spriteLayer.textureImageView;
+	SpriteLayer.sampler = spriteLayer.textureSampler;
 
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{
-		std::array<WriteDescriptorSetInfo, 1>  WriteDescriptorInfo = {};
+		std::array<WriteDescriptorSetInfo, 2>  WriteDescriptorInfo = {};
 
 		WriteDescriptorInfo[0].DstBinding = 0;
 		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
 		WriteDescriptorInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		WriteDescriptorInfo[0].DescriptorImageInfo = DiffuseMap;
+		WriteDescriptorInfo[0].DescriptorImageInfo = BackGroundLayer;
+
+		WriteDescriptorInfo[1].DstBinding = 1;
+		WriteDescriptorInfo[1].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		WriteDescriptorInfo[1].DescriptorImageInfo = SpriteLayer;
 
 		BaseMesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
@@ -83,8 +94,8 @@ void Screen2DMesh::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline
 	vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
 }
 
-void Screen2DMesh::UpdateSwapChain(const Texture2D& CurrentScreenTexture)
+void Screen2DMesh::UpdateSwapChain(const Texture2D& CurrentScreenTexture, const Texture2D& SpriteScreenTexture)
 {
 	CreateDescriptorPool();
-	CreateDescriptorSets(CurrentScreenTexture);
+	CreateDescriptorSets(CurrentScreenTexture, SpriteScreenTexture);
 }

@@ -10,49 +10,47 @@ Canvas2D::Canvas2D(VulkanDevice deviceInfo, Pixel clearColor, glm::ivec2 canvasS
 	ClearColor = clearColor;
 	CanvasSize = canvasSize;
 
+	CanvasTexture = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
 
-	CanvasTexture[0] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
-	CanvasTexture[1] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
-	CanvasTexture[2] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
-
-	std::vector<Texture2D> textureList = { CanvasTexture[0], CanvasTexture[1], CanvasTexture[2] };
+	std::vector<Texture2D> textureList = { CanvasTexture };
 	CanvasMesh = Screen2DMesh(deviceInfo, textureList);
 }
 
-Canvas2D::Canvas2D(VulkanDevice deviceInfo, Pixel clearColor, glm::ivec2 canvasSize, Texture2D backgroundTexture)
+Canvas2D::Canvas2D(VulkanDevice deviceInfo, Pixel clearColor, glm::ivec2 canvasSize, Texture2D backgroundTexture, Texture2D SpriteLayer)
 {
 	DeviceInfo = deviceInfo;
 	ClearColor = clearColor;
 	CanvasSize = canvasSize;
 
 	background = backgroundTexture;
-	CanvasTexture[0] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
-	CanvasTexture[1] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
-	CanvasTexture[2] = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
+	spriteLayer = SpriteLayer;
+	copySpriteLayer = SpriteLayer;
 
-	std::vector<Texture2D> textureList = { CanvasTexture[0], CanvasTexture[1], CanvasTexture[2] };
+	CanvasTexture = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
 
+	CatSprite = Texture2D(DeviceInfo, "texture/cat.png");
+
+	std::vector<Texture2D> textureList = { CanvasTexture, spriteLayer };
 	CanvasMesh = Screen2DMesh(deviceInfo, textureList);
 }
 
 void Canvas2D::SetPixel(glm::ivec2 position, Pixel pixel)
 {
-	for (auto frame : CanvasTexture)
-	{
-		frame.SetPixel(position, pixel);
-	}
+	CanvasTexture.SetPixel(position, pixel);
 }
 
-void Canvas2D::UpdateFrame(size_t currentFrame, int x, int y)
+void Canvas2D::UpdateFrame(int MapX, int MapY, int SpriteX, int SpriteY)
 {
 	CanvasMesh.ClearSwapChain();
-	CanvasTexture[currentFrame].CopyRange(background, x, y);
-	CanvasMesh.UpdateSwapChain(CanvasTexture[currentFrame]);
+	spriteLayer = copySpriteLayer;
+	spriteLayer.CopyRange(CatSprite, SpriteX, SpriteY);
+	CanvasTexture.CopyRange(background, MapX, MapY);
+	CanvasMesh.UpdateSwapChain(CanvasTexture, spriteLayer);
 }
 
-void Canvas2D::UpdateSwapChain(size_t currentFrame)
+void Canvas2D::UpdateSwapChain()
 {
-	CanvasMesh.UpdateSwapChain(CanvasTexture[currentFrame]);
+	CanvasMesh.UpdateSwapChain(CanvasTexture, spriteLayer);
 }
 
 void Canvas2D::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage)
@@ -67,9 +65,7 @@ void Canvas2D::ClearSwapChain()
 
 void Canvas2D::Destory()
 {
-	for (auto frame : CanvasTexture)
-	{
-		frame.Destroy();
-	}
+	CanvasTexture.Destroy();
+	spriteLayer.Destroy();
 	CanvasMesh.Destory();
 }

@@ -6,8 +6,9 @@
 class Renderer2D : public BaseRenderer
 {
 	Texture2D MapTexture;
-	Canvas2D canvas;
+	Texture2D SpriteLayer;
 
+	Canvas2D canvas;
 	void createRenderPass();
 	void createDescriptorSetLayout();
 	void createGraphicsPipeline();
@@ -20,8 +21,8 @@ public:
 
 	void createCommandBuffers();
 	void DrawFrame(size_t currentFrame);
-	void UpdateFrame(size_t currentFrame, int x, int y);
-	void UpdateSwapChain(size_t currentFrame);
+	void UpdateFrame(int MapX, int MapY, int SpriteX, int SpriteY);
+	void UpdateSwapChain();
 	void ClearSwapChain();
 	void Destory();
 };

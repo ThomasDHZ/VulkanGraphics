@@ -18,7 +18,7 @@ private:
 
 	void CreateVertexBuffer();
 	void CreateDescriptorPool();
-	void CreateDescriptorSets(const Texture2D& CurrentScreenTexture);
+	void CreateDescriptorSets(const Texture2D& CurrentScreenTexture, const Texture2D& SpriteLayer);
 
 public:
 	Screen2DMesh();
@@ -26,7 +26,7 @@ public:
 	~Screen2DMesh();
 
 	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
-	void UpdateSwapChain(const Texture2D& CurrentScreenTexture);
+	void UpdateSwapChain(const Texture2D& CurrentScreenTexture, const Texture2D& SpriteScreenTexture);
 };
 
 

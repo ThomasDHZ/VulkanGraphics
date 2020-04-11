@@ -161,13 +161,25 @@ void Texture2D::SetPixel(glm::ivec2 pos, Pixel pixel)
 	UpdateTexture();
 }
 
-void Texture2D::CopyRange(const Texture2D& texture, int width, int height)
+void Texture2D::CopyRange(const Texture2D& texture, int CopyWidth, int CopyHeight)
 {
-	for(int x = 0; x < 1200; x++)
+	if (Width > texture.Width)
 	{
-		const int dstPos = 0 + (x * Width);
-		const int SourcePos = width + ((height + x) * texture.Width);
-		memcpy(&PixelImage[dstPos], &texture.PixelImage[SourcePos], sizeof(Pixel) * Width);
+		for (int x = 0; x < texture.Height; x++)
+		{
+			const int dstPos = CopyWidth + ((CopyHeight + x) * Width);
+			const int SourcePos = 0 + ((0 + x) * texture.Width);
+			memcpy(&PixelImage[dstPos], &texture.PixelImage[SourcePos], sizeof(Pixel) * texture.Width);
+		}
+	}
+	else
+	{
+		for (int x = 0; x < Height; x++)
+		{
+			const int dstPos = 0 + (x * Width);
+			const int SourcePos = CopyWidth + ((CopyHeight + x) * texture.Width);
+			memcpy(&PixelImage[dstPos], &texture.PixelImage[SourcePos], sizeof(Pixel) * Width);
+		}
 	}
 	UpdateTexture();
 }
