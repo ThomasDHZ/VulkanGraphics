@@ -18,7 +18,7 @@ public:
 	Canvas2D(VulkanDevice deviceInfo, Pixel clearColor, glm::ivec2 canvasSize, Texture2D backgroundTexture);
 
 	void SetPixel(glm::ivec2 position, Pixel pixel);
-	void UpdateFrame(size_t currentFrame);
+	void UpdateFrame(size_t currentFrame, int x, int y);
 	void UpdateSwapChain(size_t currentFrame);
 	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
 	void ClearSwapChain();

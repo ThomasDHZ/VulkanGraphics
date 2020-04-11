@@ -37,7 +37,7 @@ public:
 	~Texture2D();
 
 	void SetPixel(glm::ivec2 pos, Pixel pixel);
-	void CopyRange(const Texture2D& texture);
+	void CopyRange(const Texture2D& texture, int width, int height);
 	void UpdateTexture(Pixel pixel);
 	void UpdateTexture();
 

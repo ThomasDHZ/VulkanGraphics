@@ -20,7 +20,7 @@ public:
 
 	void createCommandBuffers();
 	void DrawFrame(size_t currentFrame);
-	void UpdateFrame(size_t currentFrame);
+	void UpdateFrame(size_t currentFrame, int x, int y);
 	void UpdateSwapChain(size_t currentFrame);
 	void ClearSwapChain();
 	void Destory();

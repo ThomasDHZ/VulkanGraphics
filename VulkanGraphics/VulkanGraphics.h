@@ -34,6 +34,8 @@ class VulkanGraphics
 {
 
 private:
+	int DirX = 0;
+	int DirY = 0;
 	VulkanWindow Window;
 	VkInstance instance;
 	VulkanDebugger VulkanDebug;

@@ -19,7 +19,7 @@ Renderer2D::Renderer2D(VkInstance instance, GLFWwindow* window) : BaseRenderer(i
 	DepthAttachment = InputAttachment(UpdateDeviceInfo(), AttachmentType::VkDepthAttachemnt, swapChainExtent.width, swapChainExtent.height);
 	createFramebuffers();
 
-	MapTexture = Texture2D(UpdateDeviceInfo(), "texture/alefgardfull.bmp");
+	MapTexture = Texture2D(UpdateDeviceInfo(), "texture/alefgardfull4KTest.png");
 	canvas = Canvas2D(UpdateDeviceInfo(), Pixel(0x00, 0x00, 0x00), glm::ivec2(swapChainExtent.width, swapChainExtent.height), MapTexture);
 }
 
@@ -350,9 +350,9 @@ void Renderer2D::DrawFrame(size_t currentFrame)
 	//currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void Renderer2D::UpdateFrame(size_t currentFrame)
+void Renderer2D::UpdateFrame(size_t currentFrame, int x, int y)
 {
-	canvas.UpdateFrame(currentFrame);
+	canvas.UpdateFrame(currentFrame, x, y);
 	createCommandBuffers();
 }
 

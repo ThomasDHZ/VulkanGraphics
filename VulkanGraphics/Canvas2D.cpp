@@ -43,10 +43,10 @@ void Canvas2D::SetPixel(glm::ivec2 position, Pixel pixel)
 	}
 }
 
-void Canvas2D::UpdateFrame(size_t currentFrame)
+void Canvas2D::UpdateFrame(size_t currentFrame, int x, int y)
 {
 	CanvasMesh.ClearSwapChain();
-	CanvasTexture[currentFrame].CopyRange(background);
+	CanvasTexture[currentFrame].CopyRange(background, x, y);
 	CanvasMesh.UpdateSwapChain(CanvasTexture[currentFrame]);
 }
 

@@ -233,7 +233,7 @@ void VulkanGraphics::drawFrame()
 	vkResetFences(renderer.device, 1, &renderer.inFlightFences[currentFrame]);
 	vkResetCommandPool(renderer.device, renderer.commandPool, 0);
 
-	renderer.UpdateFrame(currentFrame);
+	renderer.UpdateFrame(currentFrame, DirX, DirY);
 
 	VkCommandBufferBeginInfo beginInfo = {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -395,6 +395,14 @@ void VulkanGraphics::UpdateKeyboard()
 		camera.UpdateKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
 		camera.UpdateKeyboard(RIGHT, deltaTime);
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_LEFT) == GLFW_PRESS)
+		DirX -= 25;
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_RIGHT) == GLFW_PRESS)
+		DirX += 25;
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_UP) == GLFW_PRESS)
+		DirY -= 25;
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_DOWN) == GLFW_PRESS)
+		DirY += 25;
 }
 
 void VulkanGraphics::VulkanRun()
