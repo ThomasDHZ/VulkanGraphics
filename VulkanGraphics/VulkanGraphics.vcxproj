@@ -167,6 +167,7 @@
     <ClCompile Include="Screen2DMesh.cpp" />
     <ClCompile Include="SkyBoxPipeline.cpp" />
     <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="VulkanDebugger.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="SkyBoxPipeline.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="Sprite.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Vertex.h" />

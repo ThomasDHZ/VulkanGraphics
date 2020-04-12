@@ -28,7 +28,7 @@ Canvas2D::Canvas2D(VulkanDevice deviceInfo, Pixel clearColor, glm::ivec2 canvasS
 
 	CanvasTexture = Texture2D(DeviceInfo, canvasSize.x, canvasSize.y, clearColor);
 
-	CatSprite = Texture2D(DeviceInfo, "texture/cat.png");
+	DQ1Sprite = Sprite(DeviceInfo, glm::ivec2(0,0));
 
 	std::vector<Texture2D> textureList = { CanvasTexture, spriteLayer };
 	CanvasMesh = Screen2DMesh(deviceInfo, textureList);
@@ -43,7 +43,7 @@ void Canvas2D::UpdateFrame(int MapX, int MapY, int SpriteX, int SpriteY)
 {
 	CanvasMesh.ClearSwapChain();
 	spriteLayer = copySpriteLayer;
-	spriteLayer.CopyRange(CatSprite, SpriteX, SpriteY);
+	spriteLayer.CopyRange(DQ1Sprite.GetSpriteTexture(), SpriteX, SpriteY);
 	CanvasTexture.CopyRange(background, MapX, MapY);
 	CanvasMesh.UpdateSwapChain(CanvasTexture, spriteLayer);
 }

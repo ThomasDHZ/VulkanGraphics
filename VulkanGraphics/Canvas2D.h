@@ -1,6 +1,7 @@
 #pragma once
 #include "Texture2D.h"
 #include "Screen2DMesh.h"
+#include "Sprite.h"
 
 class Canvas2D
 {
@@ -11,7 +12,7 @@ private:
 	Texture2D background;
 	Texture2D spriteLayer;
 	Texture2D copySpriteLayer;
-	Texture2D CatSprite;
+	Sprite DQ1Sprite;
 	Pixel ClearColor;
 	glm::ivec2 CanvasSize;
 

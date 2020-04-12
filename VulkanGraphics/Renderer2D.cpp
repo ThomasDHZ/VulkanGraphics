@@ -20,7 +20,7 @@ Renderer2D::Renderer2D(VkInstance instance, GLFWwindow* window) : BaseRenderer(i
 	createFramebuffers();
 
 	MapTexture = Texture2D(UpdateDeviceInfo(), "texture/alefgardfull.bmp");
-	SpriteLayer = Texture2D(UpdateDeviceInfo(), 256, 256, Pixel(0x00, 0x00, 0x00, 0x00));
+	SpriteLayer = Texture2D(UpdateDeviceInfo(), 256, 240, Pixel(0x00, 0x00, 0x00, 0x00));
 
 	canvas = Canvas2D(UpdateDeviceInfo(), Pixel(0x00, 0x00, 0x00), glm::ivec2(256, 240), MapTexture, SpriteLayer);
 }
