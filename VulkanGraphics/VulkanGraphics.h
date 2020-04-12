@@ -39,8 +39,6 @@ private:
 	int SpriteX = 0;
 	int SpriteY = 0;
 
-	VulkanWindow Window;
-	VkInstance instance;
 	VulkanDebugger VulkanDebug;
 
 	VulkanDevice DeviceInfo;

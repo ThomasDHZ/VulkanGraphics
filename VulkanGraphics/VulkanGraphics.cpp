@@ -12,6 +12,7 @@
 #include <optional>
 #include <set>
 #include <FileSystem.h>
+#include "VulkanDevice.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -29,7 +30,7 @@ VulkanGraphics::VulkanGraphics()
 
 VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const char* WindowName)
 {
-	Window = VulkanWindow(width, height, WindowName);
+	vulkanDevice2.Window = VulkanWindow(width, height, WindowName);
 
 	if (enableValidationLayers && !checkValidationLayerSupport()) {
 		throw std::runtime_error("validation layers requested, but not available!");
@@ -66,15 +67,15 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 		createInfo.pNext = nullptr;
 	}
 
-	if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+	if (vkCreateInstance(&createInfo, nullptr, &vulkanDevice2.Instance) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create instance!");
 	}
 
-	VulkanDebug.SetUpDebugger(instance);
+	VulkanDebug.SetUpDebugger(vulkanDevice2.Instance);
 
 
 
-	renderer = Renderer2D(instance, Window.GetWindowPtr());
+	renderer = Renderer2D(vulkanDevice2.Instance, vulkanDevice2.Window.GetWindowPtr());
 	DeviceInfo = renderer.UpdateDeviceInfo();
 
 	//CubeMapLayout layout;
@@ -127,17 +128,17 @@ VulkanGraphics::~VulkanGraphics()
 
 	vkDestroyDevice(DeviceInfo.Device, nullptr);
 
-	VulkanDebug.CleanUp(instance);
+	VulkanDebug.CleanUp(vulkanDevice2.Instance);
 
-	vkDestroySurfaceKHR(instance, renderer.surface, nullptr);
-	vkDestroyInstance(instance, nullptr);
-	Window.CleanUp();
+	vkDestroySurfaceKHR(vulkanDevice2.Instance, renderer.surface, nullptr);
+	vkDestroyInstance(vulkanDevice2.Instance, nullptr);
+	vulkanDevice2.Window.CleanUp();
 }
 
 void VulkanGraphics::mainLoop() {
-	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
+	while (!glfwWindowShouldClose(vulkanDevice2.Window.GetWindowPtr()))
 	{
-		Window.Update();
+		vulkanDevice2.Window.Update();
 		drawFrame();
 		UpdateMouse();
 		UpdateKeyboard();
@@ -148,9 +149,9 @@ void VulkanGraphics::mainLoop() {
 
 void VulkanGraphics::recreateSwapChain() {
 	int width = 0, height = 0;
-	glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
+	glfwGetFramebufferSize(vulkanDevice2.Window.GetWindowPtr(), &width, &height);
 	while (width == 0 || height == 0) {
-		glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
+		glfwGetFramebufferSize(vulkanDevice2.Window.GetWindowPtr(), &width, &height);
 		glfwWaitEvents();
 	}
 
@@ -357,9 +358,9 @@ bool VulkanGraphics::checkValidationLayerSupport() {
 
 void VulkanGraphics::UpdateMouse()
 {
-	if (glfwGetMouseButton(Window.GetWindowPtr(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	if (glfwGetMouseButton(vulkanDevice2.Window.GetWindowPtr(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
-		glfwGetCursorPos(Window.GetWindowPtr(), &MouseXPos, &MouseYPos);
+		glfwGetCursorPos(vulkanDevice2.Window.GetWindowPtr(), &MouseXPos, &MouseYPos);
 		if (firstMouse)
 		{
 			lastX = MouseXPos;
@@ -387,33 +388,33 @@ void VulkanGraphics::UpdateKeyboard()
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(vulkanDevice2.Window.GetWindowPtr(), GLFW_KEY_W) == GLFW_PRESS)
 	{
 		camera.UpdateKeyboard(FORWARD, deltaTime);
 		MapY -= 25;
 	}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(vulkanDevice2.Window.GetWindowPtr(), GLFW_KEY_S) == GLFW_PRESS)
 	{
 		camera.UpdateKeyboard(BACKWARD, deltaTime);
 		MapY += 25;
 	}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(vulkanDevice2.Window.GetWindowPtr(), GLFW_KEY_A) == GLFW_PRESS)
 	{
 		camera.UpdateKeyboard(LEFT, deltaTime);
 		MapX -= 25;
 	}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(vulkanDevice2.Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
 	{
 		camera.UpdateKeyboard(RIGHT, deltaTime);
 		MapX += 25;
 	}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_LEFT) == GLFW_PRESS)
+	if (glfwGetKey(vulkanDevice2.Window.GetWindowPtr(), GLFW_KEY_LEFT) == GLFW_PRESS)
 		SpriteX -= 25;
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_RIGHT) == GLFW_PRESS)
+	if (glfwGetKey(vulkanDevice2.Window.GetWindowPtr(), GLFW_KEY_RIGHT) == GLFW_PRESS)
 		SpriteX += 25;
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_UP) == GLFW_PRESS)
+	if (glfwGetKey(vulkanDevice2.Window.GetWindowPtr(), GLFW_KEY_UP) == GLFW_PRESS)
 		SpriteY -= 25;
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (glfwGetKey(vulkanDevice2.Window.GetWindowPtr(), GLFW_KEY_DOWN) == GLFW_PRESS)
 		SpriteY += 25;
 }
 
