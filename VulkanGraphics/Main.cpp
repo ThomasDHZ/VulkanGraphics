@@ -500,7 +500,6 @@ private:
 			VkSwapchainCreateInfoKHR createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 			createInfo.surface = surface;
-
 			createInfo.minImageCount = imageCount;
 			createInfo.imageFormat = surfaceFormat.format;
 			createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -1229,48 +1228,48 @@ private:
 			}
 		}
 
-		//for (size_t i = 0; i < vulkanFrame.size(); i++) {
-		//	VkCommandBufferBeginInfo beginInfo = {};
-		//	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		for (size_t i = 0; i < vulkanFrame.size(); i++) {
+			VkCommandBufferBeginInfo beginInfo = {};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-		//	if (vkBeginCommandBuffer(vulkanFrame[i].commandBuffers, &beginInfo) != VK_SUCCESS) {
-		//		throw std::runtime_error("failed to begin recording command buffer!");
-		//	}
+			if (vkBeginCommandBuffer(vulkanFrame[i].commandBuffers, &beginInfo) != VK_SUCCESS) {
+				throw std::runtime_error("failed to begin recording command buffer!");
+			}
 
-		//	VkRenderPassBeginInfo renderPassInfo = {};
-		//	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		//	renderPassInfo.renderPass = renderPass;
-		//	renderPassInfo.framebuffer = vulkanFrame[i].swapChainFramebuffers;
-		//	renderPassInfo.renderArea.offset = { 0, 0 };
-		//	renderPassInfo.renderArea.extent = swapChainExtent;
+			VkRenderPassBeginInfo renderPassInfo = {};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderPassInfo.renderPass = renderPass;
+			renderPassInfo.framebuffer = vulkanFrame[i].swapChainFramebuffers;
+			renderPassInfo.renderArea.offset = { 0, 0 };
+			renderPassInfo.renderArea.extent = swapChainExtent;
 
-		//	std::array<VkClearValue, 2> clearValues = {};
-		//	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-		//	clearValues[1].depthStencil = { 1.0f, 0 };
+			std::array<VkClearValue, 2> clearValues = {};
+			clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+			clearValues[1].depthStencil = { 1.0f, 0 };
 
-		//	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-		//	renderPassInfo.pClearValues = clearValues.data();
+			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+			renderPassInfo.pClearValues = clearValues.data();
 
-		//	vkCmdBeginRenderPass(vulkanFrame[i].commandBuffers, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+			vkCmdBeginRenderPass(vulkanFrame[i].commandBuffers, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-		//	vkCmdBindPipeline(vulkanFrame[i].commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+			vkCmdBindPipeline(vulkanFrame[i].commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-		//	VkBuffer vertexBuffers[] = { vertexBuffer };
-		//	VkDeviceSize offsets[] = { 0 };
-		//	vkCmdBindVertexBuffers(vulkanFrame[i].commandBuffers, 0, 1, vertexBuffers, offsets);
+			VkBuffer vertexBuffers[] = { vertexBuffer };
+			VkDeviceSize offsets[] = { 0 };
+			vkCmdBindVertexBuffers(vulkanFrame[i].commandBuffers, 0, 1, vertexBuffers, offsets);
 
-		//	vkCmdBindIndexBuffer(vulkanFrame[i].commandBuffers, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(vulkanFrame[i].commandBuffers, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-		//	vkCmdBindDescriptorSets(vulkanFrame[i].commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+			vkCmdBindDescriptorSets(vulkanFrame[i].commandBuffers, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 
-		//	vkCmdDrawIndexed(vulkanFrame[i].commandBuffers, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+			vkCmdDrawIndexed(vulkanFrame[i].commandBuffers, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
-		//	vkCmdEndRenderPass(vulkanFrame[i].commandBuffers);
+			vkCmdEndRenderPass(vulkanFrame[i].commandBuffers);
 
-		//	if (vkEndCommandBuffer(vulkanFrame[i].commandBuffers) != VK_SUCCESS) {
-		//		throw std::runtime_error("failed to record command buffer!");
-		//	}
-		//}
+			if (vkEndCommandBuffer(vulkanFrame[i].commandBuffers) != VK_SUCCESS) {
+				throw std::runtime_error("failed to record command buffer!");
+			}
+		}
 	}
 
 	void createSyncObjects() 
@@ -1328,6 +1327,13 @@ private:
 		VkSemaphore ImageAcquiredSemaphore = vulkanSemaphores[currentFrame].ImageAcquiredSemaphore;
 		VkSemaphore RenderCompleteSemaphore = vulkanSemaphores[currentFrame].RenderCompleteSemaphore;
 		VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, ImageAcquiredSemaphore, VK_NULL_HANDLE, &imageIndex);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR) 
+		{
+			recreateSwapChain();
+			return;
+		}
+
+		currentFrame = imageIndex;
 
 		result = vkWaitForFences(device, 1, &vulkanFrame[currentFrame].Fence, VK_TRUE, UINT64_MAX);
 		result = vkResetFences(device, 1, &vulkanFrame[currentFrame].Fence);
@@ -1386,8 +1392,10 @@ private:
 		presentInfo.pSwapchains = swapChains;
 		presentInfo.pImageIndices = &imageIndex;
 		result = vkQueuePresentKHR(presentQueue, &presentInfo);
-
-		currentFrame = imageIndex;
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+			framebufferResized = false;
+			recreateSwapChain();
+		}
 	}
 
 	VkShaderModule createShaderModule(const std::vector<char>& code) {
