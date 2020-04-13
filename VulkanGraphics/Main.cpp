@@ -139,6 +139,12 @@ struct VulkanFrame
 	VkImage swapChainImages;
 	VkImageView swapChainImageViews;
 	VkFramebuffer swapChainFramebuffers;
+	VkDescriptorPool descriptorPool;
+
+	void CleanUpFrame()
+	{
+
+	}
 };
 
 struct VulkanSemaphores
@@ -198,7 +204,6 @@ private:
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
-	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
 	size_t currentFrame = 0;
@@ -264,28 +269,25 @@ private:
 		vkDestroyImage(device, depthImage, nullptr);
 		vkFreeMemory(device, depthImageMemory, nullptr);
 
-		//for (auto framebuffer : swapChainFramebuffers) {
-		//	vkDestroyFramebuffer(device, framebuffer, nullptr);
-		//}
+		for (auto frame : vulkanFrame) {
+			vkDestroyFramebuffer(device, frame.swapChainFramebuffers, nullptr);
+			vkDestroyImageView(device, frame.swapChainImageViews, nullptr);
+			vkDestroyDescriptorPool(device, frame.descriptorPool, nullptr);
+		}
 
 		//vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
 
+		for (size_t i = 0; i < vulkanFrame.size(); i++) {
+			vkDestroyBuffer(device, uniformBuffers[i], nullptr);
+			vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+		}
+
+	
 		vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
 
-		//for (auto imageView : swapChainImageViews) {
-		//	vkDestroyImageView(device, imageView, nullptr);
-		//}
-
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
-
-		//for (size_t i = 0; i < swapChainImages.size(); i++) {
-		//	vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-		//	vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
-		//}
-
-		vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 	}
 
 	void cleanup() {
@@ -305,13 +307,16 @@ private:
 		vkDestroyBuffer(device, vertexBuffer, nullptr);
 		vkFreeMemory(device, vertexBufferMemory, nullptr);
 
-		//for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		//	vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-		//	vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-		//	vkDestroyFence(device, inFlightFences[i], nullptr);
-		//}
-
-		//vkDestroyCommandPool(device, commandPool, nullptr);
+		for (auto Semaphore : vulkanSemaphores)
+		{
+			vkDestroySemaphore(device, Semaphore.RenderCompleteSemaphore, nullptr);
+			vkDestroySemaphore(device, Semaphore.ImageAcquiredSemaphore, nullptr);
+		}
+		for (auto frame : vulkanFrame) 
+		{
+			vkDestroyFence(device, frame.Fence, nullptr);
+			vkDestroyCommandPool(device, frame.commandPool, nullptr);
+		}
 
 		vkDestroyDevice(device, nullptr);
 
@@ -1123,25 +1128,30 @@ private:
 		poolInfo.pPoolSizes = poolSizes.data();
 		poolInfo.maxSets = static_cast<uint32_t>(vulkanFrame.size());
 
-		if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create descriptor pool!");
+		for (size_t i = 0; i < vulkanFrame.size(); i++) {
+			if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &vulkanFrame[i].descriptorPool) != VK_SUCCESS) {
+				throw std::runtime_error("failed to create descriptor pool!");
+			}
 		}
 	}
 
 	void createDescriptorSets() {
-		std::vector<VkDescriptorSetLayout> layouts(vulkanFrame.size(), descriptorSetLayout);
-		VkDescriptorSetAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = descriptorPool;
-		allocInfo.descriptorSetCount = static_cast<uint32_t>(vulkanFrame.size());
-		allocInfo.pSetLayouts = layouts.data();
+		for (size_t i = 0; i < vulkanFrame.size(); i++)
+		{
+			std::vector<VkDescriptorSetLayout> layouts(vulkanFrame.size(), descriptorSetLayout);
+			VkDescriptorSetAllocateInfo allocInfo = {};
+			allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			allocInfo.descriptorPool = vulkanFrame[i].descriptorPool;
+			allocInfo.descriptorSetCount = static_cast<uint32_t>(vulkanFrame.size());
+			allocInfo.pSetLayouts = layouts.data();
 
-		descriptorSets.resize(vulkanFrame.size());
-		if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate descriptor sets!");
+			descriptorSets.resize(vulkanFrame.size());
+			if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+				throw std::runtime_error("failed to allocate descriptor sets!");
+			}
 		}
-
-		for (size_t i = 0; i < vulkanFrame.size(); i++) {
+		for (size_t i = 0; i < vulkanFrame.size(); i++) 
+		{
 			VkDescriptorBufferInfo bufferInfo = {};
 			bufferInfo.buffer = uniformBuffers[i];
 			bufferInfo.offset = 0;
@@ -1377,16 +1387,10 @@ private:
 
 		currentFrame = imageIndex;
 
-		vkDeviceWaitIdle(device);
+		//vkDeviceWaitIdle(device);
 		result = vkWaitForFences(device, 1, &vulkanFrame[currentFrame].Fence, VK_TRUE, UINT64_MAX);
 		result = vkResetFences(device, 1, &vulkanFrame[currentFrame].Fence);
 		result = vkResetCommandPool(device, vulkanFrame[currentFrame].commandPool, 0);
-
-		vkDestroyDescriptorPool(device, descriptorPool, 0);
-		UpdateTexture(Pixel(0x00, 0xff, 0x00));
-		createDescriptorPool();
-		createDescriptorSets();
-		updateUniformBuffer(imageIndex);
 
 		VkCommandBufferBeginInfo CommandBufferInfo = {};
 		CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1443,6 +1447,54 @@ private:
 			framebufferResized = false;
 			recreateSwapChain();
 		}
+
+		//vkResetDescriptorPool(device, vulkanFrame[currentFrame % MAX_FRAMES_IN_FLIGHT].descriptorPool, 0);
+		UpdateTexture(Pixel(0x00, 0xff, 0x00));
+		//createDescriptorPool();
+		//std::vector<VkDescriptorSetLayout> layouts(vulkanFrame.size(), descriptorSetLayout);
+		//VkDescriptorSetAllocateInfo allocInfo = {};
+		//allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		//allocInfo.descriptorPool = vulkanFrame[currentFrame % MAX_FRAMES_IN_FLIGHT].descriptorPool;
+		//allocInfo.descriptorSetCount = static_cast<uint32_t>(vulkanFrame.size());
+		//allocInfo.pSetLayouts = layouts.data();
+
+		//if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+		//	throw std::runtime_error("failed to allocate descriptor sets!");
+		//}
+
+				for (size_t i = 0; i < vulkanFrame.size(); i++) 
+		{
+			VkDescriptorBufferInfo bufferInfo = {};
+			bufferInfo.buffer = uniformBuffers[i];
+			bufferInfo.offset = 0;
+			bufferInfo.range = sizeof(UniformBufferObject);
+
+			VkDescriptorImageInfo imageInfo = {};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = textureImageView;
+			imageInfo.sampler = textureSampler;
+
+			std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
+
+			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[0].dstSet = descriptorSets[i];
+			descriptorWrites[0].dstBinding = 0;
+			descriptorWrites[0].dstArrayElement = 0;
+			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[0].descriptorCount = 1;
+			descriptorWrites[0].pBufferInfo = &bufferInfo;
+
+			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[1].dstSet = descriptorSets[i];
+			descriptorWrites[1].dstBinding = 1;
+			descriptorWrites[1].dstArrayElement = 0;
+			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrites[1].descriptorCount = 1;
+			descriptorWrites[1].pImageInfo = &imageInfo;
+
+			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		}
+		updateUniformBuffer(imageIndex);
 	}
 
 	VkShaderModule createShaderModule(const std::vector<char>& code) {
