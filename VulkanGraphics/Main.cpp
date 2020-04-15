@@ -133,18 +133,38 @@ const std::vector<uint16_t> indices = {
 	4, 5, 6, 6, 7, 4
 };
 
+struct ThreadData
+{
+	VkCommandBuffer TreadCommandBuffer;
+	VkCommandPool TreadCommandPool;
+	
+	void DeleteThread(VkDevice device)
+	{
+		vkDestroyCommandPool(device, TreadCommandPool, nullptr);
+	}
+};
 
 struct VulkanFrame
 {
 	VkCommandPool commandPool;
 	VkCommandBuffer MainCommandBuffers;
-	VkCommandBuffer SecondaryCommandBuffer;
-	VkCommandPool SecondaryCommandPool;
+	std::vector<ThreadData> Thread;
 	VkFence Fence;
 	VkImage swapChainImages;
 	VkImageView swapChainImageViews;
 	VkFramebuffer swapChainFramebuffers;
 	VkDescriptorPool descriptorPool;
+
+	void DeleteFrame(VkDevice device)
+	{
+		vkDestroyFence(device, Fence, nullptr);
+		vkDestroyCommandPool(device, commandPool, nullptr);
+
+		for (auto thread : Thread)
+		{
+			thread.DeleteThread(device);
+		}
+	}
 };
 
 struct VulkanSemaphores
@@ -242,6 +262,12 @@ private:
 	void initVulkan() {
 		vulkanFrame.resize(3);
 		vulkanSemaphores.resize(3);
+
+		for (auto& frame : vulkanFrame)
+		{
+			frame.Thread.emplace_back(ThreadData());
+		}
+
 		createInstance();
 		setupDebugMessenger();
 		createSurface();
@@ -476,8 +502,7 @@ private:
 		}
 		for (auto frame : vulkanFrame)
 		{
-			vkDestroyFence(device, frame.Fence, nullptr);
-			vkDestroyCommandPool(device, frame.commandPool, nullptr);
+			frame.DeleteFrame(device);
 		}
 
 		vkDestroyDevice(device, nullptr);
@@ -966,7 +991,7 @@ private:
 				throw std::runtime_error("failed to create graphics command pool!");
 			}
 
-			if (vkCreateCommandPool(device, &poolInfo, nullptr, &vulkanFrame[x].SecondaryCommandPool) != VK_SUCCESS) 
+			if (vkCreateCommandPool(device, &poolInfo, nullptr, &vulkanFrame[x].Thread[0].TreadCommandPool) != VK_SUCCESS) 
 			{
 				throw std::runtime_error("failed to create graphics command pool!");
 			}
@@ -1317,6 +1342,12 @@ private:
 				throw std::runtime_error("failed to allocate descriptor sets!");
 			}
 		}
+
+		UpdateDescriptorSets();
+	}
+
+	void UpdateDescriptorSets()
+	{
 		for (size_t i = 0; i < vulkanFrame.size(); i++)
 		{
 			VkDescriptorBufferInfo bufferInfo = {};
@@ -1452,11 +1483,11 @@ private:
 		{
 			VkCommandBufferAllocateInfo allocInfo = {};
 			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocInfo.commandPool = vulkanFrame[i].SecondaryCommandPool;
+			allocInfo.commandPool = vulkanFrame[i].Thread[0].TreadCommandPool;
 			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 			allocInfo.commandBufferCount = 1;
 
-			if (vkAllocateCommandBuffers(device, &allocInfo, &vulkanFrame[i].SecondaryCommandBuffer) != VK_SUCCESS) {
+			if (vkAllocateCommandBuffers(device, &allocInfo, &vulkanFrame[i].Thread[0].TreadCommandBuffer) != VK_SUCCESS) {
 				throw std::runtime_error("failed to allocate command buffers!");
 			}
 		}
@@ -1520,8 +1551,9 @@ private:
 		VkDeviceSize offsets[] = { 0 };
 
 		uint32_t imageIndex;
-		VkSemaphore ImageAcquiredSemaphore = vulkanSemaphores[currentFrame].ImageAcquiredSemaphore;
-		VkSemaphore RenderCompleteSemaphore = vulkanSemaphores[currentFrame].RenderCompleteSemaphore;
+		const VkSemaphore ImageAcquiredSemaphore = vulkanSemaphores[currentFrame].ImageAcquiredSemaphore;
+		const VkSemaphore RenderCompleteSemaphore = vulkanSemaphores[currentFrame].RenderCompleteSemaphore;
+
 		VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, ImageAcquiredSemaphore, VK_NULL_HANDLE, &imageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
@@ -1530,89 +1562,58 @@ private:
 		}
 
 		currentFrame = imageIndex;
+		const VulkanFrame Frame = vulkanFrame[currentFrame];
 
-		//vkDeviceWaitIdle(device);
-		result = vkWaitForFences(device, 1, &vulkanFrame[currentFrame].Fence, VK_TRUE, UINT64_MAX);
-		result = vkResetFences(device, 1, &vulkanFrame[currentFrame].Fence);
-		result = vkResetCommandPool(device, vulkanFrame[currentFrame].commandPool, 0);
+		result = vkWaitForFences(device, 1, &Frame.Fence, VK_TRUE, UINT64_MAX);
+		result = vkResetFences(device, 1, &Frame.Fence);
+		result = vkResetCommandPool(device, Frame.commandPool, 0);
 
 		UpdateTexture();
-		for (size_t i = 0; i < vulkanFrame.size(); i++)
-		{
-			VkDescriptorBufferInfo bufferInfo = {};
-			bufferInfo.buffer = uniformBuffers[i];
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(UniformBufferObject);
-
-			VkDescriptorImageInfo imageInfo = {};
-			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			imageInfo.imageView = textureImageView;
-			imageInfo.sampler = textureSampler;
-
-			std::array<VkWriteDescriptorSet, 2> descriptorWrites = {};
-
-			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[0].dstSet = descriptorSets[i];
-			descriptorWrites[0].dstBinding = 0;
-			descriptorWrites[0].dstArrayElement = 0;
-			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrites[0].descriptorCount = 1;
-			descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[1].dstSet = descriptorSets[i];
-			descriptorWrites[1].dstBinding = 1;
-			descriptorWrites[1].dstArrayElement = 0;
-			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrites[1].descriptorCount = 1;
-			descriptorWrites[1].pImageInfo = &imageInfo;
-
-			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		}
+		UpdateDescriptorSets();
 		updateUniformBuffer(imageIndex);
 
 		VkRenderPassBeginInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = renderPass;
-		renderPassInfo.framebuffer = vulkanFrame[currentFrame].swapChainFramebuffers;
+		renderPassInfo.framebuffer = Frame.swapChainFramebuffers;
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = swapChainExtent;
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
-		commandBuffers.push_back(vulkanFrame[currentFrame].SecondaryCommandBuffer);
+		commandBuffers.push_back(Frame.Thread[0].TreadCommandBuffer);
 
 		VkCommandBufferBeginInfo CommandBufferInfo = {};
 		CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		result = vkBeginCommandBuffer(vulkanFrame[currentFrame].MainCommandBuffers, &CommandBufferInfo);
+		result = vkBeginCommandBuffer(Frame.MainCommandBuffers, &CommandBufferInfo);
 
 		VkCommandBufferInheritanceInfo inheritanceInfo = {};
 		inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
 		inheritanceInfo.renderPass = renderPass;
-		inheritanceInfo.framebuffer = vulkanFrame[currentFrame].swapChainFramebuffers;
+		inheritanceInfo.framebuffer = Frame.swapChainFramebuffers;
 
 		VkCommandBufferBeginInfo commandBufferBeginInfo = {};
 		commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 		commandBufferBeginInfo.pInheritanceInfo = &inheritanceInfo;
 
-		vkCmdBeginRenderPass(vulkanFrame[currentFrame].MainCommandBuffers, &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+		vkCmdBeginRenderPass(Frame.MainCommandBuffers, &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
-		vkBeginCommandBuffer(vulkanFrame[currentFrame].SecondaryCommandBuffer, &commandBufferBeginInfo);
-		vkCmdBindPipeline(vulkanFrame[currentFrame].SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-		vkCmdBindVertexBuffers(vulkanFrame[currentFrame].SecondaryCommandBuffer, 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(vulkanFrame[currentFrame].SecondaryCommandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		vkCmdBindDescriptorSets(vulkanFrame[currentFrame].SecondaryCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-		vkCmdDrawIndexed(vulkanFrame[currentFrame].SecondaryCommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-		vkEndCommandBuffer(vulkanFrame[currentFrame].SecondaryCommandBuffer);
+		vkBeginCommandBuffer(Frame.Thread[0].TreadCommandBuffer, &commandBufferBeginInfo);
+		vkCmdBindPipeline(Frame.Thread[0].TreadCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+		vkCmdBindVertexBuffers(Frame.Thread[0].TreadCommandBuffer, 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(Frame.Thread[0].TreadCommandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindDescriptorSets(Frame.Thread[0].TreadCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+		vkCmdDrawIndexed(Frame.Thread[0].TreadCommandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+		vkEndCommandBuffer(Frame.Thread[0].TreadCommandBuffer);
 
-		commandBuffers.emplace_back(vulkanFrame[currentFrame].SecondaryCommandBuffer);
+		commandBuffers.resize(99, Frame.Thread[0].TreadCommandBuffer);
 
-		vkCmdExecuteCommands(vulkanFrame[currentFrame].MainCommandBuffers, commandBuffers.size(), commandBuffers.data());
-		vkCmdEndRenderPass(vulkanFrame[currentFrame].MainCommandBuffers);
-		vkEndCommandBuffer(vulkanFrame[currentFrame].MainCommandBuffers);
+		vkCmdExecuteCommands(Frame.MainCommandBuffers, commandBuffers.size(), commandBuffers.data());
+		vkCmdEndRenderPass(Frame.MainCommandBuffers);
+		vkEndCommandBuffer(Frame.MainCommandBuffers);
 
 		std::array<VkCommandBuffer, 1> submitCommandBuffers =
-		{ vulkanFrame[currentFrame].MainCommandBuffers };
+		{ Frame.MainCommandBuffers };
 
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		VkSubmitInfo submitInfo = {};
@@ -1625,9 +1626,7 @@ private:
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = &RenderCompleteSemaphore;
 
-
-
-		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, vulkanFrame[currentFrame].Fence) != VK_SUCCESS) {
+		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, Frame.Fence) != VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 
