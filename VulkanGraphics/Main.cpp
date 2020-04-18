@@ -144,6 +144,11 @@ struct VulkanFrame
 	VkFramebuffer swapChainFramebuffers;
 	VkDescriptorPool descriptorPool;
 
+	VkDescriptorPool imGuiDescriptorPool;
+	VkFramebuffer imGuiFrameBuffer;
+	VkCommandPool imGuiCommandPools;
+	VkCommandBuffer imGuiCommandBuffers;
+
 	void CleanUpFrame()
 	{
 
@@ -212,10 +217,6 @@ private:
 
 	size_t currentFrame = 0;
 	VkRenderPass imGuiRenderPass;
-	VkDescriptorPool imGuiDescriptorPool;
-	VkFramebuffer imGuiFrameBuffer;
-	std::vector<VkCommandPool> imGuiCommandPools;
-	std::vector<VkCommandBuffer> imGuiCommandBuffers;
 
 	bool framebufferResized = false;
 
@@ -291,8 +292,12 @@ private:
 		pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
 		pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
 		pool_info.pPoolSizes = pool_sizes;
-		auto err = vkCreateDescriptorPool(device, &pool_info, nullptr, &imGuiDescriptorPool);
-		check_vk_result(err);
+		for (size_t i = 0; i < vulkanFrame.size(); i++) 
+		{
+			if (vkCreateDescriptorPool(device, &pool_info, nullptr, &vulkanFrame[i].imGuiDescriptorPool) != VK_SUCCESS) {
+				throw std::runtime_error("failed to create descriptor pool!");
+			}
+		}
 
 		VkAttachmentDescription attachment = {};
 		attachment.format = swapChainImageFormat;
@@ -334,8 +339,7 @@ private:
 		}
 
 		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
-		imGuiCommandPools.resize(vulkanFrame.size());
-		imGuiCommandBuffers.resize(vulkanFrame.size());
+
 		for (size_t i = 0; i < vulkanFrame.size(); i++)
 		{
 			VkCommandPoolCreateInfo commandPoolCreateInfo = {};
@@ -343,16 +347,16 @@ private:
 			commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 			commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-			if (vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &imGuiCommandPools[i]) != VK_SUCCESS) {
+			if (vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &vulkanFrame[i].imGuiCommandPools) != VK_SUCCESS) {
 				throw std::runtime_error("Could not create graphics command pool");
 			}
 
 			VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
 			commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 			commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			commandBufferAllocateInfo.commandPool = imGuiCommandPools[i];
+			commandBufferAllocateInfo.commandPool = vulkanFrame[i].imGuiCommandPools;
 			commandBufferAllocateInfo.commandBufferCount = 1;
-			vkAllocateCommandBuffers(device, &commandBufferAllocateInfo, &imGuiCommandBuffers[i]);
+			vkAllocateCommandBuffers(device, &commandBufferAllocateInfo, &vulkanFrame[i].imGuiCommandBuffers);
 		}
 
 		VkImageView attachment2[1];
@@ -367,8 +371,7 @@ private:
 		for (uint32_t i = 0; i < vulkanFrame.size(); i++)
 		{
 			attachment2[0] = vulkanFrame[i].swapChainImageViews;
-			err = vkCreateFramebuffer(device, &Framebuffeinfo, nullptr, &imGuiFrameBuffer);
-			check_vk_result(err);
+			vkCreateFramebuffer(device, &Framebuffeinfo, nullptr, &vulkanFrame[i].imGuiFrameBuffer);
 		}
 
 		IMGUI_CHECKVERSION();
@@ -385,7 +388,7 @@ private:
 		init_info.QueueFamily = 0;
 		init_info.Queue = graphicsQueue;
 		init_info.PipelineCache = VK_NULL_HANDLE;
-		init_info.DescriptorPool = imGuiDescriptorPool;
+		init_info.DescriptorPool = vulkanFrame[0].imGuiDescriptorPool;
 		init_info.Allocator = nullptr;
 		init_info.MinImageCount = 3;
 		init_info.ImageCount = 3;
@@ -1598,11 +1601,11 @@ private:
 		vkCmdDrawIndexed(vulkanFrame[currentFrame].commandBuffers, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 		vkCmdEndRenderPass(vulkanFrame[currentFrame].commandBuffers);
 
-		vkResetCommandPool(device, imGuiCommandPools[currentFrame], 0);
+		vkResetCommandPool(device, vulkanFrame[currentFrame].imGuiCommandPools, 0);
 		VkCommandBufferBeginInfo info = {};
 		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		vkBeginCommandBuffer(imGuiCommandBuffers[currentFrame], &info);
+		vkBeginCommandBuffer(vulkanFrame[currentFrame].imGuiCommandBuffers, &info);
 		{
 			std::array<VkClearValue, 1> clearValues2 = {};
 			clearValues2[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
@@ -1610,19 +1613,19 @@ private:
 			VkRenderPassBeginInfo info = {};
 			info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			info.renderPass = imGuiRenderPass;
-			info.framebuffer = imGuiFrameBuffer;
+			info.framebuffer = vulkanFrame[currentFrame].imGuiFrameBuffer;
 			info.renderArea.extent = swapChainExtent;
 			info.clearValueCount = static_cast<uint32_t>(clearValues2.size());
 			info.pClearValues = clearValues2.data();
-			vkCmdBeginRenderPass(imGuiCommandBuffers[currentFrame], &info, VK_SUBPASS_CONTENTS_INLINE);
+			vkCmdBeginRenderPass(vulkanFrame[currentFrame].imGuiCommandBuffers, &info, VK_SUBPASS_CONTENTS_INLINE);
 		}
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), imGuiCommandBuffers[currentFrame]);
-		vkCmdEndRenderPass(imGuiCommandBuffers[currentFrame]);
-		vkEndCommandBuffer(imGuiCommandBuffers[currentFrame]);
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkanFrame[currentFrame].imGuiCommandBuffers);
+		vkCmdEndRenderPass(vulkanFrame[currentFrame].imGuiCommandBuffers);
+		vkEndCommandBuffer(vulkanFrame[currentFrame].imGuiCommandBuffers);
 
 
 		std::array<VkCommandBuffer, 2> submitCommandBuffers =
-		{ vulkanFrame[currentFrame].commandBuffers, imGuiCommandBuffers[currentFrame] };
+		{ vulkanFrame[currentFrame].commandBuffers, vulkanFrame[currentFrame].imGuiCommandBuffers };
 
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		VkSubmitInfo submitInfo = {};
