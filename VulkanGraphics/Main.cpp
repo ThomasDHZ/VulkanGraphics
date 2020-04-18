@@ -272,108 +272,6 @@ private:
 		createCommandBuffers();
 		createSyncObjects();
 
-		VkDescriptorPoolSize pool_sizes[] =
-		{
-			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-			{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
-		};
-		VkDescriptorPoolCreateInfo pool_info = {};
-		pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-		pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-		pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
-		pool_info.pPoolSizes = pool_sizes;
-		for (size_t i = 0; i < vulkanFrame.size(); i++) 
-		{
-			if (vkCreateDescriptorPool(device, &pool_info, nullptr, &vulkanFrame[i].imGuiDescriptorPool) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create descriptor pool!");
-			}
-		}
-
-		VkAttachmentDescription attachment = {};
-		attachment.format = swapChainImageFormat;
-		attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-		VkAttachmentReference color_attachment = {};
-		color_attachment.attachment = 0;
-		color_attachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &color_attachment;
-
-		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.srcAccessMask = 0;  // or VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-		VkRenderPassCreateInfo info = {};
-		info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		info.attachmentCount = 1;
-		info.pAttachments = &attachment;
-		info.subpassCount = 1;
-		info.pSubpasses = &subpass;
-		info.dependencyCount = 1;
-		info.pDependencies = &dependency;
-		if (vkCreateRenderPass(device, &info, nullptr, &imGuiRenderPass) != VK_SUCCESS) {
-			throw std::runtime_error("Could not create Dear ImGui's render pass");
-		}
-
-		QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
-
-		for (size_t i = 0; i < vulkanFrame.size(); i++)
-		{
-			VkCommandPoolCreateInfo commandPoolCreateInfo = {};
-			commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-			commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-			commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-
-			if (vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &vulkanFrame[i].imGuiCommandPools) != VK_SUCCESS) {
-				throw std::runtime_error("Could not create graphics command pool");
-			}
-
-			VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
-			commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			commandBufferAllocateInfo.commandPool = vulkanFrame[i].imGuiCommandPools;
-			commandBufferAllocateInfo.commandBufferCount = 1;
-			vkAllocateCommandBuffers(device, &commandBufferAllocateInfo, &vulkanFrame[i].imGuiCommandBuffers);
-		}
-
-		VkImageView attachment2[1];
-		VkFramebufferCreateInfo Framebuffeinfo = {};
-		Framebuffeinfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		Framebuffeinfo.renderPass = imGuiRenderPass;
-		Framebuffeinfo.attachmentCount = 1;
-		Framebuffeinfo.pAttachments = attachment2;
-		Framebuffeinfo.width = WIDTH;
-		Framebuffeinfo.height = HEIGHT;
-		Framebuffeinfo.layers = 1;
-		for (uint32_t i = 0; i < vulkanFrame.size(); i++)
-		{
-			attachment2[0] = vulkanFrame[i].swapChainImageViews;
-			vkCreateFramebuffer(device, &Framebuffeinfo, nullptr, &vulkanFrame[i].imGuiFrameBuffer);
-		}
-
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -407,7 +305,22 @@ private:
 			ImGui_ImplVulkan_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
-			ImGui::ShowDemoWindow();
+			{
+				static float f = 0.0f;
+				static int counter = 0;
+
+				ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+				ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+
+				if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+					counter++;
+				ImGui::SameLine();
+				ImGui::Text("counter = %d", counter);
+
+				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+				ImGui::End();
+			}
 			ImGui::Render();
 			drawFrame();
 		}
@@ -763,6 +676,48 @@ private:
 		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create render pass!");
 		}
+
+
+
+
+		VkAttachmentDescription guiAttachment = {};
+		guiAttachment.format = swapChainImageFormat;
+		guiAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		guiAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		guiAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		guiAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		guiAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		guiAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		guiAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkAttachmentReference guiColor_attachment = {};
+		guiColor_attachment.attachment = 0;
+		guiColor_attachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		VkSubpassDescription guiSubpass = {};
+		guiSubpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		guiSubpass.colorAttachmentCount = 1;
+		guiSubpass.pColorAttachments = &guiColor_attachment;
+
+		VkSubpassDependency guiDependency = {};
+		guiDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		guiDependency.dstSubpass = 0;
+		guiDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		guiDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		guiDependency.srcAccessMask = 0;  // or VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		guiDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		VkRenderPassCreateInfo guiInfo = {};
+		guiInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		guiInfo.attachmentCount = 1;
+		guiInfo.pAttachments = &guiAttachment;
+		guiInfo.subpassCount = 1;
+		guiInfo.pSubpasses = &guiSubpass;
+		guiInfo.dependencyCount = 1;
+		guiInfo.pDependencies = &guiDependency;
+		if (vkCreateRenderPass(device, &guiInfo, nullptr, &imGuiRenderPass) != VK_SUCCESS) {
+			throw std::runtime_error("Could not create Dear ImGui's render pass");
+		}
 	}
 
 	void createDescriptorSetLayout() {
@@ -939,6 +894,24 @@ private:
 				throw std::runtime_error("failed to create framebuffer!");
 			}
 		}
+
+		for (size_t i = 0; i < vulkanFrame.size(); i++) {
+			VkImageView attachment2[2];
+			VkFramebufferCreateInfo Framebuffeinfo = {};
+			Framebuffeinfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			Framebuffeinfo.renderPass = imGuiRenderPass;
+			Framebuffeinfo.attachmentCount = 2;
+			Framebuffeinfo.pAttachments = &attachment2[0];
+			Framebuffeinfo.width = WIDTH;
+			Framebuffeinfo.height = HEIGHT;
+			Framebuffeinfo.layers = 1;
+			for (uint32_t i = 0; i < vulkanFrame.size(); i++)
+			{
+				attachment2[0] = vulkanFrame[i].swapChainImageViews;
+				attachment2[1] = depthImageView;
+				vkCreateFramebuffer(device, &Framebuffeinfo, nullptr, &vulkanFrame[i].imGuiFrameBuffer);
+			}
+		}
 	}
 
 	void createCommandPool() {
@@ -953,6 +926,18 @@ private:
 		{
 			if (vkCreateCommandPool(device, &poolInfo, nullptr, &vulkanFrame[x].commandPool) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create graphics command pool!");
+			}
+		}
+
+		VkCommandPoolCreateInfo commandPoolCreateInfo = {};
+		commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+		commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+		for (int x = 0; x < vulkanFrame.size(); x++)
+		{
+			if (vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &vulkanFrame[x].imGuiCommandPools) != VK_SUCCESS) {
+				throw std::runtime_error("Could not create graphics command pool");
 			}
 		}
 	}
@@ -1284,6 +1269,33 @@ private:
 				throw std::runtime_error("failed to create descriptor pool!");
 			}
 		}
+
+		VkDescriptorPoolSize pool_sizes[] =
+		{
+			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+		};
+		VkDescriptorPoolCreateInfo pool_info = {};
+		pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+		pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
+		pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
+		pool_info.pPoolSizes = pool_sizes;
+		for (size_t i = 0; i < vulkanFrame.size(); i++)
+		{
+			if (vkCreateDescriptorPool(device, &pool_info, nullptr, &vulkanFrame[i].imGuiDescriptorPool) != VK_SUCCESS) {
+				throw std::runtime_error("failed to create descriptor pool!");
+			}
+		}
 	}
 
 	void createDescriptorSets() {
@@ -1429,6 +1441,15 @@ private:
 			if (vkAllocateCommandBuffers(device, &allocInfo, &vulkanFrame[i].commandBuffers) != VK_SUCCESS) {
 				throw std::runtime_error("failed to allocate command buffers!");
 			}
+		}
+		for (size_t i = 0; i < vulkanFrame.size(); i++)
+		{
+			VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+			commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			commandBufferAllocateInfo.commandPool = vulkanFrame[i].imGuiCommandPools;
+			commandBufferAllocateInfo.commandBufferCount = 1;
+			vkAllocateCommandBuffers(device, &commandBufferAllocateInfo, &vulkanFrame[i].imGuiCommandBuffers);
 		}
 
 		for (size_t i = 0; i < vulkanFrame.size(); i++) {
@@ -1607,8 +1628,9 @@ private:
 		info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		vkBeginCommandBuffer(vulkanFrame[currentFrame].imGuiCommandBuffers, &info);
 		{
-			std::array<VkClearValue, 1> clearValues2 = {};
+			std::array<VkClearValue, 2> clearValues2 = {};
 			clearValues2[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
+			clearValues[1].depthStencil = { 1.0f, 0 };
 
 			VkRenderPassBeginInfo info = {};
 			info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
