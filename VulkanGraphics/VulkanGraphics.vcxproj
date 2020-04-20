@@ -229,7 +229,6 @@
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VulkanBufferManager.h" />
     <ClInclude Include="VulkanDebugger.h" />
-    <ClInclude Include="VulkanDevice.h" />
     <ClInclude Include="VulkanGraphics.h" />
     <ClInclude Include="VulkanWindow.h" />
   </ItemGroup>

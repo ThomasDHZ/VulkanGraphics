@@ -88,8 +88,7 @@ Texture2D::~Texture2D()
 void Texture2D::UpdateTexture(Pixel pixel)
 {
 	VkDeviceSize imageSize = Width * Height * sizeof(Pixel);
-	PixelImage.clear();
-	PixelImage.resize(Width * Height, pixel);
+	memset(&PixelImage[0], 0xFF, imageSize);
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;

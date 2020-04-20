@@ -256,7 +256,45 @@ private:
 		std::vector<Texture2D> textures = { texture, texture };
 		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
 		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
+		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
+		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
+		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
+		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
+		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
+		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
+		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
+		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
 		meshList[0].MeshName = "Mesh 1";
+		meshList[1].MeshName = "Mesh 2";
+		meshList[2].MeshName = "Mesh 3";
+		meshList[3].MeshName = "Mesh 4";
+		meshList[4].MeshName = "Mesh 5";
+		meshList[5].MeshName = "Mesh 6";
+		meshList[6].MeshName = "Mesh 7";
+		meshList[7].MeshName = "Mesh 8";
+		meshList[8].MeshName = "Mesh 9";
+		meshList[9].MeshName = "Mesh 10";
+
+
+		glm::vec3 cubePositions[] =
+		{
+			glm::vec3(0.0f,  0.0f,  0.0f),
+			glm::vec3(2.0f,  5.0f, -15.0f),
+			glm::vec3(-1.5f, -2.2f, -2.5f),
+			glm::vec3(-3.8f, -2.0f, -12.3f),
+			glm::vec3(2.4f, -0.4f, -3.5f),
+			glm::vec3(-1.7f,  3.0f, -7.5f),
+			glm::vec3(1.3f, -2.0f, -2.5f),
+			glm::vec3(1.5f,  2.0f, -2.5f),
+			glm::vec3(1.5f,  0.2f, -1.5f),
+			glm::vec3(-1.3f,  1.0f, -1.5f)
+		};
+
+
+		for (int x = 0; x < meshList.size(); x++)
+		{
+			meshList[x].MeshPosition = cubePositions[x];
+		}
 
 		createDescriptorPool();
 		createDescriptorSets();
@@ -306,7 +344,7 @@ private:
 
 				if (ImGui::TreeNode("Tree"))
 				{
-					ImGui::Columns(2, "tree", true);
+					ImGui::Columns(1, "tree", true);
 					for (int x = 0; x < meshList.size(); x++)
 					{
 						float translationvec4f[4] = { meshList[x].MeshPosition.x, meshList[x].MeshPosition.y, meshList[x].MeshPosition.z, 0.0f };
@@ -314,27 +352,24 @@ private:
 						float scalevec4f[4] = { meshList[x].MeshScale.x, meshList[x].MeshScale.y, meshList[x].MeshScale.z, 0.0f };
 
 						bool open1 = ImGui::TreeNode((void*)(intptr_t)x, meshList[x].MeshName.c_str(), x);
-						ImGui::NextColumn();
-						ImGui::Text("Node contents");
-						ImGui::NextColumn();
 						if (open1)
 						{
 
-							ImGui::SliderFloat3((meshList[x].MeshName + " Translate").c_str(), translationvec4f, 0.0f, 1.0f);
+							ImGui::SliderFloat3((meshList[x].MeshName + " Translate").c_str(), translationvec4f, -100.0f, 100.0f);
 							//ImGui::InputFloat3("Input Translation float3 %d", translationvec4f);
 							ImGui::SliderFloat3((meshList[x].MeshName + " Rotate").c_str(), rotatevec4f, 0.0f, 1.0f);
 							//ImGui::InputFloat3("Input Rotate float3 %d", rotatevec4f);
 							ImGui::SliderFloat3((meshList[x].MeshName + " Scale").c_str(), scalevec4f, 0.0f, 1.0f);
 							//ImGui::InputFloat3("Input Scale float3", scalevec4f);
-							meshList[0].MeshPosition.x = translationvec4f[0];
-							meshList[0].MeshPosition.y = translationvec4f[1];
-							meshList[0].MeshPosition.z = translationvec4f[2];
-							meshList[0].MeshRotate.x = rotatevec4f[0];
-							meshList[0].MeshRotate.y = rotatevec4f[1];
-							meshList[0].MeshRotate.z = rotatevec4f[2];
-							meshList[0].MeshScale.x = scalevec4f[0];
-							meshList[0].MeshScale.y = scalevec4f[1];
-							meshList[0].MeshScale.z = scalevec4f[2];
+							meshList[x].MeshPosition.x = translationvec4f[0];
+							meshList[x].MeshPosition.y = translationvec4f[1];
+							meshList[x].MeshPosition.z = translationvec4f[2];
+							meshList[x].MeshRotate.x = rotatevec4f[0];
+							meshList[x].MeshRotate.y = rotatevec4f[1];
+							meshList[x].MeshRotate.z = rotatevec4f[2];
+							meshList[x].MeshScale.x = scalevec4f[0];
+							meshList[x].MeshScale.y = scalevec4f[1];
+							meshList[x].MeshScale.z = scalevec4f[2];
 							ImGui::TreePop();
 						}
 					}
@@ -1299,50 +1334,6 @@ private:
 
 	std::vector<VkCommandBuffer> UpdateSecondaryCommandBuffer(VulkanFrame Frame)
 	{
-		VkCommandPool pool1 = {};
-		VkCommandPool pool2 = {};
-		VkCommandBuffer cmd1 = {};
-		VkCommandBuffer cmd2 = {};
-
-			QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
-
-			VkCommandPoolCreateInfo poolInfo = {};
-			poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-			poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-			poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-
-			
-				if (vkCreateCommandPool(device, &poolInfo, nullptr, &pool1) != VK_SUCCESS) {
-					throw std::runtime_error("failed to create graphics command pool!");
-				}
-
-				if (vkCreateCommandPool(device, &poolInfo, nullptr, &pool2) != VK_SUCCESS)
-				{
-					throw std::runtime_error("failed to create graphics command pool!");
-				}
-			
-		
-			
-				VkCommandBufferAllocateInfo allocInfo = {};
-				allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-				allocInfo.commandPool = pool1;
-				allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-				allocInfo.commandBufferCount = 1;
-
-				if (vkAllocateCommandBuffers(device, &allocInfo, &cmd1) != VK_SUCCESS) {
-					throw std::runtime_error("failed to allocate command buffers!");
-				}
-
-				VkCommandBufferAllocateInfo allocInfo2 = {};
-				allocInfo2.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-				allocInfo2.commandPool = pool2;
-				allocInfo2.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-				allocInfo2.commandBufferCount = 1;
-				if (vkAllocateCommandBuffers(device, &allocInfo2, &cmd2) != VK_SUCCESS) {
-					throw std::runtime_error("failed to allocate command buffers!");
-				}
-			
-
 		std::vector<VkCommandBuffer> SecondaryCommandBuffer;
 
 		VkCommandBufferInheritanceInfo InheritanceInfo = {};
@@ -1356,17 +1347,15 @@ private:
 		BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
 
 
-		vkBeginCommandBuffer(cmd1, &BeginSecondaryCommandBuffer);
-		meshList[0].SecBufferDraw(cmd1, BeginSecondaryCommandBuffer, graphicsPipeline, pipelineLayout, currentFrame);
-		vkEndCommandBuffer(cmd1);
+		vkBeginCommandBuffer(Frame.Thread[0].TreadCommandBuffer, &BeginSecondaryCommandBuffer);
+		for (auto& mesh : meshList)
+		{
+			mesh.SecBufferDraw(Frame.Thread[0].TreadCommandBuffer, BeginSecondaryCommandBuffer, graphicsPipeline, pipelineLayout, currentFrame);
+		}
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Frame.Thread[0].TreadCommandBuffer);
+		vkEndCommandBuffer(Frame.Thread[0].TreadCommandBuffer);
 
-		vkBeginCommandBuffer(cmd2, &BeginSecondaryCommandBuffer);
-		meshList[1].SecBufferDraw(cmd2, BeginSecondaryCommandBuffer, graphicsPipeline, pipelineLayout, currentFrame);
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd2);
-		vkEndCommandBuffer(cmd2);
-
-		SecondaryCommandBuffer.emplace_back(cmd1);
-		SecondaryCommandBuffer.emplace_back(cmd2);
+		SecondaryCommandBuffer.emplace_back(Frame.Thread[0].TreadCommandBuffer);
 		return SecondaryCommandBuffer;
 	}
 
@@ -1400,25 +1389,8 @@ private:
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-		glm::vec3 cubePositions[] =
-		{
-			glm::vec3(0.0f,  0.0f,  0.0f),
-			glm::vec3(2.0f,  5.0f, -15.0f),
-			glm::vec3(-1.5f, -2.2f, -2.5f),
-			glm::vec3(-3.8f, -2.0f, -12.3f),
-			glm::vec3(2.4f, -0.4f, -3.5f),
-			glm::vec3(-1.7f,  3.0f, -7.5f),
-			glm::vec3(1.3f, -2.0f, -2.5f),
-			glm::vec3(1.5f,  2.0f, -2.5f),
-			glm::vec3(1.5f,  0.2f, -1.5f),
-			glm::vec3(-1.3f,  1.0f, -1.5f)
-		};
-
-
 		for (int x = 0; x < meshList.size(); x++)
 		{
-			meshList[x].MeshPosition = cubePositions[x];
-
 			UniformBufferObject ubo = {};
 			ubo.model = glm::mat4(1.0f);
 			ubo.model = glm::translate(ubo.model, meshList[x].MeshPosition);

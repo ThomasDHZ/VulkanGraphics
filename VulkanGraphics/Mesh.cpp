@@ -80,14 +80,14 @@ void Mesh::CreateDescriptorSets()
 	}
 }
 
-void Mesh::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage)
+void Mesh::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame)
 {
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
 	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipeline);
 	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 	if (IndiceSize == 0)
 	{
 		vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
@@ -95,6 +95,21 @@ void Mesh::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipe
 	else
 	{
 		vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(commandbuffer, static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
+	}
+}
+
+void Mesh::SecBufferDraw(VkCommandBuffer& commandbuffer, VkCommandBufferBeginInfo cmdInfo, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame)
+{
+	VkBuffer vertexBuffers[] = { vertexBuffer };
+	VkDeviceSize offsets[] = { 0 };
+
+	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipeline);
+	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+	if (IndiceSize != 0)
+	{
 		vkCmdDrawIndexed(commandbuffer, static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
 	}
 }
@@ -115,8 +130,14 @@ void Mesh::ClearSwapChain()
 {
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) 
 	{
-		vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[i], nullptr);
-		vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[i], nullptr);
+		if (uniformBuffers[i] != VK_NULL_HANDLE)
+		{
+			vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[i], nullptr);
+			vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[i], nullptr);
+
+			uniformBuffers[i] = VK_NULL_HANDLE;
+			uniformBuffersMemory[i] = VK_NULL_HANDLE;
+		}
 	}
 
 	BaseMesh::ClearSwapChain();

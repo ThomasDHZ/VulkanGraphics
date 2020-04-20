@@ -51,14 +51,20 @@ private:
 	void CreateDescriptorSets();
 
 public:
+	std::string MeshName;
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
+
+	glm::vec3 MeshPosition = glm::vec3();
+	glm::vec3 MeshRotate = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 MeshScale = glm::vec3(1.0f);
 
 	Mesh();
 	Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
 	~Mesh();
 
-	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
+	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame);
+	void SecBufferDraw(VkCommandBuffer& commandbuffer, VkCommandBufferBeginInfo cmdInfo, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame);
 	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
 	void UpdateSwapChain();
 	void ClearSwapChain();

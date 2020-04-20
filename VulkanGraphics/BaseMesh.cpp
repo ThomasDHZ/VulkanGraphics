@@ -199,20 +199,30 @@ void BaseMesh::UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* Uni
 
 void BaseMesh::ClearSwapChain()
 {
-	vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
+	if (indexBuffer != VK_NULL_HANDLE)
+	{
+		vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
+		descriptorPool = VK_NULL_HANDLE;
+	}
 }
 
 void BaseMesh::Destory()
 {
-	if (IndiceSize > 0)
+	if (indexBuffer != VK_NULL_HANDLE)
 	{
 		vkDestroyBuffer(DeviceInfo.Device, indexBuffer, nullptr);
 		vkFreeMemory(DeviceInfo.Device, indexBufferMemory, nullptr);
+
+		indexBuffer = VK_NULL_HANDLE;
+		indexBufferMemory = VK_NULL_HANDLE;
 	}
 
-	if (VertexSize >= 0)
+	if (vertexBuffer != VK_NULL_HANDLE)
 	{
 		vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
 		vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
+
+		vertexBuffer = VK_NULL_HANDLE;
+		vertexBufferMemory = VK_NULL_HANDLE;
 	}
 }
