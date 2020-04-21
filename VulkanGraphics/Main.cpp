@@ -25,6 +25,8 @@
 #include "Texture2D.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "Model.h"
+#include <FileSystem.h>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -108,7 +110,6 @@ struct ThreadData
 
 struct VulkanFrame
 {
-	VkCommandPool commandPool;
 	VkCommandBuffer MainCommandBuffer;
 	std::vector<ThreadData> Thread;
 	VkFence Fence;
@@ -122,7 +123,7 @@ struct VulkanFrame
 	void DeleteFrame(VkDevice device)
 	{
 		vkDestroyFence(device, Fence, nullptr);
-		vkDestroyCommandPool(device, commandPool, nullptr);
+
 
 		for (auto thread : Thread)
 		{
@@ -165,7 +166,7 @@ private:
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
 	VkSurfaceKHR surface;
-
+	VkCommandPool commandPool;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	VkDevice device;
 
@@ -186,7 +187,9 @@ private:
 	VkImageView depthImageView;
 
 	Texture2D texture;
+	ModelLoader modelLoader;
 	std::vector<Mesh> meshList;
+	std::vector<Model> modelList;
 
 	bool showWindow = true;
 
@@ -247,33 +250,20 @@ private:
 		VulkanDevice vulkanDevice = {};
 		vulkanDevice.Device = device;
 		vulkanDevice.PhysicalDevice = physicalDevice;
-		vulkanDevice.CommandPool = vulkanFrame[0].commandPool;
+		vulkanDevice.CommandPool = commandPool;
 		vulkanDevice.GraphicsQueue = graphicsQueue;
 		vulkanDevice.descriptorSetLayout = descriptorSetLayout;
 		vulkanDevice.SwapChainSize = vulkanFrame.size();
 
+		modelLoader = ModelLoader(vulkanDevice, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+
 		texture = Texture2D(vulkanDevice, "texture/texture.jpg");
 		std::vector<Texture2D> textures = { texture, texture };
 		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
-		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
-		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
-		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
-		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
-		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
-		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
-		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
-		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
-		meshList.emplace_back(Mesh(vulkanDevice, vertices, indices, textures));
+		modelList.emplace_back(Model(vulkanDevice, modelLoader.GetModelMeshs()));
+		modelList[0].ModelName = "Nanosuit";
 		meshList[0].MeshName = "Mesh 1";
-		meshList[1].MeshName = "Mesh 2";
-		meshList[2].MeshName = "Mesh 3";
-		meshList[3].MeshName = "Mesh 4";
-		meshList[4].MeshName = "Mesh 5";
-		meshList[5].MeshName = "Mesh 6";
-		meshList[6].MeshName = "Mesh 7";
-		meshList[7].MeshName = "Mesh 8";
-		meshList[8].MeshName = "Mesh 9";
-		meshList[9].MeshName = "Mesh 10";
+
 
 
 		glm::vec3 cubePositions[] =
@@ -294,6 +284,10 @@ private:
 		for (int x = 0; x < meshList.size(); x++)
 		{
 			meshList[x].MeshPosition = cubePositions[x];
+		}
+		for (int x = 0; x < modelList.size(); x++)
+		{
+			modelList[x].ModelPosition = cubePositions[x];
 		}
 
 		createDescriptorPool();
@@ -341,7 +335,6 @@ private:
 				ImGui::Begin("Hello, world!");
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-
 				if (ImGui::TreeNode("Tree"))
 				{
 					ImGui::Columns(1, "tree", true);
@@ -354,13 +347,9 @@ private:
 						bool open1 = ImGui::TreeNode((void*)(intptr_t)x, meshList[x].MeshName.c_str(), x);
 						if (open1)
 						{
-
 							ImGui::SliderFloat3((meshList[x].MeshName + " Translate").c_str(), translationvec4f, -100.0f, 100.0f);
-							//ImGui::InputFloat3("Input Translation float3 %d", translationvec4f);
 							ImGui::SliderFloat3((meshList[x].MeshName + " Rotate").c_str(), rotatevec4f, 0.0f, 1.0f);
-							//ImGui::InputFloat3("Input Rotate float3 %d", rotatevec4f);
 							ImGui::SliderFloat3((meshList[x].MeshName + " Scale").c_str(), scalevec4f, 0.0f, 1.0f);
-							//ImGui::InputFloat3("Input Scale float3", scalevec4f);
 							meshList[x].MeshPosition.x = translationvec4f[0];
 							meshList[x].MeshPosition.y = translationvec4f[1];
 							meshList[x].MeshPosition.z = translationvec4f[2];
@@ -370,6 +359,69 @@ private:
 							meshList[x].MeshScale.x = scalevec4f[0];
 							meshList[x].MeshScale.y = scalevec4f[1];
 							meshList[x].MeshScale.z = scalevec4f[2];
+							ImGui::TreePop();
+						}
+					}
+					ImGui::Columns(1);
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Models"))
+				{
+					ImGui::Columns(1, "Models", true);
+					for (int x = 0; x < modelList.size(); x++)
+					{
+						float translationvec4f[4] = { modelList[x].ModelPosition.x, modelList[x].ModelPosition.y, modelList[x].ModelPosition.z, 0.0f };
+						float rotatevec4f[4] = { modelList[x].ModelRotate.x, modelList[x].ModelRotate.y, modelList[x].ModelRotate.z, 0.0f };
+						float scalevec4f[4] = { modelList[x].ModelScale.x, modelList[x].ModelScale.y, modelList[x].ModelScale.z, 0.0f };
+
+						bool open1 = ImGui::TreeNode((void*)(intptr_t)x, modelList[x].ModelName.c_str(), x);
+						if (open1)
+						{
+							ImGui::SliderFloat3((modelList[x].ModelName + " Translate").c_str(), translationvec4f, -100.0f, 100.0f);
+							ImGui::SliderFloat3((modelList[x].ModelName + " Rotate").c_str(), rotatevec4f, 0.0f, 1.0f);
+							ImGui::SliderFloat3((modelList[x].ModelName + " Scale").c_str(), scalevec4f, 0.0f, 1.0f);
+							modelList[x].ModelPosition.x = translationvec4f[0];
+							modelList[x].ModelPosition.y = translationvec4f[1];
+							modelList[x].ModelPosition.z = translationvec4f[2];
+							modelList[x].ModelRotate.x = rotatevec4f[0];
+							modelList[x].ModelRotate.y = rotatevec4f[1];
+							modelList[x].ModelRotate.z = rotatevec4f[2];
+							modelList[x].ModelScale.x = scalevec4f[0];
+							modelList[x].ModelScale.y = scalevec4f[1];
+							modelList[x].ModelScale.z = scalevec4f[2];
+							//if (ImGui::TreeNode("MeshList"))
+							//{
+							//	ImGui::Columns(1, "MeshList", true);
+
+							//	for (int y = 0; y < modelList[x].GetModelMeshList().size() - 1; y++)
+							//	{
+							//		float translationvec4f[4] = { modelList[x].GetModelMeshList()[y].MeshPosition.y, modelList[x].GetModelMeshList()[y].MeshPosition.y, modelList[x].GetModelMeshList()[y].MeshPosition.z, 0.0f };
+							//		float rotatevec4f[4] = { modelList[x].GetModelMeshList()[y].MeshRotate.y, modelList[x].GetModelMeshList()[y].MeshRotate.y, modelList[x].GetModelMeshList()[y].MeshRotate.z, 0.0f };
+							//		float scalevec4f[4] = { modelList[x].GetModelMeshList()[y].MeshScale.y, modelList[x].GetModelMeshList()[y].MeshScale.y, modelList[x].GetModelMeshList()[y].MeshScale.z, 0.0f };
+
+							//		std::string a = std::to_string(y);
+							//		bool open2 = ImGui::TreeNode((void*)(intptr_t)y, a.c_str(), y);
+							//		if (open2)
+							//		{
+							//			ImGui::SliderFloat3((modelList[x].GetModelMeshList()[y].MeshName + " Translate").c_str(), translationvec4f, -100.0f, 100.0f);
+							//			ImGui::SliderFloat3((modelList[x].GetModelMeshList()[y].MeshName + " Rotate").c_str(), rotatevec4f, 0.0f, 1.0f);
+							//			ImGui::SliderFloat3((modelList[x].GetModelMeshList()[y].MeshName + " Scale").c_str(), scalevec4f, 0.0f, 1.0f);
+							//			modelList[x].GetModelMeshList()[y].MeshPosition.x = translationvec4f[0];
+							//			modelList[x].GetModelMeshList()[y].MeshPosition.y = translationvec4f[1];
+							//			modelList[x].GetModelMeshList()[y].MeshPosition.z = translationvec4f[2];
+							//			modelList[x].GetModelMeshList()[y].MeshRotate.x = rotatevec4f[0];
+							//			modelList[x].GetModelMeshList()[y].MeshRotate.y = rotatevec4f[1];
+							//			modelList[x].GetModelMeshList()[y].MeshRotate.z = rotatevec4f[2];
+							//			modelList[x].GetModelMeshList()[y].MeshScale.x = scalevec4f[0];
+							//			modelList[x].GetModelMeshList()[y].MeshScale.y = scalevec4f[1];
+							//			modelList[x].GetModelMeshList()[y].MeshScale.z = scalevec4f[2];
+							//			ImGui::TreePop();
+							//		}
+							//	}
+
+							//	ImGui::Columns(1);
+							//	ImGui::TreePop();
+							//}
 							ImGui::TreePop();
 						}
 					}
@@ -409,11 +461,18 @@ private:
 		cleanupSwapChain();
 
 		texture.Destroy();
+		modelLoader.CleanTextureMemory();
+
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 		for (auto& mesh : meshList)
 		{
 			mesh.ClearSwapChain();
 			mesh.Destory();
+		}
+		for (auto& model : modelList)
+		{
+			model.ClearSwapChain();
+			model.Destory();
 		}
 	
 		for (auto& Semaphore : vulkanSemaphores)
@@ -425,7 +484,7 @@ private:
 		{
 			frame.DeleteFrame(device);
 		}
-	
+		vkDestroyCommandPool(device, commandPool, nullptr);
 
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -920,12 +979,12 @@ private:
 		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
+		if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create graphics command pool!");
+		}
+
 		for (int x = 0; x < vulkanFrame.size(); x++)
 		{
-			if (vkCreateCommandPool(device, &poolInfo, nullptr, &vulkanFrame[x].commandPool) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create graphics command pool!");
-			}
-
 			if (vkCreateCommandPool(device, &poolInfo, nullptr, &vulkanFrame[x].Thread[0].TreadCommandPool) != VK_SUCCESS)
 			{
 				throw std::runtime_error("failed to create graphics command pool!");
@@ -1252,7 +1311,7 @@ private:
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = vulkanFrame[frame].commandPool;
+		allocInfo.commandPool = commandPool;
 		allocInfo.commandBufferCount = 1;
 
 		VkCommandBuffer commandBuffer;
@@ -1278,7 +1337,7 @@ private:
 		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 		vkQueueWaitIdle(graphicsQueue);
 
-		vkFreeCommandBuffers(device, vulkanFrame[frame].commandPool, 1, &commandBuffer);
+		vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 	}
 
 	void copyBuffer(int frame, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
@@ -1309,7 +1368,7 @@ private:
 		{
 			VkCommandBufferAllocateInfo allocInfo = {};
 			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			allocInfo.commandPool = vulkanFrame[i].commandPool;
+			allocInfo.commandPool = commandPool;
 			allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			allocInfo.commandBufferCount = 1;
 
@@ -1351,6 +1410,10 @@ private:
 		for (auto& mesh : meshList)
 		{
 			mesh.SecBufferDraw(Frame.Thread[0].TreadCommandBuffer, BeginSecondaryCommandBuffer, graphicsPipeline, pipelineLayout, currentFrame);
+		}
+		for (auto& model : modelList)
+		{
+			model.SecBufferDraw(Frame.Thread[0].TreadCommandBuffer, BeginSecondaryCommandBuffer, graphicsPipeline, pipelineLayout, currentFrame);
 		}
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Frame.Thread[0].TreadCommandBuffer);
 		vkEndCommandBuffer(Frame.Thread[0].TreadCommandBuffer);
@@ -1402,6 +1465,34 @@ private:
 
 			meshList[x].UpdateUniformBuffer(ubo, currentImage);
 		}
+
+		for (int x = 0; x < modelList.size(); x++)
+		{
+			UniformBufferObject ubo = {};
+			ubo.model = glm::mat4(1.0f);
+			ubo.model = glm::translate(ubo.model, modelList[x].ModelPosition);
+			ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), modelList[x].ModelRotate);
+			ubo.model = glm::scale(ubo.model, modelList[x].ModelScale);
+			ubo.view = camera.GetViewMatrix();
+			ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+			ubo.proj[1][1] *= -1;
+
+			modelList[x].UpdateUniformBuffer(ubo, currentImage);
+
+			//for (int y = 0; y < modelList[x].GetModelMeshList().size(); y++)
+			//{
+			//	UniformBufferObject modelUbo = {};
+			//	modelUbo.model = glm::mat4(1.0f);
+			//	modelUbo.model = glm::translate(modelUbo.model, modelList[x].GetModelMeshList()[y].MeshPosition);
+			//	modelUbo.model = glm::rotate(modelUbo.model, glm::radians(time * 20.0f), modelList[x].GetModelMeshList()[y].MeshRotate);
+			//	modelUbo.model = glm::scale(modelUbo.model, modelList[x].GetModelMeshList()[y].MeshScale);
+			//	modelUbo.view = camera.GetViewMatrix();
+			//	modelUbo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 100.0f);
+			//	modelUbo.proj[1][1] *= -1;
+
+			//	modelList[x].GetModelMeshList()[y].UpdateUniformBuffer(modelUbo, currentImage);
+			//}
+		}
 	}
 
 	void drawFrame()
@@ -1428,10 +1519,10 @@ private:
 
 		vkWaitForFences(device, 1, &Frame.Fence, VK_TRUE, UINT64_MAX);
 		vkResetFences(device, 1, &Frame.Fence);
-		vkResetCommandPool(device, Frame.commandPool, 0);
+	//	vkResetCommandPool(device, commandPool, 0);
 
-		UpdateTexture();
-		UpdateDescriptorSets();
+		//UpdateTexture();
+		//UpdateDescriptorSets();
 		updateUniformBuffer(imageIndex);
 		RunCommandBuffers = UpdateSecondaryCommandBuffer(Frame);
 

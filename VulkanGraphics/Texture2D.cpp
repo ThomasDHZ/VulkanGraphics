@@ -12,22 +12,6 @@ Texture2D::Texture2D(VulkanDevice deviceInfo, std::string TexturePath) : Texture
 	stbi_uc* pixels = stbi_load(TexturePath.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = Width * Height * 4;
 
-	if (!pixels)
-	{
-		throw std::runtime_error("failed to load texture image!");
-	}
-
-	for (int x = 0; x <= imageSize; x += 4)
-	{
-		PixelImage.emplace_back(Pixel
-			{
-				pixels[x],
-				pixels[x + 1],
-				pixels[x + 2],
-				pixels[x + 3]
-			});
-	}
-
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);

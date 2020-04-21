@@ -35,6 +35,14 @@ void Model::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPip
 	}
 }
 
+void Model::SecBufferDraw(VkCommandBuffer& commandbuffer, VkCommandBufferBeginInfo cmdInfo, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame)
+{
+	for (auto mesh : MeshList)
+	{
+		mesh.SecBufferDraw(commandbuffer, cmdInfo, ShaderPipeline, ShaderPipelineLayout, currentFrame);
+	}
+}
+
 void Model::UpdateSwapChain()
 {
 	for (int x = 0; x < MeshList.size(); x++)
