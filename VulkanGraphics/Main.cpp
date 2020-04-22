@@ -27,6 +27,7 @@
 #include "Camera.h"
 #include "Model.h"
 #include <FileSystem.h>
+#include "SwapChain.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -113,7 +114,7 @@ struct VulkanFrame
 	VkCommandBuffer MainCommandBuffer;
 	std::vector<ThreadData> Thread;
 	VkFence Fence;
-	VkImage swapChainImages;
+	VkImage* swapChainImages;
 	VkImageView swapChainImageViews;
 	VkFramebuffer swapChainFramebuffers;
 	VkDescriptorPool descriptorPool;
@@ -173,7 +174,7 @@ private:
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
 
-	VkSwapchainKHR swapChain;
+	SwapChain Swapchain;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 
@@ -243,9 +244,13 @@ private:
 		createDepthResources();
 		createFramebuffers();
 
+	
+
 		createDescriptorSetLayout();
 		createGraphicsPipeline();
 		createCommandPool();
+
+
 
 		VulkanDevice vulkanDevice = {};
 		vulkanDevice.Device = device;
@@ -454,7 +459,7 @@ private:
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
 
-		vkDestroySwapchainKHR(device, swapChain, nullptr);
+		vkDestroySwapchainKHR(device, Swapchain.Swapchain, nullptr);
 	}
 
 	void cleanup() {
@@ -663,70 +668,25 @@ private:
 
 	void createSwapChain() {
 
-		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
+		Swapchain = SwapChain(window, instance, device, physicalDevice);
 
-		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
-		VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-		VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
-
-		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
-			imageCount = swapChainSupport.capabilities.maxImageCount;
-		}
-
-		VkSwapchainCreateInfoKHR createInfo = {};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = surface;
-		createInfo.minImageCount = imageCount;
-		createInfo.imageFormat = surfaceFormat.format;
-		createInfo.imageColorSpace = surfaceFormat.colorSpace;
-		createInfo.imageExtent = extent;
-		createInfo.imageArrayLayers = 1;
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-		QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
-
-		if (indices.graphicsFamily != indices.presentFamily) {
-			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			createInfo.queueFamilyIndexCount = 2;
-			createInfo.pQueueFamilyIndices = queueFamilyIndices;
-		}
-		else {
-			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		}
-
-		createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		createInfo.presentMode = presentMode;
-		createInfo.clipped = VK_TRUE;
-
-		if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create swap chain!");
-		}
-
-		std::vector<VkImage> swapChainImages;
 		std::vector<VkImage> guiSwapChainImages;
+		guiSwapChainImages.resize(Swapchain.SwapChainImageCount);
+		vkGetSwapchainImagesKHR(device, Swapchain.Swapchain, &Swapchain.SwapChainImageCount, guiSwapChainImages.data());
 
-		vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
-		swapChainImages.resize(imageCount);
-		guiSwapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
-		vkGetSwapchainImagesKHR(device, swapChain, &imageCount, guiSwapChainImages.data());
+		vulkanFrame[0].swapChainImages = &Swapchain.SwapChainImages[0];
+		vulkanFrame[1].swapChainImages = &Swapchain.SwapChainImages[1];
+		vulkanFrame[2].swapChainImages = &Swapchain.SwapChainImages[2];
 
-		vulkanFrame[0].swapChainImages = swapChainImages[0];
-		vulkanFrame[1].swapChainImages = swapChainImages[1];
-		vulkanFrame[2].swapChainImages = swapChainImages[2];
-
-		swapChainImageFormat = surfaceFormat.format;
-		swapChainExtent = extent;
+		swapChainImageFormat = Swapchain.SwapChainFormat.format;
+		swapChainExtent = Swapchain.SwapChainSize;
 
 	}
 
 	void createImageViews()
 	{
 		for (uint32_t i = 0; i < vulkanFrame.size(); i++) {
-			vulkanFrame[i].swapChainImageViews = createImageView(vulkanFrame[i].swapChainImages, swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+			vulkanFrame[i].swapChainImageViews = createImageView(*vulkanFrame[i].swapChainImages, swapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 		}
 	}
 
@@ -1507,7 +1467,7 @@ private:
 		const VkSemaphore ImageAcquiredSemaphore = vulkanSemaphores[currentFrame].ImageAcquiredSemaphore;
 		const VkSemaphore RenderCompleteSemaphore = vulkanSemaphores[currentFrame].RenderCompleteSemaphore;
 
-		VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, ImageAcquiredSemaphore, VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(device, Swapchain.Swapchain, UINT64_MAX, ImageAcquiredSemaphore, VK_NULL_HANDLE, &imageIndex);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			recreateSwapChain();
@@ -1559,7 +1519,7 @@ private:
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 
-		VkSwapchainKHR swapChains[] = { swapChain };
+		VkSwapchainKHR swapChains[] = { Swapchain.Swapchain };
 
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
