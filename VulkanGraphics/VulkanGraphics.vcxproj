@@ -175,7 +175,7 @@
     <ClCompile Include="SkyBoxPipeline.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Sprite.cpp" />
-    <ClCompile Include="SwapChain.cpp" />
+    <ClCompile Include="VulkanSwapChain.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="VulkanDebugger.cpp" />
@@ -227,7 +227,7 @@
     <ClInclude Include="Structs.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Sprite.h" />
-    <ClInclude Include="SwapChain.h" />
+    <ClInclude Include="VulkanSwapChain.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Vertex.h" />

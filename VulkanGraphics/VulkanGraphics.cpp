@@ -66,7 +66,7 @@ VulkanGraphics::VulkanGraphics(unsigned int width, unsigned int height, const ch
 		createInfo.pNext = nullptr;
 	}
 
-	//if (vkCreateInstance(&createInfo, nullptr, &vulkanDevice2.Instance) != VK_SUCCESS) {
+	//if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
 	//	throw std::runtime_error("failed to create instance!");
 	//}
 
