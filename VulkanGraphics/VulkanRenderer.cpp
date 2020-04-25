@@ -8,6 +8,7 @@ VulkanRenderer::VulkanRenderer()
 VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 {
 	InitializeVulkan(window);
+	swapChain = VulkanSwapChain(window, Device, PhysicalDevice, Surface);
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -233,4 +234,9 @@ void VulkanRenderer::InitializeVulkan(GLFWwindow* window)
 
 	vkGetDeviceQueue(Device, GraphicsFamily, 0, &GraphicsQueue);
 	vkGetDeviceQueue(Device, PresentFamily, 0, &PresentQueue);
+}
+
+void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
+{
+	swapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 }
