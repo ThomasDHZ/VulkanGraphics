@@ -18,9 +18,9 @@ GraphicsPipeline::GraphicsPipeline()
 
 }
 
-GraphicsPipeline::GraphicsPipeline(VulkanDevice deviceInfo)
+GraphicsPipeline::GraphicsPipeline(VkDevice device)
 {
-	DeviceInfo = deviceInfo;
+	Device = device;
 }
 
 GraphicsPipeline::~GraphicsPipeline()
@@ -54,7 +54,7 @@ VkShaderModule GraphicsPipeline::CreateShaderModule(const std::vector<char>& cod
 	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
 	VkShaderModule shaderModule;
-	if (vkCreateShaderModule(DeviceInfo.Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+	if (vkCreateShaderModule(Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create shader module!");
 	}
 
@@ -83,14 +83,14 @@ void GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayout
 	layoutInfo.bindingCount = static_cast<uint32_t>(LayoutBindingList.size());
 	layoutInfo.pBindings = LayoutBindingList.data();
 
-	if (vkCreateDescriptorSetLayout(DeviceInfo.Device, &layoutInfo, nullptr, &ShaderPipelineDescriptorLayout) != VK_SUCCESS) {
+	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, &ShaderPipelineDescriptorLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor set layout!");
 	}
 }
 
 void GraphicsPipeline::CreatePipeLineLayout(VkPipelineLayoutCreateInfo PipelineLayoutInfo)
 {
-	if (vkCreatePipelineLayout(DeviceInfo.Device, &PipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS)
+	if (vkCreatePipelineLayout(Device, &PipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
@@ -98,14 +98,14 @@ void GraphicsPipeline::CreatePipeLineLayout(VkPipelineLayoutCreateInfo PipelineL
 
 void GraphicsPipeline::CreatePipeLine(VkGraphicsPipelineCreateInfo PipeLineInfo)
 {
-	if (vkCreateGraphicsPipelines(DeviceInfo.Device, VK_NULL_HANDLE, 1, &PipeLineInfo, nullptr, &ShaderPipeline) != VK_SUCCESS) {
+	if (vkCreateGraphicsPipelines(Device, VK_NULL_HANDLE, 1, &PipeLineInfo, nullptr, &ShaderPipeline) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 }
 
-void GraphicsPipeline::ClearSwapChain()
+void GraphicsPipeline::DestoryGraphicsPipeline()
 {
-	vkDestroyPipeline(DeviceInfo.Device, ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(DeviceInfo.Device, ShaderPipelineLayout, nullptr);
-	vkDestroyDescriptorSetLayout(DeviceInfo.Device, ShaderPipelineDescriptorLayout, nullptr);
+	vkDestroyPipeline(Device, ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(Device, ShaderPipelineLayout, nullptr);
+	vkDestroyDescriptorSetLayout(Device, ShaderPipelineDescriptorLayout, nullptr);
 }

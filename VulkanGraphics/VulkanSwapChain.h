@@ -36,14 +36,14 @@ private:
 public:
 
 	VulkanSwapChain();
-	VulkanSwapChain(GLFWwindow* window, VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
+	VulkanSwapChain(GLFWwindow* window, const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
 	~VulkanSwapChain();
 
-	void SetUpSwapChain(GLFWwindow* window, VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
-	void SetUpSwapChainImageViews(VkDevice device);
+	void SetUpSwapChain(GLFWwindow* window, const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
+	void SetUpSwapChainImageViews(const VkDevice& device);
 	void DestroyVulkan();
 
-	void UpdateSwapChain(GLFWwindow* window, VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
+	void UpdateSwapChain(GLFWwindow* window, const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
 
 	VkSwapchainKHR GetSwapChain() { return Swapchain; }
 	std::vector<VkImage> GetSwapChainImages() { return SwapChainImages; }

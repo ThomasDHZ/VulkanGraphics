@@ -7,7 +7,7 @@ VulkanSwapChain::VulkanSwapChain()
 {
 }
 
-VulkanSwapChain::VulkanSwapChain(GLFWwindow* window, VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+VulkanSwapChain::VulkanSwapChain(GLFWwindow* window, const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface)
 {
 	SetUpSwapChain(window, device, physicalDevice, surface);
 	SetUpSwapChainImageViews(device);
@@ -75,11 +75,11 @@ void VulkanSwapChain::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfa
 	}
 }
 
-void VulkanSwapChain::SetUpSwapChain(GLFWwindow* window, VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+void VulkanSwapChain::SetUpSwapChain(GLFWwindow* window, const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface)
 {
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &SwapChainCapabilities);
 	vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &SurfaceFormatCount, nullptr);
-	if (SurfaceFormatCount != 0) 
+	if (SurfaceFormatCount != 0)
 	{
 		CompatibleSwapChainFormatList.resize(SurfaceFormatCount);
 		vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &SurfaceFormatCount, CompatibleSwapChainFormatList.data());
@@ -90,7 +90,7 @@ void VulkanSwapChain::SetUpSwapChain(GLFWwindow* window, VkDevice device, VkPhys
 	{
 		CompatiblePresentModesList.resize(PresentModeCount);
 		vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &PresentModeCount, CompatiblePresentModesList.data());
-	}	
+	}
 
 	FindQueueFamilies(physicalDevice, surface);
 	SwapChainImageFormat = FindSwapSurfaceFormat(CompatibleSwapChainFormatList);
@@ -120,7 +120,7 @@ void VulkanSwapChain::SetUpSwapChain(GLFWwindow* window, VkDevice device, VkPhys
 	SwapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 	SwapChainCreateInfo.presentMode = SwapChainPresentMode;
 	SwapChainCreateInfo.clipped = VK_TRUE;
-	if(GraphicsFamily != PresentFamily) 
+	if (GraphicsFamily != PresentFamily)
 	{
 		uint32_t queueFamilyIndices[] = { GraphicsFamily, PresentFamily };
 
@@ -143,7 +143,7 @@ void VulkanSwapChain::SetUpSwapChain(GLFWwindow* window, VkDevice device, VkPhys
 	vkGetSwapchainImagesKHR(device, Swapchain, &SwapChainImageCount, SwapChainImages.data());
 }
 
-void VulkanSwapChain::SetUpSwapChainImageViews(VkDevice device)
+void VulkanSwapChain::SetUpSwapChainImageViews(const VkDevice& device)
 {
 	SwapChainImageViews.resize(SwapChainImageCount);
 	for (uint32_t x = 0; x < SwapChainImageCount; x++)
@@ -171,7 +171,7 @@ void VulkanSwapChain::DestroyVulkan()
 	//vkDestroySurfaceKHR(Instance, Surface, nullptr);
 }
 
-void VulkanSwapChain::UpdateSwapChain(GLFWwindow* window, VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface)
+void VulkanSwapChain::UpdateSwapChain(GLFWwindow* window, const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface)
 {
 	SetUpSwapChain(window, device, physicalDevice, surface);
 	SetUpSwapChainImageViews(device);

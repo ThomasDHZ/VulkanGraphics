@@ -4,6 +4,8 @@
 #include <GLFW\glfw3.h>
 #include "VulkanDebugger.h"
 #include "VulkanSwapChain.h"
+#include "ForwardRenderingPipeline.h"
+#include <array>
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -16,12 +18,16 @@ const std::vector<const char*> deviceExtensions = {
 class VulkanRenderer
 {
 private:
+	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+	VkFormat findDepthFormat();
+
 	std::vector<const char*> getRequiredExtensions();
 	bool isDeviceSuitable(VkPhysicalDevice GPUDevice);
 	bool checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice);
 
 	void FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface);
 	void InitializeVulkan(GLFWwindow* window);
+	void InitializeRenderPass();
 public:
 
 	VulkanRenderer();
@@ -34,9 +40,11 @@ public:
 	VkSurfaceKHR Surface = VK_NULL_HANDLE;
 	VkQueue GraphicsQueue = VK_NULL_HANDLE;
 	VkQueue PresentQueue = VK_NULL_HANDLE;
+	VkRenderPass RenderPass = VK_NULL_HANDLE; 
 
 	VulkanDebugger VulkanDebug;
 	VulkanSwapChain swapChain;
+	ForwardRenderingPipeline GraphicsPipeline;
 
 	int GraphicsFamily = -1;
 	int PresentFamily = -1;
@@ -44,6 +52,7 @@ public:
 	std::vector<VkLayerProperties> VulkanLayers;
 
 	void UpdateSwapChain(GLFWwindow* window);
+	void DestoryVulkan();
 
 	VkSwapchainKHR GetSwapChain() { return swapChain.GetSwapChain(); }
 	std::vector<VkImage> GetSwapChainImages() { return swapChain.GetSwapChainImages(); }

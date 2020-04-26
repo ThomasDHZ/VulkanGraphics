@@ -5,10 +5,10 @@ ForwardRenderingPipeline::ForwardRenderingPipeline() : GraphicsPipeline()
 {
 }
 
-ForwardRenderingPipeline::ForwardRenderingPipeline(VkExtent2D& swapChainExtent, VkRenderPass& renderPass, VulkanDevice deviceInfo) : GraphicsPipeline(deviceInfo)
+ForwardRenderingPipeline::ForwardRenderingPipeline(VkExtent2D& swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device)
 {
 	CreateDescriptorSetLayout();
-	CreateShaderPipeLine(swapChainExtent, renderPass);
+	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }
 
 ForwardRenderingPipeline::~ForwardRenderingPipeline()
@@ -17,7 +17,7 @@ ForwardRenderingPipeline::~ForwardRenderingPipeline()
 
 void ForwardRenderingPipeline::CreateDescriptorSetLayout()
 {
-	std::array<DescriptorSetLayoutBindingInfo, 3> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -27,14 +27,10 @@ void ForwardRenderingPipeline::CreateDescriptorSetLayout()
 	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	LayoutBindingInfo[1].Binding = 2;
-	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
 	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D& swapChainExtent, VkRenderPass& renderPass)
+void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D& swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
 	auto vertShaderCode = ReadShaderFile("shaders/ForwardRendererVert.spv");
 	auto fragShaderCode = ReadShaderFile("shaders/ForwardRendererFrag.spv");
@@ -153,12 +149,11 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D& swapChainExtent,
 
 	GraphicsPipeline::CreatePipeLine(pipelineInfo);
 
-	vkDestroyShaderModule(DeviceInfo.Device, fragShaderModule, nullptr);
-	vkDestroyShaderModule(DeviceInfo.Device, vertShaderModule, nullptr);
+	vkDestroyShaderModule(device, fragShaderModule, nullptr);
+	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
-void ForwardRenderingPipeline::RecreatePipeline(VkExtent2D& swapChainExtent, VkRenderPass& renderPass)
+void ForwardRenderingPipeline::UpdateGraphicsPipeLine(VkExtent2D& swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
-	CreateDescriptorSetLayout();
-	CreateShaderPipeLine(swapChainExtent, renderPass);
+	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }

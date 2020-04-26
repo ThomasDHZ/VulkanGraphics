@@ -7,7 +7,7 @@
 class GraphicsPipeline
 {
 protected:
-	VulkanDevice DeviceInfo;
+	VkDevice Device;
 
 	std::vector<char> ReadShaderFile(const std::string& filename);
 	VkShaderModule CreateShaderModule(const std::vector<char>& code);
@@ -22,9 +22,9 @@ public:
 	VkDescriptorSetLayout ShaderPipelineDescriptorLayout;
 
 	GraphicsPipeline();
-	GraphicsPipeline(VulkanDevice deviceInfo);
+	GraphicsPipeline(VkDevice device);
 	~GraphicsPipeline();
 
-	virtual void ClearSwapChain();
+	void DestoryGraphicsPipeline();
 };
 
