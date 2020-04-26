@@ -16,6 +16,7 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 
 	auto a = GetSwapChainResolution();
 	GraphicsPipeline = ForwardRenderingPipeline(a, RenderPass, Device);
+	InitializeGUIDebugger(window);
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -417,21 +418,231 @@ void VulkanRenderer::InitializeSyncObjects()
 	}
 }
 
-void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
+void VulkanRenderer::InitializeGUIDebugger(GLFWwindow* window)
 {
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.Instance = Instance;
+	init_info.PhysicalDevice = PhysicalDevice;
+	init_info.Device = Device;
+	init_info.QueueFamily = GraphicsFamily;
+	init_info.Queue = GraphicsQueue;
+	init_info.PipelineCache = VK_NULL_HANDLE;
+	init_info.Allocator = nullptr;
+	init_info.MinImageCount = 3;
+	init_info.ImageCount = 3;
+
+	guiDebugger = GUIDebugger(init_info, window, RenderPass);
+}
+
+void VulkanRenderer::UpdateSwapChain(GLFWwindow* window, Mesh mesh)
+{
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(window, &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(window, &width, &height);
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(Device);
+
+	DepthAttachment.UpdateFrameBuffer(Device);
+
+	for (auto framebuffer : swapChainFramebuffers)
+	{
+		vkDestroyFramebuffer(Device, framebuffer, nullptr);
+	}
+
+	vkFreeCommandBuffers(Device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
+
+	for (auto imageView : GetSwapChainImageViews())
+	{
+		vkDestroyImageView(Device, imageView, nullptr);
+	}
+
+	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
+	vkDestroyCommandPool(Device,commandPool, nullptr);
+	vkDestroySwapchainKHR(Device, GetSwapChain(), nullptr);
+
 	swapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 	auto a = GetSwapChainResolution();
 	GraphicsPipeline.UpdateGraphicsPipeLine(a, RenderPass, Device);
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
+
+	for (size_t i = 0; i < commandBuffers.size(); i++)
+	{
+		VkCommandBufferInheritanceInfo InheritanceInfo = {};
+		InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+		InheritanceInfo.renderPass = RenderPass;
+		InheritanceInfo.framebuffer = swapChainFramebuffers[i];
+
+		VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
+		BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+		BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
+
+		vkBeginCommandBuffer(commandBuffers[i], &BeginSecondaryCommandBuffer);
+		mesh.SecBufferDraw(commandBuffers[i], BeginSecondaryCommandBuffer, GraphicsPipeline.ShaderPipeline, GraphicsPipeline.ShaderPipelineLayout, i);
+		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
+		}
+	}
+}
+
+void VulkanRenderer::Update(uint32_t currentImage, Mesh mesh)
+{
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	UniformBufferObject ubo{};
+	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = glm::perspective(glm::radians(45.0f), GetSwapChainResolution().width / (float)GetSwapChainResolution().height, 0.1f, 10.0f);
+	ubo.proj[1][1] *= -1;
+
+	mesh.UpdateUniformBuffer(ubo, currentImage);
+
+	guiDebugger.UpdateCommandBuffers(currentImage, RenderPass, swapChainFramebuffers[currentImage]);
+}
+
+void VulkanRenderer::Draw(GLFWwindow* window, Mesh mesh)
+{
+	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+
+	uint32_t imageIndex;
+	VkResult result = vkAcquireNextImageKHR(Device, GetSwapChain(), UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+	std::array<VkClearValue, 2> clearValues = {};
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR)
+	{
+		UpdateSwapChain(window, mesh);
+		return;
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+		throw std::runtime_error("failed to acquire swap chain image!");
+	}
+
+	Update(imageIndex, mesh);
+
+	if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+		vkWaitForFences(Device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+	}
+	imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+
+	std::vector<VkCommandBuffer> RunCommandBuffers = {};
+	RunCommandBuffers.emplace_back(commandBuffers[imageIndex]);
+	RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(imageIndex));
+
+	VkRenderPassBeginInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = RenderPass;
+	renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = GetSwapChainResolution();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	VkCommandBufferBeginInfo CommandBufferInfo = {};
+	CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+	vkBeginCommandBuffer(MainCommandBuffer[imageIndex], &CommandBufferInfo);
+	vkCmdBeginRenderPass(MainCommandBuffer[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+	vkCmdExecuteCommands(MainCommandBuffer[imageIndex], RunCommandBuffers.size(), RunCommandBuffers.data());
+	vkCmdEndRenderPass(MainCommandBuffer[imageIndex]);
+	vkEndCommandBuffer(MainCommandBuffer[imageIndex]);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &MainCommandBuffer[imageIndex];
+
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	vkResetFences(Device, 1, &inFlightFences[currentFrame]);
+
+	if (vkQueueSubmit(GraphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+		throw std::runtime_error("failed to submit draw command buffer!");
+	}
+
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { GetSwapChain() };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+
+	presentInfo.pImageIndices = &imageIndex;
+
+	result = vkQueuePresentKHR(PresentQueue, &presentInfo);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+	{
+		framebufferResized = false;
+		UpdateSwapChain(window, mesh);
+	}
+	else if (result != VK_SUCCESS) {
+		throw std::runtime_error("failed to present swap chain image!");
+	}
+
+	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void VulkanRenderer::DestoryVulkan()
 {
+	DepthAttachment.UpdateFrameBuffer(Device);
+
+	for (auto framebuffer : swapChainFramebuffers) {
+		vkDestroyFramebuffer(Device, framebuffer, nullptr);
+	}
+
+	vkFreeCommandBuffers(Device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
+
+	for (auto imageView : GetSwapChainImageViews())
+	{
+		vkDestroyImageView(Device, imageView, nullptr);
+	}
+
+	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
+	vkDestroyCommandPool(Device, commandPool, nullptr);
+
+	vkDestroySwapchainKHR(Device, GetSwapChain(), nullptr);
+
 	vkDestroyRenderPass(Device, RenderPass, nullptr);
-	GraphicsPipeline.DestoryGraphicsPipeline();
+
+	vkDestroyDescriptorSetLayout(Device, GraphicsPipeline.ShaderPipelineDescriptorLayout, nullptr);
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroySemaphore(Device, renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(Device, imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(Device, inFlightFences[i], nullptr);
+	}
+
+	guiDebugger.ShutDown(Device);
+
+	vkDestroyDevice(Device, nullptr);
+
 	VulkanDebug.CleanUp(Instance);
+
 	vkDestroySurfaceKHR(Instance, Surface, nullptr);
 	vkDestroyInstance(Instance, nullptr);
-	vkDestroyDevice(Device, nullptr);
 }

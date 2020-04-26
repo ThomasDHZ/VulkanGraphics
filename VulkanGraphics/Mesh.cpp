@@ -47,10 +47,10 @@ void Mesh::CreateDescriptorSets()
 	DiffuseMap.imageView = TextureList[0].textureImageView;
 	DiffuseMap.sampler = TextureList[0].textureSampler;
 
-	VkDescriptorImageInfo SpecularMap = {};
-	SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	SpecularMap.imageView = TextureList[1].textureImageView;
-	SpecularMap.sampler = TextureList[1].textureSampler;
+	//VkDescriptorImageInfo SpecularMap = {};
+	//SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	//SpecularMap.imageView = TextureList[1].textureImageView;
+	//SpecularMap.sampler = TextureList[1].textureSampler;
 
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
 	{
@@ -59,7 +59,7 @@ void Mesh::CreateDescriptorSets()
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
-		std::array<WriteDescriptorSetInfo, 3>  WriteDescriptorInfo = {};
+		std::array<WriteDescriptorSetInfo, 2>  WriteDescriptorInfo = {};
 
 		WriteDescriptorInfo[0].DstBinding = 0;
 		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
@@ -71,10 +71,10 @@ void Mesh::CreateDescriptorSets()
 		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		WriteDescriptorInfo[1].DescriptorImageInfo = DiffuseMap;
 
-		WriteDescriptorInfo[2].DstBinding = 2;
-		WriteDescriptorInfo[2].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
+		//WriteDescriptorInfo[2].DstBinding = 2;
+		//WriteDescriptorInfo[2].DstSet = descriptorSets[i];
+		//WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
 
 		Mesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
@@ -126,7 +126,7 @@ void Mesh::UpdateSwapChain()
 	CreateDescriptorSets();
 }
 
-void Mesh::ClearSwapChain()
+void Mesh::Destroy()
 {
 	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) 
 	{
@@ -140,6 +140,6 @@ void Mesh::ClearSwapChain()
 		}
 	}
 
-	BaseMesh::ClearSwapChain();
+	BaseMesh::Destory();
 }
 

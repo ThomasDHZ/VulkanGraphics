@@ -41,7 +41,7 @@ void Canvas2D::SetPixel(glm::ivec2 position, Pixel pixel)
 
 void Canvas2D::UpdateFrame(int MapX, int MapY, int SpriteX, int SpriteY)
 {
-	CanvasMesh.ClearSwapChain();
+	//CanvasMesh.ClearSwapChain();
 	spriteLayer = copySpriteLayer;
 	spriteLayer.CopyRange(DQ1Sprite.GetSpriteTexture(), SpriteX, SpriteY);
 	CanvasTexture.CopyRange(background, MapX, MapY);
@@ -60,7 +60,7 @@ void Canvas2D::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, Vk
 
 void Canvas2D::ClearSwapChain()
 {
-	CanvasMesh.ClearSwapChain();
+	//CanvasMesh.ClearSwapChain();
 }
 
 void Canvas2D::Destory()

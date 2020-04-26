@@ -7,6 +7,8 @@
 #include "ForwardRenderingPipeline.h"
 #include <array>
 #include "InputAttachment.h"
+#include "Mesh.h"
+#include "GUIDebugger.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -20,6 +22,9 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 class VulkanRenderer
 {
 private:
+	size_t currentFrame = 0;
+	bool framebufferResized = false;
+
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkFormat findDepthFormat();
 
@@ -33,6 +38,7 @@ private:
 	void InitializeFramebuffers();
 	void InitializeCommandBuffers();
 	void InitializeSyncObjects();
+	void InitializeGUIDebugger(GLFWwindow* window);
 
 public:
 
@@ -40,7 +46,7 @@ public:
 	VulkanRenderer(GLFWwindow* window);
 	~VulkanRenderer();
 
-
+	GUIDebugger guiDebugger;
 	VkInstance Instance = VK_NULL_HANDLE;
 	VkDevice Device = VK_NULL_HANDLE;
 	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
@@ -72,7 +78,9 @@ public:
 
 	std::vector<VkLayerProperties> VulkanLayers;
 
-	void UpdateSwapChain(GLFWwindow* window);
+	void UpdateSwapChain(GLFWwindow* window, Mesh mesh);
+	void Update(uint32_t currentImage, Mesh mesh);
+	void Draw(GLFWwindow* window, Mesh mesh);
 	void DestoryVulkan();
 
 	VkSwapchainKHR GetSwapChain() { return swapChain.GetSwapChain(); }
