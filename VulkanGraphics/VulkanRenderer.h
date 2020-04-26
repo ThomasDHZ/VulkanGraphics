@@ -19,11 +19,59 @@ const std::vector<const char*> deviceExtensions = {
 };
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
+struct VulkanRendererInfo
+{
+	VkInstance Instance = VK_NULL_HANDLE;
+	VkDevice Device = VK_NULL_HANDLE;
+	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
+	VkSurfaceKHR Surface = VK_NULL_HANDLE;
+	VkQueue GraphicsQueue = VK_NULL_HANDLE;
+	VkQueue PresentQueue = VK_NULL_HANDLE;
+	VkRenderPass RenderPass = VK_NULL_HANDLE;
+	VkDescriptorSetLayout DescriptorSetLayout = VK_NULL_HANDLE;
+	VkPipeline ShaderPipeline = VK_NULL_HANDLE;
+	VkPipelineLayout ShaderPipelineLayout = VK_NULL_HANDLE;
+	VkExtent2D SwapChainResolution = VkExtent2D();
+	uint32_t SwapChainImageCount = 0;
+};
+
 class VulkanRenderer
 {
 private:
 	size_t currentFrame = 0;
 	bool framebufferResized = false;
+
+	GUIDebugger guiDebugger;
+	VkInstance Instance = VK_NULL_HANDLE;
+	VkDevice Device = VK_NULL_HANDLE;
+	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
+	VkSurfaceKHR Surface = VK_NULL_HANDLE;
+	VkQueue GraphicsQueue = VK_NULL_HANDLE;
+	VkQueue PresentQueue = VK_NULL_HANDLE;
+	VkRenderPass RenderPass = VK_NULL_HANDLE;
+
+
+	InputAttachment DepthAttachment;
+
+	VulkanDebugger VulkanDebug;
+	VulkanSwapChain swapChain;
+	ForwardRenderingPipeline GraphicsPipeline;
+
+	VkCommandPool commandPool;
+
+	std::vector<VkCommandBuffer> MainCommandBuffer;
+
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
+	std::vector<VkFence> imagesInFlight;
+
+	int GraphicsFamily = -1;
+	int PresentFamily = -1;
+
+	std::vector<VkLayerProperties> VulkanLayers;
+
+	VulkanRendererInfo RendererInfo;
 
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkFormat findDepthFormat();
@@ -39,6 +87,7 @@ private:
 	void InitializeCommandBuffers();
 	void InitializeSyncObjects();
 	void InitializeGUIDebugger(GLFWwindow* window);
+	void UpdateRendererInfo();
 
 public:
 
@@ -46,48 +95,15 @@ public:
 	VulkanRenderer(GLFWwindow* window);
 	~VulkanRenderer();
 
-	GUIDebugger guiDebugger;
-	VkInstance Instance = VK_NULL_HANDLE;
-	VkDevice Device = VK_NULL_HANDLE;
-	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
-	VkSurfaceKHR Surface = VK_NULL_HANDLE;
-	VkQueue GraphicsQueue = VK_NULL_HANDLE;
-	VkQueue PresentQueue = VK_NULL_HANDLE;
-	VkRenderPass RenderPass = VK_NULL_HANDLE; 
-	std::vector<VkFramebuffer> swapChainFramebuffers;
-
-	InputAttachment DepthAttachment;
-
-	VulkanDebugger VulkanDebug;
-	VulkanSwapChain swapChain;
-	ForwardRenderingPipeline GraphicsPipeline;
-
 	VkCommandPool MainCommandPool;
-	VkCommandPool commandPool;
-
-	std::vector<VkCommandBuffer> MainCommandBuffer;
 	std::vector<VkCommandBuffer> commandBuffers;
-
-	std::vector<VkSemaphore> imageAvailableSemaphores;
-	std::vector<VkSemaphore> renderFinishedSemaphores;
-	std::vector<VkFence> inFlightFences;
-	std::vector<VkFence> imagesInFlight;
-
-	int GraphicsFamily = -1;
-	int PresentFamily = -1;
-
-	std::vector<VkLayerProperties> VulkanLayers;
+	std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	void UpdateSwapChain(GLFWwindow* window, Mesh mesh);
 	void Update(uint32_t currentImage, Mesh mesh);
 	void Draw(GLFWwindow* window, Mesh mesh);
 	void DestoryVulkan();
 
-	VkSwapchainKHR GetSwapChain() { return swapChain.GetSwapChain(); }
-	std::vector<VkImage> GetSwapChainImages() { return swapChain.GetSwapChainImages(); }
-	std::vector<VkImageView> GetSwapChainImageViews() { return swapChain.GetSwapChainImageViews(); }
-	VkExtent2D GetSwapChainResolution() { return swapChain.GetSwapChainResolution(); }
-	VkSurfaceFormatKHR GetSwapChainImageFormat() { return swapChain.GetSwapChainImageFormat(); }
-	uint32_t GetSwapChainImageCount() { return swapChain.GetSwapChainImageCount(); }
+	VulkanRendererInfo GetRendererInfo() { return RendererInfo; };
 };
 

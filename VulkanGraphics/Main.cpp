@@ -78,14 +78,16 @@ private:
 	{
 		Window = VulkanWindow(WIDTH, HEIGHT, "Vulkan Graphics");
 		renderer = VulkanRenderer(Window.GetWindowPtr());
+		const VulkanRendererInfo RendererInfo = renderer.GetRendererInfo();
+
 
 		VulkanDevice DeviceInfo = {};
-		DeviceInfo.Device = renderer.Device;
-		DeviceInfo.PhysicalDevice = renderer.PhysicalDevice;
-		DeviceInfo.CommandPool = renderer.commandPool;
-		DeviceInfo.GraphicsQueue = renderer.GraphicsQueue;
-		DeviceInfo.SwapChainSize = renderer.GetSwapChainImageCount();
-		DeviceInfo.descriptorSetLayout = renderer.GraphicsPipeline.ShaderPipelineDescriptorLayout;
+		DeviceInfo.Device = RendererInfo.Device;
+		DeviceInfo.PhysicalDevice = RendererInfo.PhysicalDevice;
+		DeviceInfo.CommandPool = renderer.MainCommandPool;
+		DeviceInfo.GraphicsQueue = RendererInfo.GraphicsQueue;
+		DeviceInfo.SwapChainSize = RendererInfo.SwapChainImageCount;
+		DeviceInfo.descriptorSetLayout = RendererInfo.DescriptorSetLayout;
 
 		texture = Texture2D(DeviceInfo, "texture/texture.jpg");
 		std::vector<Texture2D> textureList = { texture, texture };
@@ -95,7 +97,7 @@ private:
 		{
 			VkCommandBufferInheritanceInfo InheritanceInfo = {};
 			InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-			InheritanceInfo.renderPass = renderer.RenderPass;
+			InheritanceInfo.renderPass = RendererInfo.RenderPass;
 			InheritanceInfo.framebuffer = renderer.swapChainFramebuffers[i];
 
 			VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
@@ -104,7 +106,7 @@ private:
 			BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
 
 			vkBeginCommandBuffer(renderer.commandBuffers[i], &BeginSecondaryCommandBuffer);
-			mesh.SecBufferDraw(renderer.commandBuffers[i], BeginSecondaryCommandBuffer, renderer.GraphicsPipeline.ShaderPipeline, renderer.GraphicsPipeline.ShaderPipelineLayout, i);
+			mesh.SecBufferDraw(renderer.commandBuffers[i], BeginSecondaryCommandBuffer, RendererInfo.ShaderPipeline, RendererInfo.ShaderPipelineLayout, i);
 			if (vkEndCommandBuffer(renderer.commandBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
 			}
@@ -113,6 +115,8 @@ private:
 
 	void mainLoop() 
 	{
+		const VulkanRendererInfo RendererInfo = renderer.GetRendererInfo();
+
 		while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 		{
 			Window.Update();
@@ -127,7 +131,7 @@ private:
 			ImGui::Render();
 			renderer.Draw(Window.GetWindowPtr(), mesh);
 		}
-		vkDeviceWaitIdle(renderer.Device);
+		vkDeviceWaitIdle(RendererInfo.Device);
 	}
 
 	void cleanup() 

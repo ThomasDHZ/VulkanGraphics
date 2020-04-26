@@ -14,9 +14,10 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 	InitializeCommandBuffers();
 	InitializeSyncObjects();
 
-	auto a = GetSwapChainResolution();
+	auto a = swapChain.GetSwapChainResolution();
 	GraphicsPipeline = ForwardRenderingPipeline(a, RenderPass, Device);
 	InitializeGUIDebugger(window);
+	UpdateRendererInfo();
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -272,7 +273,7 @@ void VulkanRenderer::InitializeVulkan(GLFWwindow* window)
 void VulkanRenderer::InitializeRenderPass()
 {
 	VkAttachmentDescription colorAttachment{};
-	colorAttachment.format = GetSwapChainImageFormat().format;
+	colorAttachment.format = swapChain.GetSwapChainImageFormat().format;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -330,14 +331,14 @@ void VulkanRenderer::InitializeRenderPass()
 
 void VulkanRenderer::InitializeFramebuffers()
 {
-	DepthAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkDepthAttachemnt, GetSwapChainResolution().width, GetSwapChainResolution().height);
+	DepthAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkDepthAttachemnt, swapChain.GetSwapChainResolution().width, swapChain.GetSwapChainResolution().height);
 
-	swapChainFramebuffers.resize(GetSwapChainImageCount());
+	swapChainFramebuffers.resize(swapChain.GetSwapChainImageCount());
 
-	for (size_t i = 0; i < GetSwapChainImageCount(); i++) {
+	for (size_t i = 0; i < swapChain.GetSwapChainImageCount(); i++) {
 		std::array<VkImageView, 2> attachments =
 		{
-			GetSwapChainImageViews()[i],
+			swapChain.GetSwapChainImageViews()[i],
 			DepthAttachment.AttachmentImageView
 		};
 
@@ -346,8 +347,8 @@ void VulkanRenderer::InitializeFramebuffers()
 		framebufferInfo.renderPass = RenderPass;
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
-		framebufferInfo.width = GetSwapChainResolution().width;
-		framebufferInfo.height = GetSwapChainResolution().height;
+		framebufferInfo.width = swapChain.GetSwapChainResolution().width;
+		framebufferInfo.height = swapChain.GetSwapChainResolution().height;
 		framebufferInfo.layers = 1;
 
 		if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
@@ -358,8 +359,8 @@ void VulkanRenderer::InitializeFramebuffers()
 
 void VulkanRenderer::InitializeCommandBuffers()
 {
-	MainCommandBuffer.resize(GetSwapChainImageCount());
-	commandBuffers.resize(GetSwapChainImageCount());
+	MainCommandBuffer.resize(swapChain.GetSwapChainImageCount());
+	commandBuffers.resize(swapChain.GetSwapChainImageCount());
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -400,7 +401,7 @@ void VulkanRenderer::InitializeSyncObjects()
 	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-	imagesInFlight.resize(GetSwapChainImageCount(), VK_NULL_HANDLE);
+	imagesInFlight.resize(swapChain.GetSwapChainImageCount(), VK_NULL_HANDLE);
 
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -434,6 +435,23 @@ void VulkanRenderer::InitializeGUIDebugger(GLFWwindow* window)
 	guiDebugger = GUIDebugger(init_info, window, RenderPass);
 }
 
+void VulkanRenderer::UpdateRendererInfo()
+{
+	RendererInfo = VulkanRendererInfo();
+	RendererInfo.Device = Device;
+	RendererInfo.GraphicsQueue = GraphicsQueue;
+	RendererInfo.Instance = Instance;
+	RendererInfo.PhysicalDevice = PhysicalDevice;
+	RendererInfo.PresentQueue = PresentQueue;
+	RendererInfo.RenderPass = RenderPass;
+	RendererInfo.Surface = Surface;
+	RendererInfo.ShaderPipeline = GraphicsPipeline.ShaderPipeline;
+	RendererInfo.ShaderPipelineLayout = GraphicsPipeline.ShaderPipelineLayout;
+	RendererInfo.DescriptorSetLayout = GraphicsPipeline.ShaderPipelineDescriptorLayout;
+	RendererInfo.SwapChainImageCount = swapChain.GetSwapChainImageCount();
+	RendererInfo.SwapChainResolution = swapChain.GetSwapChainResolution();
+}
+
 void VulkanRenderer::UpdateSwapChain(GLFWwindow* window, Mesh mesh)
 {
 	int width = 0, height = 0;
@@ -456,17 +474,17 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window, Mesh mesh)
 	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
 
-	for (auto imageView : GetSwapChainImageViews())
+	for (auto imageView : swapChain.GetSwapChainImageViews())
 	{
 		vkDestroyImageView(Device, imageView, nullptr);
 	}
 
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
 	vkDestroyCommandPool(Device,commandPool, nullptr);
-	vkDestroySwapchainKHR(Device, GetSwapChain(), nullptr);
+	vkDestroySwapchainKHR(Device, swapChain.GetSwapChain(), nullptr);
 
 	swapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
-	auto a = GetSwapChainResolution();
+	auto a = swapChain.GetSwapChainResolution();
 	GraphicsPipeline.UpdateGraphicsPipeLine(a, RenderPass, Device);
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
@@ -501,7 +519,7 @@ void VulkanRenderer::Update(uint32_t currentImage, Mesh mesh)
 	UniformBufferObject ubo{};
 	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), GetSwapChainResolution().width / (float)GetSwapChainResolution().height, 0.1f, 10.0f);
+	ubo.proj = glm::perspective(glm::radians(45.0f), swapChain.GetSwapChainResolution().width / (float)swapChain.GetSwapChainResolution().height, 0.1f, 10.0f);
 	ubo.proj[1][1] *= -1;
 
 	mesh.UpdateUniformBuffer(ubo, currentImage);
@@ -514,7 +532,7 @@ void VulkanRenderer::Draw(GLFWwindow* window, Mesh mesh)
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
-	VkResult result = vkAcquireNextImageKHR(Device, GetSwapChain(), UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(Device, swapChain.GetSwapChain(), UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 	std::array<VkClearValue, 2> clearValues = {};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -545,7 +563,7 @@ void VulkanRenderer::Draw(GLFWwindow* window, Mesh mesh)
 	renderPassInfo.renderPass = RenderPass;
 	renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = GetSwapChainResolution();
+	renderPassInfo.renderArea.extent = swapChain.GetSwapChainResolution();
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 	renderPassInfo.pClearValues = clearValues.data();
 
@@ -585,7 +603,7 @@ void VulkanRenderer::Draw(GLFWwindow* window, Mesh mesh)
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
 
-	VkSwapchainKHR swapChains[] = { GetSwapChain() };
+	VkSwapchainKHR swapChains[] = { swapChain.GetSwapChain() };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 
@@ -617,7 +635,7 @@ void VulkanRenderer::DestoryVulkan()
 	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
 
-	for (auto imageView : GetSwapChainImageViews())
+	for (auto imageView : swapChain.GetSwapChainImageViews())
 	{
 		vkDestroyImageView(Device, imageView, nullptr);
 	}
@@ -625,7 +643,7 @@ void VulkanRenderer::DestoryVulkan()
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
 	vkDestroyCommandPool(Device, commandPool, nullptr);
 
-	vkDestroySwapchainKHR(Device, GetSwapChain(), nullptr);
+	vkDestroySwapchainKHR(Device, swapChain.GetSwapChain(), nullptr);
 
 	vkDestroyRenderPass(Device, RenderPass, nullptr);
 
