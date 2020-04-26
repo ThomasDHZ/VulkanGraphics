@@ -2,6 +2,7 @@
 #include <GLFW\glfw3.h>
 #include <stdexcept>
 #include <set>
+#include <array>
 
 VulkanSwapChain::VulkanSwapChain()
 {

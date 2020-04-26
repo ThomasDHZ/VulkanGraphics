@@ -46,8 +46,6 @@ public:
 	~BaseMesh();
 
 	void UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize);
-
-	virtual void ClearSwapChain();
-	virtual void Destory();
+	void Destory();
 };
 

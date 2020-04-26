@@ -6,68 +6,67 @@ InputAttachment::InputAttachment()
 {
 }
 
-InputAttachment::InputAttachment(VulkanDevice deviceInfo, AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight)
+InputAttachment::InputAttachment(VkDevice device, VkPhysicalDevice physicalDevice, AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight)
 {
-	DeviceInfo = deviceInfo;
 	Width = WindowWidth;
 	Height = WindowHeight;
-	GetAttachmentTypeInfo(attachmentType);
+	GetAttachmentTypeInfo(device, physicalDevice, attachmentType);
 }
 
 InputAttachment::~InputAttachment()
 {
 }
 
-void InputAttachment::GetAttachmentTypeInfo(AttachmentType attachmentType)
+void InputAttachment::GetAttachmentTypeInfo(VkDevice device, VkPhysicalDevice physicalDevice, AttachmentType attachmentType)
 {
 	switch (attachmentType)
 	{
 	case AttachmentType::VkColorAttachment:
 	{
 		Format = VK_FORMAT_R8G8B8A8_UNORM;
-		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
 		break;
 	}
 	case AttachmentType::VkPositionAttachment:
 	{
 		Format = VK_FORMAT_R16G16B16A16_SFLOAT;
-		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
 		break;
 	}
 	case AttachmentType::VkNormalAttachment:
 	{
 		Format = VK_FORMAT_R16G16B16A16_SFLOAT;
-		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
 		break;
 	}
 	case AttachmentType::VkAlbedoAttachment:
 	{
 		Format = VK_FORMAT_R8G8B8A8_UNORM;
-		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(VK_IMAGE_ASPECT_COLOR_BIT);
+		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
 		break;
 	}
 	case AttachmentType::VkDepthAttachemnt:
 	{
-		Format = VK_FORMAT_D32_SFLOAT_S8_UINT;
-		CreateAttachmentImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(VK_IMAGE_ASPECT_DEPTH_BIT);
+		Format = VK_FORMAT_D32_SFLOAT;
+		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		CreateAttachmentView(device, VK_IMAGE_ASPECT_DEPTH_BIT);
 		break;
 	}
 	}
 }
 
-void InputAttachment::ReCreateAttachment(AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight)
+void InputAttachment::ReCreateAttachment(VkDevice device, VkPhysicalDevice physicalDevice, AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight)
 {
 	Width = WindowWidth;
 	Height = WindowHeight;
-	GetAttachmentTypeInfo(attachmentType);
+	GetAttachmentTypeInfo(device, physicalDevice, attachmentType);
 }
 
-void InputAttachment::CreateAttachmentImage(VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
+void InputAttachment::CreateAttachmentImage(VkDevice device, VkPhysicalDevice physicalDevice, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties)
 {
 	VkImageCreateInfo imageInfo = {};
 	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -83,26 +82,26 @@ void InputAttachment::CreateAttachmentImage(VkImageTiling tiling, VkImageUsageFl
 	imageInfo.usage = usage | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
 	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-	if (vkCreateImage(DeviceInfo.Device, &imageInfo, nullptr, &AttachmentImage) != VK_SUCCESS) {
+	if (vkCreateImage(device, &imageInfo, nullptr, &AttachmentImage) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create image!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(DeviceInfo.Device, AttachmentImage, &memRequirements);
+	vkGetImageMemoryRequirements(device, AttachmentImage, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = VulkanBufferManager::FindMemoryType(DeviceInfo.PhysicalDevice, memRequirements.memoryTypeBits, properties);
+	allocInfo.memoryTypeIndex = VulkanBufferManager::FindMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
-	if (vkAllocateMemory(DeviceInfo.Device, &allocInfo, nullptr, &AttachmentImageMemory) != VK_SUCCESS) {
+	if (vkAllocateMemory(device, &allocInfo, nullptr, &AttachmentImageMemory) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate image memory!");
 	}
 
-	vkBindImageMemory(DeviceInfo.Device, AttachmentImage, AttachmentImageMemory, 0);
+	vkBindImageMemory(device, AttachmentImage, AttachmentImageMemory, 0);
 }
 
-void InputAttachment::CreateAttachmentView(VkImageAspectFlags aspectFlags)
+void InputAttachment::CreateAttachmentView(VkDevice device, VkImageAspectFlags aspectFlags)
 {
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -116,15 +115,15 @@ void InputAttachment::CreateAttachmentView(VkImageAspectFlags aspectFlags)
 	viewInfo.subresourceRange.layerCount = 1;
 	viewInfo.image = AttachmentImage;
 
-	if (vkCreateImageView(DeviceInfo.Device, &viewInfo, nullptr, &AttachmentImageView) != VK_SUCCESS) {
+	if (vkCreateImageView(device, &viewInfo, nullptr, &AttachmentImageView) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create texture image view!");
 	}
 }
 
-void InputAttachment::UpdateFrameBuffer()
+void InputAttachment::UpdateFrameBuffer(VkDevice device)
 {
-	vkDestroyImageView(DeviceInfo.Device, AttachmentImageView, nullptr);
-	vkDestroyImage(DeviceInfo.Device, AttachmentImage, nullptr);
-	vkFreeMemory(DeviceInfo.Device, AttachmentImageMemory, nullptr);
+	vkDestroyImageView(device, AttachmentImageView, nullptr);
+	vkDestroyImage(device, AttachmentImage, nullptr);
+	vkFreeMemory(device, AttachmentImageMemory, nullptr);
 }
 

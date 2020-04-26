@@ -67,6 +67,6 @@ public:
 	void SecBufferDraw(VkCommandBuffer& commandbuffer, VkCommandBufferBeginInfo cmdInfo, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame);
 	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
 	void UpdateSwapChain();
-	void ClearSwapChain();
+	void Destroy();
 };
 

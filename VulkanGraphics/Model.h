@@ -23,7 +23,6 @@ public:
 	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
 	void SecBufferDraw(VkCommandBuffer& commandbuffer, VkCommandBufferBeginInfo cmdInfo, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame);
 	void UpdateSwapChain();
-	void ClearSwapChain();
 	void Destory();
 
 	std::vector<Mesh> GetModelMeshList()

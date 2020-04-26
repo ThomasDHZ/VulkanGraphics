@@ -51,14 +51,6 @@ void Model::UpdateSwapChain()
 	}
 }
 
-void Model::ClearSwapChain()
-{
-	for (auto mesh : MeshList)
-	{
-		mesh.ClearSwapChain();
-	}
-}
-
 void Model::Destory()
 {
 	for (auto mesh : MeshList)

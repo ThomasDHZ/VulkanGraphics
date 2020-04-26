@@ -6,6 +6,7 @@
 #include "VulkanSwapChain.h"
 #include "ForwardRenderingPipeline.h"
 #include <array>
+#include "InputAttachment.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -14,6 +15,7 @@ const std::vector<const char*> validationLayers = {
 const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+const int MAX_FRAMES_IN_FLIGHT = 2;
 
 class VulkanRenderer
 {
@@ -28,11 +30,16 @@ private:
 	void FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface);
 	void InitializeVulkan(GLFWwindow* window);
 	void InitializeRenderPass();
+	void InitializeFramebuffers();
+	void InitializeCommandBuffers();
+	void InitializeSyncObjects();
+
 public:
 
 	VulkanRenderer();
 	VulkanRenderer(GLFWwindow* window);
 	~VulkanRenderer();
+
 
 	VkInstance Instance = VK_NULL_HANDLE;
 	VkDevice Device = VK_NULL_HANDLE;
@@ -41,10 +48,24 @@ public:
 	VkQueue GraphicsQueue = VK_NULL_HANDLE;
 	VkQueue PresentQueue = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE; 
+	std::vector<VkFramebuffer> swapChainFramebuffers;
+
+	InputAttachment DepthAttachment;
 
 	VulkanDebugger VulkanDebug;
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
+
+	VkCommandPool MainCommandPool;
+	VkCommandPool commandPool;
+
+	std::vector<VkCommandBuffer> MainCommandBuffer;
+	std::vector<VkCommandBuffer> commandBuffers;
+
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
+	std::vector<VkFence> imagesInFlight;
 
 	int GraphicsFamily = -1;
 	int PresentFamily = -1;

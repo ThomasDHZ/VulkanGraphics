@@ -14,8 +14,6 @@ enum AttachmentType
 class InputAttachment
 {
 private:
-
-	VulkanDevice DeviceInfo;
 	VkFormat Format;
 	unsigned int Width;
 	unsigned int Height;
@@ -24,13 +22,13 @@ private:
 public:
 
 	InputAttachment();
-	InputAttachment(VulkanDevice deviceInfo, AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
+	InputAttachment(VkDevice device, VkPhysicalDevice physicalDevice, AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
 	~InputAttachment();
-	void CreateAttachmentImage(VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
-	void GetAttachmentTypeInfo(AttachmentType attachmentType);
-	void CreateAttachmentView(VkImageAspectFlags aspectFlags);
-	void ReCreateAttachment(AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
-	void UpdateFrameBuffer();
+	void CreateAttachmentImage(VkDevice device, VkPhysicalDevice physicalDevice, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties);
+	void GetAttachmentTypeInfo(VkDevice device, VkPhysicalDevice physicalDevice, AttachmentType attachmentType);
+	void CreateAttachmentView(VkDevice device, VkImageAspectFlags aspectFlags);
+	void ReCreateAttachment(VkDevice device, VkPhysicalDevice physicalDevice, AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
+	void UpdateFrameBuffer(VkDevice device);
 
 	VkImage AttachmentImage;
 	VkDeviceMemory AttachmentImageMemory;
