@@ -26,6 +26,7 @@ public:
 	~GUIDebugger();
 
 	void UpdateCommandBuffers(uint32_t currentFrame, VkRenderPass renderPass, VkFramebuffer framebuffer);
+	void UpdateGuiDebugger();
 	void ShutDown(VkDevice device);
 
 	VkCommandBuffer GetCommandBuffers(int index) { return ImGuiCommandBuffers[index]; }

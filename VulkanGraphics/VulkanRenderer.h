@@ -41,7 +41,6 @@ private:
 	size_t currentFrame = 0;
 	bool framebufferResized = false;
 
-	GUIDebugger guiDebugger;
 	VkInstance Instance = VK_NULL_HANDLE;
 	VkDevice Device = VK_NULL_HANDLE;
 	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
@@ -57,7 +56,8 @@ private:
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
 
-	VkCommandPool commandPool;
+	VkCommandPool MainCommandPool;
+
 
 	std::vector<VkCommandBuffer> MainCommandBuffer;
 
@@ -95,8 +95,9 @@ public:
 	VulkanRenderer(GLFWwindow* window);
 	~VulkanRenderer();
 
-	VkCommandPool MainCommandPool;
-	std::vector<VkCommandBuffer> commandBuffers;
+	GUIDebugger guiDebugger;
+	VkCommandPool SubCommandPool;
+	std::vector<VkCommandBuffer> SubCommandBuffers;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
 	void UpdateSwapChain(GLFWwindow* window, Mesh mesh);

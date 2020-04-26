@@ -146,7 +146,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BaseRenderer.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Canvas2D.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
@@ -196,7 +195,6 @@
     <None Include="Shaders\SkyboxShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseRenderer.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Canvas2D.h" />
     <ClInclude Include="CubeMapTexture.h" />

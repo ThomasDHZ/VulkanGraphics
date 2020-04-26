@@ -360,7 +360,7 @@ void VulkanRenderer::InitializeFramebuffers()
 void VulkanRenderer::InitializeCommandBuffers()
 {
 	MainCommandBuffer.resize(swapChain.GetSwapChainImageCount());
-	commandBuffers.resize(swapChain.GetSwapChainImageCount());
+	SubCommandBuffers.resize(swapChain.GetSwapChainImageCount());
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -371,7 +371,7 @@ void VulkanRenderer::InitializeCommandBuffers()
 		throw std::runtime_error("failed to create graphics command pool!");
 	}
 
-	if (vkCreateCommandPool(Device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+	if (vkCreateCommandPool(Device, &poolInfo, nullptr, &SubCommandPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create graphics command pool!");
 	}
 
@@ -387,11 +387,11 @@ void VulkanRenderer::InitializeCommandBuffers()
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = commandPool;
+	allocInfo.commandPool = SubCommandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+	allocInfo.commandBufferCount = (uint32_t)SubCommandBuffers.size();
 
-	if (vkAllocateCommandBuffers(Device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+	if (vkAllocateCommandBuffers(Device, &allocInfo, SubCommandBuffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 }
@@ -470,7 +470,7 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window, Mesh mesh)
 		vkDestroyFramebuffer(Device, framebuffer, nullptr);
 	}
 
-	vkFreeCommandBuffers(Device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+	vkFreeCommandBuffers(Device, SubCommandPool, static_cast<uint32_t>(SubCommandBuffers.size()), SubCommandBuffers.data());
 	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
 
@@ -480,7 +480,7 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window, Mesh mesh)
 	}
 
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
-	vkDestroyCommandPool(Device,commandPool, nullptr);
+	vkDestroyCommandPool(Device, SubCommandPool, nullptr);
 	vkDestroySwapchainKHR(Device, swapChain.GetSwapChain(), nullptr);
 
 	swapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
@@ -489,7 +489,7 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window, Mesh mesh)
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 
-	for (size_t i = 0; i < commandBuffers.size(); i++)
+	for (size_t i = 0; i < SubCommandBuffers.size(); i++)
 	{
 		VkCommandBufferInheritanceInfo InheritanceInfo = {};
 		InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -501,9 +501,9 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window, Mesh mesh)
 		BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 		BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
 
-		vkBeginCommandBuffer(commandBuffers[i], &BeginSecondaryCommandBuffer);
-		mesh.SecBufferDraw(commandBuffers[i], BeginSecondaryCommandBuffer, GraphicsPipeline.ShaderPipeline, GraphicsPipeline.ShaderPipelineLayout, i);
-		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+		vkBeginCommandBuffer(SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
+		mesh.SecBufferDraw(SubCommandBuffers[i], BeginSecondaryCommandBuffer, GraphicsPipeline.ShaderPipeline, GraphicsPipeline.ShaderPipelineLayout, i);
+		if (vkEndCommandBuffer(SubCommandBuffers[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer!");
 		}
 	}
@@ -555,7 +555,7 @@ void VulkanRenderer::Draw(GLFWwindow* window, Mesh mesh)
 	imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
-	RunCommandBuffers.emplace_back(commandBuffers[imageIndex]);
+	RunCommandBuffers.emplace_back(SubCommandBuffers[imageIndex]);
 	RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(imageIndex));
 
 	VkRenderPassBeginInfo renderPassInfo = {};
@@ -631,7 +631,7 @@ void VulkanRenderer::DestoryVulkan()
 		vkDestroyFramebuffer(Device, framebuffer, nullptr);
 	}
 
-	vkFreeCommandBuffers(Device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+	vkFreeCommandBuffers(Device, SubCommandPool, static_cast<uint32_t>(SubCommandBuffers.size()), SubCommandBuffers.data());
 	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
 
@@ -641,7 +641,7 @@ void VulkanRenderer::DestoryVulkan()
 	}
 
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
-	vkDestroyCommandPool(Device, commandPool, nullptr);
+	vkDestroyCommandPool(Device, SubCommandPool, nullptr);
 
 	vkDestroySwapchainKHR(Device, swapChain.GetSwapChain(), nullptr);
 
