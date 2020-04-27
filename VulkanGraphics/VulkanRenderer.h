@@ -29,6 +29,7 @@ struct VulkanRendererInfo
 	VkQueue PresentQueue = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
 	VkDescriptorSetLayout DescriptorSetLayout = VK_NULL_HANDLE;
+	VkCommandPool SubCommandPool = VK_NULL_HANDLE;
 	VkPipeline ShaderPipeline = VK_NULL_HANDLE;
 	VkPipelineLayout ShaderPipelineLayout = VK_NULL_HANDLE;
 	VkExtent2D SwapChainResolution = VkExtent2D();
@@ -37,6 +38,7 @@ struct VulkanRendererInfo
 
 class VulkanRenderer
 {
+	friend class VulkanResources;
 private:
 	size_t currentFrame = 0;
 	bool framebufferResized = false;
@@ -57,7 +59,7 @@ private:
 	ForwardRenderingPipeline GraphicsPipeline;
 
 	VkCommandPool MainCommandPool;
-
+	VkCommandPool SubCommandPool;
 
 	std::vector<VkCommandBuffer> MainCommandBuffer;
 
@@ -72,6 +74,8 @@ private:
 	std::vector<VkLayerProperties> VulkanLayers;
 
 	VulkanRendererInfo RendererInfo;
+	std::vector<Mesh>* MeshList;
+
 
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkFormat findDepthFormat();
@@ -88,23 +92,22 @@ private:
 	void InitializeSyncObjects();
 	void InitializeGUIDebugger(GLFWwindow* window);
 	void UpdateRendererInfo();
-
+	
 public:
 
 	VulkanRenderer();
-	VulkanRenderer(GLFWwindow* window);
+	VulkanRenderer(GLFWwindow* window, std::vector<Mesh>* meshList);
 	~VulkanRenderer();
 
 	GUIDebugger guiDebugger;
-	VkCommandPool SubCommandPool;
 	std::vector<VkCommandBuffer> SubCommandBuffers;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
-	void UpdateSwapChain(GLFWwindow* window, Mesh mesh);
-	void Update(uint32_t currentImage, Mesh mesh);
-	void Draw(GLFWwindow* window, Mesh mesh);
+	void UpdateCommandBuffers();
+	void UpdateSwapChain(GLFWwindow* window);
+	void Update(uint32_t currentImage);
+	void Draw(GLFWwindow* window);
 	void DestoryVulkan();
 
-	VulkanRendererInfo GetRendererInfo() { return RendererInfo; };
+	VulkanRendererInfo* GetRendererInfo() { return &RendererInfo; };
 };
-

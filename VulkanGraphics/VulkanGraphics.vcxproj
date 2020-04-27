@@ -175,6 +175,7 @@
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="VulkanRenderer.cpp" />
+    <ClCompile Include="VulkanResources.cpp" />
     <ClCompile Include="VulkanSwapChain.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
@@ -227,6 +228,7 @@
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="VulkanRenderer.h" />
+    <ClInclude Include="VulkanResources.h" />
     <ClInclude Include="VulkanSwapChain.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Texture2D.h" />

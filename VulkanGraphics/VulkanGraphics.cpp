@@ -12,6 +12,8 @@
 #include <optional>
 #include <set>
 #include <FileSystem.h>
+#include <iostream>
+#include <memory>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -24,49 +26,35 @@
 
 VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
-	Window = VulkanWindow(Width, Height, "Vulkan Graphics");
-	renderer = VulkanRenderer(Window.GetWindowPtr());
-	const VulkanRendererInfo RendererInfo = renderer.GetRendererInfo();
-
+	Window = VulkanWindow(Width, Height, AppName);
+	renderer = VulkanRenderer(Window.GetWindowPtr(), &MeshList);
+	
+	 RendererInfo = renderer.GetRendererInfo();
 
 	VulkanDevice DeviceInfo = {};
-	DeviceInfo.Device = RendererInfo.Device;
-	DeviceInfo.PhysicalDevice = RendererInfo.PhysicalDevice;
-	DeviceInfo.CommandPool = renderer.SubCommandPool;
-	DeviceInfo.GraphicsQueue = RendererInfo.GraphicsQueue;
-	DeviceInfo.SwapChainSize = RendererInfo.SwapChainImageCount;
-	DeviceInfo.descriptorSetLayout = RendererInfo.DescriptorSetLayout;
+	DeviceInfo.Device = RendererInfo->Device;
+	DeviceInfo.PhysicalDevice = RendererInfo->PhysicalDevice;
+	DeviceInfo.CommandPool = RendererInfo->SubCommandPool;
+	DeviceInfo.GraphicsQueue = RendererInfo->GraphicsQueue;
+	DeviceInfo.SwapChainSize = RendererInfo->SwapChainImageCount;
+	DeviceInfo.descriptorSetLayout = RendererInfo->DescriptorSetLayout;
 
 	texture = Texture2D(DeviceInfo, "texture/texture.jpg");
 	std::vector<Texture2D> textureList = { texture, texture };
-	mesh = Mesh(DeviceInfo, vertices, indices, textureList);
 
-	for (size_t i = 0; i < renderer.SubCommandBuffers.size(); i++)
-	{
-		VkCommandBufferInheritanceInfo InheritanceInfo = {};
-		InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-		InheritanceInfo.renderPass = RendererInfo.RenderPass;
-		InheritanceInfo.framebuffer = renderer.swapChainFramebuffers[i];
-
-		VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
-		BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-		BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
-
-		vkBeginCommandBuffer(renderer.SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
-		mesh.SecBufferDraw(renderer.SubCommandBuffers[i], BeginSecondaryCommandBuffer, RendererInfo.ShaderPipeline, RendererInfo.ShaderPipelineLayout, i);
-		if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to record command buffer!");
-		}
-	}
+	MeshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
+	renderer.UpdateCommandBuffers();
 }
 
 VulkanGraphics::~VulkanGraphics()
 {
-	const VulkanRendererInfo RendererInfo = renderer.GetRendererInfo();
-	vkDeviceWaitIdle(RendererInfo.Device);
+  RendererInfo = renderer.GetRendererInfo();
+	vkDeviceWaitIdle(RendererInfo->Device);
 
-	mesh.Destroy();
+	for (auto mesh : MeshList)
+	{
+		mesh.Destroy();
+	}
 	texture.Destroy();
 
 	renderer.DestoryVulkan();
@@ -77,8 +65,9 @@ void VulkanGraphics::MainLoop()
 {
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
+		Testing test = Testing(renderer);
 		Window.Update();
 		renderer.guiDebugger.UpdateGuiDebugger();
-		renderer.Draw(Window.GetWindowPtr(), mesh);
+		renderer.Draw(Window.GetWindowPtr());
 	}
 }

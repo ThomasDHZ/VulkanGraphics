@@ -7,6 +7,7 @@
 #include "Texture2D.h"
 #include "Mesh.h"
 #include "VulkanWindow.h"
+#include "VulkanResources.h"
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_vulkan.h"
@@ -35,14 +36,27 @@ const std::vector<uint16_t> indices = {
 	4, 5, 6, 6, 7, 4
 };
 
+class Testing : VulkanResources
+{
+private:
+	const std::shared_ptr<VulkanRendererInfo> RendererInfo;
+public:
+	Testing(VulkanRenderer& renderer)
+	{
+		auto a = GetSwapChainResolution(renderer);
+		int  b = 3;
+	}
+};
+
 class VulkanGraphics
 {
 private:
+	VulkanRendererInfo* RendererInfo;
 	VulkanWindow Window;
 	VulkanRenderer renderer;
 
 	Texture2D texture;
-	Mesh mesh;
+	std::vector<Mesh> MeshList;
 
 public:
 	VulkanGraphics(int Width, int Height, const char* AppName);
