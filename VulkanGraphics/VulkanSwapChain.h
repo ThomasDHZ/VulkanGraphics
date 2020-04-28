@@ -50,6 +50,7 @@ public:
 	std::vector<VkImageView> GetSwapChainImageViews() { return SwapChainImageViews; }
 	VkExtent2D GetSwapChainResolution() { return SwapChainResolution; }
 	VkSurfaceFormatKHR GetSwapChainImageFormat() { return SwapChainImageFormat; }
+	uint32_t GetSwapChainMinImageCount() { return SwapChainCapabilities.minImageCount; }
 	uint32_t GetSwapChainImageCount() { return SwapChainImageCount; }
 };
 

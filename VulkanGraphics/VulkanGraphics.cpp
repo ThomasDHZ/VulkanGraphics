@@ -61,13 +61,28 @@ VulkanGraphics::~VulkanGraphics()
 	Window.CleanUp();
 }
 
+void VulkanGraphics::Update()
+{
+	renderer.guiDebugger.UpdateGuiDebugger();
+}
+
+void VulkanGraphics::UpdateCommandBuffers()
+{
+}
+
+void VulkanGraphics::Draw()
+{
+
+	renderer.Draw(Window.GetWindowPtr());
+}
+
 void VulkanGraphics::MainLoop()
 {
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
-		Testing test = Testing(renderer);
 		Window.Update();
-		renderer.guiDebugger.UpdateGuiDebugger();
-		renderer.Draw(Window.GetWindowPtr());
+		UpdateCommandBuffers();
+		Update();
+		Draw();
 	}
 }

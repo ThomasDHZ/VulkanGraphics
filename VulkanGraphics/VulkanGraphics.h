@@ -36,19 +36,7 @@ const std::vector<uint16_t> indices = {
 	4, 5, 6, 6, 7, 4
 };
 
-class Testing : VulkanResources
-{
-private:
-	const std::shared_ptr<VulkanRendererInfo> RendererInfo;
-public:
-	Testing(VulkanRenderer& renderer)
-	{
-		auto a = GetSwapChainResolution(renderer);
-		int  b = 3;
-	}
-};
-
-class VulkanGraphics
+class VulkanGraphics : VulkanResources
 {
 private:
 	VulkanRendererInfo* RendererInfo;
@@ -57,6 +45,10 @@ private:
 
 	Texture2D texture;
 	std::vector<Mesh> MeshList;
+
+	void Update();
+	void UpdateCommandBuffers();
+	void Draw();
 
 public:
 	VulkanGraphics(int Width, int Height, const char* AppName);
