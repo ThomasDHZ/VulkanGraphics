@@ -27,7 +27,7 @@
 VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
 	Window = VulkanWindow(Width, Height, AppName);
-	renderer = VulkanRenderer(Window.GetWindowPtr(), &MeshList);
+	renderer = VulkanRenderer(Window.GetWindowPtr());
 	
 
 	VulkanDevice DeviceInfo = {};
@@ -41,8 +41,30 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	texture = Texture2D(DeviceInfo, "texture/texture.jpg");
 	std::vector<Texture2D> textureList = { texture, texture };
 
+	InitializeGUIDebugger();
 	MeshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
-	renderer.UpdateCommandBuffers();
+
+	for (size_t i = 0; i < renderer.SubCommandBuffers.size(); i++)
+	{
+		VkCommandBufferInheritanceInfo InheritanceInfo = {};
+		InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+		InheritanceInfo.renderPass = *GetRenderPass(renderer);
+		InheritanceInfo.framebuffer = renderer.swapChainFramebuffers[i];
+
+		VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
+		BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+		BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
+
+		vkBeginCommandBuffer(renderer.SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
+		for (auto mesh : MeshList)
+		{
+			mesh.SecBufferDraw(renderer.SubCommandBuffers[i], BeginSecondaryCommandBuffer, *GetShaderPipeline(renderer), *GetShaderPipelineLayout(renderer), i);
+		}
+		if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
+		}
+	}
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -55,26 +77,60 @@ VulkanGraphics::~VulkanGraphics()
 	}
 	texture.Destroy();
 
+	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
 	Window.CleanUp();
 }
 
-void VulkanGraphics::Update()
+void VulkanGraphics::InitializeGUIDebugger()
 {
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.Instance = *GetInstance(renderer);
+	init_info.PhysicalDevice = *GetPhysicalDevice(renderer);
+	init_info.Device = *GetDevice(renderer);
+	init_info.QueueFamily = 0;
+	init_info.Queue = *GetGraphicsQueue(renderer);
+	init_info.PipelineCache = VK_NULL_HANDLE;
+	init_info.Allocator = nullptr;
+	init_info.MinImageCount = GetSwapChainMinImageCount(renderer);
+	init_info.ImageCount = GetSwapChainImageCount(renderer);
 
+	guiDebugger = GUIDebugger(init_info, Window.GetWindowPtr(), *GetRenderPass(renderer));
 }
 
-void VulkanGraphics::UpdateCommandBuffers()
+void VulkanGraphics::Update(uint32_t NextFrameIndex)
 {
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	for (auto mesh : MeshList)
+	{
+		UniformBufferObject ubo{};
+		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.proj = glm::perspective(glm::radians(45.0f), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10.0f);
+		ubo.proj[1][1] *= -1;
+
+		mesh.UpdateUniformBuffer(ubo, NextFrameIndex);
+	}
+}
+
+void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
+{
+	guiDebugger.UpdateCommandBuffers(NextFrameIndex, *GetRenderPass(renderer), renderer.swapChainFramebuffers[NextFrameIndex]);
 }
 
 void VulkanGraphics::Draw()
 {
-	auto NextFrame = renderer.StartFrame(Window.GetWindowPtr());
+	auto NextFrameIndex = renderer.StartFrame(Window.GetWindowPtr());
+	Update(NextFrameIndex);
+	UpdateCommandBuffers(NextFrameIndex);
+	renderer.RunCommandBuffers.emplace_back(renderer.SubCommandBuffers[NextFrameIndex]);
+	renderer.RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(NextFrameIndex));
+	renderer.EndFrame(Window.GetWindowPtr(), NextFrameIndex);
 	renderer.RunCommandBuffers.clear();
-	renderer.RunCommandBuffers.emplace_back(renderer.SubCommandBuffers[NextFrame]);
-	renderer.RunCommandBuffers.emplace_back(renderer.guiDebugger.GetCommandBuffers(NextFrame));
-	renderer.EndFrame(Window.GetWindowPtr(), NextFrame);
 }
 
 void VulkanGraphics::MainLoop()
@@ -91,8 +147,6 @@ void VulkanGraphics::MainLoop()
 			ImGui::End();
 		}
 		ImGui::Render();
-		UpdateCommandBuffers();
-		Update();
 		Draw();
 	}
 }

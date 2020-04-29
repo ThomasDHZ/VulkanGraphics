@@ -60,6 +60,11 @@ VkExtent2D* VulkanResources::GetSwapChainResolution(VulkanRenderer& renderer)
 	return  &renderer.swapChain.GetSwapChainResolution();
 }
 
+uint32_t VulkanResources::GetSwapChainMinImageCount(VulkanRenderer& renderer)
+{
+	return renderer.swapChain.GetSwapChainMinImageCount();
+}
+
 uint32_t VulkanResources::GetSwapChainImageCount(VulkanRenderer& renderer)
 {
 	return  renderer.swapChain.GetSwapChainImageCount();

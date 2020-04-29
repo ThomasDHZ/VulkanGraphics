@@ -8,10 +8,7 @@
 #include "Mesh.h"
 #include "VulkanWindow.h"
 #include "VulkanResources.h"
-
-#include "ImGui/imgui.h"
-#include "ImGui/imgui_impl_vulkan.h"
-#include "ImGui/imgui_impl_glfw.h"
+#include "GUIDebugger.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -44,13 +41,15 @@ private:
 
 	Texture2D texture;
 	std::vector<Mesh> MeshList;
+	GUIDebugger guiDebugger;
 
 	VkDescriptorPool imGuiDescriptorPool;
 	VkCommandPool imGuiCommandPools;
 	VkCommandBuffer imGuiCommandBuffers;
 
-	void Update();
-	void UpdateCommandBuffers();
+	void InitializeGUIDebugger();
+	void Update(uint32_t NextFrameIndex);
+	void UpdateCommandBuffers(uint32_t NextFrameIndex);
 	void Draw();
 
 public:

@@ -8,7 +8,6 @@
 #include <array>
 #include "InputAttachment.h"
 #include "Mesh.h"
-#include "GUIDebugger.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -53,8 +52,6 @@ private:
 	int PresentFamily = -1;
 
 	std::vector<VkLayerProperties> VulkanLayers;
-	std::vector<Mesh>* MeshList;
-
 
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkFormat findDepthFormat();
@@ -69,24 +66,20 @@ private:
 	void InitializeFramebuffers();
 	void InitializeCommandBuffers();
 	void InitializeSyncObjects();
-	void InitializeGUIDebugger(GLFWwindow* window);
 	
 public:
 
 	VulkanRenderer();
-	VulkanRenderer(GLFWwindow* window, std::vector<Mesh>* meshList);
+	VulkanRenderer(GLFWwindow* window);
 	~VulkanRenderer();
 
 	size_t currentFrame = 0;
-	GUIDebugger guiDebugger;
 	VkCommandPool SubCommandPool;
 	std::vector<VkCommandBuffer> SubCommandBuffers;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
 
-	void UpdateCommandBuffers();
 	void UpdateSwapChain(GLFWwindow* window);
-	void Update(uint32_t currentImage);
 	uint32_t StartFrame(GLFWwindow* window);
 	void EndFrame(GLFWwindow* window, uint32_t imageIndex);
 	void DestoryVulkan();

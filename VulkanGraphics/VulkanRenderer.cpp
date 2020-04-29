@@ -5,10 +5,8 @@ VulkanRenderer::VulkanRenderer()
 {
 }
 
-VulkanRenderer::VulkanRenderer(GLFWwindow* window, std::vector<Mesh>* meshList)
+VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 {
-	MeshList = meshList;
-
 	InitializeVulkan(window);
 	swapChain = VulkanSwapChain(window, Device, PhysicalDevice, Surface);
 	InitializeRenderPass();
@@ -18,7 +16,6 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window, std::vector<Mesh>* meshList)
 
 	auto a = swapChain.GetSwapChainResolution();
 	GraphicsPipeline = ForwardRenderingPipeline(a, RenderPass, Device);
-	InitializeGUIDebugger(window);
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -420,47 +417,6 @@ void VulkanRenderer::InitializeSyncObjects()
 	}
 }
 
-void VulkanRenderer::InitializeGUIDebugger(GLFWwindow* window)
-{
-	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = Instance;
-	init_info.PhysicalDevice = PhysicalDevice;
-	init_info.Device = Device;
-	init_info.QueueFamily = GraphicsFamily;
-	init_info.Queue = GraphicsQueue;
-	init_info.PipelineCache = VK_NULL_HANDLE;
-	init_info.Allocator = nullptr;
-	init_info.MinImageCount = 3;
-	init_info.ImageCount = 3;
-
-	guiDebugger = GUIDebugger(init_info, window, RenderPass);
-}
-
-void VulkanRenderer::UpdateCommandBuffers()
-{
-	for (size_t i = 0; i < SubCommandBuffers.size(); i++)
-	{
-		VkCommandBufferInheritanceInfo InheritanceInfo = {};
-		InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-		InheritanceInfo.renderPass = RenderPass;
-		InheritanceInfo.framebuffer = swapChainFramebuffers[i];
-
-		VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
-		BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-		BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
-
-		vkBeginCommandBuffer(SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
-		for (auto mesh : *MeshList)
-		{
-			mesh.SecBufferDraw(SubCommandBuffers[i], BeginSecondaryCommandBuffer, GraphicsPipeline.ShaderPipeline, GraphicsPipeline.ShaderPipelineLayout, i);
-		}
-		if (vkEndCommandBuffer(SubCommandBuffers[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to record command buffer!");
-		}
-	}
-}
-
 void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 {
 	int width = 0, height = 0;
@@ -497,28 +453,6 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	GraphicsPipeline.UpdateGraphicsPipeLine(a, RenderPass, Device);
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
-	UpdateCommandBuffers();
-}
-
-void VulkanRenderer::Update(uint32_t currentImage)
-{
-	static auto startTime = std::chrono::high_resolution_clock::now();
-
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-	for (auto mesh : *MeshList)
-	{
-		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj = glm::perspective(glm::radians(45.0f), swapChain.GetSwapChainResolution().width / (float)swapChain.GetSwapChainResolution().height, 0.1f, 10.0f);
-		ubo.proj[1][1] *= -1;
-
-		mesh.UpdateUniformBuffer(ubo, currentImage);
-	}
-
-	guiDebugger.UpdateCommandBuffers(currentImage, RenderPass, swapChainFramebuffers[currentImage]);
 }
 
 uint32_t VulkanRenderer::StartFrame(GLFWwindow* window)
@@ -543,8 +477,6 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 	std::array<VkClearValue, 2> clearValues = {};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 	clearValues[1].depthStencil = { 1.0f, 0 };
-
-	Update(imageIndex);
 
 	if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
 		vkWaitForFences(Device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
@@ -647,8 +579,6 @@ void VulkanRenderer::DestoryVulkan()
 		vkDestroySemaphore(Device, imageAvailableSemaphores[i], nullptr);
 		vkDestroyFence(Device, inFlightFences[i], nullptr);
 	}
-
-	guiDebugger.ShutDown(Device);
 
 	vkDestroyDevice(Device, nullptr);
 
