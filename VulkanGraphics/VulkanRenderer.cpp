@@ -19,7 +19,6 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window, std::vector<Mesh>* meshList)
 	auto a = swapChain.GetSwapChainResolution();
 	GraphicsPipeline = ForwardRenderingPipeline(a, RenderPass, Device);
 	InitializeGUIDebugger(window);
-	UpdateRendererInfo();
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -437,24 +436,6 @@ void VulkanRenderer::InitializeGUIDebugger(GLFWwindow* window)
 	guiDebugger = GUIDebugger(init_info, window, RenderPass);
 }
 
-void VulkanRenderer::UpdateRendererInfo()
-{
-	RendererInfo = VulkanRendererInfo();
-	RendererInfo.Device = Device;
-	RendererInfo.GraphicsQueue = GraphicsQueue;
-	RendererInfo.Instance = Instance;
-	RendererInfo.PhysicalDevice = PhysicalDevice;
-	RendererInfo.PresentQueue = PresentQueue;
-	RendererInfo.RenderPass = RenderPass;
-	RendererInfo.Surface = Surface;
-	RendererInfo.ShaderPipeline = GraphicsPipeline.ShaderPipeline;
-	RendererInfo.ShaderPipelineLayout = GraphicsPipeline.ShaderPipelineLayout;
-	RendererInfo.DescriptorSetLayout = GraphicsPipeline.ShaderPipelineDescriptorLayout;
-	RendererInfo.SubCommandPool = SubCommandPool;
-	RendererInfo.SwapChainImageCount = swapChain.GetSwapChainImageCount();
-	RendererInfo.SwapChainResolution = swapChain.GetSwapChainResolution();
-}
-
 void VulkanRenderer::UpdateCommandBuffers()
 {
 	for (size_t i = 0; i < SubCommandBuffers.size(); i++)
@@ -517,7 +498,6 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 	UpdateCommandBuffers();
-	UpdateRendererInfo();
 }
 
 void VulkanRenderer::Update(uint32_t currentImage)
@@ -541,25 +521,28 @@ void VulkanRenderer::Update(uint32_t currentImage)
 	guiDebugger.UpdateCommandBuffers(currentImage, RenderPass, swapChainFramebuffers[currentImage]);
 }
 
-void VulkanRenderer::Draw(GLFWwindow* window)
+uint32_t VulkanRenderer::StartFrame(GLFWwindow* window)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
 	VkResult result = vkAcquireNextImageKHR(Device, swapChain.GetSwapChain(), UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
-	std::array<VkClearValue, 2> clearValues = {};
-	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	clearValues[1].depthStencil = { 1.0f, 0 };
-
 	if (result == VK_ERROR_OUT_OF_DATE_KHR)
 	{
 		UpdateSwapChain(window);
-		return;
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
+
+	return imageIndex;
+}
+void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
+{
+	std::array<VkClearValue, 2> clearValues = {};
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
 
 	Update(imageIndex);
 
@@ -567,10 +550,6 @@ void VulkanRenderer::Draw(GLFWwindow* window)
 		vkWaitForFences(Device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
 	}
 	imagesInFlight[imageIndex] = inFlightFences[currentFrame];
-
-	std::vector<VkCommandBuffer> RunCommandBuffers = {};
-	RunCommandBuffers.emplace_back(SubCommandBuffers[imageIndex]);
-	RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(imageIndex));
 
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -623,7 +602,7 @@ void VulkanRenderer::Draw(GLFWwindow* window)
 
 	presentInfo.pImageIndices = &imageIndex;
 
-	result = vkQueuePresentKHR(PresentQueue, &presentInfo);
+	VkResult result = vkQueuePresentKHR(PresentQueue, &presentInfo);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
 	{

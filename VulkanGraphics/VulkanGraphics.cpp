@@ -29,15 +29,14 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = VulkanRenderer(Window.GetWindowPtr(), &MeshList);
 	
-	 RendererInfo = renderer.GetRendererInfo();
 
 	VulkanDevice DeviceInfo = {};
-	DeviceInfo.Device = RendererInfo->Device;
-	DeviceInfo.PhysicalDevice = RendererInfo->PhysicalDevice;
-	DeviceInfo.CommandPool = RendererInfo->SubCommandPool;
-	DeviceInfo.GraphicsQueue = RendererInfo->GraphicsQueue;
-	DeviceInfo.SwapChainSize = RendererInfo->SwapChainImageCount;
-	DeviceInfo.descriptorSetLayout = RendererInfo->DescriptorSetLayout;
+	DeviceInfo.Device = *GetDevice(renderer);
+	DeviceInfo.PhysicalDevice = *GetPhysicalDevice(renderer);
+	DeviceInfo.CommandPool = renderer.SubCommandPool;
+	DeviceInfo.GraphicsQueue = *GetGraphicsQueue(renderer);
+	DeviceInfo.SwapChainSize = GetSwapChainImageCount(renderer);
+	DeviceInfo.descriptorSetLayout = *GetDescriptorSetLayout(renderer);
 
 	texture = Texture2D(DeviceInfo, "texture/texture.jpg");
 	std::vector<Texture2D> textureList = { texture, texture };
@@ -48,8 +47,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 VulkanGraphics::~VulkanGraphics()
 {
-  RendererInfo = renderer.GetRendererInfo();
-	vkDeviceWaitIdle(RendererInfo->Device);
+	vkDeviceWaitIdle(*GetDevice(renderer));
 
 	for (auto mesh : MeshList)
 	{
@@ -63,7 +61,7 @@ VulkanGraphics::~VulkanGraphics()
 
 void VulkanGraphics::Update()
 {
-	renderer.guiDebugger.UpdateGuiDebugger();
+
 }
 
 void VulkanGraphics::UpdateCommandBuffers()
@@ -72,8 +70,11 @@ void VulkanGraphics::UpdateCommandBuffers()
 
 void VulkanGraphics::Draw()
 {
-
-	renderer.Draw(Window.GetWindowPtr());
+	auto NextFrame = renderer.StartFrame(Window.GetWindowPtr());
+	renderer.RunCommandBuffers.clear();
+	renderer.RunCommandBuffers.emplace_back(renderer.SubCommandBuffers[NextFrame]);
+	renderer.RunCommandBuffers.emplace_back(renderer.guiDebugger.GetCommandBuffers(NextFrame));
+	renderer.EndFrame(Window.GetWindowPtr(), NextFrame);
 }
 
 void VulkanGraphics::MainLoop()
@@ -81,6 +82,15 @@ void VulkanGraphics::MainLoop()
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		{
+			ImGui::Begin("Hello, world!");
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::End();
+		}
+		ImGui::Render();
 		UpdateCommandBuffers();
 		Update();
 		Draw();

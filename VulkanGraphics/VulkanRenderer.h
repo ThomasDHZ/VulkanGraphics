@@ -19,28 +19,10 @@ const std::vector<const char*> deviceExtensions = {
 };
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
-struct VulkanRendererInfo
-{
-	VkInstance Instance = VK_NULL_HANDLE;
-	VkDevice Device = VK_NULL_HANDLE;
-	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
-	VkSurfaceKHR Surface = VK_NULL_HANDLE;
-	VkQueue GraphicsQueue = VK_NULL_HANDLE;
-	VkQueue PresentQueue = VK_NULL_HANDLE;
-	VkRenderPass RenderPass = VK_NULL_HANDLE;
-	VkDescriptorSetLayout DescriptorSetLayout = VK_NULL_HANDLE;
-	VkCommandPool SubCommandPool = VK_NULL_HANDLE;
-	VkPipeline ShaderPipeline = VK_NULL_HANDLE;
-	VkPipelineLayout ShaderPipelineLayout = VK_NULL_HANDLE;
-	VkExtent2D SwapChainResolution = VkExtent2D();
-	uint32_t SwapChainImageCount = 0;
-};
-
 class VulkanRenderer
 {
 	friend class VulkanResources;
 private:
-	size_t currentFrame = 0;
 	bool framebufferResized = false;
 
 	VkInstance Instance = VK_NULL_HANDLE;
@@ -59,7 +41,6 @@ private:
 	ForwardRenderingPipeline GraphicsPipeline;
 
 	VkCommandPool MainCommandPool;
-	VkCommandPool SubCommandPool;
 
 	std::vector<VkCommandBuffer> MainCommandBuffer;
 
@@ -72,8 +53,6 @@ private:
 	int PresentFamily = -1;
 
 	std::vector<VkLayerProperties> VulkanLayers;
-
-	VulkanRendererInfo RendererInfo;
 	std::vector<Mesh>* MeshList;
 
 
@@ -91,7 +70,6 @@ private:
 	void InitializeCommandBuffers();
 	void InitializeSyncObjects();
 	void InitializeGUIDebugger(GLFWwindow* window);
-	void UpdateRendererInfo();
 	
 public:
 
@@ -99,15 +77,17 @@ public:
 	VulkanRenderer(GLFWwindow* window, std::vector<Mesh>* meshList);
 	~VulkanRenderer();
 
+	size_t currentFrame = 0;
 	GUIDebugger guiDebugger;
+	VkCommandPool SubCommandPool;
 	std::vector<VkCommandBuffer> SubCommandBuffers;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
+	std::vector<VkCommandBuffer> RunCommandBuffers = {};
 
 	void UpdateCommandBuffers();
 	void UpdateSwapChain(GLFWwindow* window);
 	void Update(uint32_t currentImage);
-	void Draw(GLFWwindow* window);
+	uint32_t StartFrame(GLFWwindow* window);
+	void EndFrame(GLFWwindow* window, uint32_t imageIndex);
 	void DestoryVulkan();
-
-	VulkanRendererInfo* GetRendererInfo() { return &RendererInfo; };
 };

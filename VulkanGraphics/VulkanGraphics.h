@@ -39,12 +39,15 @@ const std::vector<uint16_t> indices = {
 class VulkanGraphics : VulkanResources
 {
 private:
-	VulkanRendererInfo* RendererInfo;
 	VulkanWindow Window;
 	VulkanRenderer renderer;
 
 	Texture2D texture;
 	std::vector<Mesh> MeshList;
+
+	VkDescriptorPool imGuiDescriptorPool;
+	VkCommandPool imGuiCommandPools;
+	VkCommandBuffer imGuiCommandBuffers;
 
 	void Update();
 	void UpdateCommandBuffers();
