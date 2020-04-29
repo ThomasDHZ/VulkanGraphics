@@ -453,6 +453,8 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	GraphicsPipeline.UpdateGraphicsPipeLine(a, RenderPass, Device);
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
+
+	UpdateCommandBuffers = true;
 }
 
 uint32_t VulkanRenderer::StartFrame(GLFWwindow* window)

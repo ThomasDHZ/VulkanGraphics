@@ -39,7 +39,7 @@ private:
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
 
-	VkCommandPool MainCommandPool;
+
 
 	std::vector<VkCommandBuffer> MainCommandBuffer;
 
@@ -74,10 +74,13 @@ public:
 	~VulkanRenderer();
 
 	size_t currentFrame = 0;
+	VkCommandPool MainCommandPool;
 	VkCommandPool SubCommandPool;
 	std::vector<VkCommandBuffer> SubCommandBuffers;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
+
+	bool UpdateCommandBuffers = false;
 
 	void UpdateSwapChain(GLFWwindow* window);
 	uint32_t StartFrame(GLFWwindow* window);

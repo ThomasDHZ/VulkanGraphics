@@ -33,7 +33,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	VulkanDevice DeviceInfo = {};
 	DeviceInfo.Device = *GetDevice(renderer);
 	DeviceInfo.PhysicalDevice = *GetPhysicalDevice(renderer);
-	DeviceInfo.CommandPool = renderer.SubCommandPool;
+	DeviceInfo.CommandPool = renderer.MainCommandPool;
 	DeviceInfo.GraphicsQueue = *GetGraphicsQueue(renderer);
 	DeviceInfo.SwapChainSize = GetSwapChainImageCount(renderer);
 	DeviceInfo.descriptorSetLayout = *GetDescriptorSetLayout(renderer);
@@ -44,7 +44,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	InitializeGUIDebugger();
 	MeshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
 
-	for (size_t i = 0; i < renderer.SubCommandBuffers.size(); i++)
+	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
 		VkCommandBufferInheritanceInfo InheritanceInfo = {};
 		InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
@@ -119,6 +119,33 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 {
+	if (renderer.UpdateCommandBuffers)
+	{
+		for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
+		{
+			VkCommandBufferInheritanceInfo InheritanceInfo = {};
+			InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+			InheritanceInfo.renderPass = *GetRenderPass(renderer);
+			InheritanceInfo.framebuffer = renderer.swapChainFramebuffers[i];
+
+			VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
+			BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+			BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
+
+			vkBeginCommandBuffer(renderer.SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
+			for (auto mesh : MeshList)
+			{
+				mesh.SecBufferDraw(renderer.SubCommandBuffers[i], BeginSecondaryCommandBuffer, *GetShaderPipeline(renderer), *GetShaderPipelineLayout(renderer), i);
+			}
+			if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
+				throw std::runtime_error("failed to record command buffer!");
+			}
+		}
+
+		renderer.UpdateCommandBuffers = false;
+	}
+
 	guiDebugger.UpdateCommandBuffers(NextFrameIndex, *GetRenderPass(renderer), renderer.swapChainFramebuffers[NextFrameIndex]);
 }
 

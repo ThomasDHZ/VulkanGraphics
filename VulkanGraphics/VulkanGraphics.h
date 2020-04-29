@@ -43,10 +43,6 @@ private:
 	std::vector<Mesh> MeshList;
 	GUIDebugger guiDebugger;
 
-	VkDescriptorPool imGuiDescriptorPool;
-	VkCommandPool imGuiCommandPools;
-	VkCommandBuffer imGuiCommandBuffers;
-
 	void InitializeGUIDebugger();
 	void Update(uint32_t NextFrameIndex);
 	void UpdateCommandBuffers(uint32_t NextFrameIndex);
