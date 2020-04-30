@@ -7,7 +7,7 @@ CubeMapTexture::CubeMapTexture() : Texture()
 {
 }
 
-CubeMapTexture::CubeMapTexture(VulkanDevice deviceInfo, CubeMapLayout CubeMapFiles) : Texture(deviceInfo, TextureType::vkTextureCube)
+CubeMapTexture::CubeMapTexture(VulkanRenderer* renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, TextureType::vkTextureCube)
 {
 	SetUpCubeMapImage(CubeMapFiles);
 	CreateImageView();
@@ -39,17 +39,17 @@ void CubeMapTexture::SetUpCubeMapImage(CubeMapLayout CubeMapFiles)
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(*renderer), *GetPhysicalDevice(*renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(*GetDevice(*renderer), stagingBufferMemory, 0, imageSize, 0, &data);
 
 	for (int i = 0; i < 6; ++i)
 	{
 		memcpy(static_cast<char*>(data) + (i * layerSize), SkyBoxLayout[i].GetImageData(), static_cast<size_t>(layerSize));
 	}
 
-	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(*renderer), stagingBufferMemory);
 
 
 	CreateImage();
@@ -58,8 +58,8 @@ void CubeMapTexture::SetUpCubeMapImage(CubeMapLayout CubeMapFiles)
 	CopyBufferToImage(stagingBuffer);
 	TransitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(*renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(*renderer), stagingBufferMemory, nullptr);
 }
 
 void CubeMapTexture::CreateTextureSampler()

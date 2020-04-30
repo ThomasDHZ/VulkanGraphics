@@ -7,7 +7,6 @@
 #include "ForwardRenderingPipeline.h"
 #include <array>
 #include "InputAttachment.h"
-#include "Mesh.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -20,6 +19,7 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 
 class VulkanRenderer
 {
+	friend class VulkanGraphics;
 	friend class VulkanResources;
 private:
 	bool framebufferResized = false;
@@ -32,14 +32,11 @@ private:
 	VkQueue PresentQueue = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
 
-
 	InputAttachment DepthAttachment;
 
 	VulkanDebugger VulkanDebug;
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
-
-
 
 	std::vector<VkCommandBuffer> MainCommandBuffer;
 
@@ -66,15 +63,10 @@ private:
 	void InitializeFramebuffers();
 	void InitializeCommandBuffers();
 	void InitializeSyncObjects();
-	
-public:
 
-	VulkanRenderer();
-	VulkanRenderer(GLFWwindow* window);
-	~VulkanRenderer();
+protected:
 
 	size_t currentFrame = 0;
-	VkCommandPool MainCommandPool;
 	VkCommandPool SubCommandPool;
 	std::vector<VkCommandBuffer> SubCommandBuffers;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -86,4 +78,12 @@ public:
 	uint32_t StartFrame(GLFWwindow* window);
 	void EndFrame(GLFWwindow* window, uint32_t imageIndex);
 	void DestoryVulkan();
+
+public:
+
+	VulkanRenderer();
+	VulkanRenderer(GLFWwindow* window);
+	~VulkanRenderer();
+
+	VkCommandPool MainCommandPool;
 };

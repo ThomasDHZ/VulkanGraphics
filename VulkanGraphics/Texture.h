@@ -2,9 +2,10 @@
 
 #include "Structs.h"
 #include "Pixel.h"
+#include "VulkanResources.h"
 #include <string>
 
-class Texture
+class Texture : protected VulkanResources
 {
 protected:
 	enum TextureType
@@ -14,8 +15,7 @@ protected:
 	};
 
 	std::string FileName;
-
-	VulkanDevice DeviceInfo;
+	VulkanRenderer* renderer;
 	TextureType TypeOfTexture;
 
 	void TransitionImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -32,9 +32,10 @@ public:
 	VkSampler textureSampler;
 
 	Texture();
-	Texture(VulkanDevice deviceInfo, TextureType textureType);
+	Texture(VulkanRenderer* Renderer, TextureType textureType);
 	~Texture();
 
+	void Update();
 	void CreateImageView();
 	void CreateTextureSampler(VkSamplerCreateInfo SamplerInfo);
 	void Destroy();

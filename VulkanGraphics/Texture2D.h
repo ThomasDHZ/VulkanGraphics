@@ -32,8 +32,8 @@ public:
 	std::vector<Pixel> PixelImage;
 
 	Texture2D();
-	Texture2D(VulkanDevice deviceInfo, std::string TexturePath);
-	Texture2D(VulkanDevice deviceInfo, int width, int height, Pixel TextureColor);
+	Texture2D(VulkanRenderer* renderer, std::string TexturePath);
+	Texture2D(VulkanRenderer* renderer, int width, int height, Pixel TextureColor);
 	~Texture2D();
 
 	void SetPixel(glm::ivec2 pos, Pixel pixel);

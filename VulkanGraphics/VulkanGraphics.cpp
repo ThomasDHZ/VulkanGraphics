@@ -28,7 +28,6 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = VulkanRenderer(Window.GetWindowPtr());
-	
 
 	VulkanDevice DeviceInfo = {};
 	DeviceInfo.Device = *GetDevice(renderer);
@@ -38,7 +37,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	DeviceInfo.SwapChainSize = GetSwapChainImageCount(renderer);
 	DeviceInfo.descriptorSetLayout = *GetDescriptorSetLayout(renderer);
 
-	texture = Texture2D(DeviceInfo, "texture/texture.jpg");
+	texture = Texture2D(&renderer, "texture/texture.jpg");
 	std::vector<Texture2D> textureList = { texture, texture };
 
 	InitializeGUIDebugger();
@@ -115,6 +114,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 
 		mesh.UpdateUniformBuffer(ubo, NextFrameIndex);
 	}
+	texture.Update();
 }
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)

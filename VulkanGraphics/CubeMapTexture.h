@@ -19,7 +19,7 @@ private:
 	void CreateTextureSampler();
 public:
 	CubeMapTexture();
-	CubeMapTexture(VulkanDevice deviceInfo, CubeMapLayout CubeMapFiles);
+	CubeMapTexture(VulkanRenderer* renderer, CubeMapLayout CubeMapFiles);
 	~CubeMapTexture();
 };
 
