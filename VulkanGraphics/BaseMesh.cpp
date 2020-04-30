@@ -6,63 +6,52 @@ BaseMesh::BaseMesh()
 {
 }
 
-BaseMesh::BaseMesh(VulkanDevice deviceInfo)
+BaseMesh::BaseMesh(VulkanRenderer& Renderer)
 {
-	DeviceInfo = deviceInfo;
 }
 
-BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices)
+BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices)
 {
-	DeviceInfo = deviceInfo;
-
 	VertexSize = vertices.size();
 	IndiceSize = 0;
 
 	VertexList = vertices;
 
-	CreateVertexBuffer();
+	CreateVertexBuffer(Renderer);
 }
 
-BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Texture2D>& textureList)
+BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Texture2D>& textureList)
 {
-	DeviceInfo = deviceInfo;
-
 	IndiceSize = 0;
 
 	TextureList = textureList;
 }
 
-BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
+BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
 {
-	DeviceInfo = deviceInfo;
-
 	VertexSize = vertices.size();
 	IndiceSize = indices.size();
 
 	VertexList = vertices;
 	IndexList = indices;
 
-	CreateVertexBuffer();
-	CreateIndiceBuffer();
+	CreateVertexBuffer(Renderer);
+	CreateIndiceBuffer(Renderer);
 }
 
-BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<Texture2D>& textureList)
+BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<Texture2D>& textureList)
 {
-	DeviceInfo = deviceInfo;
-
 	VertexSize = vertices.size();
 	IndiceSize = 0;
 
 	VertexList = vertices;
 	TextureList = textureList;
 
-	CreateVertexBuffer();
+	CreateVertexBuffer(Renderer);
 }
 
-BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList)
+BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList)
 {
-	DeviceInfo = deviceInfo;
-
 	VertexSize = vertices.size();
 	IndiceSize = indices.size();
 
@@ -70,36 +59,36 @@ BaseMesh::BaseMesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices,
 	IndexList = indices;
 	TextureList = textureList;
 
-	CreateVertexBuffer();
-	CreateIndiceBuffer();
+	CreateVertexBuffer(Renderer);
+	CreateIndiceBuffer(Renderer);
 }
 
 BaseMesh::~BaseMesh()
 {
 }
 
-void BaseMesh::CreateVertexBuffer()
+void BaseMesh::CreateVertexBuffer(VulkanRenderer& Renderer)
 {
 	VkDeviceSize bufferSize = sizeof(VertexList[0]) * VertexList.size();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, VertexList.data(), (size_t)bufferSize);
-	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
 
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+	VulkanBufferManager::CopyBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), stagingBuffer, vertexBuffer, bufferSize, Renderer.MainCommandPool, *GetGraphicsQueue(Renderer));
 
-	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
 }
 
-void BaseMesh::CreateIndiceBuffer()
+void BaseMesh::CreateIndiceBuffer(VulkanRenderer& Renderer)
 {
 	if (IndiceSize != 0)
 	{
@@ -107,23 +96,23 @@ void BaseMesh::CreateIndiceBuffer()
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 		void* data;
-		vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, IndexList.data(), (size_t)bufferSize);
-		vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+		vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
 
-		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-		VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, indexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+		VulkanBufferManager::CopyBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), stagingBuffer, indexBuffer, bufferSize, Renderer.MainCommandPool, *GetGraphicsQueue(Renderer));
 
-		vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
-		vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+		vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
+		vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
 	}
 }
 
-void BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)
+void BaseMesh::CreateDescriptorPool(VulkanRenderer& Renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)
 {
 	std::vector<VkDescriptorPoolSize> DescriptorPoolList = {};
 
@@ -131,7 +120,7 @@ void BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> Descript
 	{
 		VkDescriptorPoolSize DescriptorPoolBinding = {};
 		DescriptorPoolBinding.type = DescriptorPool.DescriptorType;
-		DescriptorPoolBinding.descriptorCount = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
+		DescriptorPoolBinding.descriptorCount = static_cast<uint32_t>(GetSwapChainImageCount(Renderer));
 		DescriptorPoolList.emplace_back(DescriptorPoolBinding);
 	}
 
@@ -139,29 +128,29 @@ void BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo> Descript
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(DescriptorPoolList.size());
 	poolInfo.pPoolSizes = DescriptorPoolList.data();
-	poolInfo.maxSets = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
+	poolInfo.maxSets = static_cast<uint32_t>(GetSwapChainImageCount(Renderer));
 
-	if (vkCreateDescriptorPool(DeviceInfo.Device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+	if (vkCreateDescriptorPool(*GetDevice(Renderer), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
 }
 
-void BaseMesh::CreateDescriptorSets(VkDescriptorSetLayout layout)
+void BaseMesh::CreateDescriptorSets(VulkanRenderer& Renderer, VkDescriptorSetLayout layout)
 {
-	std::vector<VkDescriptorSetLayout> layouts(DeviceInfo.SwapChainSize, layout);
+	std::vector<VkDescriptorSetLayout> layouts(GetSwapChainImageCount(Renderer), layout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(GetSwapChainImageCount(Renderer));
 	allocInfo.pSetLayouts = layouts.data();
 
-	descriptorSets.resize(DeviceInfo.SwapChainSize);
-	if (vkAllocateDescriptorSets(DeviceInfo.Device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+	descriptorSets.resize(GetSwapChainImageCount(Renderer));
+	if (vkAllocateDescriptorSets(*GetDevice(Renderer), &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
 }
 
-void BaseMesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> descriptorWritesList)
+void BaseMesh::CreateDescriptorSetsData(VulkanRenderer& Renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList)
 {
 	std::vector<VkWriteDescriptorSet>  WriteDescriptorInfo = {};
 
@@ -185,30 +174,30 @@ void BaseMesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo> desc
 		WriteDescriptorInfo.emplace_back(DescriptorSet);
 	}
 
-	vkUpdateDescriptorSets(DeviceInfo.Device, static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
+	vkUpdateDescriptorSets(*GetDevice(Renderer), static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
 
-void BaseMesh::UpdateUniformBuffer(VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize)
+void BaseMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize)
 {
 	void* UniformData;
-	vkMapMemory(DeviceInfo.Device, UniformBufferMemory, 0, UniformSize, 0, &UniformData);
+	vkMapMemory(*GetDevice(Renderer), UniformBufferMemory, 0, UniformSize, 0, &UniformData);
 	memcpy(UniformData, UniformObjectData, UniformSize);
-	vkUnmapMemory(DeviceInfo.Device, UniformBufferMemory);
+	vkUnmapMemory(*GetDevice(Renderer), UniformBufferMemory);
 }
 
-void BaseMesh::Destory()
+void BaseMesh::Destory(VulkanRenderer& Renderer)
 {
 	if (indexBuffer != VK_NULL_HANDLE)
 	{
-		vkDestroyDescriptorPool(DeviceInfo.Device, descriptorPool, nullptr);
+		vkDestroyDescriptorPool(*GetDevice(Renderer), descriptorPool, nullptr);
 		descriptorPool = VK_NULL_HANDLE;
 	}
 
 	if (indexBuffer != VK_NULL_HANDLE)
 	{
-		vkDestroyBuffer(DeviceInfo.Device, indexBuffer, nullptr);
-		vkFreeMemory(DeviceInfo.Device, indexBufferMemory, nullptr);
+		vkDestroyBuffer(*GetDevice(Renderer), indexBuffer, nullptr);
+		vkFreeMemory(*GetDevice(Renderer), indexBufferMemory, nullptr);
 
 		indexBuffer = VK_NULL_HANDLE;
 		indexBufferMemory = VK_NULL_HANDLE;
@@ -216,8 +205,8 @@ void BaseMesh::Destory()
 
 	if (vertexBuffer != VK_NULL_HANDLE)
 	{
-		vkDestroyBuffer(DeviceInfo.Device, vertexBuffer, nullptr);
-		vkFreeMemory(DeviceInfo.Device, vertexBufferMemory, nullptr);
+		vkDestroyBuffer(*GetDevice(Renderer), vertexBuffer, nullptr);
+		vkFreeMemory(*GetDevice(Renderer), vertexBufferMemory, nullptr);
 
 		vertexBuffer = VK_NULL_HANDLE;
 		vertexBufferMemory = VK_NULL_HANDLE;

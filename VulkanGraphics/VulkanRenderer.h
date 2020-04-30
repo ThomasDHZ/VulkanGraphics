@@ -67,9 +67,6 @@ private:
 protected:
 
 	size_t currentFrame = 0;
-	VkCommandPool SubCommandPool;
-	std::vector<VkCommandBuffer> SubCommandBuffers;
-	std::vector<VkFramebuffer> swapChainFramebuffers;
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
 
 	bool UpdateCommandBuffers = false;
@@ -85,5 +82,8 @@ public:
 	VulkanRenderer(GLFWwindow* window);
 	~VulkanRenderer();
 
+	VkCommandPool SubCommandPool;
+	std::vector<VkCommandBuffer> SubCommandBuffers;
 	VkCommandPool MainCommandPool;
+	std::vector<VkFramebuffer> swapChainFramebuffers;
 };

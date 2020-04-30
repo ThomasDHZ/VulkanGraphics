@@ -7,18 +7,18 @@ CubeMapTexture::CubeMapTexture() : Texture()
 {
 }
 
-CubeMapTexture::CubeMapTexture(VulkanRenderer* renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, TextureType::vkTextureCube)
+CubeMapTexture::CubeMapTexture(VulkanRenderer& Renderer, CubeMapLayout CubeMapFiles) : Texture(Renderer, TextureType::vkTextureCube)
 {
-	SetUpCubeMapImage(CubeMapFiles);
-	CreateImageView();
-	CreateTextureSampler();
+	SetUpCubeMapImage(Renderer, CubeMapFiles);
+	CreateImageView(Renderer);
+	CreateTextureSampler(Renderer);
 }
 
 CubeMapTexture::~CubeMapTexture()
 {
 }
 
-void CubeMapTexture::SetUpCubeMapImage(CubeMapLayout CubeMapFiles)
+void CubeMapTexture::SetUpCubeMapImage(VulkanRenderer& Renderer, CubeMapLayout CubeMapFiles)
 {
 	std::vector<Image> SkyBoxLayout;
 	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Left));
@@ -39,30 +39,30 @@ void CubeMapTexture::SetUpCubeMapImage(CubeMapLayout CubeMapFiles)
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(*GetDevice(*renderer), *GetPhysicalDevice(*renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(*GetDevice(*renderer), stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, imageSize, 0, &data);
 
 	for (int i = 0; i < 6; ++i)
 	{
 		memcpy(static_cast<char*>(data) + (i * layerSize), SkyBoxLayout[i].GetImageData(), static_cast<size_t>(layerSize));
 	}
 
-	vkUnmapMemory(*GetDevice(*renderer), stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
 
 
-	CreateImage();
+	CreateImage(Renderer);
 
-	TransitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	CopyBufferToImage(stagingBuffer);
-	TransitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	CopyBufferToImage(Renderer, stagingBuffer);
+	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	vkDestroyBuffer(*GetDevice(*renderer), stagingBuffer, nullptr);
-	vkFreeMemory(*GetDevice(*renderer), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
 }
 
-void CubeMapTexture::CreateTextureSampler()
+void CubeMapTexture::CreateTextureSampler(VulkanRenderer& Renderer)
 {
 	VkSamplerCreateInfo SamplerInfo = {};
 	SamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -78,5 +78,5 @@ void CubeMapTexture::CreateTextureSampler()
 	SamplerInfo.compareEnable = VK_FALSE;
 	SamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 
-	Texture::CreateTextureSampler(SamplerInfo);
+	Texture::CreateTextureSampler(Renderer, SamplerInfo);
 }

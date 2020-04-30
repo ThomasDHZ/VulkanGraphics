@@ -27,19 +27,19 @@ private:
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 
-	void CreateTextureSampler();
+	void CreateTextureSampler(VulkanRenderer& Renderer);
 public:
 	std::vector<Pixel> PixelImage;
 
 	Texture2D();
-	Texture2D(VulkanRenderer* renderer, std::string TexturePath);
-	Texture2D(VulkanRenderer* renderer, int width, int height, Pixel TextureColor);
+	Texture2D(VulkanRenderer& Renderer, std::string TexturePath);
+	Texture2D(VulkanRenderer& Renderer, int width, int height, Pixel TextureColor);
 	~Texture2D();
 
-	void SetPixel(glm::ivec2 pos, Pixel pixel);
-	void CopyRange(const Texture2D& texture, int CopyWidth, int CopyHeight);
-	void UpdateTexture(Pixel pixel);
-	void UpdateTexture();
+	void SetPixel(VulkanRenderer& Renderer, glm::ivec2 pos, Pixel pixel);
+	void CopyRange(VulkanRenderer& Renderer, const Texture2D& texture, int CopyWidth, int CopyHeight);
+	void UpdateTexture(VulkanRenderer& Renderer, Pixel pixel);
+	void UpdateTexture(VulkanRenderer& Renderer);
 
 	Pixel GetPixel(glm::ivec2 pos);
 	void* GetPixelPtr(glm::ivec2 pos);

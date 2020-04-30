@@ -16,17 +16,17 @@ class Screen2DMesh : public BaseMesh
 {
 private:
 
-	void CreateVertexBuffer();
-	void CreateDescriptorPool();
-	void CreateDescriptorSets(const Texture2D& CurrentScreenTexture, const Texture2D& SpriteLayer);
+	void CreateVertexBuffer(VulkanRenderer& Renderer);
+	void CreateDescriptorPool(VulkanRenderer& Renderer);
+	void CreateDescriptorSets(VulkanRenderer& Renderer, const Texture2D& CurrentScreenTexture, const Texture2D& SpriteLayer);
 
 public:
 	Screen2DMesh();
-	Screen2DMesh(VulkanDevice deviceInfo, std::vector<Texture2D>& TextureList);
+	Screen2DMesh(VulkanRenderer& Renderer, std::vector<Texture2D>& TextureList);
 	~Screen2DMesh();
 
 	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentImage);
-	void UpdateSwapChain(const Texture2D& CurrentScreenTexture, const Texture2D& SpriteScreenTexture);
+	void UpdateSwapChain(VulkanRenderer& Renderer, const Texture2D& CurrentScreenTexture, const Texture2D& SpriteScreenTexture);
 };
 
 

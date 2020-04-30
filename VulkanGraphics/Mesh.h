@@ -46,9 +46,9 @@ class Mesh : public BaseMesh
 {
 private:
 
-	void CreateUniformBuffers();
-	void CreateDescriptorPool();
-	void CreateDescriptorSets();
+	void CreateUniformBuffers(VulkanRenderer& Renderer);
+	void CreateDescriptorPool(VulkanRenderer& Renderer);
+	void CreateDescriptorSets(VulkanRenderer& Renderer);
 
 public:
 	std::string MeshName;
@@ -60,13 +60,11 @@ public:
 	glm::vec3 MeshScale = glm::vec3(1.0f);
 
 	Mesh();
-	Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
+	Mesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
 	~Mesh();
 
-	void Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame);
-	void SecBufferDraw(VkCommandBuffer& commandbuffer, VkCommandBufferBeginInfo cmdInfo, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame);
-	void UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage);
-	void UpdateSwapChain();
-	void Destroy();
+	void Draw(VulkanRenderer& Renderer, int currentFrame);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, int currentImage);
+	void Destroy(VulkanRenderer& Renderer);
 };
 

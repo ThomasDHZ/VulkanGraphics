@@ -15,12 +15,11 @@ protected:
 	};
 
 	std::string FileName;
-	VulkanRenderer* renderer;
 	TextureType TypeOfTexture;
 
-	void TransitionImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout);
-	void CopyBufferToImage(VkBuffer buffer);
-	void CreateImage();
+	void TransitionImageLayout(VulkanRenderer& Renderer, VkImageLayout oldLayout, VkImageLayout newLayout);
+	void CopyBufferToImage(VulkanRenderer& Renderer, VkBuffer buffer);
+	void CreateImage(VulkanRenderer& Renderer);
 
 public:
 	int Width;
@@ -32,13 +31,12 @@ public:
 	VkSampler textureSampler;
 
 	Texture();
-	Texture(VulkanRenderer* Renderer, TextureType textureType);
+	Texture(VulkanRenderer& Renderer, TextureType textureType);
 	~Texture();
 
-	void Update();
-	void CreateImageView();
-	void CreateTextureSampler(VkSamplerCreateInfo SamplerInfo);
-	void Destroy();
+	void CreateImageView(VulkanRenderer& Renderer);
+	void CreateTextureSampler(VulkanRenderer& Renderer, VkSamplerCreateInfo SamplerInfo);
+	void Destroy(VulkanRenderer& Renderer);
 
 	std::string GetTextureName() { return FileName; }
 };

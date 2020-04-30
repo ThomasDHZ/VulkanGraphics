@@ -5,54 +5,54 @@ Screen2DMesh::Screen2DMesh() : BaseMesh()
 {
 }
 
-Screen2DMesh::Screen2DMesh(VulkanDevice deviceInfo, std::vector<Texture2D>& TextureList) : BaseMesh(deviceInfo, TextureList)
+Screen2DMesh::Screen2DMesh(VulkanRenderer& Renderer, std::vector<Texture2D>& TextureList) : BaseMesh(Renderer, TextureList)
 {
 	VertexSize = ScreenVertices.size();
 	IndiceSize = 0;
 
-	CreateVertexBuffer();
-	CreateDescriptorPool();
-	CreateDescriptorSets(TextureList[0], TextureList[1]);
+	CreateVertexBuffer(Renderer);
+	CreateDescriptorPool(Renderer);
+	CreateDescriptorSets(Renderer, TextureList[0], TextureList[1]);
 }
 
 Screen2DMesh::~Screen2DMesh()
 {
 }
 
-void Screen2DMesh::CreateVertexBuffer()
+void Screen2DMesh::CreateVertexBuffer(VulkanRenderer& Renderer)
 {
 	VkDeviceSize bufferSize = sizeof(ScreenVertices[0]) * ScreenVertices.size();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, ScreenVertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
 
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+	VulkanBufferManager::CopyBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), stagingBuffer, vertexBuffer, bufferSize, Renderer.MainCommandPool, *GetGraphicsQueue(Renderer));
 
-	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
 }
 
-void Screen2DMesh::CreateDescriptorPool()
+void Screen2DMesh::CreateDescriptorPool(VulkanRenderer& Renderer)
 {
 	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+	BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Screen2DMesh::CreateDescriptorSets(const Texture2D& CurrentScreenTexture, const Texture2D& spriteLayer)
+void Screen2DMesh::CreateDescriptorSets(VulkanRenderer& Renderer, const Texture2D& CurrentScreenTexture, const Texture2D& spriteLayer)
 {
-	BaseMesh::CreateDescriptorSets(DeviceInfo.descriptorSetLayout);
+	BaseMesh::CreateDescriptorSets(Renderer, *GetDescriptorSetLayout(Renderer));
 
 	VkDescriptorImageInfo BackGroundLayer = {};
 	BackGroundLayer.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -64,7 +64,7 @@ void Screen2DMesh::CreateDescriptorSets(const Texture2D& CurrentScreenTexture, c
 	SpriteLayer.imageView = spriteLayer.textureImageView;
 	SpriteLayer.sampler = spriteLayer.textureSampler;
 
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
 		std::array<WriteDescriptorSetInfo, 2>  WriteDescriptorInfo = {};
 
@@ -78,7 +78,7 @@ void Screen2DMesh::CreateDescriptorSets(const Texture2D& CurrentScreenTexture, c
 		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		WriteDescriptorInfo[1].DescriptorImageInfo = SpriteLayer;
 
-		BaseMesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
+		BaseMesh::CreateDescriptorSetsData(Renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
 }
 
@@ -94,8 +94,8 @@ void Screen2DMesh::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline
 	vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
 }
 
-void Screen2DMesh::UpdateSwapChain(const Texture2D& CurrentScreenTexture, const Texture2D& SpriteScreenTexture)
+void Screen2DMesh::UpdateSwapChain(VulkanRenderer& Renderer, const Texture2D& CurrentScreenTexture, const Texture2D& SpriteScreenTexture)
 {
-	CreateDescriptorPool();
-	CreateDescriptorSets(CurrentScreenTexture, SpriteScreenTexture);
+	CreateDescriptorPool(Renderer);
+	CreateDescriptorSets(Renderer, CurrentScreenTexture, SpriteScreenTexture);
 }

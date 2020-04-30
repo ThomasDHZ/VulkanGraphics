@@ -4,30 +4,30 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(VulkanDevice deviceInfo, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(deviceInfo, vertexList, indexList, textureList)
+Mesh::Mesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(Renderer, vertexList, indexList, textureList)
 {
-	CreateUniformBuffers();
-	CreateDescriptorPool();
-	CreateDescriptorSets();
+	CreateUniformBuffers(Renderer);
+	CreateDescriptorPool(Renderer);
+	CreateDescriptorSets(Renderer);
 }
 
 Mesh::~Mesh()
 {
 }
 
-void Mesh::CreateUniformBuffers()
+void Mesh::CreateUniformBuffers(VulkanRenderer& Renderer)
 {
 	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-	uniformBuffers.resize(DeviceInfo.SwapChainSize);
-	uniformBuffersMemory.resize(DeviceInfo.SwapChainSize);
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	uniformBuffers.resize(GetSwapChainImageCount(Renderer));
+	uniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
-		VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 	}
 }
 
-void Mesh::CreateDescriptorPool()
+void Mesh::CreateDescriptorPool(VulkanRenderer& Renderer)
 {
 	std::array<DescriptorPoolSizeInfo, 3>  DescriptorPoolInfo = {};
 
@@ -35,12 +35,12 @@ void Mesh::CreateDescriptorPool()
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-	BaseMesh::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+	BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Mesh::CreateDescriptorSets()
+void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 {
-	BaseMesh::CreateDescriptorSets(DeviceInfo.descriptorSetLayout);
+	BaseMesh::CreateDescriptorSets(Renderer, *GetDescriptorSetLayout(Renderer));
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -52,7 +52,7 @@ void Mesh::CreateDescriptorSets()
 	//SpecularMap.imageView = TextureList[1].textureImageView;
 	//SpecularMap.sampler = TextureList[1].textureSampler;
 
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
 		VkDescriptorBufferInfo bufferInfo = {};
 		bufferInfo.buffer = uniformBuffers[i];
@@ -76,70 +76,65 @@ void Mesh::CreateDescriptorSets()
 		//WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		//WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
 
-		Mesh::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
+		Mesh::CreateDescriptorSetsData(Renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
 }
 
-void Mesh::Draw(VkCommandBuffer commandbuffer, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame)
+void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 {
-	VkBuffer vertexBuffers[] = { vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
-
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipeline);
-	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	if (IndiceSize == 0)
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
-		vkCmdDraw(commandbuffer, VertexSize, 1, 0, 0);
+		VkCommandBufferInheritanceInfo InheritanceInfo = {};
+		InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+		InheritanceInfo.renderPass = *GetRenderPass(Renderer);
+		InheritanceInfo.framebuffer = Renderer.swapChainFramebuffers[i];
+
+		VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
+		BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+		BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
+
+		vkBeginCommandBuffer(Renderer.SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
+		VkBuffer vertexBuffers[] = { vertexBuffer };
+		VkDeviceSize offsets[] = { 0 };
+
+		vkCmdBindPipeline(Renderer.SubCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(Renderer));
+		vkCmdBindVertexBuffers(Renderer.SubCommandBuffers[i], 0, 1, vertexBuffers, offsets);
+		vkCmdBindDescriptorSets(Renderer.SubCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(Renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+		if (indexBuffer == VK_NULL_HANDLE)
+		{
+			vkCmdDraw(Renderer.SubCommandBuffers[i], VertexSize, 1, 0, 0);
+		}
+		else
+		{
+			vkCmdBindIndexBuffer(Renderer.SubCommandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdDrawIndexed(Renderer.SubCommandBuffers[i], static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
+		}
+		if (vkEndCommandBuffer(Renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
+		}
 	}
-	else
-	{
-		vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		vkCmdDrawIndexed(commandbuffer, static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
-	}
 }
 
-void Mesh::SecBufferDraw(VkCommandBuffer& commandbuffer, VkCommandBufferBeginInfo cmdInfo, VkPipeline ShaderPipeline, VkPipelineLayout ShaderPipelineLayout, int currentFrame)
+void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, int currentImage)
 {
-	VkBuffer vertexBuffers[] = { vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
-
-	vkCmdBindPipeline(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipeline);
-	vkCmdBindVertexBuffers(commandbuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(commandbuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-	vkCmdBindDescriptorSets(commandbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ShaderPipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	if (IndiceSize != 0)
-	{
-		vkCmdDrawIndexed(commandbuffer, static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
-	}
+	BaseMesh::UpdateUniformBuffer(Renderer, uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
 }
 
-void Mesh::UpdateUniformBuffer(UniformBufferObject ubo2, int currentImage)
+void Mesh::Destroy(VulkanRenderer& Renderer)
 {
-	BaseMesh::UpdateUniformBuffer(uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
-}
-
-void Mesh::UpdateSwapChain()
-{
- 	CreateUniformBuffers();
-	CreateDescriptorPool();
-	CreateDescriptorSets();
-}
-
-void Mesh::Destroy()
-{
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++) 
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
 		if (uniformBuffers[i] != VK_NULL_HANDLE)
 		{
-			vkDestroyBuffer(DeviceInfo.Device, uniformBuffers[i], nullptr);
-			vkFreeMemory(DeviceInfo.Device, uniformBuffersMemory[i], nullptr);
+			vkDestroyBuffer(*GetDevice(Renderer), uniformBuffers[i], nullptr);
+			vkFreeMemory(*GetDevice(Renderer), uniformBuffersMemory[i], nullptr);
 
 			uniformBuffers[i] = VK_NULL_HANDLE;
 			uniformBuffersMemory[i] = VK_NULL_HANDLE;
 		}
 	}
 
-	BaseMesh::Destory();
+	BaseMesh::Destory(Renderer);
 }
 

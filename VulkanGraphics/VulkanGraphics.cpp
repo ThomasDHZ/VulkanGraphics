@@ -29,39 +29,17 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = VulkanRenderer(Window.GetWindowPtr());
 
-	VulkanDevice DeviceInfo = {};
-	DeviceInfo.Device = *GetDevice(renderer);
-	DeviceInfo.PhysicalDevice = *GetPhysicalDevice(renderer);
-	DeviceInfo.CommandPool = renderer.MainCommandPool;
-	DeviceInfo.GraphicsQueue = *GetGraphicsQueue(renderer);
-	DeviceInfo.SwapChainSize = GetSwapChainImageCount(renderer);
-	DeviceInfo.descriptorSetLayout = *GetDescriptorSetLayout(renderer);
-
-	texture = Texture2D(&renderer, "texture/texture.jpg");
+	texture = Texture2D(renderer, "texture/texture.jpg");
 	std::vector<Texture2D> textureList = { texture, texture };
 
 	InitializeGUIDebugger();
-	MeshList.emplace_back(Mesh(DeviceInfo, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 
 	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
-		VkCommandBufferInheritanceInfo InheritanceInfo = {};
-		InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-		InheritanceInfo.renderPass = *GetRenderPass(renderer);
-		InheritanceInfo.framebuffer = renderer.swapChainFramebuffers[i];
-
-		VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
-		BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-		BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
-
-		vkBeginCommandBuffer(renderer.SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
 		for (auto mesh : MeshList)
 		{
-			mesh.SecBufferDraw(renderer.SubCommandBuffers[i], BeginSecondaryCommandBuffer, *GetShaderPipeline(renderer), *GetShaderPipelineLayout(renderer), i);
-		}
-		if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to record command buffer!");
+			mesh.Draw(renderer, i);
 		}
 	}
 }
@@ -72,9 +50,9 @@ VulkanGraphics::~VulkanGraphics()
 
 	for (auto mesh : MeshList)
 	{
-		mesh.Destroy();
+		mesh.Destroy(renderer);
 	}
-	texture.Destroy();
+	texture.Destroy(renderer);
 
 	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
@@ -112,9 +90,8 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 		ubo.proj = glm::perspective(glm::radians(45.0f), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
-		mesh.UpdateUniformBuffer(ubo, NextFrameIndex);
+		mesh.UpdateUniformBuffer(renderer, ubo, NextFrameIndex);
 	}
-	texture.Update();
 }
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
@@ -123,23 +100,9 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 	{
 		for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 		{
-			VkCommandBufferInheritanceInfo InheritanceInfo = {};
-			InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-			InheritanceInfo.renderPass = *GetRenderPass(renderer);
-			InheritanceInfo.framebuffer = renderer.swapChainFramebuffers[i];
-
-			VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
-			BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-			BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
-
-			vkBeginCommandBuffer(renderer.SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
 			for (auto mesh : MeshList)
 			{
-				mesh.SecBufferDraw(renderer.SubCommandBuffers[i], BeginSecondaryCommandBuffer, *GetShaderPipeline(renderer), *GetShaderPipelineLayout(renderer), i);
-			}
-			if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to record command buffer!");
+				mesh.Draw(renderer, i);
 			}
 		}
 
