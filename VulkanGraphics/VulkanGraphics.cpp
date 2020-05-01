@@ -82,16 +82,34 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	for (auto mesh : MeshList)
+	glm::vec3 cubePositions[] =
 	{
-		UniformBufferObject ubo{};
-		ubo.model = mat4
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj = glm::perspective(glm::radians(45.0f), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10.0f);
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
+
+	for (int x = 0; x < MeshList.size(); x++)
+	{
+		MeshList[x].MeshPosition = cubePositions[x];
+		UniformBufferObject ubo = {};
+		ubo.model = glm::mat4(1.0f);
+		ubo.model = glm::translate(ubo.model, MeshList[x].MeshPosition);
+		ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), MeshList[x].MeshRotate);
+		ubo.model = glm::scale(ubo.model, MeshList[x].MeshScale);
+		ubo.view = camera.GetViewMatrix();
+		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;
 
-		mesh.UpdateUniformBuffer(renderer, ubo, NextFrameIndex);
+		MeshList[x].UpdateUniformBuffer(renderer, ubo, NextFrameIndex);
 	}
 }
 
@@ -129,6 +147,8 @@ void VulkanGraphics::MainLoop()
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
+		UpdateMouse();
+		UpdateKeyboard();
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -139,5 +159,55 @@ void VulkanGraphics::MainLoop()
 		}
 		ImGui::Render();
 		Draw();
+	}
+}
+
+void VulkanGraphics::UpdateMouse()
+{
+	if (glfwGetMouseButton(Window.GetWindowPtr(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	{
+		glfwGetCursorPos(Window.GetWindowPtr(), &MouseXPos, &MouseYPos);
+		if (firstMouse)
+		{
+			lastX = MouseXPos;
+			lastY = MouseYPos;
+			firstMouse = false;
+		}
+
+		float xoffset = MouseXPos - lastX;
+		float yoffset = lastY - MouseYPos;
+
+		lastX = MouseXPos;
+		lastY = MouseYPos;
+
+		camera.UpdateMouse(xoffset, yoffset);
+	}
+	else
+	{
+		firstMouse = true;
+	}
+}
+
+void VulkanGraphics::UpdateKeyboard()
+{
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
+
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_W) == GLFW_PRESS)
+	{
+		camera.UpdateKeyboard(FORWARD, deltaTime);
+	}
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_S) == GLFW_PRESS)
+	{
+		camera.UpdateKeyboard(BACKWARD, deltaTime);
+	}
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_A) == GLFW_PRESS)
+	{
+		camera.UpdateKeyboard(LEFT, deltaTime);
+	}
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
+	{
+		camera.UpdateKeyboard(RIGHT, deltaTime);
 	}
 }
