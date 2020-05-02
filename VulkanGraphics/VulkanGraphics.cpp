@@ -32,25 +32,29 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	texture = Texture2D(renderer, "texture/texture.jpg");
 	std::vector<Texture2D> textureList = { texture, texture };
 
+	modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+
 	InitializeGUIDebugger();
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-
-	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
-	{
-		for (auto mesh : MeshList)
-		{
-			mesh.Draw(renderer, i);
-		}
-	}
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 }
 
 VulkanGraphics::~VulkanGraphics()
 {
 	vkDeviceWaitIdle(*GetDevice(renderer));
 
+	modelLoader.CleanTextureMemory(renderer);
 	for (auto mesh : MeshList)
 	{
 		mesh.Destroy(renderer);
+	}
+	for (auto model : ModelList)
+	{
+		model.Destroy(renderer);
 	}
 	texture.Destroy(renderer);
 
@@ -96,7 +100,6 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-
 	for (int x = 0; x < MeshList.size(); x++)
 	{
 		MeshList[x].MeshPosition = cubePositions[x];
@@ -111,6 +114,21 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 
 		MeshList[x].UpdateUniformBuffer(renderer, ubo, NextFrameIndex);
 	}
+
+	for (int x = 0; x < ModelList.size(); x++)
+	{
+		ModelList[x].ModelPosition = cubePositions[x];
+		UniformBufferObject ubo = {};
+		ubo.model = glm::mat4(1.0f);
+		ubo.model = glm::translate(ubo.model, ModelList[x].ModelPosition);
+		ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), ModelList[x].ModelRotate);
+		ubo.model = glm::scale(ubo.model, ModelList[x].ModelScale);
+		ubo.view = camera.GetViewMatrix();
+		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+		ubo.proj[1][1] *= -1;
+
+		ModelList[x].UpdateUniformBuffer(renderer, ubo, NextFrameIndex);
+	}
 }
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
@@ -119,9 +137,27 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 	{
 		for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 		{
+			VkCommandBufferInheritanceInfo InheritanceInfo = {};
+			InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+			InheritanceInfo.renderPass = *GetRenderPass(renderer);
+			InheritanceInfo.framebuffer = renderer.swapChainFramebuffers[i];
+
+			VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
+			BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+			BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
+
+			vkBeginCommandBuffer(renderer.SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
 			for (auto mesh : MeshList)
 			{
 				mesh.Draw(renderer, i);
+			}
+			for (auto model : ModelList)
+			{
+				model.Draw(renderer, i);
+			}
+			if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
+				throw std::runtime_error("failed to record command buffer!");
 			}
 		}
 

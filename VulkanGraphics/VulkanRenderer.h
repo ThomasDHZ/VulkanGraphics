@@ -69,7 +69,7 @@ protected:
 	size_t currentFrame = 0;
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
 
-	bool UpdateCommandBuffers = false;
+	bool UpdateCommandBuffers = true;
 
 	void UpdateSwapChain(GLFWwindow* window);
 	uint32_t StartFrame(GLFWwindow* window);

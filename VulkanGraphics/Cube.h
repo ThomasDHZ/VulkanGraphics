@@ -1,24 +1,5 @@
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <iostream>
-
-#include "VulkanRenderer.h"
-#include "Texture2D.h"
+#pragma once
 #include "Mesh.h"
-#include "VulkanWindow.h"
-#include "VulkanResources.h"
-#include "GUIDebugger.h"
-#include "Camera.h"
-#include "ModelLoader.h"
-#include "Model.h"
-
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
-
 
 const std::vector<Vertex> vertices =
 {
@@ -61,39 +42,12 @@ const std::vector<uint16_t> indices = {
 	16,17,18, 18,17,19,
 	20,23,21, 20,22,23
 };
-
-class VulkanGraphics : VulkanResources
+class Cube : public Mesh
 {
-private:
-	VulkanWindow Window;
-	VulkanRenderer renderer;
-	Camera camera;
-
-	ModelLoader modelLoader;
-	Model Nanosuit;
-
-	Texture2D texture;
-	std::vector<Mesh> MeshList;
-	std::vector<Model> ModelList;
-	GUIDebugger guiDebugger;
-
-	float deltaTime = 0.0f;
-	float lastFrame = 0.0f;
-	float lastX;
-	float lastY;
-	bool firstMouse;
-	double MouseXPos;
-	double MouseYPos;
-
-	void InitializeGUIDebugger();
-	void UpdateMouse();
-	void UpdateKeyboard();
-	void Update(uint32_t NextFrameIndex);
-	void UpdateCommandBuffers(uint32_t NextFrameIndex);
-	void Draw();
-
+	private:
 public:
-	VulkanGraphics(int Width, int Height, const char* AppName);
-	~VulkanGraphics();
-	void MainLoop();
+	Cube();
+	Cube(VulkanRenderer Renderer, glm::vec3 Position, glm::vec3 Rotation, glm::vec3 Scale, const std::vector<Texture2D>& textureList);
+	~Cube();
 };
+

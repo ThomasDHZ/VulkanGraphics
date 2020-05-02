@@ -8,8 +8,6 @@
 class BaseMesh : public VulkanResources
 {
 private:
-	void CreateVertexBuffer(VulkanRenderer& Renderer);
-	void CreateIndiceBuffer(VulkanRenderer& Renderer);
 
 protected:
 	int VertexSize;
@@ -18,6 +16,8 @@ protected:
 	std::vector<Vertex> VertexList;
 	std::vector<uint16_t> IndexList;
 
+	void CreateVertexBuffer(VulkanRenderer& Renderer);
+	void CreateIndiceBuffer(VulkanRenderer& Renderer);
 	void CreateDescriptorPool(VulkanRenderer& Renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
 	void CreateDescriptorSets(VulkanRenderer& Renderer, VkDescriptorSetLayout layout);
 	void CreateDescriptorSetsData(VulkanRenderer& Renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);

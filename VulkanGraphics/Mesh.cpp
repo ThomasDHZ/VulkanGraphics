@@ -11,6 +11,11 @@ Mesh::Mesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertexList, cons
 	CreateDescriptorSets(Renderer);
 }
 
+Mesh::Mesh(VulkanRenderer& Renderer, const std::vector<Texture2D>& textureList) : BaseMesh(Renderer, textureList)
+{
+
+}
+
 Mesh::~Mesh()
 {
 }
@@ -82,37 +87,20 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 
 void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 {
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	VkBuffer vertexBuffers[] = { vertexBuffer };
+	VkDeviceSize offsets[] = { 0 };
+
+	vkCmdBindPipeline(Renderer.SubCommandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(Renderer));
+	vkCmdBindVertexBuffers(Renderer.SubCommandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(Renderer.SubCommandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(Renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+	if (indexBuffer == VK_NULL_HANDLE)
 	{
-		VkCommandBufferInheritanceInfo InheritanceInfo = {};
-		InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-		InheritanceInfo.renderPass = *GetRenderPass(Renderer);
-		InheritanceInfo.framebuffer = Renderer.swapChainFramebuffers[i];
-
-		VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
-		BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-		BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
-
-		vkBeginCommandBuffer(Renderer.SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
-		VkBuffer vertexBuffers[] = { vertexBuffer };
-		VkDeviceSize offsets[] = { 0 };
-
-		vkCmdBindPipeline(Renderer.SubCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(Renderer));
-		vkCmdBindVertexBuffers(Renderer.SubCommandBuffers[i], 0, 1, vertexBuffers, offsets);
-		vkCmdBindDescriptorSets(Renderer.SubCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(Renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-		if (indexBuffer == VK_NULL_HANDLE)
-		{
-			vkCmdDraw(Renderer.SubCommandBuffers[i], VertexSize, 1, 0, 0);
-		}
-		else
-		{
-			vkCmdBindIndexBuffer(Renderer.SubCommandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-			vkCmdDrawIndexed(Renderer.SubCommandBuffers[i], static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
-		}
-		if (vkEndCommandBuffer(Renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to record command buffer!");
-		}
+		vkCmdDraw(Renderer.SubCommandBuffers[currentFrame], VertexSize, 1, 0, 0);
+	}
+	else
+	{
+		vkCmdBindIndexBuffer(Renderer.SubCommandBuffers[currentFrame], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(Renderer.SubCommandBuffers[currentFrame], static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
 	}
 }
 

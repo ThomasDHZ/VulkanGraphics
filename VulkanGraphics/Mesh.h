@@ -46,6 +46,7 @@ class Mesh : public BaseMesh
 {
 private:
 
+protected:
 	void CreateUniformBuffers(VulkanRenderer& Renderer);
 	void CreateDescriptorPool(VulkanRenderer& Renderer);
 	void CreateDescriptorSets(VulkanRenderer& Renderer);
@@ -61,6 +62,7 @@ public:
 
 	Mesh();
 	Mesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
+	Mesh(VulkanRenderer& Renderer, const std::vector<Texture2D>& textureList);
 	~Mesh();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
