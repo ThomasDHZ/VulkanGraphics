@@ -32,7 +32,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	texture = Texture2D(renderer, "texture/texture.jpg");
 	std::vector<Texture2D> textureList = { texture, texture };
 
-	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+	modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
@@ -41,9 +41,9 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	layout.Bottom = "texture/skybox/bottom.jpg";
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
-	//SkyboxTexture = CubeMapTexture(renderer, layout);
+	SkyboxTexture = CubeMapTexture(renderer, layout);
 
-	//Skybox = SkyBox(renderer, SkyboxTexture);
+	Skybox = SkyBox(renderer, SkyboxTexture);
 
 	InitializeGUIDebugger();
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
@@ -51,7 +51,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
+	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -67,10 +67,10 @@ VulkanGraphics::~VulkanGraphics()
 	{
 		model.Destroy(renderer);
 	}
-	//Skybox.Destory(renderer);
+	Skybox.Destory(renderer);
 
 	texture.Destroy(renderer);
-	//SkyboxTexture.Destroy(renderer);
+	SkyboxTexture.Destroy(renderer);
 
 	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
@@ -149,11 +149,17 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	skyUbo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	skyUbo.projection[1][1] *= -1;
 
-	//Skybox.UpdateUniformBuffer(renderer, skyUbo, NextFrameIndex);
+	Skybox.UpdateUniformBuffer(renderer, skyUbo, NextFrameIndex);
 }
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 {
+	if (CompareVulkanSettings != renderer.Settings)
+	{
+		CompareVulkanSettings = renderer.Settings;
+		renderer.UpdateCommandBuffers = true;
+	}
+
 	if (renderer.UpdateCommandBuffers)
 	{
 		for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
@@ -177,7 +183,7 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 			{
 				model.Draw(renderer, i);
 			}
-			//Skybox.Draw(renderer, i);
+			Skybox.Draw(renderer, i);
 			if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
 			}
@@ -213,6 +219,7 @@ void VulkanGraphics::MainLoop()
 		{
 			ImGui::Begin("Hello, world!");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 			ImGui::End();
 		}
 		ImGui::Render();

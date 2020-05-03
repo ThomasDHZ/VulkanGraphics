@@ -13,7 +13,9 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 	InitializeSyncObjects();
+
 	GraphicsPipeline = ForwardRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	MeshviewPipeline = MeshViewPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline = SkyBoxPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 }
 
@@ -437,6 +439,8 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	vkFreeCommandBuffers(Device, SubCommandPool, static_cast<uint32_t>(SubCommandBuffers.size()), SubCommandBuffers.data());
 	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
+	vkDestroyPipeline(Device, MeshviewPipeline.ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(Device, MeshviewPipeline.ShaderPipelineLayout, nullptr);
 	vkDestroyPipeline(Device, SkyboxPipeline.ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, SkyboxPipeline.ShaderPipelineLayout, nullptr);
 
@@ -451,6 +455,7 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 
 	swapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 	GraphicsPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	MeshviewPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
@@ -556,6 +561,7 @@ void VulkanRenderer::DestoryVulkan()
 	DepthAttachment.UpdateFrameBuffer(Device);
 
 	GraphicsPipeline.Destroy();
+	MeshviewPipeline.Destroy();
 	SkyboxPipeline.Destroy();
 
 	swapChain.Destroy(Device);

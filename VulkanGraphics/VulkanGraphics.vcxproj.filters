@@ -132,6 +132,9 @@
     <ClCompile Include="Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MeshViewPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\light.frag">
@@ -162,6 +165,9 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\Renderer2DShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="MeshViewShader.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -292,10 +298,18 @@
     <ClInclude Include="Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MeshViewPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="texture\skybox\back.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="MeshViewShader.frag">
+      <Filter>Shader</Filter>
+    </Text>
   </ItemGroup>
 </Project>

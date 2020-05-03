@@ -8,6 +8,7 @@
 #include <array>
 #include "InputAttachment.h"
 #include "SkyBoxPipeline.h"
+#include "MeshViewPipeline.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -17,6 +18,16 @@ const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 const int MAX_FRAMES_IN_FLIGHT = 2;
+
+struct VulkanSettings
+{
+	bool ShowMeshLines = false;
+
+	bool operator!=(const VulkanSettings& OtherSettings)
+	{
+		return (ShowMeshLines != OtherSettings.ShowMeshLines);
+	}
+};
 
 class VulkanRenderer
 {
@@ -38,6 +49,7 @@ private:
 	VulkanDebugger VulkanDebug;
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
+	MeshViewPipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 
 	std::vector<VkCommandBuffer> MainCommandBuffer;
@@ -83,6 +95,8 @@ public:
 	VulkanRenderer();
 	VulkanRenderer(GLFWwindow* window);
 	~VulkanRenderer();
+
+	VulkanSettings Settings;
 
 	VkCommandPool SubCommandPool;
 	std::vector<VkCommandBuffer> SubCommandBuffers;

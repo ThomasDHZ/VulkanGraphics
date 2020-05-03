@@ -55,6 +55,21 @@ VkPipelineLayout* VulkanResources::GetShaderPipelineLayout(VulkanRenderer& rende
 	return &renderer.GraphicsPipeline.ShaderPipelineLayout;
 }
 
+VkDescriptorSetLayout* VulkanResources::GetMeshViewDescriptorSetLayout(VulkanRenderer& renderer)
+{
+	return &renderer.MeshviewPipeline.ShaderPipelineDescriptorLayout;
+}
+
+VkPipeline* VulkanResources::GetMeshViewShaderPipeline(VulkanRenderer& renderer)
+{
+	return &renderer.MeshviewPipeline.ShaderPipeline;
+}
+
+VkPipelineLayout* VulkanResources::GetMeshViewShaderPipelineLayout(VulkanRenderer& renderer)
+{
+	return &renderer.MeshviewPipeline.ShaderPipelineLayout;
+}
+
 VkDescriptorSetLayout* VulkanResources::GetSkyboxDescriptorSetLayout(VulkanRenderer& renderer)
 {
 	return &renderer.SkyboxPipeline.ShaderPipelineDescriptorLayout;

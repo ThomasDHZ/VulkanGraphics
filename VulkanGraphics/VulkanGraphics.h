@@ -66,6 +66,7 @@ const std::vector<uint16_t> indices = {
 class VulkanGraphics : VulkanResources
 {
 private:
+	VulkanSettings CompareVulkanSettings;
 	VulkanWindow Window;
 	VulkanRenderer renderer;
 	Camera camera;
@@ -73,8 +74,8 @@ private:
 	ModelLoader modelLoader;
 	Model Nanosuit;
 
-	//SkyBox Skybox;
-	//CubeMapTexture SkyboxTexture;
+	SkyBox Skybox;
+	CubeMapTexture SkyboxTexture;
 
 	Texture2D texture;
 	std::vector<Mesh> MeshList;

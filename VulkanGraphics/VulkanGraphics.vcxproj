@@ -167,6 +167,7 @@
     <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
+    <ClCompile Include="MeshViewPipeline.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="Renderer2D.cpp" />
@@ -185,6 +186,7 @@
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MeshViewShader.vert" />
     <None Include="Shaders\FrameBufferShader.frag" />
     <None Include="Shaders\FrameBufferShader.vert" />
     <None Include="Shaders\light.frag" />
@@ -219,6 +221,7 @@
     <ClInclude Include="BaseMesh.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />
+    <ClInclude Include="MeshViewPipeline.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="Pixel.h" />
@@ -242,6 +245,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="texture\skybox\back.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="MeshViewShader.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
