@@ -18,9 +18,10 @@ GraphicsPipeline::GraphicsPipeline()
 
 }
 
-GraphicsPipeline::GraphicsPipeline(VkDevice device)
+GraphicsPipeline::GraphicsPipeline(VkDevice device, PipeLineType Pipelinetype)
 {
 	Device = device;
+	PipelineType = Pipelinetype;
 }
 
 GraphicsPipeline::~GraphicsPipeline()

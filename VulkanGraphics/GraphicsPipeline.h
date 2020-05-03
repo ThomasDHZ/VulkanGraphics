@@ -4,10 +4,17 @@
 #include <string>
 #include "Structs.h"
 
+enum PipeLineType
+{
+	Pipeline_FowardRenderer,
+	Pipeline_MeshView
+};
+
 class GraphicsPipeline
 {
 protected:
 	VkDevice Device;
+	PipeLineType PipelineType;
 
 	std::vector<char> ReadShaderFile(const std::string& filename);
 	VkShaderModule CreateShaderModule(const std::vector<char>& code);
@@ -22,7 +29,7 @@ public:
 	VkDescriptorSetLayout ShaderPipelineDescriptorLayout;
 
 	GraphicsPipeline();
-	GraphicsPipeline(VkDevice device);
+	GraphicsPipeline(VkDevice device, PipeLineType Pipelinetype);
 	~GraphicsPipeline();
 
 	void Destroy();

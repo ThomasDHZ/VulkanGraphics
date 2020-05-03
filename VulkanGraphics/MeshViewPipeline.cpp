@@ -5,7 +5,7 @@ MeshViewPipeline::MeshViewPipeline() : GraphicsPipeline()
 {
 }
 
-MeshViewPipeline::MeshViewPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device)
+MeshViewPipeline::MeshViewPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_MeshView)
 {
 	CreateDescriptorSetLayout();
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);
