@@ -75,9 +75,6 @@
     <ClCompile Include="VulkanGraphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BaseRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ForwardRenderingPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -116,9 +113,6 @@
     </ClCompile>
     <ClCompile Include="ImGui\imgui_impl_vulkan.cpp">
       <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VulkanSwapChain.cpp">
       <Filter>Source Files</Filter>
@@ -235,9 +229,6 @@
     <ClInclude Include="VulkanGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BaseRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ForwardRenderingPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -282,9 +273,6 @@
     </ClInclude>
     <ClInclude Include="ImGui\imgui_impl_vulkan.h">
       <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VulkanSwapChain.h">
       <Filter>Header Files</Filter>

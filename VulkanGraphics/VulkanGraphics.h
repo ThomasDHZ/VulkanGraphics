@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "ModelLoader.h"
 #include "Model.h"
+#include "Skybox.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -71,6 +72,9 @@ private:
 
 	ModelLoader modelLoader;
 	Model Nanosuit;
+
+	//SkyBox Skybox;
+	//CubeMapTexture SkyboxTexture;
 
 	Texture2D texture;
 	std::vector<Mesh> MeshList;

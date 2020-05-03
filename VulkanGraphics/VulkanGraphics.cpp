@@ -32,7 +32,18 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	texture = Texture2D(renderer, "texture/texture.jpg");
 	std::vector<Texture2D> textureList = { texture, texture };
 
-	modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+
+	CubeMapLayout layout;
+	layout.Left = "texture/skybox/left.jpg";
+	layout.Right = "texture/skybox/right.jpg";
+	layout.Top = "texture/skybox/top.jpg";
+	layout.Bottom = "texture/skybox/bottom.jpg";
+	layout.Back = "texture/skybox/back.jpg";
+	layout.Front = "texture/skybox/front.jpg";
+	//SkyboxTexture = CubeMapTexture(renderer, layout);
+
+	//Skybox = SkyBox(renderer, SkyboxTexture);
 
 	InitializeGUIDebugger();
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
@@ -40,7 +51,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
+	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -56,7 +67,10 @@ VulkanGraphics::~VulkanGraphics()
 	{
 		model.Destroy(renderer);
 	}
+	//Skybox.Destory(renderer);
+
 	texture.Destroy(renderer);
+	//SkyboxTexture.Destroy(renderer);
 
 	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
@@ -129,6 +143,13 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 
 		ModelList[x].UpdateUniformBuffer(renderer, ubo, NextFrameIndex);
 	}
+
+	SkyBoxUniformBufferObject skyUbo = {};
+	skyUbo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+	skyUbo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	skyUbo.projection[1][1] *= -1;
+
+	//Skybox.UpdateUniformBuffer(renderer, skyUbo, NextFrameIndex);
 }
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
@@ -156,6 +177,7 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 			{
 				model.Draw(renderer, i);
 			}
+			//Skybox.Draw(renderer, i);
 			if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
 			}
@@ -172,10 +194,10 @@ void VulkanGraphics::Draw()
 	auto NextFrameIndex = renderer.StartFrame(Window.GetWindowPtr());
 	Update(NextFrameIndex);
 	UpdateCommandBuffers(NextFrameIndex);
+	renderer.RunCommandBuffers.clear();
 	renderer.RunCommandBuffers.emplace_back(renderer.SubCommandBuffers[NextFrameIndex]);
 	renderer.RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(NextFrameIndex));
 	renderer.EndFrame(Window.GetWindowPtr(), NextFrameIndex);
-	renderer.RunCommandBuffers.clear();
 }
 
 void VulkanGraphics::MainLoop()

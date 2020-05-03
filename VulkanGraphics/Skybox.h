@@ -9,6 +9,7 @@
 
 #include "CubeMapTexture.h"
 #include "SkyBoxPipeline.h"
+#include "BaseMesh.h"
 
 struct SkyBoxUniformBufferObject
 {
@@ -16,7 +17,7 @@ struct SkyBoxUniformBufferObject
 	alignas(16) glm::mat4 projection;
 };
 
-const std::vector<SkyBoxVertex> vertices =
+const std::vector<SkyBoxVertex> SkyBoxVertices =
 {
 	{{	-1.0f,  1.0f, -1.0f }},
 	{{	-1.0f, -1.0f, -1.0f }},
@@ -64,6 +65,8 @@ const std::vector<SkyBoxVertex> vertices =
 class SkyBox : public BaseMesh
 {
 private:
+	void SetUpVertexBuffer(VulkanRenderer& Renderer);
+	void SetUpUniformBuffers(VulkanRenderer& Renderer);
 	void SetUpDescriptorPool(VulkanRenderer& Renderer);
 	void SetUpDescriptorSets(VulkanRenderer& Renderer);
 
@@ -77,8 +80,8 @@ public:
 	SkyBox(VulkanRenderer& Renderer, CubeMapTexture texture);
 	~SkyBox();
 
+	void Draw(VulkanRenderer& Renderer, int currentFrame);
 	void UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxUniformBufferObject ubo, uint32_t currentImage);
-	void Draw(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkCommandBuffer commandBuffer, size_t currentImage);
 };
 
 

@@ -146,7 +146,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BaseRenderer.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Canvas2D.cpp" />
     <ClCompile Include="Cube.cpp" />
@@ -170,7 +169,6 @@
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
-    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Renderer2D.cpp" />
     <ClCompile Include="Screen2DMesh.cpp" />
     <ClCompile Include="SkyBoxPipeline.cpp" />
@@ -199,7 +197,6 @@
     <None Include="Shaders\SkyboxShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseRenderer.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Canvas2D.h" />
     <ClInclude Include="Cube.h" />
@@ -225,7 +222,6 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="Pixel.h" />
-    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Renderer2D.h" />
     <ClInclude Include="Screen2DMesh.h" />
     <ClInclude Include="SkyBoxPipeline.h" />

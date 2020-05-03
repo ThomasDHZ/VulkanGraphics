@@ -7,6 +7,7 @@
 #include "ForwardRenderingPipeline.h"
 #include <array>
 #include "InputAttachment.h"
+#include "SkyBoxPipeline.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -37,6 +38,7 @@ private:
 	VulkanDebugger VulkanDebug;
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
+	SkyBoxPipeline SkyboxPipeline;
 
 	std::vector<VkCommandBuffer> MainCommandBuffer;
 

@@ -10,15 +10,38 @@ SkyBox::SkyBox() : BaseMesh()
 SkyBox::SkyBox(VulkanRenderer& Renderer, CubeMapTexture texture) : BaseMesh(Renderer)
 {
 	CubeMap = texture;
-	VertexSize = vertices.size();
+	VertexSize = SkyBoxVertices.size();
 	IndiceSize = 0;
 
+	SetUpVertexBuffer(Renderer);
+	SetUpUniformBuffers(Renderer);
 	SetUpDescriptorPool(Renderer);
 	SetUpDescriptorSets(Renderer);
 }
 
 SkyBox::~SkyBox()
 {
+}
+
+void SkyBox::SetUpVertexBuffer(VulkanRenderer& Renderer)
+{
+	VkDeviceSize bufferSize = sizeof(SkyBoxVertices[0]) * SkyBoxVertices.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, SkyBoxVertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
+
+	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+	VulkanBufferManager::CopyBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), stagingBuffer, vertexBuffer, bufferSize, Renderer.SubCommandPool, *GetGraphicsQueue(Renderer));
+
+	vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
 }
 
 void SkyBox::SetUpDescriptorPool(VulkanRenderer& Renderer)
@@ -31,9 +54,21 @@ void SkyBox::SetUpDescriptorPool(VulkanRenderer& Renderer)
 		BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
+void SkyBox::SetUpUniformBuffers(VulkanRenderer& Renderer)
+{
+	VkDeviceSize bufferSize = sizeof(SkyBoxUniformBufferObject);
+
+	uniformBuffers.resize(GetSwapChainImageCount(Renderer));
+	uniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	{
+		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+	}
+}
+
 void SkyBox::SetUpDescriptorSets(VulkanRenderer& Renderer)
 {
-	BaseMesh::CreateDescriptorSets(Renderer, *GetDescriptorSetLayout(Renderer));
+	BaseMesh::CreateDescriptorSets(Renderer, *GetSkyboxDescriptorSetLayout(Renderer));
 
 	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
@@ -69,18 +104,18 @@ void SkyBox::SetUpDescriptorSets(VulkanRenderer& Renderer)
 	}
 }
 
-void SkyBox::UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxUniformBufferObject ubo, uint32_t currentImage)
-{
-	BaseMesh::UpdateUniformBuffer(Renderer, uniformBuffersMemory[currentImage], static_cast<void*>(&ubo), sizeof(ubo));
-}
-
-void SkyBox::Draw(VkPipeline graphicsPipeline, VkPipelineLayout pipelineLayout, VkCommandBuffer commandBuffer, size_t currentImage)
+void SkyBox::Draw(VulkanRenderer& Renderer, int currentFrame)
 {
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentImage], 0, nullptr);
-	vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
+	vkCmdBindPipeline(Renderer.SubCommandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(Renderer));
+	vkCmdBindVertexBuffers(Renderer.SubCommandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(Renderer.SubCommandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(Renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+	vkCmdDraw(Renderer.SubCommandBuffers[currentFrame], VertexSize, 1, 0, 0);
+}
+
+void SkyBox::UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxUniformBufferObject ubo, uint32_t currentImage)
+{
+	BaseMesh::UpdateUniformBuffer(Renderer, uniformBuffersMemory[currentImage], static_cast<void*>(&ubo), sizeof(ubo));
 }

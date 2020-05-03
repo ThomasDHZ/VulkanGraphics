@@ -5,7 +5,7 @@ ForwardRenderingPipeline::ForwardRenderingPipeline() : GraphicsPipeline()
 {
 }
 
-ForwardRenderingPipeline::ForwardRenderingPipeline(VkExtent2D& swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device)
+ForwardRenderingPipeline::ForwardRenderingPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device)
 {
 	CreateDescriptorSetLayout();
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);
@@ -30,7 +30,7 @@ void ForwardRenderingPipeline::CreateDescriptorSetLayout()
 	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D& swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
 	auto vertShaderCode = ReadShaderFile("shaders/ForwardRendererVert.spv");
 	auto fragShaderCode = ReadShaderFile("shaders/ForwardRendererFrag.spv");
@@ -153,7 +153,7 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D& swapChainExtent,
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
-void ForwardRenderingPipeline::UpdateGraphicsPipeLine(VkExtent2D& swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void ForwardRenderingPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }

@@ -13,9 +13,8 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 	InitializeSyncObjects();
-
-	auto a = swapChain.GetSwapChainResolution();
-	GraphicsPipeline = ForwardRenderingPipeline(a, RenderPass, Device);
+	GraphicsPipeline = ForwardRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	SkyboxPipeline = SkyBoxPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -438,6 +437,8 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	vkFreeCommandBuffers(Device, SubCommandPool, static_cast<uint32_t>(SubCommandBuffers.size()), SubCommandBuffers.data());
 	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
+	vkDestroyPipeline(Device, SkyboxPipeline.ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(Device, SkyboxPipeline.ShaderPipelineLayout, nullptr);
 
 	for (auto imageView : swapChain.GetSwapChainImageViews())
 	{
@@ -449,8 +450,8 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	vkDestroySwapchainKHR(Device, swapChain.GetSwapChain(), nullptr);
 
 	swapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
-	auto a = swapChain.GetSwapChainResolution();
-	GraphicsPipeline.UpdateGraphicsPipeLine(a, RenderPass, Device);
+	GraphicsPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	SkyboxPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 
@@ -554,35 +555,39 @@ void VulkanRenderer::DestoryVulkan()
 {
 	DepthAttachment.UpdateFrameBuffer(Device);
 
-	for (auto framebuffer : swapChainFramebuffers) {
-		vkDestroyFramebuffer(Device, framebuffer, nullptr);
-	}
+	GraphicsPipeline.Destroy();
+	SkyboxPipeline.Destroy();
 
-	vkFreeCommandBuffers(Device, SubCommandPool, static_cast<uint32_t>(SubCommandBuffers.size()), SubCommandBuffers.data());
-	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
-
-	for (auto imageView : swapChain.GetSwapChainImageViews())
-	{
-		vkDestroyImageView(Device, imageView, nullptr);
-	}
+	swapChain.Destroy(Device);
 
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
 	vkDestroyCommandPool(Device, SubCommandPool, nullptr);
 
-	vkDestroySwapchainKHR(Device, swapChain.GetSwapChain(), nullptr);
-
 	vkDestroyRenderPass(Device, RenderPass, nullptr);
 
-	vkDestroyDescriptorSetLayout(Device, GraphicsPipeline.ShaderPipelineDescriptorLayout, nullptr);
+	for (auto& framebuffer : swapChainFramebuffers) 
+	{
+		vkDestroyFramebuffer(Device, framebuffer, nullptr);
+		framebuffer = VK_NULL_HANDLE;
+	}
 
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
+	{
 		vkDestroySemaphore(Device, renderFinishedSemaphores[i], nullptr);
 		vkDestroySemaphore(Device, imageAvailableSemaphores[i], nullptr);
 		vkDestroyFence(Device, inFlightFences[i], nullptr);
+
+		renderFinishedSemaphores[i] = VK_NULL_HANDLE;
+		imageAvailableSemaphores[i] = VK_NULL_HANDLE;
+		inFlightFences[i] = VK_NULL_HANDLE;
 	}
 
 	vkDestroyDevice(Device, nullptr);
+
+	MainCommandPool = VK_NULL_HANDLE;
+	SubCommandPool = VK_NULL_HANDLE;
+	RenderPass = VK_NULL_HANDLE;
+	Device = VK_NULL_HANDLE;
 
 	VulkanDebug.CleanUp(Instance);
 

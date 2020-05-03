@@ -103,9 +103,13 @@ void GraphicsPipeline::CreatePipeLine(VkGraphicsPipelineCreateInfo PipeLineInfo)
 	}
 }
 
-void GraphicsPipeline::DestoryGraphicsPipeline()
+void GraphicsPipeline::Destroy()
 {
 	vkDestroyPipeline(Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, ShaderPipelineLayout, nullptr);
 	vkDestroyDescriptorSetLayout(Device, ShaderPipelineDescriptorLayout, nullptr);
+
+	ShaderPipeline = VK_NULL_HANDLE;
+	ShaderPipelineLayout = VK_NULL_HANDLE;
+	ShaderPipelineDescriptorLayout = VK_NULL_HANDLE;
 }

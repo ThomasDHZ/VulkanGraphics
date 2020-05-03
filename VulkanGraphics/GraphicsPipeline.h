@@ -25,6 +25,6 @@ public:
 	GraphicsPipeline(VkDevice device);
 	~GraphicsPipeline();
 
-	void DestoryGraphicsPipeline();
+	void Destroy();
 };
 

@@ -20,21 +20,17 @@ CubeMapTexture::~CubeMapTexture()
 
 void CubeMapTexture::SetUpCubeMapImage(VulkanRenderer& Renderer, CubeMapLayout CubeMapFiles)
 {
-	std::vector<Image> SkyBoxLayout;
-	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Left));
-	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Right));
-	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Top));
-	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Bottom));
-	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Back));
-	SkyBoxLayout.emplace_back(Image(CubeMapFiles.Front));
+	std::vector<unsigned char*> textureData;
+	int texChannels;
 
-	SkyBoxLayout[2].FlipHorizontally();
-	SkyBoxLayout[3].FlipHorizontally();
+	textureData.emplace_back(stbi_load(CubeMapFiles.Left.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Right.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Top.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Bottom.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Back.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Front.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
 
-	Width = SkyBoxLayout[0].GetWidth();
-	Height = SkyBoxLayout[0].GetHeight();
-
-	const VkDeviceSize imageSize = SkyBoxLayout[0].GetImageSize() * 6;
+	const VkDeviceSize imageSize = Width * Height * 4 * 6;
 	const VkDeviceSize layerSize = imageSize / 6;
 
 	VkBuffer stagingBuffer;
@@ -46,11 +42,10 @@ void CubeMapTexture::SetUpCubeMapImage(VulkanRenderer& Renderer, CubeMapLayout C
 
 	for (int i = 0; i < 6; ++i)
 	{
-		memcpy(static_cast<char*>(data) + (i * layerSize), SkyBoxLayout[i].GetImageData(), static_cast<size_t>(layerSize));
+		memcpy(static_cast<char*>(data) + (i * layerSize), textureData[i], static_cast<size_t>(layerSize));
 	}
 
 	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
-
 
 	CreateImage(Renderer);
 

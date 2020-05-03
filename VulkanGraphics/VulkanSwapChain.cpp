@@ -167,9 +167,17 @@ void VulkanSwapChain::SetUpSwapChainImageViews(const VkDevice& device)
 	}
 }
 
-void VulkanSwapChain::DestroyVulkan()
+void VulkanSwapChain::Destroy(VkDevice device)
 {
-	//vkDestroySurfaceKHR(Instance, Surface, nullptr);
+
+	for (auto& imageView : SwapChainImageViews)
+	{
+		vkDestroyImageView(device, imageView, nullptr);
+		imageView = VK_NULL_HANDLE;
+	}
+
+	vkDestroySwapchainKHR(device, Swapchain, nullptr);
+	Swapchain = VK_NULL_HANDLE;
 }
 
 void VulkanSwapChain::UpdateSwapChain(GLFWwindow* window, const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface)

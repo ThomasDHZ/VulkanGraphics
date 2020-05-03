@@ -41,7 +41,7 @@ public:
 
 	void SetUpSwapChain(GLFWwindow* window, const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
 	void SetUpSwapChainImageViews(const VkDevice& device);
-	void DestroyVulkan();
+	void Destroy(VkDevice device);
 
 	void UpdateSwapChain(GLFWwindow* window, const VkDevice& device, const VkPhysicalDevice& physicalDevice, const VkSurfaceKHR& surface);
 

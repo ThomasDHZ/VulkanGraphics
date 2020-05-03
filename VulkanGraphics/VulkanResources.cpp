@@ -55,6 +55,21 @@ VkPipelineLayout* VulkanResources::GetShaderPipelineLayout(VulkanRenderer& rende
 	return &renderer.GraphicsPipeline.ShaderPipelineLayout;
 }
 
+VkDescriptorSetLayout* VulkanResources::GetSkyboxDescriptorSetLayout(VulkanRenderer& renderer)
+{
+	return &renderer.SkyboxPipeline.ShaderPipelineDescriptorLayout;
+}
+
+VkPipeline* VulkanResources::GetSkyboxShaderPipeline(VulkanRenderer& renderer)
+{
+	return &renderer.SkyboxPipeline.ShaderPipeline;
+}
+
+VkPipelineLayout* VulkanResources::GetSkyboxShaderPipelineLayout(VulkanRenderer& renderer)
+{
+	return &renderer.SkyboxPipeline.ShaderPipelineLayout;
+}
+
 VkExtent2D* VulkanResources::GetSwapChainResolution(VulkanRenderer& renderer)
 {
 	return  &renderer.swapChain.GetSwapChainResolution();

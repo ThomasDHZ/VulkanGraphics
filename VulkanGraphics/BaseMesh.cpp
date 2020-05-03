@@ -177,7 +177,6 @@ void BaseMesh::CreateDescriptorSetsData(VulkanRenderer& Renderer, std::vector<Wr
 	vkUpdateDescriptorSets(*GetDevice(Renderer), static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
-
 void BaseMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize)
 {
 	void* UniformData;
@@ -188,27 +187,23 @@ void BaseMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, VkDeviceMemory Unif
 
 void BaseMesh::Destory(VulkanRenderer& Renderer)
 {
-	if (indexBuffer != VK_NULL_HANDLE)
+	if (VertexSize != 0)
 	{
 		vkDestroyDescriptorPool(*GetDevice(Renderer), descriptorPool, nullptr);
+		vkDestroyBuffer(*GetDevice(Renderer), vertexBuffer, nullptr);
+		vkFreeMemory(*GetDevice(Renderer), vertexBufferMemory, nullptr);
+
 		descriptorPool = VK_NULL_HANDLE;
+		vertexBuffer = VK_NULL_HANDLE;
+		vertexBufferMemory = VK_NULL_HANDLE;
 	}
 
-	if (indexBuffer != VK_NULL_HANDLE)
+	if (IndiceSize != 0)
 	{
 		vkDestroyBuffer(*GetDevice(Renderer), indexBuffer, nullptr);
 		vkFreeMemory(*GetDevice(Renderer), indexBufferMemory, nullptr);
 
 		indexBuffer = VK_NULL_HANDLE;
 		indexBufferMemory = VK_NULL_HANDLE;
-	}
-
-	if (vertexBuffer != VK_NULL_HANDLE)
-	{
-		vkDestroyBuffer(*GetDevice(Renderer), vertexBuffer, nullptr);
-		vkFreeMemory(*GetDevice(Renderer), vertexBufferMemory, nullptr);
-
-		vertexBuffer = VK_NULL_HANDLE;
-		vertexBufferMemory = VK_NULL_HANDLE;
 	}
 }

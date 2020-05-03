@@ -15,6 +15,9 @@ public:
 	static VkCommandPool* GetCommandPool(VulkanRenderer& renderer);
 	static VkPipeline* GetShaderPipeline(VulkanRenderer& renderer);
 	static VkPipelineLayout* GetShaderPipelineLayout(VulkanRenderer& renderer);
+	static VkDescriptorSetLayout* GetSkyboxDescriptorSetLayout(VulkanRenderer& renderer);
+	static VkPipeline* GetSkyboxShaderPipeline(VulkanRenderer& renderer);
+	static VkPipelineLayout* GetSkyboxShaderPipelineLayout(VulkanRenderer& renderer);
 	static VkExtent2D* GetSwapChainResolution(VulkanRenderer& renderer);
 	static uint32_t GetSwapChainMinImageCount(VulkanRenderer& renderer);
 	static uint32_t GetSwapChainImageCount(VulkanRenderer& renderer);
