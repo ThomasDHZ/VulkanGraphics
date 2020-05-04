@@ -153,7 +153,7 @@
     <ClCompile Include="DeferredRenderer.cpp" />
     <ClCompile Include="ForwardRenderingPipeline.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
-    <ClCompile Include="FramebufferPipeline.cpp" />
+    <ClCompile Include="DifferedRenderingPipeline.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -186,9 +186,11 @@
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="FrameBufferShader.frag" />
+    <None Include="FrameBufferShader.vert" />
     <None Include="MeshViewShader.vert" />
-    <None Include="Shaders\FrameBufferShader.frag" />
-    <None Include="Shaders\FrameBufferShader.vert" />
+    <None Include="Shaders\DifferedRenderingShader.frag" />
+    <None Include="Shaders\DifferedRenderingShader.vert" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />
     <None Include="Shaders\ForwardRendererShader.frag" />
@@ -206,7 +208,7 @@
     <ClInclude Include="DeferredRenderer.h" />
     <ClInclude Include="ForwardRenderingPipeline.h" />
     <ClInclude Include="FrameBuffer.h" />
-    <ClInclude Include="FramebufferPipeline.h" />
+    <ClInclude Include="DifferedRenderingPipeline.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="GUIDebugger.h" />
     <ClInclude Include="ImGui\imconfig.h" />

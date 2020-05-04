@@ -48,9 +48,6 @@
     <ClCompile Include="VulkanWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FramebufferPipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -135,6 +132,9 @@
     <ClCompile Include="MeshViewPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DifferedRenderingPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\light.frag">
@@ -147,12 +147,6 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\SkyboxShader.vert">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\FrameBufferShader.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\FrameBufferShader.vert">
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\ForwardRendererShader.vert">
@@ -168,6 +162,18 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="MeshViewShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\DifferedRenderingShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\DifferedRenderingShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="FrameBufferShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="FrameBufferShader.frag">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -200,9 +206,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FramebufferPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsPipeline.h">
@@ -299,6 +302,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MeshViewPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DifferedRenderingPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,7 @@
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe ForwardRendererShader.vert -o ForwardRendererVert.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe ForwardRendererShader.frag -o ForwardRendererFrag.spv
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe DifferedRenderingShader.vert -o DifferedRenderingShaderVert.spv
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe DifferedRenderingShader.frag -o DifferedRenderingShaderFrag.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe MeshViewShader.vert -o MeshViewShaderVert.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe MeshViewShader.frag -o MeshViewShaderFrag.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe light.vert -o lightvert.spv
