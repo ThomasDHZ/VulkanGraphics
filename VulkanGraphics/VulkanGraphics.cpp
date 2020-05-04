@@ -154,12 +154,6 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 {
-	if (CompareVulkanSettings != renderer.Settings)
-	{
-		CompareVulkanSettings = renderer.Settings;
-		renderer.UpdateCommandBuffers = true;
-	}
-
 	if (renderer.UpdateCommandBuffers)
 	{
 		for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
@@ -197,6 +191,12 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 
 void VulkanGraphics::Draw()
 {
+	if (CompareVulkanSettings != renderer.Settings)
+	{
+		CompareVulkanSettings = renderer.Settings;
+		renderer.UpdateSwapChain(Window.GetWindowPtr());
+	}
+
 	auto NextFrameIndex = renderer.StartFrame(Window.GetWindowPtr());
 	Update(NextFrameIndex);
 	UpdateCommandBuffers(NextFrameIndex);

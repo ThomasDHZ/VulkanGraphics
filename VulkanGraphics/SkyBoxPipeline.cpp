@@ -7,7 +7,7 @@ SkyBoxPipeline::SkyBoxPipeline() : GraphicsPipeline()
 {
 }
 
-SkyBoxPipeline::SkyBoxPipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDevice device) : GraphicsPipeline(device)
+SkyBoxPipeline::SkyBoxPipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_SkyBox)
 {
 	CreateDescriptorSetLayout();
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);

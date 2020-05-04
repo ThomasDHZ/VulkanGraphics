@@ -7,7 +7,8 @@
 enum PipeLineType
 {
 	Pipeline_FowardRenderer,
-	Pipeline_MeshView
+	Pipeline_MeshView,
+	Pipeline_SkyBox
 };
 
 class GraphicsPipeline
