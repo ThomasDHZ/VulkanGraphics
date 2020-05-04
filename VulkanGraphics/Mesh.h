@@ -13,27 +13,7 @@
 #include "BaseMesh.h"
 #include "Texture2D.h"
 #include "Vertex.h"
-
-struct Light
-{
-	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Color;
-	alignas(4) float Linear;
-	alignas(4) float Quadratic;
-	alignas(4) float Radius;
-};
-
-struct LightingStruct
-{
-	Light light;
-	alignas(16) glm::vec3 viewPos;
-	alignas(16) float shininess;
-};
-
-struct DebugStruct
-{
-	alignas(4) int DebugLayer;
-};
+#include "AmbientLight.h"
 
 struct UniformBufferObject
 {
@@ -56,6 +36,9 @@ public:
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
+	std::vector<VkBuffer>  AmbientLightUniformBuffers;
+	std::vector<VkDeviceMemory>  AmbientLightUniformBuffersMemory;
+
 	glm::vec3 MeshPosition = glm::vec3();
 	glm::vec3 MeshRotate = glm::vec3(0.0f, 0.0f, 1.0f);
 	glm::vec3 MeshScale = glm::vec3(1.0f);
@@ -66,7 +49,7 @@ public:
 	~Mesh();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, int currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, int currentImage);
 	void Destroy(VulkanRenderer& Renderer);
 };
 

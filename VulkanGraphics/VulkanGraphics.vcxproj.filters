@@ -135,6 +135,12 @@
     <ClCompile Include="DifferedRenderingPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AmbientLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\light.frag">
@@ -170,10 +176,10 @@
     <None Include="Shaders\DifferedRenderingShader.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="FrameBufferShader.vert">
+    <None Include="FrameBufferShader.frag">
       <Filter>Shader</Filter>
     </None>
-    <None Include="FrameBufferShader.frag">
+    <None Include="FrameBufferShader.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -305,6 +311,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DifferedRenderingPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AmbientLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -32,6 +32,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	texture = Texture2D(renderer, "texture/texture.jpg");
 	std::vector<Texture2D> textureList = { texture, texture };
 
+	Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+
 	modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
 	CubeMapLayout layout;
@@ -126,7 +128,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;
 
-		MeshList[x].UpdateUniformBuffer(renderer, ubo, NextFrameIndex);
+		MeshList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), NextFrameIndex);
 	}
 
 	for (int x = 0; x < ModelList.size(); x++)
@@ -141,7 +143,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;
 
-		ModelList[x].UpdateUniformBuffer(renderer, ubo, NextFrameIndex);
+		ModelList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), NextFrameIndex);
 	}
 
 	SkyBoxUniformBufferObject skyUbo = {};
@@ -220,6 +222,8 @@ void VulkanGraphics::MainLoop()
 			ImGui::Begin("Hello, world!");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
+			ImGui::SliderFloat("float", Ambiant.GetColorStrengthPtr(), 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::ColorEdit3("clear color", (float*)Ambiant.GetColorPtr()); // Edit 3 floats representing a color
 			ImGui::End();
 		}
 		ImGui::Render();

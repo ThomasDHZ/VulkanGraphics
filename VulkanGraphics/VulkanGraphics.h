@@ -13,6 +13,7 @@
 #include "ModelLoader.h"
 #include "Model.h"
 #include "Skybox.h"
+#include "AmbientLight.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -70,6 +71,8 @@ private:
 	VulkanWindow Window;
 	VulkanRenderer renderer;
 	Camera camera;
+	AmbientLight Ambiant;
+
 
 	ModelLoader modelLoader;
 	Model Nanosuit;

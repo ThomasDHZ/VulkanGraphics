@@ -30,15 +30,25 @@ void Mesh::CreateUniformBuffers(VulkanRenderer& Renderer)
 	{
 		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 	}
+
+	VkDeviceSize bufferSize2 = sizeof(AmbientLight);
+
+	AmbientLightUniformBuffers.resize(GetSwapChainImageCount(Renderer));
+	AmbientLightUniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	{
+		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize2, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, AmbientLightUniformBuffers[i], AmbientLightUniformBuffersMemory[i]);
+	}
 }
 
 void Mesh::CreateDescriptorPool(VulkanRenderer& Renderer)
 {
-	std::array<DescriptorPoolSizeInfo, 3>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 4>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -52,34 +62,44 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 	DiffuseMap.imageView = TextureList[0].textureImageView;
 	DiffuseMap.sampler = TextureList[0].textureSampler;
 
-	//VkDescriptorImageInfo SpecularMap = {};
-	//SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	//SpecularMap.imageView = TextureList[1].textureImageView;
-	//SpecularMap.sampler = TextureList[1].textureSampler;
+	VkDescriptorImageInfo SpecularMap = {};
+	SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	SpecularMap.imageView = TextureList[1].textureImageView;
+	SpecularMap.sampler = TextureList[1].textureSampler;
 
 	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
-		VkDescriptorBufferInfo bufferInfo = {};
-		bufferInfo.buffer = uniformBuffers[i];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
+		VkDescriptorBufferInfo PositionInfo = {};
+		PositionInfo.buffer = uniformBuffers[i];
+		PositionInfo.offset = 0;
+		PositionInfo.range = sizeof(UniformBufferObject);
 
-		std::array<WriteDescriptorSetInfo, 2>  WriteDescriptorInfo = {};
+		VkDescriptorBufferInfo AmbiantLightInfo = {};
+		AmbiantLightInfo.buffer = AmbientLightUniformBuffers[i];
+		AmbiantLightInfo.offset = 0;
+		AmbiantLightInfo.range = sizeof(AmbientLightUniformBuffer);
+
+		std::array<WriteDescriptorSetInfo, 4>  WriteDescriptorInfo = {};
 
 		WriteDescriptorInfo[0].DstBinding = 0;
 		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
 		WriteDescriptorInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[0].DescriptorBufferInfo = bufferInfo;
+		WriteDescriptorInfo[0].DescriptorBufferInfo = PositionInfo;
 
 		WriteDescriptorInfo[1].DstBinding = 1;
 		WriteDescriptorInfo[1].DstSet = descriptorSets[i];
 		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 		WriteDescriptorInfo[1].DescriptorImageInfo = DiffuseMap;
 
-		//WriteDescriptorInfo[2].DstBinding = 2;
-		//WriteDescriptorInfo[2].DstSet = descriptorSets[i];
-		//WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
+		WriteDescriptorInfo[2].DstBinding = 2;
+		WriteDescriptorInfo[2].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
+
+		WriteDescriptorInfo[3].DstBinding = 3;
+		WriteDescriptorInfo[3].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		WriteDescriptorInfo[3].DescriptorBufferInfo = AmbiantLightInfo;
 
 		Mesh::CreateDescriptorSetsData(Renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
@@ -112,9 +132,10 @@ void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 	}
 }
 
-void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, int currentImage)
+void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, int currentImage)
 {
 	BaseMesh::UpdateUniformBuffer(Renderer, uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
+	BaseMesh::UpdateUniformBuffer(Renderer, AmbientLightUniformBuffersMemory[currentImage], static_cast<void*>(&light), sizeof(light));
 }
 
 void Mesh::Destroy(VulkanRenderer& Renderer)
