@@ -22,6 +22,13 @@ struct UniformBufferObject
 	alignas(16) glm::mat4 proj;
 };
 
+struct Lighter
+{
+	alignas(16) glm::vec3 Position;
+	alignas(16) glm::vec3 Color;
+	alignas(16) glm::vec3 CameraPosition;
+};
+
 class Mesh : public BaseMesh
 {
 private:
@@ -32,12 +39,16 @@ protected:
 	void CreateDescriptorSets(VulkanRenderer& Renderer);
 
 public:
+
 	std::string MeshName;
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	std::vector<VkBuffer>  AmbientLightUniformBuffers;
 	std::vector<VkDeviceMemory>  AmbientLightUniformBuffersMemory;
+
+	std::vector<VkBuffer>  LighterUniformBuffers;
+	std::vector<VkDeviceMemory> LighterUniformBuffersMemory;
 
 	glm::vec3 MeshPosition = glm::vec3();
 	glm::vec3 MeshRotate = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -49,7 +60,7 @@ public:
 	~Mesh();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, int currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, Lighter lighter, int currentImage);
 	void Destroy(VulkanRenderer& Renderer);
 };
 

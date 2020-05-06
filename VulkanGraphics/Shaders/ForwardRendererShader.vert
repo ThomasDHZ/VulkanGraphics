@@ -13,10 +13,15 @@ layout(location = 2) in vec2 inTexCoord;
 layout(location = 3) in vec3 inTangent;
 layout(location = 4) in vec3 inBitangent;
 
-layout(location = 0) out vec2 fragTexCoord;
+layout(location = 0) out vec3 MeshPos;
+layout(location = 1) out vec3 Normal;
+layout(location = 2) out vec2 UVs;
 
 void main() {
     gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
-    fragTexCoord = inTexCoord;
+
+	MeshPos = vec3(ubo.model * vec4(inPosition, 1.0));
+    Normal = mat3(transpose(inverse(ubo.model))) * inNormal;  
+    UVs = inTexCoord;
 }
 

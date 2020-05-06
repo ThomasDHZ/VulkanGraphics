@@ -22,6 +22,8 @@ public:
 	~AmbientLight();
 
 	void UpdateUniformBuffer(VulkanRenderer& Renderer, AmbientLightUniformBuffer AmbientLightBuffer, int currentImage);
+	void Destroy(VulkanRenderer& Renderer);
+
 	AmbientLightUniformBuffer GetLightSettings() { return LightSettings; }
 	glm::vec3* GetColorPtr() { return &LightSettings.Color; }
 	float* GetColorStrengthPtr() { return &LightSettings.Strength; }

@@ -1,23 +1,23 @@
-#include "MeshViewPipeline.h"
+#include "WireFramePipeline.h"
 #include "Vertex.h"
 
-MeshViewPipeline::MeshViewPipeline() : GraphicsPipeline()
+WireFramePipeline::WireFramePipeline() : GraphicsPipeline()
 {
 }
 
-MeshViewPipeline::MeshViewPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_MeshView)
+WireFramePipeline::WireFramePipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_MeshView)
 {
 	CreateDescriptorSetLayout();
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }
 
-MeshViewPipeline::~MeshViewPipeline()
+WireFramePipeline::~WireFramePipeline()
 {
 }
 
-void MeshViewPipeline::CreateDescriptorSetLayout()
+void WireFramePipeline::CreateDescriptorSetLayout()
 {
-	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 5> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -27,13 +27,25 @@ void MeshViewPipeline::CreateDescriptorSetLayout()
 	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
+	LayoutBindingInfo[2].Binding = 2;
+	LayoutBindingInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	LayoutBindingInfo[2].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[3].Binding = 3;
+	LayoutBindingInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[4].Binding = 4;
+	LayoutBindingInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LayoutBindingInfo[4].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
 	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void MeshViewPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void WireFramePipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
-	auto vertShaderCode = ReadShaderFile("shaders/MeshViewShaderVert.spv");
-	auto fragShaderCode = ReadShaderFile("shaders/MeshViewShaderFrag.spv");
+	auto vertShaderCode = ReadShaderFile("shaders/WireFrameShaderVert.spv");
+	auto fragShaderCode = ReadShaderFile("shaders/WireFrameShaderFrag.spv");
 
 	VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
 	VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
@@ -153,7 +165,7 @@ void MeshViewPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRender
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
-void MeshViewPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void WireFramePipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }

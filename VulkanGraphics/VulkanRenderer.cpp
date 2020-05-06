@@ -15,7 +15,7 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 	InitializeSyncObjects();
 
 	GraphicsPipeline = ForwardRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
-	MeshviewPipeline = MeshViewPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	MeshviewPipeline = WireFramePipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline = SkyBoxPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 }
 

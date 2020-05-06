@@ -17,11 +17,11 @@ Model::~Model()
 
 }
 
-void Model::UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, int currentImage)
+void Model::UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, Lighter lighter, int currentImage)
 {
 	for (auto mesh : MeshList)
 	{
-		mesh.UpdateUniformBuffer(Renderer, ubo2, light, currentImage);
+		mesh.UpdateUniformBuffer(Renderer, ubo2, light, lighter, currentImage);
 	}
 }
 

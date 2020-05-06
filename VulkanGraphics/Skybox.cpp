@@ -119,3 +119,20 @@ void SkyBox::UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxUniformBufferOb
 {
 	BaseMesh::UpdateUniformBuffer(Renderer, uniformBuffersMemory[currentImage], static_cast<void*>(&ubo), sizeof(ubo));
 }
+
+void SkyBox::Destory(VulkanRenderer& Renderer)
+{
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	{
+		if (uniformBuffers[i] != VK_NULL_HANDLE)
+		{
+			vkDestroyBuffer(*GetDevice(Renderer), uniformBuffers[i], nullptr);
+			vkFreeMemory(*GetDevice(Renderer), uniformBuffersMemory[i], nullptr);
+
+			uniformBuffers[i] = VK_NULL_HANDLE;
+			uniformBuffersMemory[i] = VK_NULL_HANDLE;
+		}
+	}
+
+	BaseMesh::Destory(Renderer);
+}

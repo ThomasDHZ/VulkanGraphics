@@ -40,3 +40,15 @@ void AmbientLight::UpdateUniformBuffer(VulkanRenderer& Renderer, AmbientLightUni
 {
 	Light::UpdateUniformBuffer(Renderer, AmbientLightUniformBuffersMemory[currentImage], static_cast<void*>(&AmbientLightBuffer), sizeof(AmbientLightBuffer));
 }
+
+void AmbientLight::Destroy(VulkanRenderer& Renderer)
+{
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	{
+		vkDestroyBuffer(*GetDevice(Renderer), AmbientLightUniformBuffers[i], nullptr);
+		vkFreeMemory(*GetDevice(Renderer), AmbientLightUniformBuffersMemory[i], nullptr);
+
+		AmbientLightUniformBuffers[i] = VK_NULL_HANDLE;
+		AmbientLightUniformBuffersMemory[i] = VK_NULL_HANDLE;
+	}
+}

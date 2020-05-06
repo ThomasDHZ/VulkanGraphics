@@ -61,11 +61,11 @@ std::vector<Vertex> ModelLoader::LoadVertices(aiMesh* mesh)
 
 		if (mesh->mTextureCoords[0])
 		{
-			vertex.TexureCoord = glm::vec2{ mesh->mTextureCoords[0][x].x, mesh->mTextureCoords[0][x].y };
+			vertex.UV = glm::vec2{ mesh->mTextureCoords[0][x].x, mesh->mTextureCoords[0][x].y };
 		}
 		else
 		{
-			vertex.TexureCoord = glm::vec2{ 0.0f, 0.0f };
+			vertex.UV = glm::vec2{ 0.0f, 0.0f };
 		}
 
 		VertexList.emplace_back(vertex);
@@ -102,7 +102,7 @@ std::vector<Texture2D> ModelLoader::LoadTextures(VulkanRenderer& Renderer, const
 		{
 			aiString TextureLocation;
 			material->GetTexture(aiTextureType_DIFFUSE, y, &TextureLocation);
-			TextureList.emplace_back(Texture2D(Renderer, directory + TextureLocation.C_Str()));
+//			TextureList.emplace_back(Texture2D(Renderer, directory + TextureLocation.C_Str()));
 		}
 	}
 

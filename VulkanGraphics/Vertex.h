@@ -49,7 +49,7 @@ struct Vertex
 {
 	glm::vec3 Position;
 	glm::vec3 Normal;
-	glm::vec2 TexureCoord;
+	glm::vec2 UV;
 	glm::vec3 Tangant;
 	glm::vec3 BiTangant;
 
@@ -84,7 +84,7 @@ struct Vertex
 		AttributeDescription.binding = 0;
 		AttributeDescription.location = 2;
 		AttributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
-		AttributeDescription.offset = offsetof(Vertex, TexureCoord);
+		AttributeDescription.offset = offsetof(Vertex, UV);
 		AttributeDescriptions.emplace_back(AttributeDescription);
 
 		AttributeDescription.binding = 0;

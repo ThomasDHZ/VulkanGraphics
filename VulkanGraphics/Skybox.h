@@ -82,6 +82,7 @@ public:
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
 	void UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxUniformBufferObject ubo, uint32_t currentImage);
+	void Destory(VulkanRenderer& Renderer);
 };
 
 

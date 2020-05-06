@@ -18,7 +18,7 @@ public:
 	glm::vec3 ModelRotate = glm::vec3(0.0f, 0.0f, 1.0f);
 	glm::vec3 ModelScale = glm::vec3(1.0f);
 
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, int currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, Lighter lighter, int currentImage);
 	void Draw(VulkanRenderer& Renderer, int currentImage);
 	void Destroy(VulkanRenderer& Renderer);
 

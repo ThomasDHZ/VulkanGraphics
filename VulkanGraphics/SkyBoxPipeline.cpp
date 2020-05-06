@@ -158,6 +158,5 @@ void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPa
 
 void SkyBoxPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDevice device)
 {
-	CreateDescriptorSetLayout();
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }

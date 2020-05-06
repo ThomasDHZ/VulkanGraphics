@@ -8,7 +8,7 @@
 #include <array>
 #include "InputAttachment.h"
 #include "SkyBoxPipeline.h"
-#include "MeshViewPipeline.h"
+#include "WireFramePipeline.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -22,10 +22,12 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 struct VulkanSettings
 {
 	bool ShowMeshLines = false;
+	bool ShowSkyBox = true;
 
 	bool operator!=(const VulkanSettings& OtherSettings)
 	{
-		return (ShowMeshLines != OtherSettings.ShowMeshLines);
+		return (ShowMeshLines != OtherSettings.ShowMeshLines ||
+				ShowSkyBox != OtherSettings.ShowSkyBox);
 	}
 };
 
@@ -49,7 +51,7 @@ private:
 	VulkanDebugger VulkanDebug;
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
-	MeshViewPipeline MeshviewPipeline;
+	WireFramePipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 
 	std::vector<VkCommandBuffer> MainCommandBuffer;

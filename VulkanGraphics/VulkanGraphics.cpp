@@ -28,13 +28,14 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = VulkanRenderer(Window.GetWindowPtr());
+	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-	texture = Texture2D(renderer, "texture/texture.jpg");
+	texture = Texture2D(renderer, "texture/container2.png");
 	std::vector<Texture2D> textureList = { texture, texture };
 
-	Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
-	modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
 
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
@@ -53,24 +54,32 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
+
+	lighter.Color = glm::vec3(1.0f, 1.0f, 1.0f);
+	lighter.Position = glm::vec3(1.2f, 1.0f, 2.0f);
 }
 
 VulkanGraphics::~VulkanGraphics()
 {
 	vkDeviceWaitIdle(*GetDevice(renderer));
 
-	modelLoader.CleanTextureMemory(renderer);
+	//modelLoader.CleanTextureMemory(renderer);
 	for (auto mesh : MeshList)
 	{
 		mesh.Destroy(renderer);
 	}
-	for (auto model : ModelList)
-	{
-		model.Destroy(renderer);
-	}
+	//for (auto model : ModelList)
+	//{
+	//	model.Destroy(renderer);
+	//}
 	Skybox.Destory(renderer);
-
+	Ambiant.Destroy(renderer);
 	texture.Destroy(renderer);
 	SkyboxTexture.Destroy(renderer);
 
@@ -116,35 +125,37 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
+	lighter.CameraPosition = glm::vec3(camera.GetCameraPos());
+
 	for (int x = 0; x < MeshList.size(); x++)
 	{
 		MeshList[x].MeshPosition = cubePositions[x];
 		UniformBufferObject ubo = {};
 		ubo.model = glm::mat4(1.0f);
-		ubo.model = glm::translate(ubo.model, MeshList[x].MeshPosition);
+		ubo.model = glm::translate(ubo.model, cubePositions[x]);
 		ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), MeshList[x].MeshRotate);
 		ubo.model = glm::scale(ubo.model, MeshList[x].MeshScale);
 		ubo.view = camera.GetViewMatrix();
 		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;
 
-		MeshList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), NextFrameIndex);
+		MeshList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), lighter, NextFrameIndex);
 	}
 
-	for (int x = 0; x < ModelList.size(); x++)
-	{
-		ModelList[x].ModelPosition = cubePositions[x];
-		UniformBufferObject ubo = {};
-		ubo.model = glm::mat4(1.0f);
-		ubo.model = glm::translate(ubo.model, ModelList[x].ModelPosition);
-		ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), ModelList[x].ModelRotate);
-		ubo.model = glm::scale(ubo.model, ModelList[x].ModelScale);
-		ubo.view = camera.GetViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-		ubo.proj[1][1] *= -1;
+	//for (int x = 0; x < ModelList.size(); x++)
+	//{
+	//	ModelList[x].ModelPosition = cubePositions[x];
+	//	UniformBufferObject ubo = {};
+	//	ubo.model = glm::mat4(1.0f);
+	//	ubo.model = glm::translate(ubo.model, ModelList[x].ModelPosition);
+	//	ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), ModelList[x].ModelRotate);
+	//	ubo.model = glm::scale(ubo.model, ModelList[x].ModelScale);
+	//	ubo.view = camera.GetViewMatrix();
+	//	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	//	ubo.proj[1][1] *= -1;
 
-		ModelList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), NextFrameIndex);
-	}
+	//	ModelList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), lighter, NextFrameIndex);
+	//}
 
 	SkyBoxUniformBufferObject skyUbo = {};
 	skyUbo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
@@ -175,11 +186,14 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 			{
 				mesh.Draw(renderer, i);
 			}
-			for (auto model : ModelList)
+	/*		for (auto model : ModelList)
 			{
 				model.Draw(renderer, i);
+			}*/
+			if (renderer.Settings.ShowSkyBox)
+			{
+				Skybox.Draw(renderer, i);
 			}
-			Skybox.Draw(renderer, i);
 			if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
 			}
@@ -222,8 +236,12 @@ void VulkanGraphics::MainLoop()
 			ImGui::Begin("Hello, world!");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
+			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 			ImGui::SliderFloat("float", Ambiant.GetColorStrengthPtr(), 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 			ImGui::ColorEdit3("clear color", (float*)Ambiant.GetColorPtr()); // Edit 3 floats representing a color
+			ImGui::ColorEdit3("Position", (float*)&lighter.Position); // Edit 3 floats representing a color
+			ImGui::ColorEdit3("Color", (float*)&lighter.Color); // Edit 3 floats representing a color
+			ImGui::ColorEdit3("CameraPosition", (float*)&lighter.CameraPosition); // Edit 3 floats representing a color
 			ImGui::End();
 		}
 		ImGui::Render();
