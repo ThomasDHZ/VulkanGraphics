@@ -40,9 +40,14 @@ VkDescriptorSetLayout* VulkanResources::GetDescriptorSetLayout(VulkanRenderer& r
 	return  &renderer.GraphicsPipeline.ShaderPipelineDescriptorLayout;
 }
 
-VkCommandPool* VulkanResources::GetCommandPool(VulkanRenderer& renderer)
+VkCommandPool* VulkanResources::GetSecondaryCommandPool(VulkanRenderer& renderer)
 {
-	return &renderer.MainCommandPool;
+	return &renderer.SecondaryCommandPool;
+}
+
+VkCommandBuffer* VulkanResources::GetSecondaryCommandBuffer(VulkanRenderer& renderer, unsigned int frame)
+{
+	return &renderer.SecondaryCommandBuffers[frame];
 }
 
 VkPipeline* VulkanResources::GetShaderPipeline(VulkanRenderer& renderer)

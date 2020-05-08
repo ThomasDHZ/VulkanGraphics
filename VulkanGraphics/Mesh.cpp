@@ -130,23 +130,23 @@ void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 
 	if(Renderer.Settings.ShowMeshLines)
 	{
-		vkCmdBindPipeline(Renderer.SubCommandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetMeshViewShaderPipeline(Renderer));
+		vkCmdBindPipeline(*GetSecondaryCommandBuffer(Renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetMeshViewShaderPipeline(Renderer));
 	}
 	else
 	{
-		vkCmdBindPipeline(Renderer.SubCommandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(Renderer));
+		vkCmdBindPipeline(*GetSecondaryCommandBuffer(Renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(Renderer));
 	}
 
-	vkCmdBindVertexBuffers(Renderer.SubCommandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(Renderer.SubCommandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(Renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+	vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(Renderer, currentFrame), 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(Renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(Renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 	if(IndiceSize == 0)
 	{
-		vkCmdDraw(Renderer.SubCommandBuffers[currentFrame], VertexSize, 1, 0, 0);
+		vkCmdDraw(*GetSecondaryCommandBuffer(Renderer, currentFrame), VertexSize, 1, 0, 0);
 	}
 	else
 	{
-		vkCmdBindIndexBuffer(Renderer.SubCommandBuffers[currentFrame], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		vkCmdDrawIndexed(Renderer.SubCommandBuffers[currentFrame], static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
+		vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(Renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(*GetSecondaryCommandBuffer(Renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
 	}
 }
 

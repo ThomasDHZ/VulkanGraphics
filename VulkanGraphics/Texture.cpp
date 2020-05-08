@@ -19,7 +19,7 @@ Texture::~Texture()
 
 void Texture::TransitionImageLayout(VulkanRenderer& Renderer, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
-	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(*GetDevice(Renderer), Renderer.MainCommandPool);
+	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(*GetDevice(Renderer), *GetSecondaryCommandPool(Renderer));
 
 	VkImageMemoryBarrier barrier = {};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -65,12 +65,12 @@ void Texture::TransitionImageLayout(VulkanRenderer& Renderer, VkImageLayout oldL
 	}
 
 	vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-	VulkanBufferManager::endSingleTimeCommands(*GetDevice(Renderer), commandBuffer, Renderer.MainCommandPool, *GetGraphicsQueue(Renderer));
+	VulkanBufferManager::endSingleTimeCommands(*GetDevice(Renderer), commandBuffer, *GetSecondaryCommandPool(Renderer), *GetGraphicsQueue(Renderer));
 }
 
 void Texture::CopyBufferToImage(VulkanRenderer& Renderer, VkBuffer buffer)
 {
-	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(*GetDevice(Renderer), Renderer.MainCommandPool);
+	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(*GetDevice(Renderer), *GetSecondaryCommandPool(Renderer));
 
 	VkBufferImageCopy region = {};
 	region.bufferOffset = 0;
@@ -92,7 +92,7 @@ void Texture::CopyBufferToImage(VulkanRenderer& Renderer, VkBuffer buffer)
 	}
 
 	vkCmdCopyBufferToImage(commandBuffer, buffer, textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-	VulkanBufferManager::endSingleTimeCommands(*GetDevice(Renderer), commandBuffer, Renderer.MainCommandPool, *GetGraphicsQueue(Renderer));
+	VulkanBufferManager::endSingleTimeCommands(*GetDevice(Renderer), commandBuffer, *GetSecondaryCommandPool(Renderer), *GetGraphicsQueue(Renderer));
 }
 
 void Texture::CreateImage(VulkanRenderer& Renderer)

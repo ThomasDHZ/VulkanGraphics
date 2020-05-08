@@ -12,7 +12,8 @@ public:
 	static VkQueue* GetPresentQueue(VulkanRenderer& renderer);
 	static VkRenderPass* GetRenderPass(VulkanRenderer& renderer);
 	static VkDescriptorSetLayout* GetDescriptorSetLayout(VulkanRenderer& renderer);
-	static VkCommandPool* GetCommandPool(VulkanRenderer& renderer);
+	static VkCommandPool* GetSecondaryCommandPool(VulkanRenderer& renderer);
+	static VkCommandBuffer* GetSecondaryCommandBuffer(VulkanRenderer& renderer, unsigned int frame);
 	static VkPipeline* GetShaderPipeline(VulkanRenderer& renderer);
 	static VkPipelineLayout* GetShaderPipelineLayout(VulkanRenderer& renderer);
 	static VkDescriptorSetLayout* GetMeshViewDescriptorSetLayout(VulkanRenderer& renderer);

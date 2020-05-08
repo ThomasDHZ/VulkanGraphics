@@ -35,7 +35,15 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
-	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Nanosuit/nanosuit.obj"));
+	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Scifi Stuff.obj"));
+	//modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
+	//modelLoader.ModelMeshList[1].TextureList.emplace_back(texture);
+	//modelLoader.ModelMeshList[1].TextureList.emplace_back(texture);
+	//modelLoader.ModelMeshList[2].TextureList.emplace_back(texture);
+	//modelLoader.ModelMeshList[2].TextureList.emplace_back(texture);
+	//modelLoader.ModelMeshList[3].TextureList.emplace_back(texture);
+	//modelLoader.ModelMeshList[4].TextureList.emplace_back(texture);
+	//modelLoader.ModelMeshList[4].TextureList.emplace_back(texture);
 
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
@@ -69,15 +77,15 @@ VulkanGraphics::~VulkanGraphics()
 {
 	vkDeviceWaitIdle(*GetDevice(renderer));
 
-	//modelLoader.CleanTextureMemory(renderer);
+	modelLoader.CleanTextureMemory(renderer);
 	for (auto mesh : MeshList)
 	{
 		mesh.Destroy(renderer);
 	}
-	//for (auto model : ModelList)
-	//{
-	//	model.Destroy(renderer);
-	//}
+	for (auto model : ModelList)
+	{
+		model.Destroy(renderer);
+	}
 	Skybox.Destory(renderer);
 	Ambiant.Destroy(renderer);
 	texture.Destroy(renderer);
@@ -142,20 +150,20 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 		MeshList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), lighter, NextFrameIndex);
 	}
 
-	//for (int x = 0; x < ModelList.size(); x++)
-	//{
-	//	ModelList[x].ModelPosition = cubePositions[x];
-	//	UniformBufferObject ubo = {};
-	//	ubo.model = glm::mat4(1.0f);
-	//	ubo.model = glm::translate(ubo.model, ModelList[x].ModelPosition);
-	//	ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), ModelList[x].ModelRotate);
-	//	ubo.model = glm::scale(ubo.model, ModelList[x].ModelScale);
-	//	ubo.view = camera.GetViewMatrix();
-	//	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-	//	ubo.proj[1][1] *= -1;
+	for (int x = 0; x < ModelList.size(); x++)
+	{
+		ModelList[x].ModelPosition = cubePositions[x];
+		UniformBufferObject ubo = {};
+		ubo.model = glm::mat4(1.0f);
+		ubo.model = glm::translate(ubo.model, ModelList[x].ModelPosition);
+		ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), ModelList[x].ModelRotate);
+		ubo.model = glm::scale(ubo.model, ModelList[x].ModelScale);
+		ubo.view = camera.GetViewMatrix();
+		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+		ubo.proj[1][1] *= -1;
 
-	//	ModelList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), lighter, NextFrameIndex);
-	//}
+		ModelList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), lighter, NextFrameIndex);
+	}
 
 	SkyBoxUniformBufferObject skyUbo = {};
 	skyUbo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
@@ -174,27 +182,27 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 			VkCommandBufferInheritanceInfo InheritanceInfo = {};
 			InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
 			InheritanceInfo.renderPass = *GetRenderPass(renderer);
-			InheritanceInfo.framebuffer = renderer.swapChainFramebuffers[i];
+			InheritanceInfo.framebuffer = renderer.SwapChainFramebuffers[i];
 
 			VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
 			BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 			BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
 
-			vkBeginCommandBuffer(renderer.SubCommandBuffers[i], &BeginSecondaryCommandBuffer);
+			vkBeginCommandBuffer(renderer.SecondaryCommandBuffers[i], &BeginSecondaryCommandBuffer);
 			for (auto mesh : MeshList)
 			{
 				mesh.Draw(renderer, i);
 			}
-	/*		for (auto model : ModelList)
+			for (auto model : ModelList)
 			{
 				model.Draw(renderer, i);
-			}*/
+			}
 			if (renderer.Settings.ShowSkyBox)
 			{
 				Skybox.Draw(renderer, i);
 			}
-			if (vkEndCommandBuffer(renderer.SubCommandBuffers[i]) != VK_SUCCESS) {
+			if (vkEndCommandBuffer(renderer.SecondaryCommandBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
 			}
 		}
@@ -202,7 +210,7 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 		renderer.UpdateCommandBuffers = false;
 	}
 
-	guiDebugger.UpdateCommandBuffers(NextFrameIndex, *GetRenderPass(renderer), renderer.swapChainFramebuffers[NextFrameIndex]);
+	guiDebugger.UpdateCommandBuffers(NextFrameIndex, *GetRenderPass(renderer), renderer.SwapChainFramebuffers[NextFrameIndex]);
 }
 
 void VulkanGraphics::Draw()
@@ -217,7 +225,7 @@ void VulkanGraphics::Draw()
 	Update(NextFrameIndex);
 	UpdateCommandBuffers(NextFrameIndex);
 	renderer.RunCommandBuffers.clear();
-	renderer.RunCommandBuffers.emplace_back(renderer.SubCommandBuffers[NextFrameIndex]);
+	renderer.RunCommandBuffers.emplace_back(renderer.SecondaryCommandBuffers[NextFrameIndex]);
 	renderer.RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(NextFrameIndex));
 	renderer.EndFrame(Window.GetWindowPtr(), NextFrameIndex);
 }

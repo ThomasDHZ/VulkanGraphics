@@ -332,7 +332,7 @@ void VulkanRenderer::InitializeFramebuffers()
 {
 	DepthAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkDepthAttachemnt, swapChain.GetSwapChainResolution().width, swapChain.GetSwapChainResolution().height);
 
-	swapChainFramebuffers.resize(swapChain.GetSwapChainImageCount());
+	SwapChainFramebuffers.resize(swapChain.GetSwapChainImageCount());
 
 	for (size_t i = 0; i < swapChain.GetSwapChainImageCount(); i++) {
 		std::array<VkImageView, 2> attachments =
@@ -350,7 +350,7 @@ void VulkanRenderer::InitializeFramebuffers()
 		framebufferInfo.height = swapChain.GetSwapChainResolution().height;
 		framebufferInfo.layers = 1;
 
-		if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+		if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &SwapChainFramebuffers[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create framebuffer!");
 		}
 	}
@@ -359,7 +359,7 @@ void VulkanRenderer::InitializeFramebuffers()
 void VulkanRenderer::InitializeCommandBuffers()
 {
 	MainCommandBuffer.resize(swapChain.GetSwapChainImageCount());
-	SubCommandBuffers.resize(swapChain.GetSwapChainImageCount());
+	SecondaryCommandBuffers.resize(swapChain.GetSwapChainImageCount());
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -370,7 +370,7 @@ void VulkanRenderer::InitializeCommandBuffers()
 		throw std::runtime_error("failed to create graphics command pool!");
 	}
 
-	if (vkCreateCommandPool(Device, &poolInfo, nullptr, &SubCommandPool) != VK_SUCCESS) {
+	if (vkCreateCommandPool(Device, &poolInfo, nullptr, &SecondaryCommandPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create graphics command pool!");
 	}
 
@@ -386,19 +386,18 @@ void VulkanRenderer::InitializeCommandBuffers()
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = SubCommandPool;
+	allocInfo.commandPool = SecondaryCommandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	allocInfo.commandBufferCount = (uint32_t)SubCommandBuffers.size();
+	allocInfo.commandBufferCount = (uint32_t)SecondaryCommandBuffers.size();
 
-	if (vkAllocateCommandBuffers(Device, &allocInfo, SubCommandBuffers.data()) != VK_SUCCESS) {
+	if (vkAllocateCommandBuffers(Device, &allocInfo, SecondaryCommandBuffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 }
 
 void VulkanRenderer::InitializeSyncObjects()
 {
-	imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-	renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	vulkanSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 	imagesInFlight.resize(swapChain.GetSwapChainImageCount(), VK_NULL_HANDLE);
 
@@ -410,8 +409,8 @@ void VulkanRenderer::InitializeSyncObjects()
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		if (vkCreateSemaphore(Device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(Device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+		if (vkCreateSemaphore(Device, &semaphoreInfo, nullptr, &vulkanSemaphores[i].ImageAcquiredSemaphore) != VK_SUCCESS ||
+			vkCreateSemaphore(Device, &semaphoreInfo, nullptr, &vulkanSemaphores[i].RenderCompleteSemaphore) != VK_SUCCESS ||
 			vkCreateFence(Device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create synchronization objects for a frame!");
 		}
@@ -431,12 +430,12 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 
 	DepthAttachment.UpdateFrameBuffer(Device);
 
-	for (auto framebuffer : swapChainFramebuffers)
+	for (auto framebuffer : SwapChainFramebuffers)
 	{
 		vkDestroyFramebuffer(Device, framebuffer, nullptr);
 	}
 
-	vkFreeCommandBuffers(Device, SubCommandPool, static_cast<uint32_t>(SubCommandBuffers.size()), SubCommandBuffers.data());
+	vkFreeCommandBuffers(Device, SecondaryCommandPool, static_cast<uint32_t>(SecondaryCommandBuffers.size()), SecondaryCommandBuffers.data());
 	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
 	vkDestroyPipeline(Device, MeshviewPipeline.ShaderPipeline, nullptr);
@@ -450,7 +449,7 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	}
 
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
-	vkDestroyCommandPool(Device, SubCommandPool, nullptr);
+	vkDestroyCommandPool(Device, SecondaryCommandPool, nullptr);
 	vkDestroySwapchainKHR(Device, swapChain.GetSwapChain(), nullptr);
 
 	swapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
@@ -468,7 +467,7 @@ uint32_t VulkanRenderer::StartFrame(GLFWwindow* window)
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
-	VkResult result = vkAcquireNextImageKHR(Device, swapChain.GetSwapChain(), UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(Device, swapChain.GetSwapChain(), UINT64_MAX, vulkanSemaphores[currentFrame].ImageAcquiredSemaphore, VK_NULL_HANDLE, &imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR)
 	{
@@ -494,7 +493,7 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = RenderPass;
-	renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+	renderPassInfo.framebuffer = SwapChainFramebuffers[imageIndex];
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = swapChain.GetSwapChainResolution();
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -512,7 +511,7 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+	VkSemaphore waitSemaphores[] = { vulkanSemaphores[currentFrame].ImageAcquiredSemaphore };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
@@ -520,7 +519,7 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &MainCommandBuffer[imageIndex];
 
-	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+	VkSemaphore signalSemaphores[] = { vulkanSemaphores[currentFrame].RenderCompleteSemaphore };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -567,11 +566,11 @@ void VulkanRenderer::DestoryVulkan()
 	swapChain.Destroy(Device);
 
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
-	vkDestroyCommandPool(Device, SubCommandPool, nullptr);
+	vkDestroyCommandPool(Device, SecondaryCommandPool, nullptr);
 
 	vkDestroyRenderPass(Device, RenderPass, nullptr);
 
-	for (auto& framebuffer : swapChainFramebuffers) 
+	for (auto& framebuffer : SwapChainFramebuffers)
 	{
 		vkDestroyFramebuffer(Device, framebuffer, nullptr);
 		framebuffer = VK_NULL_HANDLE;
@@ -579,19 +578,16 @@ void VulkanRenderer::DestoryVulkan()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 	{
-		vkDestroySemaphore(Device, renderFinishedSemaphores[i], nullptr);
-		vkDestroySemaphore(Device, imageAvailableSemaphores[i], nullptr);
+		vulkanSemaphores[i].Destory(Device);
 		vkDestroyFence(Device, inFlightFences[i], nullptr);
 
-		renderFinishedSemaphores[i] = VK_NULL_HANDLE;
-		imageAvailableSemaphores[i] = VK_NULL_HANDLE;
 		inFlightFences[i] = VK_NULL_HANDLE;
 	}
 
 	vkDestroyDevice(Device, nullptr);
 
 	MainCommandPool = VK_NULL_HANDLE;
-	SubCommandPool = VK_NULL_HANDLE;
+	SecondaryCommandPool = VK_NULL_HANDLE;
 	RenderPass = VK_NULL_HANDLE;
 	Device = VK_NULL_HANDLE;
 

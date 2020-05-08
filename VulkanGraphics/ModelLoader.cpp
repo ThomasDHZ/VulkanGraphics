@@ -102,7 +102,7 @@ std::vector<Texture2D> ModelLoader::LoadTextures(VulkanRenderer& Renderer, const
 		{
 			aiString TextureLocation;
 			material->GetTexture(aiTextureType_DIFFUSE, y, &TextureLocation);
-//			TextureList.emplace_back(Texture2D(Renderer, directory + TextureLocation.C_Str()));
+			TextureList.emplace_back(Texture2D(Renderer, directory + TextureLocation.C_Str()));
 		}
 	}
 

@@ -14,7 +14,7 @@ struct SubMesh
 class ModelLoader : VulkanResources
 {
 private:
-	std::vector<SubMesh> ModelMeshList;
+
 
 	void LoadModel(VulkanRenderer& Renderer, const std::string& FilePath);
 	void ProcessNode(VulkanRenderer& Renderer, const std::string& FilePath, aiNode* node, const aiScene* scene);
@@ -27,6 +27,7 @@ public:
 	ModelLoader(VulkanRenderer& Renderer, const std::string& FilePath);
 	~ModelLoader();
 
+	std::vector<SubMesh> ModelMeshList;
 	std::vector<SubMesh> GetModelMeshs() { return ModelMeshList; }
 	void CleanTextureMemory(VulkanRenderer& Renderer);
 };

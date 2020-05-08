@@ -36,6 +36,21 @@ class VulkanRenderer
 	friend class VulkanGraphics;
 	friend class VulkanResources;
 private:
+	struct VulkanSemaphores
+	{
+		VkSemaphore ImageAcquiredSemaphore;
+		VkSemaphore RenderCompleteSemaphore;
+		
+		void Destory(VkDevice device)
+		{
+			vkDestroySemaphore(device, RenderCompleteSemaphore, nullptr);
+			vkDestroySemaphore(device, ImageAcquiredSemaphore, nullptr);
+
+			RenderCompleteSemaphore = VK_NULL_HANDLE;
+			ImageAcquiredSemaphore = VK_NULL_HANDLE;
+		}
+	};
+
 	bool framebufferResized = false;
 
 	VkInstance Instance = VK_NULL_HANDLE;
@@ -54,10 +69,12 @@ private:
 	WireFramePipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 
+	VkCommandPool MainCommandPool;
 	std::vector<VkCommandBuffer> MainCommandBuffer;
+	VkCommandPool SecondaryCommandPool;
+	std::vector<VkCommandBuffer> SecondaryCommandBuffers;
 
-	std::vector<VkSemaphore> imageAvailableSemaphores;
-	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VulkanSemaphores> vulkanSemaphores;
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
 
@@ -81,9 +98,10 @@ private:
 	void InitializeSyncObjects();
 
 protected:
-
+	//Pretty much to section off for anything that needs to be used in VUlkanGraphics.
 	size_t currentFrame = 0;
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
+	std::vector<VkFramebuffer> SwapChainFramebuffers;
 
 	bool UpdateCommandBuffers = true;
 
@@ -99,9 +117,4 @@ public:
 	~VulkanRenderer();
 
 	VulkanSettings Settings;
-
-	VkCommandPool SubCommandPool;
-	std::vector<VkCommandBuffer> SubCommandBuffers;
-	VkCommandPool MainCommandPool;
-	std::vector<VkFramebuffer> swapChainFramebuffers;
 };
