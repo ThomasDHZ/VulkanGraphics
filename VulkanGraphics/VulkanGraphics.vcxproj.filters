@@ -141,6 +141,12 @@
     <ClCompile Include="WireFramePipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BaseShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBufferShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\light.frag">
@@ -173,16 +179,16 @@
     <None Include="Shaders\DifferedRenderingShader.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="FrameBufferShader.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="FrameBufferShader.vert">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="Shaders\WireFrameShader.frag">
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\WireFrameShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\FrameBufferShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\FrameBufferShader.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -320,6 +326,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WireFramePipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

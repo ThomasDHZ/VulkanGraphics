@@ -9,6 +9,7 @@
 #include "InputAttachment.h"
 #include "SkyBoxPipeline.h"
 #include "WireFramePipeline.h"
+#include "FrameBuffer.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -61,11 +62,13 @@ private:
 	VkQueue PresentQueue = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
 
+	InputAttachment ColorAttachment;
 	InputAttachment DepthAttachment;
 
 	VulkanDebugger VulkanDebug;
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
+	FrameBuffer framebuffer;
 	WireFramePipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 

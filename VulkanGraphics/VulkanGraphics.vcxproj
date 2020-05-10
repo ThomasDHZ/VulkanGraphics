@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AmbientLight.cpp" />
+    <ClCompile Include="BaseShader.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Canvas2D.cpp" />
     <ClCompile Include="Cube.cpp" />
@@ -155,6 +156,7 @@
     <ClCompile Include="ForwardRenderingPipeline.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="DifferedRenderingPipeline.cpp" />
+    <ClCompile Include="FrameBufferShader.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -188,10 +190,10 @@
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="FrameBufferShader.frag" />
-    <None Include="FrameBufferShader.vert" />
     <None Include="Shaders\DifferedRenderingShader.frag" />
     <None Include="Shaders\DifferedRenderingShader.vert" />
+    <None Include="Shaders\FrameBufferShader.frag" />
+    <None Include="Shaders\FrameBufferShader.vert" />
     <None Include="Shaders\light.frag" />
     <None Include="Shaders\light.vert" />
     <None Include="Shaders\ForwardRendererShader.frag" />
@@ -205,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AmbientLight.h" />
+    <ClInclude Include="BaseShader.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Canvas2D.h" />
     <ClInclude Include="Cube.h" />
@@ -213,6 +216,7 @@
     <ClInclude Include="ForwardRenderingPipeline.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="DifferedRenderingPipeline.h" />
+    <ClInclude Include="FrameBufferShader.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="GUIDebugger.h" />
     <ClInclude Include="ImGui\imconfig.h" />
