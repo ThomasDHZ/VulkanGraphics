@@ -10,6 +10,7 @@
 #include "SkyBoxPipeline.h"
 #include "WireFramePipeline.h"
 #include "FrameBuffer.h"
+#include "FrameBufferRenderingPipeline.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -69,6 +70,7 @@ private:
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
 	FrameBuffer framebuffer;
+	FrameBufferRenderingPipeline FrameBufferPipeline;
 	WireFramePipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 

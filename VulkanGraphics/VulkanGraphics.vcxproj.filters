@@ -141,10 +141,7 @@
     <ClCompile Include="WireFramePipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BaseShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameBufferShader.cpp">
+    <ClCompile Include="FrameBufferRenderingPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -328,10 +325,7 @@
     <ClInclude Include="WireFramePipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BaseShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameBufferShader.h">
+    <ClInclude Include="FrameBufferRenderingPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

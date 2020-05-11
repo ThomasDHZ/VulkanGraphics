@@ -147,7 +147,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AmbientLight.cpp" />
-    <ClCompile Include="BaseShader.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Canvas2D.cpp" />
     <ClCompile Include="Cube.cpp" />
@@ -156,7 +155,7 @@
     <ClCompile Include="ForwardRenderingPipeline.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="DifferedRenderingPipeline.cpp" />
-    <ClCompile Include="FrameBufferShader.cpp" />
+    <ClCompile Include="FrameBufferRenderingPipeline.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -207,7 +206,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AmbientLight.h" />
-    <ClInclude Include="BaseShader.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Canvas2D.h" />
     <ClInclude Include="Cube.h" />
@@ -216,7 +214,7 @@
     <ClInclude Include="ForwardRenderingPipeline.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="DifferedRenderingPipeline.h" />
-    <ClInclude Include="FrameBufferShader.h" />
+    <ClInclude Include="FrameBufferRenderingPipeline.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="GUIDebugger.h" />
     <ClInclude Include="ImGui\imconfig.h" />

@@ -15,6 +15,7 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 	InitializeSyncObjects();
 
 	GraphicsPipeline = ForwardRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	FrameBufferPipeline = FrameBufferRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	MeshviewPipeline = WireFramePipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline = SkyBoxPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 
@@ -24,7 +25,7 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 	vd.GraphicsQueue = GraphicsQueue;
 	vd.PhysicalDevice = PhysicalDevice;
 	vd.SwapChainSize = 3;
-	framebuffer = FrameBuffer(vd, swapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment);
+	framebuffer = FrameBuffer(vd, swapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout);
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -279,117 +280,112 @@ void VulkanRenderer::InitializeVulkan(GLFWwindow* window)
 
 void VulkanRenderer::InitializeRenderPass()
 {
-	std::array<VkAttachmentDescription, 3> attachments{};
+	std::vector<VkAttachmentDescription> RenderPassAttachmentList;
+	std::vector<VkSubpassDescription> SubpassDescriptionList;
+	std::vector<VkSubpassDependency> SubpassDependencyList;
 
-	// Swap chain image color attachment
-	// Will be transitioned to present layout
-	attachments[0].format = swapChain.GetSwapChainImageFormat().format;
-	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	VkAttachmentDescription SwapChainAttachment = {};
+	SwapChainAttachment.format = swapChain.GetSwapChainImageFormat().format;
+	SwapChainAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	SwapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	SwapChainAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	SwapChainAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	SwapChainAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	SwapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	SwapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-	// Input attachments
-	// These will be written in the first subpass, transitioned to input attachments 
-	// and then read in the secod subpass
+	VkAttachmentDescription ColorAttachment = {};
+	ColorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+	ColorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	ColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	ColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	ColorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	ColorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	ColorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	ColorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-	// Color
-	attachments[1].format = VK_FORMAT_R8G8B8A8_UNORM;
-	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	attachments[1].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	// Depth
-	attachments[2].format = findDepthFormat();
-	attachments[2].samples = VK_SAMPLE_COUNT_1_BIT;
-	attachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachments[2].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[2].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	attachments[2].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	attachments[2].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	VkAttachmentDescription DepthAttachment = {};
+	DepthAttachment.format = findDepthFormat();
+	DepthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	DepthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	DepthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	DepthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	DepthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	DepthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	DepthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-	std::array<VkSubpassDescription, 2> subpassDescriptions{};
-
-	/*
-		First subpass
-		Fill the color and depth attachments
-	*/
 	VkAttachmentReference colorReference = { 1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
 	VkAttachmentReference depthReference = { 2, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
 
-	subpassDescriptions[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpassDescriptions[0].colorAttachmentCount = 1;
-	subpassDescriptions[0].pColorAttachments = &colorReference;
-	subpassDescriptions[0].pDepthStencilAttachment = &depthReference;
-
-	/*
-		Second subpass
-		Input attachment read and swap chain color attachment write
-	*/
-
-	// Color reference (target) for this sub pass is the swap chain color attachment
 	VkAttachmentReference colorReferenceSwapchain = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
 
-	subpassDescriptions[1].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subpassDescriptions[1].colorAttachmentCount = 1;
-	subpassDescriptions[1].pColorAttachments = &colorReferenceSwapchain;
-
-	// Color and depth attachment written to in first sub pass will be used as input attachments to be read in the fragment shader
 	VkAttachmentReference inputReferences[2];
 	inputReferences[0] = { 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 	inputReferences[1] = { 2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
 
-	// Use the attachments filled in the first pass as input attachments
-	subpassDescriptions[1].inputAttachmentCount = 2;
-	subpassDescriptions[1].pInputAttachments = inputReferences;
+	VkSubpassDescription FirstSubPassDescription = {};
+	FirstSubPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	FirstSubPassDescription.colorAttachmentCount = 1;
+	FirstSubPassDescription.pColorAttachments = &colorReference;
+	FirstSubPassDescription.pDepthStencilAttachment = &depthReference;
+	FirstSubPassDescription.inputAttachmentCount = 0;
 
-	/*
-		Subpass dependencies for layout transitions
-	*/
-	std::array<VkSubpassDependency, 3> dependencies;
+	VkSubpassDescription SecondSubPassDescription = {};
+	SecondSubPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	SecondSubPassDescription.colorAttachmentCount = 1;
+	SecondSubPassDescription.pColorAttachments = &colorReferenceSwapchain;
+	SecondSubPassDescription.inputAttachmentCount = 2;
+	SecondSubPassDescription.pInputAttachments = inputReferences;
 
-	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependencies[0].dstSubpass = 0;
-	dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-	// This dependency transitions the input attachment from color attachment to shader read
-	dependencies[1].srcSubpass = 0;
-	dependencies[1].dstSubpass = 1;
-	dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+	VkSubpassDependency FirstDependency = {};
+	FirstDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	FirstDependency.dstSubpass = 0;
+	FirstDependency.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	FirstDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	FirstDependency.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+	FirstDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	FirstDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-	dependencies[2].srcSubpass = 0;
-	dependencies[2].dstSubpass = VK_SUBPASS_EXTERNAL;
-	dependencies[2].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependencies[2].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	dependencies[2].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	dependencies[2].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	dependencies[2].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+	VkSubpassDependency SecondDependency = {};
+	SecondDependency.srcSubpass = 0;
+	SecondDependency.dstSubpass = 1;
+	SecondDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	SecondDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	SecondDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	SecondDependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	SecondDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-	VkRenderPassCreateInfo renderPassInfoCI{};
-	renderPassInfoCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfoCI.attachmentCount = static_cast<uint32_t>(attachments.size());
-	renderPassInfoCI.pAttachments = attachments.data();
-	renderPassInfoCI.subpassCount = static_cast<uint32_t>(subpassDescriptions.size());
-	renderPassInfoCI.pSubpasses = subpassDescriptions.data();
-	renderPassInfoCI.dependencyCount = static_cast<uint32_t>(dependencies.size());
-	renderPassInfoCI.pDependencies = dependencies.data();
+	VkSubpassDependency ThirdDependency = {};
+	ThirdDependency.srcSubpass = 0;
+	ThirdDependency.dstSubpass = VK_SUBPASS_EXTERNAL;
+	ThirdDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	ThirdDependency.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	ThirdDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	ThirdDependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+	ThirdDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-	if (vkCreateRenderPass(Device, &renderPassInfoCI, nullptr, &RenderPass) != VK_SUCCESS) {
+	RenderPassAttachmentList.emplace_back(SwapChainAttachment);
+	RenderPassAttachmentList.emplace_back(ColorAttachment);
+	RenderPassAttachmentList.emplace_back(DepthAttachment);
+
+	SubpassDescriptionList.emplace_back(FirstSubPassDescription);
+	SubpassDescriptionList.emplace_back(SecondSubPassDescription);
+
+	SubpassDependencyList.emplace_back(FirstDependency);
+	SubpassDependencyList.emplace_back(SecondDependency);
+	SubpassDependencyList.emplace_back(ThirdDependency);
+
+	VkRenderPassCreateInfo RenderPassInfo{};
+	RenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	RenderPassInfo.attachmentCount = static_cast<uint32_t>(RenderPassAttachmentList.size());
+	RenderPassInfo.pAttachments = RenderPassAttachmentList.data();
+	RenderPassInfo.subpassCount = static_cast<uint32_t>(SubpassDescriptionList.size());
+	RenderPassInfo.pSubpasses = SubpassDescriptionList.data();
+	RenderPassInfo.dependencyCount = static_cast<uint32_t>(SubpassDependencyList.size());
+	RenderPassInfo.pDependencies = SubpassDependencyList.data();
+
+	if (vkCreateRenderPass(Device, &RenderPassInfo, nullptr, &RenderPass) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create render pass!");
 	}
 }
@@ -496,7 +492,8 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 
 	vkDeviceWaitIdle(Device);
 
-	DepthAttachment.UpdateFrameBuffer(Device);
+	ColorAttachment.DeleteInputAttachment(Device);
+	DepthAttachment.DeleteInputAttachment(Device);
 
 	for (auto framebuffer : SwapChainFramebuffers)
 	{
@@ -504,13 +501,10 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	}
 
 	vkFreeCommandBuffers(Device, SecondaryCommandPool, static_cast<uint32_t>(SecondaryCommandBuffers.size()), SecondaryCommandBuffers.data());
-	vkDestroyPipeline(Device, GraphicsPipeline.ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(Device, GraphicsPipeline.ShaderPipelineLayout, nullptr);
-	vkDestroyPipeline(Device, MeshviewPipeline.ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(Device, MeshviewPipeline.ShaderPipelineLayout, nullptr);
-	vkDestroyPipeline(Device, SkyboxPipeline.ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(Device, SkyboxPipeline.ShaderPipelineLayout, nullptr);
-	framebuffer.DestroySwapChainStage();
+	GraphicsPipeline.UpdateSwapChain();
+	FrameBufferPipeline.UpdateSwapChain();
+	MeshviewPipeline.UpdateSwapChain();
+	SkyboxPipeline.UpdateSwapChain();
 
 	for (auto imageView : swapChain.GetSwapChainImageViews())
 	{
@@ -523,12 +517,13 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 
 	swapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 	GraphicsPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	FrameBufferPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	MeshviewPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 
-	framebuffer.RecreateSwapChainStage(swapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment);
+	framebuffer.RecreateSwapChainStage(swapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout);
 	UpdateCommandBuffers = true;
 }
 
@@ -577,7 +572,7 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 	vkCmdBeginRenderPass(MainCommandBuffer[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 	vkCmdExecuteCommands(MainCommandBuffer[imageIndex], RunCommandBuffers.size(), RunCommandBuffers.data());
 	vkCmdNextSubpass(MainCommandBuffer[imageIndex], VK_SUBPASS_CONTENTS_INLINE);
-	framebuffer.Draw(MainCommandBuffer[imageIndex], imageIndex);
+	framebuffer.Draw(FrameBufferPipeline, MainCommandBuffer[imageIndex], imageIndex);
 	vkCmdEndRenderPass(MainCommandBuffer[imageIndex]);
 	vkEndCommandBuffer(MainCommandBuffer[imageIndex]);
 
@@ -630,11 +625,14 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 
 void VulkanRenderer::DestoryVulkan()
 {
-	DepthAttachment.UpdateFrameBuffer(Device);
+	ColorAttachment.DeleteInputAttachment(Device);
+	DepthAttachment.DeleteInputAttachment(Device);
 
 	GraphicsPipeline.Destroy();
+	FrameBufferPipeline.Destroy();
 	MeshviewPipeline.Destroy();
 	SkyboxPipeline.Destroy();
+	framebuffer.Destory(Device);
 
 	swapChain.Destroy(Device);
 

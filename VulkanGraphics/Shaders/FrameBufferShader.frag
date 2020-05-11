@@ -9,7 +9,6 @@ layout (binding = 2) uniform UBO {
 	int attachmentIndex;
 } ubo;
 
-layout (location = 0) out vec4 outColor;
 
 vec3 brightnessContrast(vec3 color, float brightness, float contrast) {
 	return (color - 0.5) * contrast + 0.5 + brightness;
@@ -17,6 +16,6 @@ vec3 brightnessContrast(vec3 color, float brightness, float contrast) {
 
 void main() 
 {
-		vec3 color = subpassLoad(inputColor).rgb;
-		outColor.rgb = color;
+	vec3 color = subpassLoad(inputColor).rgb;
+	outColor.rgb = color;
 }

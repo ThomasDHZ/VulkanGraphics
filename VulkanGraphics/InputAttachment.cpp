@@ -120,7 +120,7 @@ void InputAttachment::CreateAttachmentView(VkDevice device, VkImageAspectFlags a
 	}
 }
 
-void InputAttachment::UpdateFrameBuffer(VkDevice device)
+void InputAttachment::DeleteInputAttachment(VkDevice device)
 {
 	vkDestroyImageView(device, AttachmentImageView, nullptr);
 	vkDestroyImage(device, AttachmentImage, nullptr);

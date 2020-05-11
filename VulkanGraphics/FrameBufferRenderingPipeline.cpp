@@ -1,31 +1,21 @@
-#include "FrameBufferShader.h"
-#include "Mesh.h"
-FrameBufferShader::FrameBufferShader() : BaseShader()
+#include "FrameBufferRenderingPipeline.h"
+#include "Vertex.h"
+
+FrameBufferRenderingPipeline::FrameBufferRenderingPipeline() : GraphicsPipeline()
 {
 }
 
-FrameBufferShader::FrameBufferShader(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView ColorImageView, VkImageView DepthImageView) : BaseShader(deviceInfo)
+FrameBufferRenderingPipeline::FrameBufferRenderingPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_FowardRenderer)
 {
 	CreateDescriptorSetLayout();
-	CreateShaderPipeLine(swapChainExtent, renderPass);
-	CreateUniformBuffers();
-	CreateDescriptorPool();
-	CreateDescriptorSets(ColorImageView, DepthImageView);
+	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }
 
-FrameBufferShader::~FrameBufferShader()
+FrameBufferRenderingPipeline::~FrameBufferRenderingPipeline()
 {
 }
 
-void FrameBufferShader::RecreateSwapChainInfo(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkImageView ColorImageView, VkImageView DepthImageView)
-{
-	CreateShaderPipeLine(swapChainExtent, renderPass);
-	CreateUniformBuffers();
-	CreateDescriptorPool();
-	CreateDescriptorSets(ColorImageView, DepthImageView);
-}
-
-void FrameBufferShader::CreateDescriptorSetLayout()
+void FrameBufferRenderingPipeline::CreateDescriptorSetLayout()
 {
 	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
 
@@ -37,10 +27,10 @@ void FrameBufferShader::CreateDescriptorSetLayout()
 	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	BaseShader::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
+	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void FrameBufferShader::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass)
+void FrameBufferRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
 	auto FrameBufferVertShaderCode = ReadShaderFile("shaders/FrameBufferVert.spv");
 	auto FrameBufferFrageShaderCode = ReadShaderFile("shaders/FrameBufferFrag.spv");
@@ -62,12 +52,11 @@ void FrameBufferShader::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRende
 
 	VkPipelineShaderStageCreateInfo FrameBufferShaderStages[] = { FrameBufferVertShaderStageInfo, FrameBufferFragShaderStageInfo };
 
+	auto bindingDescription = Vertex2D::GetBindingDescription();
+	auto attributeDescriptions = Vertex2D::GetAttributeDescriptions();
+
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
-	auto bindingDescription = Vertex::GetBindingDescription();
-	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
-
 	vertexInputInfo.vertexBindingDescriptionCount = 1;
 	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
@@ -135,23 +124,18 @@ void FrameBufferShader::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRende
 	colorBlending.blendConstants[2] = 0.0f;
 	colorBlending.blendConstants[3] = 0.0f;
 
-	VkPipelineVertexInputStateCreateInfo emptyVertexInputStateCI{};
-	emptyVertexInputStateCI.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
 	VkPipelineLayoutCreateInfo FrameBufferPipelineLayoutInfo = {};
 	FrameBufferPipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	FrameBufferPipelineLayoutInfo.setLayoutCount = 1;
-	FrameBufferPipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+	FrameBufferPipelineLayoutInfo.pSetLayouts = &ShaderPipelineDescriptorLayout;
 
-	if (vkCreatePipelineLayout(DeviceInfo.Device, &FrameBufferPipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create pipeline layout!");
-	}
+	GraphicsPipeline::CreatePipeLineLayout(FrameBufferPipelineLayoutInfo);
 
 	VkGraphicsPipelineCreateInfo FrameBufferPipelineInfo = {};
 	FrameBufferPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	FrameBufferPipelineInfo.stageCount = 2;
 	FrameBufferPipelineInfo.pStages = FrameBufferShaderStages;
-	FrameBufferPipelineInfo.pVertexInputState = &emptyVertexInputStateCI;
+	FrameBufferPipelineInfo.pVertexInputState = &vertexInputInfo;
 	FrameBufferPipelineInfo.pInputAssemblyState = &inputAssembly;
 	FrameBufferPipelineInfo.pViewportState = &viewportState;
 	FrameBufferPipelineInfo.pRasterizationState = &rasterizer;
@@ -163,56 +147,13 @@ void FrameBufferShader::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRende
 	FrameBufferPipelineInfo.subpass = 1;
 	FrameBufferPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	if (vkCreateGraphicsPipelines(DeviceInfo.Device, VK_NULL_HANDLE, 1, &FrameBufferPipelineInfo, nullptr, &ShaderPipeline) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create graphics pipeline!");
-	}
+	GraphicsPipeline::CreatePipeLine(FrameBufferPipelineInfo);
 
-	vkDestroyShaderModule(DeviceInfo.Device, FrameBufferFragShaderModule, nullptr);
-	vkDestroyShaderModule(DeviceInfo.Device, FrameBufferVertShaderModule, nullptr);
+	vkDestroyShaderModule(device, FrameBufferFragShaderModule, nullptr);
+	vkDestroyShaderModule(device, FrameBufferVertShaderModule, nullptr);
 }
 
-void FrameBufferShader::CreateUniformBuffers()
+void FrameBufferRenderingPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
-}
-
-void FrameBufferShader::CreateDescriptorPool()
-{
-	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
-
-	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-
-	BaseShader::CreateDescriptorPool(std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
-}
-
-void FrameBufferShader::CreateDescriptorSets(VkImageView ColorImageView, VkImageView DepthImageView)
-{
-	BaseShader::CreateDescriptorSets();
-
-	VkDescriptorImageInfo ColorImage = {};
-	ColorImage.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	ColorImage.imageView = ColorImageView;
-	ColorImage.sampler = VK_NULL_HANDLE;
-
-	VkDescriptorImageInfo DepthImage = {};
-	DepthImage.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	DepthImage.imageView = DepthImageView;
-	DepthImage.sampler = VK_NULL_HANDLE;
-
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
-	{
-		std::array<WriteDescriptorSetInfo, 2>  WriteDescriptorInfo = {};
-
-		WriteDescriptorInfo[0].DstBinding = 0;
-		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		WriteDescriptorInfo[0].DescriptorImageInfo = ColorImage;
-
-		WriteDescriptorInfo[1].DstBinding = 1;
-		WriteDescriptorInfo[1].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		WriteDescriptorInfo[1].DescriptorImageInfo = DepthImage;
-
-		BaseShader::CreateDescriptorSetsData(std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
-	}
+	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }

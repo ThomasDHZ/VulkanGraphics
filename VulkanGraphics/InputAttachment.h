@@ -28,7 +28,7 @@ public:
 	void GetAttachmentTypeInfo(VkDevice device, VkPhysicalDevice physicalDevice, AttachmentType attachmentType);
 	void CreateAttachmentView(VkDevice device, VkImageAspectFlags aspectFlags);
 	void ReCreateAttachment(VkDevice device, VkPhysicalDevice physicalDevice, AttachmentType attachmentType, unsigned int WindowWidth, unsigned int WindowHeight);
-	void UpdateFrameBuffer(VkDevice device);
+	void DeleteInputAttachment(VkDevice device);
 
 	VkImage AttachmentImage;
 	VkDeviceMemory AttachmentImageMemory;

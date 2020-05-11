@@ -1,25 +1,45 @@
 #pragma once
-#include "FrameBufferShader.h"
+#include "FrameBufferRenderingPipeline.h"
 #include "InputAttachment.h"
+#include "VulkanBufferManager.h"
+#include "Structs.h"
+#include "Vertex.h"
+
+const std::vector<Vertex2D> FrameBufferVertices =
+{
+	{{-1.0f,  1.0f}, {0.0f, 1.0f}},
+	{{-1.0f, -1.0f}, {0.0f, 0.0f}},
+	{{ 1.0f, -1.0f}, {1.0f, 0.0f}},
+
+	{{-1.0f,  1.0f}, {0.0f, 1.0f}},
+	{{ 1.0f, -1.0f}, {1.0f, 0.0f}},
+	{{ 1.0f,  1.0f}, {1.0f, 1.0f}}
+};
 
 class FrameBuffer
 {
 private:
 
+	VkDescriptorPool descriptorPool;
 
+
+	VkDeviceMemory vertexBufferMemory;
+
+	void CreateVertexBuffer();
+	void CreateDescriptorPool();
+	void CreateDescriptorSets(VkImageView ColorImageView, VkImageView DepthImageView, VkDescriptorSetLayout descriptorSetLayout);
 public:
 	FrameBuffer();
-	FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment);
+	FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout);
 	~FrameBuffer();
 
-	VulkanDevice DeviceInfo;
-	FrameBufferShader frameBufferShader;
+	VkBuffer vertexBuffer;
+	std::vector<VkDescriptorSet> descriptorSets;
 
-	void CreateFrameBufferView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
-	void CreateFrameBuffer();
-	void Draw(VkCommandBuffer commandbuffer, int currentImage);
-	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment);
-	void DestroySwapChainStage();
-	void Destory();
+	VulkanDevice DeviceInfo;
+
+	void Draw(FrameBufferRenderingPipeline FrameBufferPipeline, VkCommandBuffer commandbuffer, int currentImage);
+	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout layout);
+	void Destory(VkDevice device);
 };
 

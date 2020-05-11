@@ -33,6 +33,7 @@ public:
 	GraphicsPipeline(VkDevice device, PipeLineType Pipelinetype);
 	~GraphicsPipeline();
 
+	void UpdateSwapChain();
 	void Destroy();
 };
 
