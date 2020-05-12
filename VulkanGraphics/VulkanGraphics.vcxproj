@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -170,6 +170,7 @@
     <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
+    <ClCompile Include="VulkanRenderer2D.cpp" />
     <ClCompile Include="WireFramePipeline.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
@@ -230,6 +231,7 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />
+    <ClInclude Include="VulkanRenderer2D.h" />
     <ClInclude Include="WireFramePipeline.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />

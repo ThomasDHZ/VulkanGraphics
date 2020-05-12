@@ -138,7 +138,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	for (int x = 0; x < MeshList.size(); x++)
 	{
 		MeshList[x].MeshPosition = cubePositions[x];
-		UniformBufferObject ubo = {};
+		PositionMatrix ubo = {};
 		ubo.model = glm::mat4(1.0f);
 		ubo.model = glm::translate(ubo.model, cubePositions[x]);
 		ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), MeshList[x].MeshRotate);
@@ -153,7 +153,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	for (int x = 0; x < ModelList.size(); x++)
 	{
 		ModelList[x].ModelPosition = cubePositions[x];
-		UniformBufferObject ubo = {};
+		PositionMatrix ubo = {};
 		ubo.model = glm::mat4(1.0f);
 		ubo.model = glm::translate(ubo.model, ModelList[x].ModelPosition);
 		ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), ModelList[x].ModelRotate);
@@ -245,11 +245,11 @@ void VulkanGraphics::MainLoop()
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
-			ImGui::SliderFloat("float", Ambiant.GetColorStrengthPtr(), 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)Ambiant.GetColorPtr()); // Edit 3 floats representing a color
-			ImGui::ColorEdit3("Position", (float*)&lighter.Position); // Edit 3 floats representing a color
-			ImGui::ColorEdit3("Color", (float*)&lighter.Color); // Edit 3 floats representing a color
-			ImGui::ColorEdit3("CameraPosition", (float*)&lighter.CameraPosition); // Edit 3 floats representing a color
+			ImGui::SliderFloat("float", Ambiant.GetColorStrengthPtr(), 0.0f, 1.0f);
+			ImGui::ColorEdit3("Ambiant color", (float*)Ambiant.GetColorPtr());
+			ImGui::ColorEdit3("Position", (float*)&lighter.Position);
+			ImGui::ColorEdit3("Color", (float*)&lighter.Color);
+			ImGui::ColorEdit3("CameraPosition", (float*)&lighter.CameraPosition);
 			ImGui::End();
 		}
 		ImGui::Render();

@@ -5,39 +5,39 @@ FrameBuffer::FrameBuffer()
 {
 }
 
-FrameBuffer::FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout)
+FrameBuffer::FrameBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, VkExtent2D swapChainExtent, VkRenderPass renderPass,
+						 InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize)
 {
-	DeviceInfo = deviceInfo;
-	CreateVertexBuffer();
-	CreateDescriptorPool();
-	CreateDescriptorSets(ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView, descriptorSetLayout);
+	CreateVertexBuffer(Device, PhysicalDevice, CommandPool, GraphicsQueue);
+	CreateDescriptorPool(Device, SwapChainSize);
+	CreateDescriptorSets(Device, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView, descriptorSetLayout, SwapChainSize);
 }
 
 FrameBuffer::~FrameBuffer()
 {
 }
 
-void FrameBuffer::CreateVertexBuffer()
+void FrameBuffer::CreateVertexBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue)
 {
 	VkDeviceSize bufferSize = sizeof(FrameBufferVertices[0]) * FrameBufferVertices.size();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(Device, PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(DeviceInfo.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(Device, stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, FrameBufferVertices.data(), (size_t)bufferSize);
-	vkUnmapMemory(DeviceInfo.Device, stagingBufferMemory);
+	vkUnmapMemory(Device, stagingBufferMemory);
 
-	VulkanBufferManager::CreateBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
-	VulkanBufferManager::CopyBuffer(DeviceInfo.Device, DeviceInfo.PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, DeviceInfo.CommandPool, DeviceInfo.GraphicsQueue);
+	VulkanBufferManager::CreateBuffer(Device, PhysicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+	VulkanBufferManager::CopyBuffer(Device, PhysicalDevice, stagingBuffer, vertexBuffer, bufferSize, CommandPool, GraphicsQueue);
 
-	vkDestroyBuffer(DeviceInfo.Device, stagingBuffer, nullptr);
-	vkFreeMemory(DeviceInfo.Device, stagingBufferMemory, nullptr);
+	vkDestroyBuffer(Device, stagingBuffer, nullptr);
+	vkFreeMemory(Device, stagingBufferMemory, nullptr);
 }
 
-void FrameBuffer::CreateDescriptorPool()
+void FrameBuffer::CreateDescriptorPool(VkDevice Device, int SwapChainSize)
 {
 	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
 
@@ -50,7 +50,7 @@ void FrameBuffer::CreateDescriptorPool()
 	{
 		VkDescriptorPoolSize DescriptorPoolBinding = {};
 		DescriptorPoolBinding.type = DescriptorPool.DescriptorType;
-		DescriptorPoolBinding.descriptorCount = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
+		DescriptorPoolBinding.descriptorCount = static_cast<uint32_t>(SwapChainSize);
 		DescriptorPoolList.emplace_back(DescriptorPoolBinding);
 	}
 
@@ -58,24 +58,25 @@ void FrameBuffer::CreateDescriptorPool()
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(DescriptorPoolList.size());
 	poolInfo.pPoolSizes = DescriptorPoolList.data();
-	poolInfo.maxSets = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
+	poolInfo.maxSets = static_cast<uint32_t>(SwapChainSize);
 
-	if (vkCreateDescriptorPool(DeviceInfo.Device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+	if (vkCreateDescriptorPool(Device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) 
+	{
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
 }
 
-void FrameBuffer::CreateDescriptorSets(VkImageView ColorImageView, VkImageView DepthImageView, VkDescriptorSetLayout descriptorSetLayout)
+void FrameBuffer::CreateDescriptorSets(VkDevice Device, VkImageView ColorImageView, VkImageView DepthImageView, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize)
 {
-	std::vector<VkDescriptorSetLayout> layouts(DeviceInfo.SwapChainSize, descriptorSetLayout);
+	std::vector<VkDescriptorSetLayout> layouts(SwapChainSize, descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(DeviceInfo.SwapChainSize);
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(SwapChainSize);
 	allocInfo.pSetLayouts = layouts.data();
 
-	descriptorSets.resize(DeviceInfo.SwapChainSize);
-	if (vkAllocateDescriptorSets(DeviceInfo.Device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+	descriptorSets.resize(SwapChainSize);
+	if (vkAllocateDescriptorSets(Device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
 
@@ -89,7 +90,7 @@ void FrameBuffer::CreateDescriptorSets(VkImageView ColorImageView, VkImageView D
 	DepthImage.imageView = DepthImageView;
 	DepthImage.sampler = VK_NULL_HANDLE;
 
-	for (size_t i = 0; i < DeviceInfo.SwapChainSize; i++)
+	for (size_t i = 0; i < SwapChainSize; i++)
 	{
 		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -109,7 +110,7 @@ void FrameBuffer::CreateDescriptorSets(VkImageView ColorImageView, VkImageView D
 		descriptorWrites[1].descriptorCount = 1;
 		descriptorWrites[1].pImageInfo = &DepthImage;
 
-		vkUpdateDescriptorSets(DeviceInfo.Device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(Device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 }
 
@@ -124,10 +125,11 @@ void FrameBuffer::Draw(FrameBufferRenderingPipeline FrameBufferPipeline, VkComma
 	vkCmdDraw(commandbuffer, 6, 1, 0, 0);
 }
 
-void FrameBuffer::RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout)
+void FrameBuffer::RecreateSwapChainStage(VkDevice Device, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, 
+										 InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize)
 {
-	CreateDescriptorPool();
-	CreateDescriptorSets(ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView, descriptorSetLayout);
+	CreateDescriptorPool(Device, SwapChainSize);
+	CreateDescriptorSets(Device, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView, descriptorSetLayout, SwapChainSize);
 }
 
 void FrameBuffer::Destory(VkDevice device)

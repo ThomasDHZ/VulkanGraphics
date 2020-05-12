@@ -22,24 +22,24 @@ private:
 
 	VkDescriptorPool descriptorPool;
 
-
+	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 
-	void CreateVertexBuffer();
-	void CreateDescriptorPool();
-	void CreateDescriptorSets(VkImageView ColorImageView, VkImageView DepthImageView, VkDescriptorSetLayout descriptorSetLayout);
+	void CreateVertexBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue);
+	void CreateDescriptorPool(VkDevice Device, int SwapChainSize);
+	void CreateDescriptorSets(VkDevice Device, VkImageView ColorImageView, VkImageView DepthImageView, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize);
 public:
 	FrameBuffer();
-	FrameBuffer(VulkanDevice deviceInfo, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout);
+	FrameBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, VkExtent2D swapChainExtent, VkRenderPass renderPass,
+				InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize);
 	~FrameBuffer();
 
-	VkBuffer vertexBuffer;
 	std::vector<VkDescriptorSet> descriptorSets;
 
-	VulkanDevice DeviceInfo;
 
 	void Draw(FrameBufferRenderingPipeline FrameBufferPipeline, VkCommandBuffer commandbuffer, int currentImage);
-	void RecreateSwapChainStage(VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout layout);
+	void RecreateSwapChainStage(VkDevice Device, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment,
+								InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize);
 	void Destory(VkDevice device);
 };
 

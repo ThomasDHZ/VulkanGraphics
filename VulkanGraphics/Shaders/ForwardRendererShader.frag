@@ -3,12 +3,18 @@
 
 layout(binding = 1) uniform sampler2D DiffuseMap;
 layout(binding = 2) uniform sampler2D SpecularMap;
-layout(binding = 3) uniform AmbiantLight
+layout(binding = 3) uniform Material
+{
+	vec3 Diffuse;
+	vec3 Specular;
+	vec3 Shininess;
+} material;
+layout(binding = 4) uniform AmbiantLight
 {
 	vec3 Color;
 	float Strength;
 } ambiantLight;
-layout(binding = 4) uniform Lighter
+layout(binding = 5) uniform Lighter
 {
 	vec3 Position;
 	vec3 Color;

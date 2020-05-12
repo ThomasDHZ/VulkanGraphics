@@ -19,13 +19,7 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 	MeshviewPipeline = WireFramePipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline = SkyBoxPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 
-	VulkanDevice vd = {};
-	vd.Device = Device;
-	vd.CommandPool = MainCommandPool;
-	vd.GraphicsQueue = GraphicsQueue;
-	vd.PhysicalDevice = PhysicalDevice;
-	vd.SwapChainSize = 3;
-	framebuffer = FrameBuffer(vd, swapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout);
+	framebuffer = FrameBuffer(Device, PhysicalDevice, MainCommandPool, GraphicsQueue, swapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, swapChain.GetSwapChainImageCount());
 }
 
 VulkanRenderer::~VulkanRenderer()
@@ -523,7 +517,7 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 
-	framebuffer.RecreateSwapChainStage(swapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout);
+	framebuffer.RecreateSwapChainStage(Device, swapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, swapChain.GetSwapChainImageCount());
 	UpdateCommandBuffers = true;
 }
 

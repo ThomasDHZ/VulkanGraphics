@@ -22,15 +22,22 @@ Mesh::~Mesh()
 
 void Mesh::CreateUniformBuffers(VulkanRenderer& Renderer)
 {
-	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	VkDeviceSize bufferSize = sizeof(PositionMatrix);
 	VkDeviceSize bufferSize2 = sizeof(AmbientLight);
 	VkDeviceSize bufferSize3 = sizeof(Lighter);
 
-	uniformBuffers.resize(GetSwapChainImageCount(Renderer));
-	uniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
+	PositionMatrixUniformBuffers.resize(GetSwapChainImageCount(Renderer));
+	PositionMatrixUniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
 	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
-		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, PositionMatrixUniformBuffers[i], PositionMatrixUniformBuffersMemory[i]);
+	}
+
+	MaterialUniformBuffers.resize(GetSwapChainImageCount(Renderer));
+	MaterialUniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
+	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	{
+		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize2, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, MaterialUniformBuffers[i], MaterialUniformBuffersMemory[i]);
 	}
 
 	AmbientLightUniformBuffers.resize(GetSwapChainImageCount(Renderer));
@@ -50,13 +57,14 @@ void Mesh::CreateUniformBuffers(VulkanRenderer& Renderer)
 
 void Mesh::CreateDescriptorPool(VulkanRenderer& Renderer)
 {
-	std::array<DescriptorPoolSizeInfo, 5>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 6>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -78,9 +86,14 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
 		VkDescriptorBufferInfo PositionInfo = {};
-		PositionInfo.buffer = uniformBuffers[i];
+		PositionInfo.buffer = PositionMatrixUniformBuffers[i];
 		PositionInfo.offset = 0;
-		PositionInfo.range = sizeof(UniformBufferObject);
+		PositionInfo.range = sizeof(PositionMatrix);
+
+		VkDescriptorBufferInfo MarterialInfo = {};
+		MarterialInfo.buffer = MaterialUniformBuffers[i];
+		MarterialInfo.offset = 0;
+		MarterialInfo.range = sizeof(Material);
 
 		VkDescriptorBufferInfo AmbiantLightInfo = {};
 		AmbiantLightInfo.buffer = AmbientLightUniformBuffers[i];
@@ -92,7 +105,7 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		LightInfo.offset = 0;
 		LightInfo.range = sizeof(Lighter);
 
-		std::array<WriteDescriptorSetInfo, 5>  WriteDescriptorInfo = {};
+		std::array<WriteDescriptorSetInfo, 6>  WriteDescriptorInfo = {};
 
 		WriteDescriptorInfo[0].DstBinding = 0;
 		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
@@ -112,12 +125,17 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		WriteDescriptorInfo[3].DstBinding = 3;
 		WriteDescriptorInfo[3].DstSet = descriptorSets[i];
 		WriteDescriptorInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[3].DescriptorBufferInfo = AmbiantLightInfo;
+		WriteDescriptorInfo[3].DescriptorBufferInfo = MarterialInfo;
 
 		WriteDescriptorInfo[4].DstBinding = 4;
 		WriteDescriptorInfo[4].DstSet = descriptorSets[i];
 		WriteDescriptorInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[4].DescriptorBufferInfo = LightInfo;
+		WriteDescriptorInfo[4].DescriptorBufferInfo = AmbiantLightInfo;
+
+		WriteDescriptorInfo[5].DstBinding = 5;
+		WriteDescriptorInfo[5].DstSet = descriptorSets[i];
+		WriteDescriptorInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		WriteDescriptorInfo[5].DescriptorBufferInfo = LightInfo;
 
 		Mesh::CreateDescriptorSetsData(Renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
@@ -150,9 +168,13 @@ void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 	}
 }
 
-void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, Lighter lighter, int currentImage)
+void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, int currentImage)
 {
-	BaseMesh::UpdateUniformBuffer(Renderer, uniformBuffersMemory[currentImage], static_cast<void*>(&ubo2), sizeof(ubo2));
+	Material material = {};
+	material.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	material.Specular = glm::vec3(0.0f, 1.0f, 0.0f);
+	BaseMesh::UpdateUniformBuffer(Renderer, PositionMatrixUniformBuffersMemory[currentImage], static_cast<void*>(&positionMatrix), sizeof(positionMatrix));
+	BaseMesh::UpdateUniformBuffer(Renderer, MaterialUniformBuffersMemory[currentImage], static_cast<void*>(&material), sizeof(material));
 	BaseMesh::UpdateUniformBuffer(Renderer, AmbientLightUniformBuffersMemory[currentImage], static_cast<void*>(&light), sizeof(light));
 	BaseMesh::UpdateUniformBuffer(Renderer, LighterUniformBuffersMemory[currentImage], static_cast<void*>(&lighter), sizeof(lighter));
 }
@@ -161,23 +183,26 @@ void Mesh::Destroy(VulkanRenderer& Renderer)
 {
 	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
-		if (uniformBuffers[i] != VK_NULL_HANDLE)
+		if (PositionMatrixUniformBuffers[i] != VK_NULL_HANDLE)
 		{
-			vkDestroyBuffer(*GetDevice(Renderer), uniformBuffers[i], nullptr);
-			vkFreeMemory(*GetDevice(Renderer), uniformBuffersMemory[i], nullptr);
+			vkDestroyBuffer(*GetDevice(Renderer), PositionMatrixUniformBuffers[i], nullptr);
+			vkFreeMemory(*GetDevice(Renderer), PositionMatrixUniformBuffersMemory[i], nullptr);
+
+			vkDestroyBuffer(*GetDevice(Renderer), MaterialUniformBuffers[i], nullptr);
+			vkFreeMemory(*GetDevice(Renderer), MaterialUniformBuffersMemory[i], nullptr);
 
 			vkDestroyBuffer(*GetDevice(Renderer), AmbientLightUniformBuffers[i], nullptr);
 			vkFreeMemory(*GetDevice(Renderer), AmbientLightUniformBuffersMemory[i], nullptr);
-
-			AmbientLightUniformBuffers[i] = VK_NULL_HANDLE;
-			AmbientLightUniformBuffersMemory[i] = VK_NULL_HANDLE;
 
 			vkDestroyBuffer(*GetDevice(Renderer), LighterUniformBuffers[i], nullptr);
 			vkFreeMemory(*GetDevice(Renderer), LighterUniformBuffersMemory[i], nullptr);
 
 
-			uniformBuffers[i] = VK_NULL_HANDLE;
-			uniformBuffersMemory[i] = VK_NULL_HANDLE;
+			PositionMatrixUniformBuffers[i] = VK_NULL_HANDLE;
+			PositionMatrixUniformBuffersMemory[i] = VK_NULL_HANDLE;
+
+			MaterialUniformBuffers[i] = VK_NULL_HANDLE;
+			AmbientLightUniformBuffersMemory[i] = VK_NULL_HANDLE;
 
 			AmbientLightUniformBuffers[i] = VK_NULL_HANDLE;
 			AmbientLightUniformBuffersMemory[i] = VK_NULL_HANDLE;

@@ -15,7 +15,7 @@
 #include "Vertex.h"
 #include "AmbientLight.h"
 
-struct UniformBufferObject
+struct PositionMatrix
 {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
@@ -27,6 +27,13 @@ struct Lighter
 	alignas(16) glm::vec3 Position;
 	alignas(16) glm::vec3 Color;
 	alignas(16) glm::vec3 CameraPosition;
+};
+
+struct Material
+{
+	alignas(16) glm::vec3 Diffuse;
+	alignas(16) glm::vec3 Specular;
+	alignas(16) glm::vec3 Shininess;
 };
 
 class Mesh : public BaseMesh
@@ -41,8 +48,11 @@ protected:
 public:
 
 	std::string MeshName;
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	std::vector<VkBuffer> PositionMatrixUniformBuffers;
+	std::vector<VkDeviceMemory> PositionMatrixUniformBuffersMemory;
+
+	std::vector<VkBuffer> MaterialUniformBuffers;
+	std::vector<VkDeviceMemory> MaterialUniformBuffersMemory;
 
 	std::vector<VkBuffer>  AmbientLightUniformBuffers;
 	std::vector<VkDeviceMemory>  AmbientLightUniformBuffersMemory;
@@ -60,7 +70,7 @@ public:
 	~Mesh();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, UniformBufferObject ubo2, AmbientLightUniformBuffer light, Lighter lighter, int currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, int currentImage);
 	void Destroy(VulkanRenderer& Renderer);
 };
 
