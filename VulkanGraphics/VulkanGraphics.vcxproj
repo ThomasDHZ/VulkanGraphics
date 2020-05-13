@@ -170,6 +170,7 @@
     <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
+    <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VulkanRenderer2D.cpp" />
     <ClCompile Include="WireFramePipeline.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />
+    <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VulkanRenderer2D.h" />
     <ClInclude Include="WireFramePipeline.h" />
     <ClInclude Include="Model.h" />

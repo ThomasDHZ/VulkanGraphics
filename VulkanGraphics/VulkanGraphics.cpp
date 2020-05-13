@@ -35,7 +35,9 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
-	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/Scifi Stuff.obj"));
+	modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/box.obj"));
+	modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
+	modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
 	//modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
 	//modelLoader.ModelMeshList[1].TextureList.emplace_back(texture);
 	//modelLoader.ModelMeshList[1].TextureList.emplace_back(texture);
@@ -58,19 +60,16 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	InitializeGUIDebugger();
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
-
-	lighter.Color = glm::vec3(1.0f, 1.0f, 1.0f);
-	lighter.Position = glm::vec3(1.2f, 1.0f, 2.0f);
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -133,16 +132,19 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-	lighter.CameraPosition = glm::vec3(camera.GetCameraPos());
+	lighter.objectColor = glm::vec3(0.1f, 0.05f, 0.031f);
+	lighter.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	lighter.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+	lighter.viewPos = glm::vec3(camera.GetCameraPos());
 
 	for (int x = 0; x < MeshList.size(); x++)
 	{
 		MeshList[x].MeshPosition = cubePositions[x];
 		PositionMatrix ubo = {};
 		ubo.model = glm::mat4(1.0f);
-		ubo.model = glm::translate(ubo.model, cubePositions[x]);
-		ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), MeshList[x].MeshRotate);
-		ubo.model = glm::scale(ubo.model, MeshList[x].MeshScale);
+		//ubo.model = glm::translate(ubo.model, glm::vec3(1.2f, 1.0f, 2.0f));
+		//ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), MeshList[x].MeshRotate);
+		//ubo.model = glm::scale(ubo.model, MeshList[x].MeshScale);
 		ubo.view = camera.GetViewMatrix();
 		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;
@@ -155,9 +157,9 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 		ModelList[x].ModelPosition = cubePositions[x];
 		PositionMatrix ubo = {};
 		ubo.model = glm::mat4(1.0f);
-		ubo.model = glm::translate(ubo.model, ModelList[x].ModelPosition);
-		ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), ModelList[x].ModelRotate);
-		ubo.model = glm::scale(ubo.model, ModelList[x].ModelScale);
+		//ubo.model = glm::translate(ubo.model, glm::vec3(1.2f, 1.0f, 2.0f));
+		//ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), MeshList[x].MeshRotate);
+		//ubo.model = glm::scale(ubo.model, MeshList[x].MeshScale);
 		ubo.view = camera.GetViewMatrix();
 		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;
@@ -247,9 +249,9 @@ void VulkanGraphics::MainLoop()
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 			ImGui::SliderFloat("float", Ambiant.GetColorStrengthPtr(), 0.0f, 1.0f);
 			ImGui::ColorEdit3("Ambiant color", (float*)Ambiant.GetColorPtr());
-			ImGui::ColorEdit3("Position", (float*)&lighter.Position);
-			ImGui::ColorEdit3("Color", (float*)&lighter.Color);
-			ImGui::ColorEdit3("CameraPosition", (float*)&lighter.CameraPosition);
+			//ImGui::ColorEdit3("Position", (float*)&lighter.Position);
+			//ImGui::ColorEdit3("Color", (float*)&lighter.Color);
+			ImGui::ColorEdit3("CameraPosition", (float*)&lighter.viewPos);
 			ImGui::End();
 		}
 		ImGui::Render();

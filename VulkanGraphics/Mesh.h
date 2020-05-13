@@ -14,6 +14,7 @@
 #include "Texture2D.h"
 #include "Vertex.h"
 #include "AmbientLight.h"
+#include "UniformBuffer.h"
 
 struct PositionMatrix
 {
@@ -24,9 +25,10 @@ struct PositionMatrix
 
 struct Lighter
 {
-	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Color;
-	alignas(16) glm::vec3 CameraPosition;
+	alignas(16) glm::vec3 lightPos;
+	alignas(16) glm::vec3 viewPos;
+	alignas(16) glm::vec3 lightColor;
+	alignas(16) glm::vec3 objectColor;
 };
 
 struct Material
@@ -48,17 +50,11 @@ protected:
 public:
 
 	std::string MeshName;
-	std::vector<VkBuffer> PositionMatrixUniformBuffers;
-	std::vector<VkDeviceMemory> PositionMatrixUniformBuffersMemory;
 
-	std::vector<VkBuffer> MaterialUniformBuffers;
-	std::vector<VkDeviceMemory> MaterialUniformBuffersMemory;
-
-	std::vector<VkBuffer>  AmbientLightUniformBuffers;
-	std::vector<VkDeviceMemory>  AmbientLightUniformBuffersMemory;
-
-	std::vector<VkBuffer>  LighterUniformBuffers;
-	std::vector<VkDeviceMemory> LighterUniformBuffersMemory;
+	UniformBuffer PositionMatrixBuffer;
+	UniformBuffer MaterialBuffer;
+	UniformBuffer AmbientLightBuffer;
+	UniformBuffer LighterBuffers;
 
 	glm::vec3 MeshPosition = glm::vec3();
 	glm::vec3 MeshRotate = glm::vec3(0.0f, 0.0f, 1.0f);

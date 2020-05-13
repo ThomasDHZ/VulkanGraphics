@@ -22,37 +22,10 @@ Mesh::~Mesh()
 
 void Mesh::CreateUniformBuffers(VulkanRenderer& Renderer)
 {
-	VkDeviceSize bufferSize = sizeof(PositionMatrix);
-	VkDeviceSize bufferSize2 = sizeof(AmbientLight);
-	VkDeviceSize bufferSize3 = sizeof(Lighter);
-
-	PositionMatrixUniformBuffers.resize(GetSwapChainImageCount(Renderer));
-	PositionMatrixUniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
-	{
-		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, PositionMatrixUniformBuffers[i], PositionMatrixUniformBuffersMemory[i]);
-	}
-
-	MaterialUniformBuffers.resize(GetSwapChainImageCount(Renderer));
-	MaterialUniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
-	{
-		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize2, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, MaterialUniformBuffers[i], MaterialUniformBuffersMemory[i]);
-	}
-
-	AmbientLightUniformBuffers.resize(GetSwapChainImageCount(Renderer));
-	AmbientLightUniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
-	{
-		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize2, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, AmbientLightUniformBuffers[i], AmbientLightUniformBuffersMemory[i]);
-	}
-
-	LighterUniformBuffers.resize(GetSwapChainImageCount(Renderer));
-	LighterUniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
-	{
-		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize3, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, LighterUniformBuffers[i], LighterUniformBuffersMemory[i]);
-	}
+	PositionMatrixBuffer = UniformBuffer(Renderer, sizeof(PositionMatrix));
+	MaterialBuffer = UniformBuffer(Renderer, sizeof(Material));
+	AmbientLightBuffer = UniformBuffer(Renderer, sizeof(AmbientLight));
+	LighterBuffers = UniformBuffer(Renderer, sizeof(Lighter));
 }
 
 void Mesh::CreateDescriptorPool(VulkanRenderer& Renderer)
@@ -86,22 +59,22 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
 		VkDescriptorBufferInfo PositionInfo = {};
-		PositionInfo.buffer = PositionMatrixUniformBuffers[i];
+		PositionInfo.buffer = PositionMatrixBuffer.GetUniformBuffer(i);
 		PositionInfo.offset = 0;
 		PositionInfo.range = sizeof(PositionMatrix);
 
 		VkDescriptorBufferInfo MarterialInfo = {};
-		MarterialInfo.buffer = MaterialUniformBuffers[i];
+		MarterialInfo.buffer = MaterialBuffer.GetUniformBuffer(i);
 		MarterialInfo.offset = 0;
 		MarterialInfo.range = sizeof(Material);
 
 		VkDescriptorBufferInfo AmbiantLightInfo = {};
-		AmbiantLightInfo.buffer = AmbientLightUniformBuffers[i];
+		AmbiantLightInfo.buffer = AmbientLightBuffer.GetUniformBuffer(i);
 		AmbiantLightInfo.offset = 0;
 		AmbiantLightInfo.range = sizeof(AmbientLightUniformBuffer);
 
 		VkDescriptorBufferInfo LightInfo = {};
-		LightInfo.buffer = LighterUniformBuffers[i];
+		LightInfo.buffer = LighterBuffers.GetUniformBuffer(i);
 		LightInfo.offset = 0;
 		LightInfo.range = sizeof(Lighter);
 
@@ -171,46 +144,22 @@ void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, int currentImage)
 {
 	Material material = {};
-	material.Diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	material.Diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
 	material.Specular = glm::vec3(0.0f, 1.0f, 0.0f);
-	BaseMesh::UpdateUniformBuffer(Renderer, PositionMatrixUniformBuffersMemory[currentImage], static_cast<void*>(&positionMatrix), sizeof(positionMatrix));
-	BaseMesh::UpdateUniformBuffer(Renderer, MaterialUniformBuffersMemory[currentImage], static_cast<void*>(&material), sizeof(material));
-	BaseMesh::UpdateUniformBuffer(Renderer, AmbientLightUniformBuffersMemory[currentImage], static_cast<void*>(&light), sizeof(light));
-	BaseMesh::UpdateUniformBuffer(Renderer, LighterUniformBuffersMemory[currentImage], static_cast<void*>(&lighter), sizeof(lighter));
+
+	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), currentImage);
+	MaterialBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&material), currentImage);
+	AmbientLightBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&light), currentImage);
+	LighterBuffers.UpdateUniformBuffer(Renderer, static_cast<void*>(&lighter), currentImage);
 }
 
 void Mesh::Destroy(VulkanRenderer& Renderer)
 {
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
-	{
-		if (PositionMatrixUniformBuffers[i] != VK_NULL_HANDLE)
-		{
-			vkDestroyBuffer(*GetDevice(Renderer), PositionMatrixUniformBuffers[i], nullptr);
-			vkFreeMemory(*GetDevice(Renderer), PositionMatrixUniformBuffersMemory[i], nullptr);
 
-			vkDestroyBuffer(*GetDevice(Renderer), MaterialUniformBuffers[i], nullptr);
-			vkFreeMemory(*GetDevice(Renderer), MaterialUniformBuffersMemory[i], nullptr);
-
-			vkDestroyBuffer(*GetDevice(Renderer), AmbientLightUniformBuffers[i], nullptr);
-			vkFreeMemory(*GetDevice(Renderer), AmbientLightUniformBuffersMemory[i], nullptr);
-
-			vkDestroyBuffer(*GetDevice(Renderer), LighterUniformBuffers[i], nullptr);
-			vkFreeMemory(*GetDevice(Renderer), LighterUniformBuffersMemory[i], nullptr);
-
-
-			PositionMatrixUniformBuffers[i] = VK_NULL_HANDLE;
-			PositionMatrixUniformBuffersMemory[i] = VK_NULL_HANDLE;
-
-			MaterialUniformBuffers[i] = VK_NULL_HANDLE;
-			AmbientLightUniformBuffersMemory[i] = VK_NULL_HANDLE;
-
-			AmbientLightUniformBuffers[i] = VK_NULL_HANDLE;
-			AmbientLightUniformBuffersMemory[i] = VK_NULL_HANDLE;
-
-			LighterUniformBuffers[i] = VK_NULL_HANDLE;
-			LighterUniformBuffersMemory[i] = VK_NULL_HANDLE;
-		}
-	}
+	PositionMatrixBuffer.Destroy(Renderer);
+	MaterialBuffer.Destroy(Renderer);
+	AmbientLightBuffer.Destroy(Renderer);
+	LighterBuffers.Destroy(Renderer);
 
 	BaseMesh::Destory(Renderer);
 }
