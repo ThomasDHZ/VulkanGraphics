@@ -12,5 +12,6 @@ C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe FrameBufferShader.vert -o FrameBufferVert
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe FrameBufferShader.frag -o FrameBufferFrag.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe Renderer2DShader.vert -o Renderer2DVert.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe Renderer2DShader.frag -o Renderer2DFrag.spv
-
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe MaterialTest.vert -o MaterialTestVert.spv
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe MaterialTest.frag -o MaterialTestFrag.spv
 pause

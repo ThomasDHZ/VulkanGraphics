@@ -194,6 +194,12 @@
     <None Include="Shaders\FrameBufferShader.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Shaders\MaterialTest.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\MaterialTest.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
