@@ -11,11 +11,11 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 	SwapChain = VulkanSwapChain(window, Device, PhysicalDevice, Surface);
 	InitializeRenderPass();
 	InitializeFramebuffers();
-	//InitializeCommandBuffers();
-	//InitializeSyncObjects();
+	InitializeCommandBuffers();
+	InitializeSyncObjects();
 
-	//GraphicsPipeline = ForwardRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
-	//FrameBufferPipeline = FrameBufferRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	GraphicsPipeline = ForwardRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//FrameBufferPipeline = FrameBufferRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	//MeshviewPipeline = WireFramePipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	//SkyboxPipeline = SkyBoxPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 

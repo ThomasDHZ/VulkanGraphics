@@ -69,10 +69,6 @@ private:
 
 protected:
 
-	void UpdateSwapChain(GLFWwindow* window);
-	uint32_t StartFrame(GLFWwindow* window);
-	void EndFrame(GLFWwindow* window, uint32_t imageIndex);
-	void DestoryVulkan();
 
 public:
 
@@ -93,7 +89,7 @@ public:
 	VulkanSwapChain SwapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
 	//FrameBuffer framebuffer;
-	//FrameBufferRenderingPipeline FrameBufferPipeline;
+	FrameBufferRenderingPipeline FrameBufferPipeline;
 	WireFramePipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 
@@ -115,6 +111,11 @@ public:
 	size_t currentFrame = 0;
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
+
+	void UpdateSwapChain(GLFWwindow* window);
+	uint32_t StartFrame(GLFWwindow* window);
+	void EndFrame(GLFWwindow* window, uint32_t imageIndex);
+	void DestoryVulkan();
 
 	bool UpdateCommandBuffers = true;
 
