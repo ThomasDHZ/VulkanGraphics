@@ -23,6 +23,9 @@
 #include "VulkanSwapChain.h"
 #include "InputAttachment.h"
 #include "VulkanRenderer.h"
+#include "Texture2D.h"
+#include "Mesh.h"
+#include "VulkanWindow.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -57,39 +60,6 @@ struct QueueFamilyIndices {
 	bool isComplete() {
 		return graphicsFamily.has_value() && presentFamily.has_value();
 	}
-};
-
-struct SwapChainSupportDetails {
-	VkSurfaceCapabilitiesKHR capabilities;
-	std::vector<VkSurfaceFormatKHR> formats;
-	std::vector<VkPresentModeKHR> presentModes;
-};
-
-struct Material
-{
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
-	alignas(16) glm::vec3 Shininess;
-};
-
-struct AmbientLightUniformBuffer
-{
-	alignas(16) glm::vec3 Color = glm::vec3(1.0f, 1.0f, 1.0f);
-	alignas(4) float Strength = 1.0f;
-};
-
-struct Lighter
-{
-	alignas(16) glm::vec3 lightPos;
-	alignas(16) glm::vec3 viewPos;
-	alignas(16) glm::vec3 lightColor;
-	alignas(16) glm::vec3 objectColor;
-};
-
-struct UniformBufferObject {
-	alignas(16) glm::mat4 model;
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 proj;
 };
 
 const std::vector<Vertex> vertices = {
@@ -152,27 +122,11 @@ public:
 private:
 	VulkanRenderer Renderer;
 
-	GLFWwindow* window;
+	VulkanWindow Window;
 	Lighter light;
 
-	VkImage textureImage;
-	VkDeviceMemory textureImageMemory;
-	VkImageView textureImageView;
-	VkSampler textureSampler;
-
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
-
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
-	std::vector<VkBuffer> MaterialuniformBuffers;
-	std::vector<VkDeviceMemory> MaterialuniformBuffersMemory;
-	std::vector<VkBuffer> AmbientLightUniformBuffers;
-	std::vector<VkDeviceMemory> AmbientLightUniformBuffersMemory;
-	std::vector<VkBuffer> LightuniformBuffers;
-	std::vector<VkDeviceMemory> LightuniformBuffersMemory;
+	Texture2D texture;
+	Mesh mesh;
 
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
@@ -181,13 +135,7 @@ private:
 	bool framebufferResized = false;
 
 	void initWindow() {
-		glfwInit();
-
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-		window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-		glfwSetWindowUserPointer(window, this);
-		glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+		Window = VulkanWindow(WIDTH, HEIGHT, "Vulkan");
 	}
 
 	static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
@@ -196,19 +144,16 @@ private:
 	}
 
 	void initVulkan() {
-		Renderer = VulkanRenderer(window);
-		createTextureImage();
-		createTextureImageView();
-		createTextureSampler();
-		createVertexBuffer();
-		//createIndexBuffer();
-		createUniformBuffers();
+		Renderer = VulkanRenderer(Window.GetWindowPtr());
+		texture = Texture2D(Renderer, "texture/container2.png");
+		std::vector<Texture2D> textureList = { texture, texture };
+		mesh = Mesh(Renderer, vertices, indices, textureList);
 		createDescriptorPool();
 		createDescriptorSets();
 	}
 
 	void mainLoop() {
-		while (!glfwWindowShouldClose(window)) {
+		while (!glfwWindowShouldClose(Window.GetWindowPtr())) {
 			glfwPollEvents();
 			Draw();
 		}
@@ -248,19 +193,19 @@ private:
 	void cleanup() {
 		cleanupSwapChain();
 
-		vkDestroySampler(Renderer.Device, textureSampler, nullptr);
-		vkDestroyImageView(Renderer.Device, textureImageView, nullptr);
+		//vkDestroySampler(Renderer.Device, textureSampler, nullptr);
+		//vkDestroyImageView(Renderer.Device, textureImageView, nullptr);
 
-		vkDestroyImage(Renderer.Device, textureImage, nullptr);
-		vkFreeMemory(Renderer.Device, textureImageMemory, nullptr);
+		//vkDestroyImage(Renderer.Device, textureImage, nullptr);
+		//vkFreeMemory(Renderer.Device, textureImageMemory, nullptr);
 
 		//vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
-		vkDestroyBuffer(Renderer.Device, indexBuffer, nullptr);
-		vkFreeMemory(Renderer.Device, indexBufferMemory, nullptr);
+		//vkDestroyBuffer(Renderer.Device, indexBuffer, nullptr);
+		//vkFreeMemory(Renderer.Device, indexBufferMemory, nullptr);
 
-		vkDestroyBuffer(Renderer.Device, vertexBuffer, nullptr);
-		vkFreeMemory(Renderer.Device, vertexBufferMemory, nullptr);
+		//vkDestroyBuffer(Renderer.Device, vertexBuffer, nullptr);
+		//vkFreeMemory(Renderer.Device, vertexBufferMemory, nullptr);
 
 	/*	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroySemaphore(Renderer.Device, renderFinishedSemaphores[i], nullptr);
@@ -279,16 +224,16 @@ private:
 		vkDestroySurfaceKHR(Renderer.Instance, Renderer.Surface, nullptr);
 		vkDestroyInstance(Renderer.Instance, nullptr);
 
-		glfwDestroyWindow(window);
+		glfwDestroyWindow(Window.GetWindowPtr());
 
 		glfwTerminate();
 	}
 
 	void recreateSwapChain() {
 		int width = 0, height = 0;
-		glfwGetFramebufferSize(window, &width, &height);
+		glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
 		while (width == 0 || height == 0) {
-			glfwGetFramebufferSize(window, &width, &height);
+			glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
 			glfwWaitEvents();
 		}
 
@@ -296,168 +241,8 @@ private:
 
 		cleanupSwapChain();
 
-		createUniformBuffers();
 		createDescriptorPool();
 		createDescriptorSets();
-	}
-
-	void createTextureImage() {
-		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load("texture/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-		VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-		if (!pixels) {
-			throw std::runtime_error("failed to load texture image!");
-		}
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(Renderer.Device, stagingBufferMemory, 0, imageSize, 0, &data);
-		memcpy(data, pixels, static_cast<size_t>(imageSize));
-		vkUnmapMemory(Renderer.Device, stagingBufferMemory);
-
-		stbi_image_free(pixels);
-
-		createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
-
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-		vkDestroyBuffer(Renderer.Device, stagingBuffer, nullptr);
-		vkFreeMemory(Renderer.Device, stagingBufferMemory, nullptr);
-	}
-
-	void createTextureImageView() {
-		textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT);
-	}
-
-	void createTextureSampler() {
-		VkSamplerCreateInfo samplerInfo{};
-		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		samplerInfo.magFilter = VK_FILTER_LINEAR;
-		samplerInfo.minFilter = VK_FILTER_LINEAR;
-		samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.anisotropyEnable = VK_TRUE;
-		samplerInfo.maxAnisotropy = 16.0f;
-		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-		samplerInfo.unnormalizedCoordinates = VK_FALSE;
-		samplerInfo.compareEnable = VK_FALSE;
-		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-		samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-
-		if (vkCreateSampler(Renderer.Device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create texture sampler!");
-		}
-	}
-
-	VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) {
-		VkImageViewCreateInfo viewInfo{};
-		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		viewInfo.image = image;
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		viewInfo.format = format;
-		viewInfo.subresourceRange.aspectMask = aspectFlags;
-		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
-		viewInfo.subresourceRange.baseArrayLayer = 0;
-		viewInfo.subresourceRange.layerCount = 1;
-
-		VkImageView imageView;
-		if (vkCreateImageView(Renderer.Device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create texture image view!");
-		}
-
-		return imageView;
-	}
-
-	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
-		VkImageCreateInfo imageInfo{};
-		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageInfo.imageType = VK_IMAGE_TYPE_2D;
-		imageInfo.extent.width = width;
-		imageInfo.extent.height = height;
-		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
-		imageInfo.arrayLayers = 1;
-		imageInfo.format = format;
-		imageInfo.tiling = tiling;
-		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageInfo.usage = usage;
-		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		if (vkCreateImage(Renderer.Device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create image!");
-		}
-
-		VkMemoryRequirements memRequirements;
-		vkGetImageMemoryRequirements(Renderer.Device, image, &memRequirements);
-
-		VkMemoryAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-		if (vkAllocateMemory(Renderer.Device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate image memory!");
-		}
-
-		vkBindImageMemory(Renderer.Device, image, imageMemory, 0);
-	}
-
-	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
-		VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-
-		VkImageMemoryBarrier barrier{};
-		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier.oldLayout = oldLayout;
-		barrier.newLayout = newLayout;
-		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		barrier.image = image;
-		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		barrier.subresourceRange.baseMipLevel = 0;
-		barrier.subresourceRange.levelCount = 1;
-		barrier.subresourceRange.baseArrayLayer = 0;
-		barrier.subresourceRange.layerCount = 1;
-
-		VkPipelineStageFlags sourceStage;
-		VkPipelineStageFlags destinationStage;
-
-		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-			barrier.srcAccessMask = 0;
-			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		}
-		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-		}
-		else {
-			throw std::invalid_argument("unsupported layout transition!");
-		}
-
-		vkCmdPipelineBarrier(
-			commandBuffer,
-			sourceStage, destinationStage,
-			0,
-			0, nullptr,
-			0, nullptr,
-			1, &barrier
-		);
-
-		endSingleTimeCommands(commandBuffer);
 	}
 
 	void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
@@ -481,84 +266,6 @@ private:
 		vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 		endSingleTimeCommands(commandBuffer);
-	}
-
-	void createVertexBuffer() {
-		VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(Renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, vertices.data(), (size_t)bufferSize);
-		vkUnmapMemory(Renderer.Device, stagingBufferMemory);
-
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
-
-		copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
-
-		vkDestroyBuffer(Renderer.Device, stagingBuffer, nullptr);
-		vkFreeMemory(Renderer.Device, stagingBufferMemory, nullptr);
-	}
-
-	void createIndexBuffer() {
-		VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-		void* data;
-		vkMapMemory(Renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, indices.data(), (size_t)bufferSize);
-		vkUnmapMemory(Renderer.Device, stagingBufferMemory);
-
-		createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
-
-		copyBuffer(stagingBuffer, indexBuffer, bufferSize);
-
-		vkDestroyBuffer(Renderer.Device, stagingBuffer, nullptr);
-		vkFreeMemory(Renderer.Device, stagingBufferMemory, nullptr);
-	}
-
-	void createUniformBuffers() {
-		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-		uniformBuffers.resize(Renderer.SwapChain.GetSwapChainImageCount());
-		uniformBuffersMemory.resize(Renderer.SwapChain.GetSwapChainImageCount());
-
-		for (size_t i = 0; i < Renderer.SwapChain.GetSwapChainImageCount(); i++) {
-			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
-		}
-
-		VkDeviceSize bufferSize2 = sizeof(Material);
-
-		MaterialuniformBuffers.resize(Renderer.SwapChain.GetSwapChainImageCount());
-		MaterialuniformBuffersMemory.resize(Renderer.SwapChain.GetSwapChainImageCount());
-
-		for (size_t i = 0; i < Renderer.SwapChain.GetSwapChainImageCount(); i++) {
-			createBuffer(bufferSize2, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, MaterialuniformBuffers[i], MaterialuniformBuffersMemory[i]);
-		}
-
-		VkDeviceSize bufferSize3 = sizeof(AmbientLightUniformBuffer);
-
-		AmbientLightUniformBuffers.resize(Renderer.SwapChain.GetSwapChainImageCount());
-		AmbientLightUniformBuffersMemory.resize(Renderer.SwapChain.GetSwapChainImageCount());
-
-		for (size_t i = 0; i < Renderer.SwapChain.GetSwapChainImageCount(); i++) {
-			createBuffer(bufferSize3, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, AmbientLightUniformBuffers[i], AmbientLightUniformBuffersMemory[i]);
-		}
-
-		VkDeviceSize bufferSize4 = sizeof(Lighter);
-
-		LightuniformBuffers.resize(Renderer.SwapChain.GetSwapChainImageCount());
-		LightuniformBuffersMemory.resize(Renderer.SwapChain.GetSwapChainImageCount());
-
-		for (size_t i = 0; i < Renderer.SwapChain.GetSwapChainImageCount(); i++) {
-			createBuffer(bufferSize4, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, LightuniformBuffers[i], LightuniformBuffersMemory[i]);
-		}
 	}
 
 	void createDescriptorPool() {
@@ -588,74 +295,74 @@ private:
 	}
 
 	void createDescriptorSets() {
-		std::vector<VkDescriptorSetLayout> layouts(Renderer.SwapChain.GetSwapChainImageCount(), Renderer.GraphicsPipeline.ShaderPipelineDescriptorLayout);
-		VkDescriptorSetAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = descriptorPool;
-		allocInfo.descriptorSetCount = static_cast<uint32_t>(Renderer.SwapChain.GetSwapChainImageCount());
-		allocInfo.pSetLayouts = layouts.data();
+		//std::vector<VkDescriptorSetLayout> layouts(Renderer.SwapChain.GetSwapChainImageCount(), Renderer.GraphicsPipeline.ShaderPipelineDescriptorLayout);
+		//VkDescriptorSetAllocateInfo allocInfo{};
+		//allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		//allocInfo.descriptorPool = descriptorPool;
+		//allocInfo.descriptorSetCount = static_cast<uint32_t>(Renderer.SwapChain.GetSwapChainImageCount());
+		//allocInfo.pSetLayouts = layouts.data();
 
-		descriptorSets.resize(Renderer.SwapChain.GetSwapChainImageCount());
-		if (vkAllocateDescriptorSets(Renderer.Device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate descriptor sets!");
-		}
+		//descriptorSets.resize(Renderer.SwapChain.GetSwapChainImageCount());
+		//if (vkAllocateDescriptorSets(Renderer.Device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+		//	throw std::runtime_error("failed to allocate descriptor sets!");
+		//}
 
-		for (size_t i = 0; i < Renderer.SwapChain.GetSwapChainImageCount(); i++) {
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = uniformBuffers[i];
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(UniformBufferObject);
+		//for (size_t i = 0; i < Renderer.SwapChain.GetSwapChainImageCount(); i++) {
+		//	VkDescriptorBufferInfo bufferInfo{};
+		//	bufferInfo.buffer = uniformBuffers[i];
+		//	bufferInfo.offset = 0;
+		//	bufferInfo.range = sizeof(UniformBufferObject);
 
-			VkDescriptorBufferInfo MaterialbufferInfo{};
-			MaterialbufferInfo.buffer = MaterialuniformBuffers[i];
-			MaterialbufferInfo.offset = 0;
-			MaterialbufferInfo.range = sizeof(Material);
+		//	VkDescriptorBufferInfo MaterialbufferInfo{};
+		//	MaterialbufferInfo.buffer = MaterialuniformBuffers[i];
+		//	MaterialbufferInfo.offset = 0;
+		//	MaterialbufferInfo.range = sizeof(Material);
 
-			VkDescriptorBufferInfo AmbientLightbufferInfo{};
-			AmbientLightbufferInfo.buffer = AmbientLightUniformBuffers[i];
-			AmbientLightbufferInfo.offset = 0;
-			AmbientLightbufferInfo.range = sizeof(AmbientLightUniformBuffer);
+		//	VkDescriptorBufferInfo AmbientLightbufferInfo{};
+		//	AmbientLightbufferInfo.buffer = AmbientLightUniformBuffers[i];
+		//	AmbientLightbufferInfo.offset = 0;
+		//	AmbientLightbufferInfo.range = sizeof(AmbientLightUniformBuffer);
 
-			VkDescriptorBufferInfo LightbufferInfo{};
-			LightbufferInfo.buffer = LightuniformBuffers[i];
-			LightbufferInfo.offset = 0;
-			LightbufferInfo.range = sizeof(Lighter);
+		//	VkDescriptorBufferInfo LightbufferInfo{};
+		//	LightbufferInfo.buffer = LightuniformBuffers[i];
+		//	LightbufferInfo.offset = 0;
+		//	LightbufferInfo.range = sizeof(Lighter);
 
-			std::array<VkWriteDescriptorSet, 4> descriptorWrites{};
+		//	std::array<VkWriteDescriptorSet, 4> descriptorWrites{};
 
-			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[0].dstSet = descriptorSets[i];
-			descriptorWrites[0].dstBinding = 0;
-			descriptorWrites[0].dstArrayElement = 0;
-			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrites[0].descriptorCount = 1;
-			descriptorWrites[0].pBufferInfo = &bufferInfo;
+		//	descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//	descriptorWrites[0].dstSet = descriptorSets[i];
+		//	descriptorWrites[0].dstBinding = 0;
+		//	descriptorWrites[0].dstArrayElement = 0;
+		//	descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		//	descriptorWrites[0].descriptorCount = 1;
+		//	descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[1].dstSet = descriptorSets[i];
-			descriptorWrites[1].dstBinding = 3;
-			descriptorWrites[1].dstArrayElement = 0;
-			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrites[1].descriptorCount = 1;
-			descriptorWrites[1].pBufferInfo = &LightbufferInfo;
+		//	descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//	descriptorWrites[1].dstSet = descriptorSets[i];
+		//	descriptorWrites[1].dstBinding = 3;
+		//	descriptorWrites[1].dstArrayElement = 0;
+		//	descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		//	descriptorWrites[1].descriptorCount = 1;
+		//	descriptorWrites[1].pBufferInfo = &LightbufferInfo;
 
-			descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[2].dstSet = descriptorSets[i];
-			descriptorWrites[2].dstBinding = 4;
-			descriptorWrites[2].dstArrayElement = 0;
-			descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrites[2].descriptorCount = 1;
-			descriptorWrites[2].pBufferInfo = &LightbufferInfo;
+		//	descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//	descriptorWrites[2].dstSet = descriptorSets[i];
+		//	descriptorWrites[2].dstBinding = 4;
+		//	descriptorWrites[2].dstArrayElement = 0;
+		//	descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		//	descriptorWrites[2].descriptorCount = 1;
+		//	descriptorWrites[2].pBufferInfo = &LightbufferInfo;
 
-			descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[3].dstSet = descriptorSets[i];
-			descriptorWrites[3].dstBinding = 5;
-			descriptorWrites[3].dstArrayElement = 0;
-			descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrites[3].descriptorCount = 1;
-			descriptorWrites[3].pBufferInfo = &LightbufferInfo;
-			vkUpdateDescriptorSets(Renderer.Device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		}
+		//	descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		//	descriptorWrites[3].dstSet = descriptorSets[i];
+		//	descriptorWrites[3].dstBinding = 5;
+		//	descriptorWrites[3].dstArrayElement = 0;
+		//	descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		//	descriptorWrites[3].descriptorCount = 1;
+		//	descriptorWrites[3].pBufferInfo = &LightbufferInfo;
+		//	vkUpdateDescriptorSets(Renderer.Device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		//}
 	}
 
 	void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
@@ -746,26 +453,38 @@ private:
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-		UniformBufferObject ubo{};
+		PositionMatrix ubo{};
 		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.proj = glm::perspective(glm::radians(45.0f), Renderer.SwapChain.GetSwapChainResolution().width / (float)Renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
-		void* data;
-		vkMapMemory(Renderer.Device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
-		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(Renderer.Device, uniformBuffersMemory[currentImage]);
-
+		AmbientLightUniformBuffer buff{};
+		Lighter light{};
 		light.objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
 		light.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 		light.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 		light.viewPos = glm::vec3(0.0f, 0.0f, 3.0f);
 
-		void* data2;
-		vkMapMemory(Renderer.Device, LightuniformBuffersMemory[currentImage], 0, sizeof(light), 0, &data2);
-		memcpy(data2, &light, sizeof(light));
-		vkUnmapMemory(Renderer.Device, LightuniformBuffersMemory[currentImage]);
+
+		mesh.UpdateUniformBuffer(Renderer, ubo, buff, light, currentImage);
+
+
+		//mesh.UpdateUniformBuffer
+		//void* data;
+		//vkMapMemory(Renderer.Device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+		//memcpy(data, &ubo, sizeof(ubo));
+		//vkUnmapMemory(Renderer.Device, uniformBuffersMemory[currentImage]);
+
+		//light.objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
+		//light.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+		//light.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+		//light.viewPos = glm::vec3(0.0f, 0.0f, 3.0f);
+
+		//void* data2;
+		//vkMapMemory(Renderer.Device, LightuniformBuffersMemory[currentImage], 0, sizeof(light), 0, &data2);
+		//memcpy(data2, &light, sizeof(light));
+		//vkUnmapMemory(Renderer.Device, LightuniformBuffersMemory[currentImage]);
 	}
 
 	void UpdateCommandBuffers(uint32_t NextFrameIndex)
@@ -784,14 +503,9 @@ private:
 				BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 				BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
 
-				VkBuffer vertexBuffers[] = { vertexBuffer };
-				VkDeviceSize offsets[] = { 0 };
 
 				vkBeginCommandBuffer(Renderer.SecondaryCommandBuffers[i], &BeginSecondaryCommandBuffer);
-				vkCmdBindPipeline(Renderer.SecondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, Renderer.GraphicsPipeline.ShaderPipeline);
-				vkCmdBindVertexBuffers(Renderer.SecondaryCommandBuffers[i], 0, 1, vertexBuffers, offsets);
-				vkCmdBindDescriptorSets(Renderer.SecondaryCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, Renderer.GraphicsPipeline.ShaderPipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
-				vkCmdDraw(Renderer.SecondaryCommandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+				mesh.Draw(Renderer, i);
 				if (vkEndCommandBuffer(Renderer.SecondaryCommandBuffers[i]) != VK_SUCCESS) {
 					throw std::runtime_error("failed to record command buffer!");
 				}
@@ -811,13 +525,13 @@ private:
 		//	renderer.UpdateSwapChain(Window.GetWindowPtr());
 		//}
 
-		auto NextFrameIndex = Renderer.StartFrame(window);
+		auto NextFrameIndex = Renderer.StartFrame(Window.GetWindowPtr());
 		updateUniformBuffer(NextFrameIndex);
 		UpdateCommandBuffers(NextFrameIndex);
 		Renderer.RunCommandBuffers.clear();
 		Renderer.RunCommandBuffers.emplace_back(Renderer.SecondaryCommandBuffers[NextFrameIndex]);
 		//renderer.RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(NextFrameIndex));
-		Renderer.EndFrame(window, NextFrameIndex);
+		Renderer.EndFrame(Window.GetWindowPtr(), NextFrameIndex);
 	}
 
 	VkShaderModule createShaderModule(const std::vector<char>& code) {
@@ -861,7 +575,7 @@ private:
 		}
 		else {
 			int width, height;
-			glfwGetFramebufferSize(window, &width, &height);
+			glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
 
 			VkExtent2D actualExtent = {
 				static_cast<uint32_t>(width),
@@ -875,46 +589,6 @@ private:
 		}
 	}
 
-	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
-		SwapChainSupportDetails details;
-
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, Renderer.Surface, &details.capabilities);
-
-		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, Renderer.Surface, &formatCount, nullptr);
-
-		if (formatCount != 0) {
-			details.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(device, Renderer.Surface, &formatCount, details.formats.data());
-		}
-
-		uint32_t presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, Renderer.Surface, &presentModeCount, nullptr);
-
-		if (presentModeCount != 0) {
-			details.presentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(device, Renderer.Surface, &presentModeCount, details.presentModes.data());
-		}
-
-		return details;
-	}
-
-	bool isDeviceSuitable(VkPhysicalDevice device) {
-		QueueFamilyIndices indices = findQueueFamilies(device);
-
-		bool extensionsSupported = checkDeviceExtensionSupport(device);
-
-		bool swapChainAdequate = false;
-		if (extensionsSupported) {
-			SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
-			swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-		}
-
-		VkPhysicalDeviceFeatures supportedFeatures;
-		vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
-
-		return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
-	}
 
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
 		uint32_t extensionCount;

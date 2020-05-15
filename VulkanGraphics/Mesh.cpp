@@ -144,8 +144,10 @@ void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, int currentImage)
 {
 	Material material = {};
-	material.Diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
-	material.Specular = glm::vec3(0.0f, 1.0f, 0.0f);
+	//light.objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
+	//light.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	//light.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+	//light.viewPos = glm::vec3(0.0f, 0.0f, 3.0f);
 
 	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), currentImage);
 	MaterialBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&material), currentImage);
