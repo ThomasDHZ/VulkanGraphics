@@ -24,8 +24,6 @@ class Texture2D : public Texture
 {
 private:
 	VkDeviceSize imageSize;
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
 
 	void CreateTextureSampler(VulkanRenderer& Renderer);
 public:

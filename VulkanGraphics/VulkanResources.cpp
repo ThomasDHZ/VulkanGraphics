@@ -92,15 +92,15 @@ VkPipelineLayout* VulkanResources::GetSkyboxShaderPipelineLayout(VulkanRenderer&
 
 VkExtent2D* VulkanResources::GetSwapChainResolution(VulkanRenderer& renderer)
 {
-	return  &renderer.swapChain.GetSwapChainResolution();
+	return  &renderer.SwapChain.GetSwapChainResolution();
 }
 
 uint32_t VulkanResources::GetSwapChainMinImageCount(VulkanRenderer& renderer)
 {
-	return renderer.swapChain.GetSwapChainMinImageCount();
+	return renderer.SwapChain.GetSwapChainMinImageCount();
 }
 
 uint32_t VulkanResources::GetSwapChainImageCount(VulkanRenderer& renderer)
 {
-	return  renderer.swapChain.GetSwapChainImageCount();
+	return  renderer.SwapChain.GetSwapChainImageCount();
 }

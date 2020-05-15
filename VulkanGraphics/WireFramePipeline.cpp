@@ -68,8 +68,8 @@ void WireFramePipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRende
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-	auto bindingDescription = Vertex::GetBindingDescription();
-	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+	auto bindingDescription = Vertex::getBindingDescription();
+	auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

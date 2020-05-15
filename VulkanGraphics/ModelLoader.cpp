@@ -54,19 +54,19 @@ std::vector<Vertex> ModelLoader::LoadVertices(aiMesh* mesh)
 	for (int x = 0; x < mesh->mNumVertices; x++)
 	{
 		Vertex vertex;
-		vertex.Position = glm::vec3{ mesh->mVertices[x].x, mesh->mVertices[x].y, mesh->mVertices[x].z };
+		vertex.pos = glm::vec3{ mesh->mVertices[x].x, mesh->mVertices[x].y, mesh->mVertices[x].z };
 		vertex.Normal = glm::vec3{ mesh->mNormals[x].x, mesh->mNormals[x].y, mesh->mNormals[x].z };
-		vertex.Tangant = glm::vec3{ mesh->mTangents[x].x, mesh->mTangents[x].y, mesh->mTangents[x].z };
-		vertex.BiTangant = glm::vec3{ mesh->mBitangents[x].x, mesh->mBitangents[x].y, mesh->mBitangents[x].z };
+		//vertex.Tangant = glm::vec3{ mesh->mTangents[x].x, mesh->mTangents[x].y, mesh->mTangents[x].z };
+		//vertex.BiTangant = glm::vec3{ mesh->mBitangents[x].x, mesh->mBitangents[x].y, mesh->mBitangents[x].z };
 
-		if (mesh->mTextureCoords[0])
-		{
-			vertex.UV = glm::vec2{ mesh->mTextureCoords[0][x].x, mesh->mTextureCoords[0][x].y };
-		}
-		else
-		{
-			vertex.UV = glm::vec2{ 0.0f, 0.0f };
-		}
+		//if (mesh->mTextureCoords[0])
+		//{
+		//	vertex.UV = glm::vec2{ mesh->mTextureCoords[0][x].x, mesh->mTextureCoords[0][x].y };
+		//}
+		//else
+		//{
+		//	vertex.UV = glm::vec2{ 0.0f, 0.0f };
+		//}
 
 		VertexList.emplace_back(vertex);
 	}

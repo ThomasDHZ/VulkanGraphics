@@ -4,13 +4,7 @@
 #include <GLFW\glfw3.h>
 #include "VulkanDebugger.h"
 #include "VulkanSwapChain.h"
-#include "ForwardRenderingPipeline.h"
-#include <array>
 #include "InputAttachment.h"
-#include "SkyBoxPipeline.h"
-#include "WireFramePipeline.h"
-#include "FrameBuffer.h"
-#include "FrameBufferRenderingPipeline.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -21,28 +15,15 @@ const std::vector<const char*> deviceExtensions = {
 };
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
-struct VulkanSettings
+class VulkanRenderer2
 {
-	bool ShowMeshLines = false;
-	bool ShowSkyBox = true;
-
-	bool operator!=(const VulkanSettings& OtherSettings)
-	{
-		return (ShowMeshLines != OtherSettings.ShowMeshLines ||
-				ShowSkyBox != OtherSettings.ShowSkyBox);
-	}
-};
-
-class VulkanRenderer
-{
-	friend class VulkanGraphics;
-	friend class VulkanResources;
 private:
+
 	struct VulkanSemaphores
 	{
 		VkSemaphore ImageAcquiredSemaphore;
 		VkSemaphore RenderCompleteSemaphore;
-		
+
 		void Destory(VkDevice device)
 		{
 			vkDestroySemaphore(device, RenderCompleteSemaphore, nullptr);
@@ -64,17 +45,8 @@ private:
 	void InitializeVulkan(GLFWwindow* window);
 	void InitializeRenderPass();
 	void InitializeFramebuffers();
-	void InitializeCommandBuffers();
-	void InitializeSyncObjects();
-
-protected:
-
-	void UpdateSwapChain(GLFWwindow* window);
-	uint32_t StartFrame(GLFWwindow* window);
-	void EndFrame(GLFWwindow* window, uint32_t imageIndex);
-	void DestoryVulkan();
-
 public:
+
 
 	bool framebufferResized = false;
 
@@ -86,16 +58,15 @@ public:
 	VkQueue PresentQueue = VK_NULL_HANDLE;
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
 
-	InputAttachment ColorAttachment;
 	InputAttachment DepthAttachment;
 
 	VulkanDebugger VulkanDebug;
 	VulkanSwapChain SwapChain;
-	ForwardRenderingPipeline GraphicsPipeline;
-	//FrameBuffer framebuffer;
-	//FrameBufferRenderingPipeline FrameBufferPipeline;
-	WireFramePipeline MeshviewPipeline;
-	SkyBoxPipeline SkyboxPipeline;
+	//ForwardRenderingPipeline GraphicsPipeline;
+	////FrameBuffer framebuffer;
+	////FrameBufferRenderingPipeline FrameBufferPipeline;
+	//WireFramePipeline MeshviewPipeline;
+	//SkyBoxPipeline SkyboxPipeline;
 
 	VkCommandPool MainCommandPool;
 	std::vector<VkCommandBuffer> MainCommandBuffer;
@@ -111,16 +82,14 @@ public:
 
 	std::vector<VkLayerProperties> VulkanLayers;
 
-	//Pretty much to section off for anything that needs to be used in VUlkanGraphics.
+
+
 	size_t currentFrame = 0;
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 
-	bool UpdateCommandBuffers = true;
-
-	VulkanRenderer();
-	VulkanRenderer(GLFWwindow* window);
-	~VulkanRenderer();
-
-	VulkanSettings Settings;
+	VulkanRenderer2();
+	VulkanRenderer2(GLFWwindow* window);
+	~VulkanRenderer2();
 };
+

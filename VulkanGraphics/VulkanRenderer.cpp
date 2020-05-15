@@ -8,16 +8,16 @@ VulkanRenderer::VulkanRenderer()
 VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 {
 	InitializeVulkan(window);
-	swapChain = VulkanSwapChain(window, Device, PhysicalDevice, Surface);
+	SwapChain = VulkanSwapChain(window, Device, PhysicalDevice, Surface);
 	InitializeRenderPass();
 	InitializeFramebuffers();
-	InitializeCommandBuffers();
-	InitializeSyncObjects();
+	//InitializeCommandBuffers();
+	//InitializeSyncObjects();
 
-	GraphicsPipeline = ForwardRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	//GraphicsPipeline = ForwardRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 	//FrameBufferPipeline = FrameBufferRenderingPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
-	MeshviewPipeline = WireFramePipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
-	SkyboxPipeline = SkyBoxPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	//MeshviewPipeline = WireFramePipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	//SkyboxPipeline = SkyBoxPipeline(swapChain.GetSwapChainResolution(), RenderPass, Device);
 
 	//framebuffer = FrameBuffer(Device, PhysicalDevice, MainCommandPool, GraphicsQueue, swapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, swapChain.GetSwapChainImageCount());
 }
@@ -275,7 +275,7 @@ void VulkanRenderer::InitializeVulkan(GLFWwindow* window)
 void VulkanRenderer::InitializeRenderPass()
 {
 	VkAttachmentDescription colorAttachment{};
-	colorAttachment.format = swapChain.GetSwapChainImageFormat().format;
+	colorAttachment.format = SwapChain.GetSwapChainImageFormat().format;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -442,12 +442,12 @@ void VulkanRenderer::InitializeRenderPass()
 
 void VulkanRenderer::InitializeFramebuffers()
 {
-	ColorAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkColorAttachment, swapChain.GetSwapChainResolution().width, swapChain.GetSwapChainResolution().height);
-	DepthAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkDepthAttachemnt, swapChain.GetSwapChainResolution().width, swapChain.GetSwapChainResolution().height);
+	ColorAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkColorAttachment, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
+	DepthAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkDepthAttachemnt, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
 
-	SwapChainFramebuffers.resize(swapChain.GetSwapChainImageCount());
+	SwapChainFramebuffers.resize(SwapChain.GetSwapChainImageCount());
 
-	for (size_t i = 0; i < swapChain.GetSwapChainImageCount(); i++) {
+	for (size_t i = 0; i < SwapChain.GetSwapChainImageCount(); i++) {
 		//std::array<VkImageView, 3> attachments =
 		//{
 		//	swapChain.GetSwapChainImageViews()[i],
@@ -456,7 +456,7 @@ void VulkanRenderer::InitializeFramebuffers()
 		//};
 		std::array<VkImageView, 2> attachments =
 		{
-			swapChain.GetSwapChainImageViews()[i],
+			SwapChain.GetSwapChainImageViews()[i],
 			DepthAttachment.AttachmentImageView
 		};
 
@@ -465,8 +465,8 @@ void VulkanRenderer::InitializeFramebuffers()
 		framebufferInfo.renderPass = RenderPass;
 		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
 		framebufferInfo.pAttachments = attachments.data();
-		framebufferInfo.width = swapChain.GetSwapChainResolution().width;
-		framebufferInfo.height = swapChain.GetSwapChainResolution().height;
+		framebufferInfo.width = SwapChain.GetSwapChainResolution().width;
+		framebufferInfo.height = SwapChain.GetSwapChainResolution().height;
 		framebufferInfo.layers = 1;
 
 		if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &SwapChainFramebuffers[i]) != VK_SUCCESS) {
@@ -477,8 +477,8 @@ void VulkanRenderer::InitializeFramebuffers()
 
 void VulkanRenderer::InitializeCommandBuffers()
 {
-	MainCommandBuffer.resize(swapChain.GetSwapChainImageCount());
-	SecondaryCommandBuffers.resize(swapChain.GetSwapChainImageCount());
+	MainCommandBuffer.resize(SwapChain.GetSwapChainImageCount());
+	SecondaryCommandBuffers.resize(SwapChain.GetSwapChainImageCount());
 
 	VkCommandPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -518,7 +518,7 @@ void VulkanRenderer::InitializeSyncObjects()
 {
 	vulkanSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-	imagesInFlight.resize(swapChain.GetSwapChainImageCount(), VK_NULL_HANDLE);
+	imagesInFlight.resize(SwapChain.GetSwapChainImageCount(), VK_NULL_HANDLE);
 
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -561,20 +561,20 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	MeshviewPipeline.UpdateSwapChain();
 	SkyboxPipeline.UpdateSwapChain();
 
-	for (auto imageView : swapChain.GetSwapChainImageViews())
+	for (auto imageView : SwapChain.GetSwapChainImageViews())
 	{
 		vkDestroyImageView(Device, imageView, nullptr);
 	}
 
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
 	vkDestroyCommandPool(Device, SecondaryCommandPool, nullptr);
-	vkDestroySwapchainKHR(Device, swapChain.GetSwapChain(), nullptr);
+	vkDestroySwapchainKHR(Device, SwapChain.GetSwapChain(), nullptr);
 
-	swapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
-	GraphicsPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
+	GraphicsPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	//FrameBufferPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
-	MeshviewPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
-	SkyboxPipeline.UpdateGraphicsPipeLine(swapChain.GetSwapChainResolution(), RenderPass, Device);
+	MeshviewPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	SkyboxPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 
@@ -587,7 +587,7 @@ uint32_t VulkanRenderer::StartFrame(GLFWwindow* window)
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
 	uint32_t imageIndex;
-	VkResult result = vkAcquireNextImageKHR(Device, swapChain.GetSwapChain(), UINT64_MAX, vulkanSemaphores[currentFrame].ImageAcquiredSemaphore, VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(Device, SwapChain.GetSwapChain(), UINT64_MAX, vulkanSemaphores[currentFrame].ImageAcquiredSemaphore, VK_NULL_HANDLE, &imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR)
 	{
@@ -620,7 +620,7 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 	renderPassInfo.renderPass = RenderPass;
 	renderPassInfo.framebuffer = SwapChainFramebuffers[imageIndex];
 	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = swapChain.GetSwapChainResolution();
+	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 	renderPassInfo.pClearValues = clearValues.data();
 
@@ -662,7 +662,7 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
 
-	VkSwapchainKHR swapChains[] = { swapChain.GetSwapChain() };
+	VkSwapchainKHR swapChains[] = { SwapChain.GetSwapChain() };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
 
@@ -693,7 +693,7 @@ void VulkanRenderer::DestoryVulkan()
 	SkyboxPipeline.Destroy();
 	//framebuffer.Destory(Device);
 
-	swapChain.Destroy(Device);
+	SwapChain.Destroy(Device);
 
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
 	vkDestroyCommandPool(Device, SecondaryCommandPool, nullptr);

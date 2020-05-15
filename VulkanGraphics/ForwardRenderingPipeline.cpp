@@ -48,8 +48,8 @@ void ForwardRenderingPipeline::CreateDescriptorSetLayout()
 
 void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
-	auto vertShaderCode = ReadShaderFile("shaders/ForwardRendererVert.spv");
-	auto fragShaderCode = ReadShaderFile("shaders/ForwardRendererFrag.spv");
+	auto vertShaderCode = ReadShaderFile("shaders/MaterialTestVert.spv");
+	auto fragShaderCode = ReadShaderFile("shaders/MaterialTestFrag.spv");
 
 	VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
 	VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
@@ -68,8 +68,8 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, 
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-	auto bindingDescription = Vertex::GetBindingDescription();
-	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+	auto bindingDescription = Vertex::getBindingDescription();
+	auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
