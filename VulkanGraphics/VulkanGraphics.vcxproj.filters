@@ -150,7 +150,7 @@
     <ClCompile Include="UniformBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanRenderer2.cpp">
+    <ClCompile Include="VulkanGraphics2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -349,7 +349,7 @@
     <ClInclude Include="UniformBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanRenderer2.h">
+    <ClInclude Include="VulkanGraphics2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

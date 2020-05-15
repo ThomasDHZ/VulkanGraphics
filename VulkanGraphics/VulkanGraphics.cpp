@@ -35,9 +35,9 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
-	modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/box.obj"));
-	modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
-	modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
+	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/box.obj"));
+	//modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
+	//modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
 	//modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
 	//modelLoader.ModelMeshList[1].TextureList.emplace_back(texture);
 	//modelLoader.ModelMeshList[1].TextureList.emplace_back(texture);
@@ -69,7 +69,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
+	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -86,8 +86,8 @@ VulkanGraphics::~VulkanGraphics()
 		model.Destroy(renderer);
 	}
 	Skybox.Destory(renderer);
-	Ambiant.Destroy(renderer);
-	texture.Destroy(renderer);
+	//Ambiant.Destroy(renderer);
+	//texture.Destroy(renderer);
 	SkyboxTexture.Destroy(renderer);
 
 	guiDebugger.ShutDown(*GetDevice(renderer));
@@ -132,17 +132,18 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-	lighter.objectColor = glm::vec3(0.1f, 0.05f, 0.031f);
-	lighter.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	lighter.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
-	lighter.viewPos = glm::vec3(camera.GetCameraPos());
+			Lighter light{};
+			light.objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
+			light.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+			light.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+			light.viewPos = glm::vec3(0.0f, 0.0f, 3.0f);
 
 	for (int x = 0; x < MeshList.size(); x++)
 	{
 		MeshList[x].MeshPosition = cubePositions[x];
 		PositionMatrix ubo = {};
 		ubo.model = glm::mat4(1.0f);
-		//ubo.model = glm::translate(ubo.model, glm::vec3(1.2f, 1.0f, 2.0f));
+		ubo.model = glm::translate(ubo.model, glm::vec3(1.2f, 1.0f, 2.0f));
 		//ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), MeshList[x].MeshRotate);
 		//ubo.model = glm::scale(ubo.model, MeshList[x].MeshScale);
 		ubo.view = camera.GetViewMatrix();

@@ -1,26 +1,35 @@
+#pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
+#include <stb_image.h>
+
+#include <iostream>
+#include <fstream>
+#include <stdexcept>
+#include <algorithm>
+#include <chrono>
+#include <vector>
+#include <cstring>
+#include <cstdlib>
+#include <cstdint>
+#include <array>
+#include <optional>
+#include <set>
+#include "ForwardRenderingPipeline.h"
+#include "Vertex.h"
+#include "VulkanSwapChain.h"
+#include "InputAttachment.h"
 #include "VulkanRenderer.h"
 #include "Texture2D.h"
 #include "Mesh.h"
 #include "VulkanWindow.h"
-#include "VulkanResources.h"
 #include "GUIDebugger.h"
-#include "Camera.h"
-#include "ModelLoader.h"
-#include "Model.h"
 #include "Skybox.h"
-#include "AmbientLight.h"
-
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
-
+#include "Camera.h"
 
 const std::vector<Vertex> vertices = {
 	{{-0.5f, -0.5f, -0.5f},  {0.0f,  0.0f, -1.0f}},
@@ -70,28 +79,22 @@ const std::vector<uint16_t> indices = {
 
 };
 
-class VulkanGraphics : VulkanResources
+class VulkanGraphics2
 {
 private:
-	VulkanSettings CompareVulkanSettings;
-	VulkanWindow Window;
-	VulkanRenderer renderer;
-	
 	Camera camera;
+	VulkanSettings CompareVulkanSettings;
+	VulkanRenderer Renderer;
+	GUIDebugger guiDebugger;
 
-	AmbientLight Ambiant;
-	Lighter lighter;
+	VulkanWindow Window;
+	Lighter light;
 
-	ModelLoader modelLoader;
-	Model Nanosuit;
+	Texture2D texture;
+	Mesh mesh;
 
 	SkyBox Skybox;
 	CubeMapTexture SkyboxTexture;
-
-	Texture2D texture;
-	std::vector<Mesh> MeshList;
-	std::vector<Model> ModelList;
-	GUIDebugger guiDebugger;
 
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -101,15 +104,23 @@ private:
 	double MouseXPos;
 	double MouseYPos;
 
+	bool framebufferResized = false;
+
 	void InitializeGUIDebugger();
-	void UpdateMouse();
-	void UpdateKeyboard();
-	void Update(uint32_t NextFrameIndex);
+	void mainLoop();
+	void updateUniformBuffer(uint32_t currentImage);
 	void UpdateCommandBuffers(uint32_t NextFrameIndex);
 	void Draw();
+	void UpdateMouse();
+	void UpdateKeyboard();
 
 public:
-	VulkanGraphics(int Width, int Height, const char* AppName);
-	~VulkanGraphics();
-	void MainLoop();
+	VulkanGraphics2(int Width, int Height, const char* AppName);
+	~VulkanGraphics2();
+
+	void run() 
+	{
+		mainLoop();
+	}
 };
+
