@@ -70,6 +70,19 @@ struct SwapChainSupportDetails {
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
+struct Material
+{
+	alignas(16) glm::vec3 Diffuse;
+	alignas(16) glm::vec3 Specular;
+	alignas(16) glm::vec3 Shininess;
+};
+
+struct AmbientLightUniformBuffer
+{
+	alignas(16) glm::vec3 Color = glm::vec3(1.0f, 1.0f, 1.0f);
+	alignas(4) float Strength = 1.0f;
+};
+
 struct Lighter
 {
 	alignas(16) glm::vec3 lightPos;
@@ -80,7 +93,7 @@ struct Lighter
 
 struct Vertex {
 	glm::vec3 pos;
-	glm::vec3 color;
+	glm::vec3 Normal;
 
 	static VkVertexInputBindingDescription getBindingDescription() {
 		VkVertexInputBindingDescription bindingDescription{};
@@ -102,7 +115,7 @@ struct Vertex {
 		attributeDescriptions[1].binding = 0;
 		attributeDescriptions[1].location = 1;
 		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescriptions[1].offset = offsetof(Vertex, color);
+		attributeDescriptions[1].offset = offsetof(Vertex, Normal);
 
 		return attributeDescriptions;
 	}
@@ -215,6 +228,10 @@ private:
 
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	std::vector<VkBuffer> MaterialuniformBuffers;
+	std::vector<VkDeviceMemory> MaterialuniformBuffersMemory;
+	std::vector<VkBuffer> AmbientLightUniformBuffers;
+	std::vector<VkDeviceMemory> AmbientLightUniformBuffersMemory;
 	std::vector<VkBuffer> LightuniformBuffers;
 	std::vector<VkDeviceMemory> LightuniformBuffersMemory;
 
@@ -634,13 +651,27 @@ private:
 		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 		VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-		samplerLayoutBinding.binding = 1;
+		samplerLayoutBinding.binding = 3;
 		samplerLayoutBinding.descriptorCount = 1;
 		samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		samplerLayoutBinding.pImmutableSamplers = nullptr;
 		samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-		std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+		VkDescriptorSetLayoutBinding samplerLayoutBinding2{};
+		samplerLayoutBinding2.binding = 4;
+		samplerLayoutBinding2.descriptorCount = 1;
+		samplerLayoutBinding2.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		samplerLayoutBinding2.pImmutableSamplers = nullptr;
+		samplerLayoutBinding2.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		VkDescriptorSetLayoutBinding samplerLayoutBinding3{};
+		samplerLayoutBinding3.binding = 5;
+		samplerLayoutBinding3.descriptorCount = 1;
+		samplerLayoutBinding3.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		samplerLayoutBinding3.pImmutableSamplers = nullptr;
+		samplerLayoutBinding3.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+		std::array<VkDescriptorSetLayoutBinding, 4> bindings = { uboLayoutBinding, samplerLayoutBinding, samplerLayoutBinding2, samplerLayoutBinding3 };
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 		layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -1081,22 +1112,44 @@ private:
 			createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
 		}
 
-		VkDeviceSize bufferSize2 = sizeof(Lighter);
+		VkDeviceSize bufferSize2 = sizeof(Material);
+
+		MaterialuniformBuffers.resize(swapChainImages.size());
+		MaterialuniformBuffersMemory.resize(swapChainImages.size());
+
+		for (size_t i = 0; i < swapChainImages.size(); i++) {
+			createBuffer(bufferSize2, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, MaterialuniformBuffers[i], MaterialuniformBuffersMemory[i]);
+		}
+
+		VkDeviceSize bufferSize3 = sizeof(AmbientLightUniformBuffer);
+
+		AmbientLightUniformBuffers.resize(swapChainImages.size());
+		AmbientLightUniformBuffersMemory.resize(swapChainImages.size());
+
+		for (size_t i = 0; i < swapChainImages.size(); i++) {
+			createBuffer(bufferSize3, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, AmbientLightUniformBuffers[i], AmbientLightUniformBuffersMemory[i]);
+		}
+
+		VkDeviceSize bufferSize4 = sizeof(Lighter);
 
 		LightuniformBuffers.resize(swapChainImages.size());
 		LightuniformBuffersMemory.resize(swapChainImages.size());
 
 		for (size_t i = 0; i < swapChainImages.size(); i++) {
-			createBuffer(bufferSize2, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, LightuniformBuffers[i], LightuniformBuffersMemory[i]);
+			createBuffer(bufferSize4, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, LightuniformBuffers[i], LightuniformBuffersMemory[i]);
 		}
 	}
 
 	void createDescriptorPool() {
-		std::array<VkDescriptorPoolSize, 2> poolSizes{};
+		std::array<VkDescriptorPoolSize, 4> poolSizes{};
 		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+		poolSizes[2].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+		poolSizes[3].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[3].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
 		VkDescriptorPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -1128,12 +1181,22 @@ private:
 			bufferInfo.offset = 0;
 			bufferInfo.range = sizeof(UniformBufferObject);
 
+			VkDescriptorBufferInfo MaterialbufferInfo{};
+			MaterialbufferInfo.buffer = MaterialuniformBuffers[i];
+			MaterialbufferInfo.offset = 0;
+			MaterialbufferInfo.range = sizeof(Material);
+
+			VkDescriptorBufferInfo AmbientLightbufferInfo{};
+			AmbientLightbufferInfo.buffer = AmbientLightUniformBuffers[i];
+			AmbientLightbufferInfo.offset = 0;
+			AmbientLightbufferInfo.range = sizeof(AmbientLightUniformBuffer);
+
 			VkDescriptorBufferInfo LightbufferInfo{};
 			LightbufferInfo.buffer = LightuniformBuffers[i];
 			LightbufferInfo.offset = 0;
 			LightbufferInfo.range = sizeof(Lighter);
 
-			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+			std::array<VkWriteDescriptorSet, 4> descriptorWrites{};
 
 			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[0].dstSet = descriptorSets[i];
@@ -1145,12 +1208,27 @@ private:
 
 			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			descriptorWrites[1].dstSet = descriptorSets[i];
-			descriptorWrites[1].dstBinding = 1;
+			descriptorWrites[1].dstBinding = 3;
 			descriptorWrites[1].dstArrayElement = 0;
 			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			descriptorWrites[1].descriptorCount = 1;
 			descriptorWrites[1].pBufferInfo = &LightbufferInfo;
 
+			descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[2].dstSet = descriptorSets[i];
+			descriptorWrites[2].dstBinding = 4;
+			descriptorWrites[2].dstArrayElement = 0;
+			descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[2].descriptorCount = 1;
+			descriptorWrites[2].pBufferInfo = &LightbufferInfo;
+
+			descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrites[3].dstSet = descriptorSets[i];
+			descriptorWrites[3].dstBinding = 5;
+			descriptorWrites[3].dstArrayElement = 0;
+			descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrites[3].descriptorCount = 1;
+			descriptorWrites[3].pBufferInfo = &LightbufferInfo;
 			vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 		}
 	}

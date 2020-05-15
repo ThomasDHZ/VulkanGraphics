@@ -69,8 +69,8 @@ private:
 	VulkanDebugger VulkanDebug;
 	VulkanSwapChain swapChain;
 	ForwardRenderingPipeline GraphicsPipeline;
-	FrameBuffer framebuffer;
-	FrameBufferRenderingPipeline FrameBufferPipeline;
+	//FrameBuffer framebuffer;
+	//FrameBufferRenderingPipeline FrameBufferPipeline;
 	WireFramePipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 
