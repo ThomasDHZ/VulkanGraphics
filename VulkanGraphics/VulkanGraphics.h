@@ -85,12 +85,12 @@ private:
 	ModelLoader modelLoader;
 	Model Nanosuit;
 
-	SkyBox Skybox;
-	CubeMapTexture SkyboxTexture;
+//	SkyBox Skybox;
+	//CubeMapTexture SkyboxTexture;
 
 	Texture2D texture;
-	std::vector<Mesh> MeshList;
-	std::vector<Model> ModelList;
+	Mesh MeshList;
+	//std::vector<Model> ModelList;
 	GUIDebugger guiDebugger;
 
 	float deltaTime = 0.0f;

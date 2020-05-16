@@ -54,12 +54,12 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	layout.Bottom = "texture/skybox/bottom.jpg";
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
-	SkyboxTexture = CubeMapTexture(renderer, layout);
+	//SkyboxTexture = CubeMapTexture(renderer, layout);
 
-	Skybox = SkyBox(renderer, SkyboxTexture);
+	//Skybox = SkyBox(renderer, SkyboxTexture);
 
 	InitializeGUIDebugger();
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList = Mesh(renderer, vertices, indices, textureList);
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
@@ -77,18 +77,18 @@ VulkanGraphics::~VulkanGraphics()
 	vkDeviceWaitIdle(*GetDevice(renderer));
 
 	modelLoader.CleanTextureMemory(renderer);
-	for (auto mesh : MeshList)
-	{
-		mesh.Destroy(renderer);
-	}
-	for (auto model : ModelList)
-	{
-		model.Destroy(renderer);
-	}
-	Skybox.Destory(renderer);
+	//for (auto mesh : MeshList)
+	//{
+	MeshList.Destroy(renderer);
+	//}
+	//for (auto model : ModelList)
+	//{
+	//	model.Destroy(renderer);
+	//}
+	//Skybox.Destory(renderer);
 	//Ambiant.Destroy(renderer);
 	//texture.Destroy(renderer);
-	SkyboxTexture.Destroy(renderer);
+	//SkyboxTexture.Destroy(renderer);
 
 	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
@@ -118,62 +118,26 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	glm::vec3 cubePositions[] =
-	{
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
+	PositionMatrix ubo{};
+	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = camera.GetViewMatrix();
+	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo.proj[1][1] *= -1;
 
-			Lighter light{};
-			light.objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
-			light.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-			light.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
-			light.viewPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	AmbientLightUniformBuffer buff{};
+	lighter.objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
+	lighter.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	lighter.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+	lighter.viewPos = glm::vec3(0.0f, 0.0f, 3.0f);
 
-	for (int x = 0; x < MeshList.size(); x++)
-	{
-		MeshList[x].MeshPosition = cubePositions[x];
-		PositionMatrix ubo = {};
-		ubo.model = glm::mat4(1.0f);
-		ubo.model = glm::translate(ubo.model, glm::vec3(1.2f, 1.0f, 2.0f));
-		//ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), MeshList[x].MeshRotate);
-		//ubo.model = glm::scale(ubo.model, MeshList[x].MeshScale);
-		ubo.view = camera.GetViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-		ubo.proj[1][1] *= -1;
-
-		MeshList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), lighter, NextFrameIndex);
-	}
-
-	for (int x = 0; x < ModelList.size(); x++)
-	{
-		ModelList[x].ModelPosition = cubePositions[x];
-		PositionMatrix ubo = {};
-		ubo.model = glm::mat4(1.0f);
-		//ubo.model = glm::translate(ubo.model, glm::vec3(1.2f, 1.0f, 2.0f));
-		//ubo.model = glm::rotate(ubo.model, glm::radians(time * 20.0f), MeshList[x].MeshRotate);
-		//ubo.model = glm::scale(ubo.model, MeshList[x].MeshScale);
-		ubo.view = camera.GetViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-		ubo.proj[1][1] *= -1;
-
-		ModelList[x].UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), lighter, NextFrameIndex);
-	}
+	MeshList.UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), lighter, NextFrameIndex);
 
 	SkyBoxUniformBufferObject skyUbo = {};
 	skyUbo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 	skyUbo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	skyUbo.projection[1][1] *= -1;
 
-	Skybox.UpdateUniformBuffer(renderer, skyUbo, NextFrameIndex);
+	//Skybox.UpdateUniformBuffer(renderer, skyUbo, NextFrameIndex);
 }
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
@@ -193,17 +157,10 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 			BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
 
 			vkBeginCommandBuffer(renderer.SecondaryCommandBuffers[i], &BeginSecondaryCommandBuffer);
-			for (auto mesh : MeshList)
-			{
-				mesh.Draw(renderer, i);
-			}
-			for (auto model : ModelList)
-			{
-				model.Draw(renderer, i);
-			}
+			MeshList.Draw(renderer, i);
 			if (renderer.Settings.ShowSkyBox)
 			{
-				Skybox.Draw(renderer, i);
+			//	Skybox.Draw(renderer, i);
 			}
 			if (vkEndCommandBuffer(renderer.SecondaryCommandBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
