@@ -150,9 +150,6 @@
     <ClCompile Include="UniformBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanGraphics2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\light.frag">
@@ -347,9 +344,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UniformBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanGraphics2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

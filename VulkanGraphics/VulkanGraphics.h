@@ -85,8 +85,8 @@ private:
 	ModelLoader modelLoader;
 	Model Nanosuit;
 
-//	SkyBox Skybox;
-	//CubeMapTexture SkyboxTexture;
+	SkyBox Skybox;
+	CubeMapTexture SkyboxTexture;
 
 	Texture2D texture;
 	Mesh MeshList;

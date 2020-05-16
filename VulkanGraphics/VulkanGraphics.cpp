@@ -54,9 +54,9 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	layout.Bottom = "texture/skybox/bottom.jpg";
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
-	//SkyboxTexture = CubeMapTexture(renderer, layout);
+	SkyboxTexture = CubeMapTexture(renderer, layout);
 
-	//Skybox = SkyBox(renderer, SkyboxTexture);
+	Skybox = SkyBox(renderer, SkyboxTexture);
 
 	InitializeGUIDebugger();
 	MeshList = Mesh(renderer, vertices, indices, textureList);
@@ -85,10 +85,10 @@ VulkanGraphics::~VulkanGraphics()
 	//{
 	//	model.Destroy(renderer);
 	//}
-	//Skybox.Destory(renderer);
+	Skybox.Destory(renderer);
 	//Ambiant.Destroy(renderer);
 	//texture.Destroy(renderer);
-	//SkyboxTexture.Destroy(renderer);
+	SkyboxTexture.Destroy(renderer);
 
 	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
@@ -137,7 +137,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	skyUbo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	skyUbo.projection[1][1] *= -1;
 
-	//Skybox.UpdateUniformBuffer(renderer, skyUbo, NextFrameIndex);
+	Skybox.UpdateUniformBuffer(renderer, skyUbo, NextFrameIndex);
 }
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
@@ -160,7 +160,7 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 			MeshList.Draw(renderer, i);
 			if (renderer.Settings.ShowSkyBox)
 			{
-			//	Skybox.Draw(renderer, i);
+				Skybox.Draw(renderer, i);
 			}
 			if (vkEndCommandBuffer(renderer.SecondaryCommandBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
