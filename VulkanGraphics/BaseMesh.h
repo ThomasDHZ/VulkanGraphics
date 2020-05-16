@@ -43,7 +43,6 @@ public:
 	BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
 	~BaseMesh();
 
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize);
 	void Destory(VulkanRenderer& Renderer);
 };
 

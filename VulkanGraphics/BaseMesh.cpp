@@ -177,14 +177,6 @@ void BaseMesh::CreateDescriptorSetsData(VulkanRenderer& Renderer, std::vector<Wr
 	vkUpdateDescriptorSets(*GetDevice(Renderer), static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
-void BaseMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize)
-{
-	void* UniformData;
-	vkMapMemory(*GetDevice(Renderer), UniformBufferMemory, 0, UniformSize, 0, &UniformData);
-	memcpy(UniformData, UniformObjectData, UniformSize);
-	vkUnmapMemory(*GetDevice(Renderer), UniformBufferMemory);
-}
-
 void BaseMesh::Destory(VulkanRenderer& Renderer)
 {
 	if (VertexSize != 0)

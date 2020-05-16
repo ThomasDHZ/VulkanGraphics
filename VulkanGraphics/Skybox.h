@@ -10,8 +10,9 @@
 #include "CubeMapTexture.h"
 #include "SkyBoxPipeline.h"
 #include "BaseMesh.h"
+#include "UniformBuffer.h"
 
-struct SkyBoxUniformBufferObject
+struct SkyBoxPositionMatrix
 {
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 projection;
@@ -73,15 +74,14 @@ private:
 public:
 	CubeMapTexture CubeMap;
 
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	UniformBuffer PositionMatrixBuffer;
 
 	SkyBox();
 	SkyBox(VulkanRenderer& Renderer, CubeMapTexture texture);
 	~SkyBox();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxUniformBufferObject ubo, uint32_t currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxPositionMatrix positionMatrix, uint32_t currentImage);
 	void Destory(VulkanRenderer& Renderer);
 };
 

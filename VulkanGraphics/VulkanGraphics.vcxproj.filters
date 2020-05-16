@@ -150,14 +150,14 @@
     <ClCompile Include="UniformBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DebugLightMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugLightRenderingPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\light.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\light.vert">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="Shaders\SkyboxShader.frag">
       <Filter>Shader</Filter>
     </None>
@@ -198,6 +198,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\MaterialTest.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\DebugLightShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\DebugLightShader.frag">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -344,6 +350,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UniformBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugLightMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugLightRenderingPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

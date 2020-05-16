@@ -33,9 +33,10 @@ struct Lighter
 
 struct Material
 {
+	alignas(16) glm::vec3 ambient;
 	alignas(16) glm::vec3 Diffuse;
 	alignas(16) glm::vec3 Specular;
-	alignas(16) glm::vec3 Shininess;
+	alignas(4)  float Shininess;
 };
 
 class Mesh : public BaseMesh

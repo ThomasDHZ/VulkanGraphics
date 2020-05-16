@@ -14,6 +14,7 @@
 #include "Model.h"
 #include "Skybox.h"
 #include "AmbientLight.h"
+#include "DebugLightMesh.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -73,17 +74,17 @@ const std::vector<uint16_t> indices = {
 class VulkanGraphics : VulkanResources
 {
 private:
-	VulkanSettings CompareVulkanSettings;
+	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
 	VulkanRenderer renderer;
 	
 	Camera camera;
 
-	AmbientLight Ambiant;
+	//AmbientLight Ambiant;
 	Lighter lighter;
 
-	ModelLoader modelLoader;
-	Model Nanosuit;
+	//ModelLoader modelLoader;
+	//Model Nanosuit;
 
 	SkyBox Skybox;
 	CubeMapTexture SkyboxTexture;
@@ -92,6 +93,8 @@ private:
 	Mesh MeshList;
 	//std::vector<Model> ModelList;
 	GUIDebugger guiDebugger;
+
+	DebugLightMesh debugLightMesh;
 
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;

@@ -4,8 +4,8 @@ C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe DifferedRenderingShader.vert -o DifferedR
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe DifferedRenderingShader.frag -o DifferedRenderingShaderFrag.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe WireFrameShader.vert -o WireFrameShaderVert.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe WireFrameShader.frag -o WireFrameShaderFrag.spv
-C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe light.vert -o lightvert.spv
-C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe light.frag -o lightfrag.spv
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe DebugLightShader.vert -o DebugLightVert.spv
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe DebugLightShader.frag -o DebugLightFrag.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe SkyboxShader.vert -o SkyBoxVert.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe SkyboxShader.frag -o SkyBoxFrag.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe FrameBufferShader.vert -o FrameBufferVert.spv

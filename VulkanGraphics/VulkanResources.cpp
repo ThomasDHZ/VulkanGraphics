@@ -65,6 +65,11 @@ VkDescriptorSetLayout* VulkanResources::GetMeshViewDescriptorSetLayout(VulkanRen
 	return &renderer.MeshviewPipeline.ShaderPipelineDescriptorLayout;
 }
 
+DebugLightRenderingPipeline VulkanResources::GetDebugLightPipeline(VulkanRenderer& renderer)
+{
+	return renderer.DebugLightPipeline;
+}
+
 VkPipeline* VulkanResources::GetMeshViewShaderPipeline(VulkanRenderer& renderer)
 {
 	return &renderer.MeshviewPipeline.ShaderPipeline;

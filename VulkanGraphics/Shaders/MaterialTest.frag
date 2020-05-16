@@ -10,9 +10,10 @@ layout(binding = 1) uniform sampler2D texSampler;
 layout(binding = 2) uniform sampler2D texSampler2;
 layout(binding = 3) uniform Material
 {
-	vec3 Diffuse;
-	vec3 Specular;
-	vec3 Shininess;
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
+	float shininess;
 } material;
 layout(binding = 4) uniform AmbiantLight
 {
@@ -21,32 +22,30 @@ layout(binding = 4) uniform AmbiantLight
 } ambiantLight;
 layout(binding = 5) uniform Lighter
 {
-	vec3 lightPos;
-	vec3 viewPos;
-	vec3 lightColor;
-	vec3 objectColor;
+    vec3 position;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
 } light;
 
 void main()
 {
     // ambient
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * light.lightColor;
+    vec3 ambient = light.ambient * material.ambient;
   	
     // diffuse 
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(light.lightPos - FragPos);
+    vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * light.lightColor;
+    vec3 diffuse = light.diffuse * (diff * material.diffuse);
     
     // specular
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(light.viewPos - FragPos);
+    vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * light.lightColor;  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    vec3 specular = light.specular * (spec * material.specular);  
         
-    vec3 result = (ambient + diffuse + specular) * light.objectColor;
+    vec3 result = ambient + diffuse + specular;
     outColor = vec4(result, 1.0);
 } 
 

@@ -17,6 +17,7 @@ public:
 	static VkPipeline* GetShaderPipeline(VulkanRenderer& renderer);
 	static VkPipelineLayout* GetShaderPipelineLayout(VulkanRenderer& renderer);
 	static VkDescriptorSetLayout* GetMeshViewDescriptorSetLayout(VulkanRenderer& renderer);
+	static DebugLightRenderingPipeline GetDebugLightPipeline(VulkanRenderer& renderer);
 	static VkPipeline* GetMeshViewShaderPipeline(VulkanRenderer& renderer);
 	static VkPipelineLayout* GetMeshViewShaderPipelineLayout(VulkanRenderer& renderer);
 	static VkDescriptorSetLayout* GetSkyboxDescriptorSetLayout(VulkanRenderer& renderer);

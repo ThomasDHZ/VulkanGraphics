@@ -33,7 +33,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	texture = Texture2D(renderer, "texture/container2.png");
 	std::vector<Texture2D> textureList = { texture, texture };
 
-	Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+	//Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/box.obj"));
 	//modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
@@ -60,6 +60,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	InitializeGUIDebugger();
 	MeshList = Mesh(renderer, vertices, indices, textureList);
+	debugLightMesh = DebugLightMesh(renderer, vertices);
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
@@ -76,18 +77,20 @@ VulkanGraphics::~VulkanGraphics()
 {
 	vkDeviceWaitIdle(*GetDevice(renderer));
 
-	modelLoader.CleanTextureMemory(renderer);
+	//modelLoader.CleanTextureMemory(renderer);
 	//for (auto mesh : MeshList)
 	//{
 	MeshList.Destroy(renderer);
+	debugLightMesh.Destroy(renderer);
 	//}
 	//for (auto model : ModelList)
 	//{
 	//	model.Destroy(renderer);
 	//}
-	Skybox.Destory(renderer);
 	//Ambiant.Destroy(renderer);
-	//texture.Destroy(renderer);
+	texture.Destroy(renderer);
+	
+	Skybox.Destory(renderer);
 	SkyboxTexture.Destroy(renderer);
 
 	guiDebugger.ShutDown(*GetDevice(renderer));
@@ -130,9 +133,24 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	lighter.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 	lighter.viewPos = glm::vec3(0.0f, 0.0f, 3.0f);
 
-	MeshList.UpdateUniformBuffer(renderer, ubo, Ambiant.GetLightSettings(), lighter, NextFrameIndex);
+	MeshList.UpdateUniformBuffer(renderer, ubo, buff, lighter, NextFrameIndex);
 
-	SkyBoxUniformBufferObject skyUbo = {};
+
+	PositionMatrix ubo2{};
+	ubo2.model = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, 1.0f, 2.0f));
+	ubo2.view = camera.GetViewMatrix();
+	ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo2.proj[1][1] *= -1;
+
+
+	lighter.objectColor = glm::vec3(1.0f, 0.0f, 0.0f);
+	lighter.lightColor = glm::vec3(1.0f, 0.0f, 0.0f);
+	lighter.lightPos = glm::vec3(1.0f, 0.0f, 0.0f);
+	lighter.viewPos = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	debugLightMesh.UpdateUniformBuffer(renderer, ubo2, lighter, NextFrameIndex);
+
+	SkyBoxPositionMatrix skyUbo = {};
 	skyUbo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 	skyUbo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	skyUbo.projection[1][1] *= -1;
@@ -158,6 +176,10 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 
 			vkBeginCommandBuffer(renderer.SecondaryCommandBuffers[i], &BeginSecondaryCommandBuffer);
 			MeshList.Draw(renderer, i);
+			if (renderer.Settings.ShowDebugLightMeshs)
+			{
+				debugLightMesh.Draw(renderer, i);
+			}
 			if (renderer.Settings.ShowSkyBox)
 			{
 				Skybox.Draw(renderer, i);
@@ -204,12 +226,13 @@ void VulkanGraphics::MainLoop()
 			ImGui::Begin("Hello, world!");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
+			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMeshs);
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
-			ImGui::SliderFloat("float", Ambiant.GetColorStrengthPtr(), 0.0f, 1.0f);
-			ImGui::ColorEdit3("Ambiant color", (float*)Ambiant.GetColorPtr());
+			//ImGui::SliderFloat("float", Ambiant.GetColorStrengthPtr(), 0.0f, 1.0f);
+			//ImGui::ColorEdit3("Ambiant color", (float*)Ambiant.GetColorPtr());
 			//ImGui::ColorEdit3("Position", (float*)&lighter.Position);
 			//ImGui::ColorEdit3("Color", (float*)&lighter.Color);
-			ImGui::ColorEdit3("CameraPosition", (float*)&lighter.viewPos);
+			//ImGui::ColorEdit3("CameraPosition", (float*)&lighter.viewPos);
 			ImGui::End();
 		}
 		ImGui::Render();
