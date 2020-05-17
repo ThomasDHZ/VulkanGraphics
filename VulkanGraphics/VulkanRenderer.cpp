@@ -524,12 +524,11 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	UpdateCommandBuffers = true;
 }
 
-uint32_t VulkanRenderer::StartFrame(GLFWwindow* window)
+void VulkanRenderer::StartFrame(GLFWwindow* window)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
-	uint32_t imageIndex;
-	VkResult result = vkAcquireNextImageKHR(Device, SwapChain.GetSwapChain(), UINT64_MAX, vulkanSemaphores[currentFrame].ImageAcquiredSemaphore, VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(Device, SwapChain.GetSwapChain(), UINT64_MAX, vulkanSemaphores[currentFrame].ImageAcquiredSemaphore, VK_NULL_HANDLE, &DrawFrame);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR)
 	{
@@ -538,25 +537,23 @@ uint32_t VulkanRenderer::StartFrame(GLFWwindow* window)
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
-
-	return imageIndex;
 }
-void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
+void VulkanRenderer::EndFrame(GLFWwindow* window)
 {
 	std::array<VkClearValue, 3> clearValues = {};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 	clearValues[1].color = { 0.1f, 0.1f, 0.1f, 1.0f };
 	clearValues[2].depthStencil = { 1.0f, 0 };
 
-	if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
-		vkWaitForFences(Device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+	if (imagesInFlight[DrawFrame] != VK_NULL_HANDLE) {
+		vkWaitForFences(Device, 1, &imagesInFlight[DrawFrame], VK_TRUE, UINT64_MAX);
 	}
-	imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+	imagesInFlight[DrawFrame] = inFlightFences[currentFrame];
 
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = RenderPass;
-	renderPassInfo.framebuffer = SwapChainFramebuffers[imageIndex];
+	renderPassInfo.framebuffer = SwapChainFramebuffers[DrawFrame];
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -565,26 +562,25 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 	VkCommandBufferBeginInfo CommandBufferInfo = {};
 	CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-	vkBeginCommandBuffer(MainCommandBuffer[imageIndex], &CommandBufferInfo);
-	vkCmdBeginRenderPass(MainCommandBuffer[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-	vkCmdExecuteCommands(MainCommandBuffer[imageIndex], RunCommandBuffers.size(), RunCommandBuffers.data());
-	vkCmdNextSubpass(MainCommandBuffer[imageIndex], VK_SUBPASS_CONTENTS_INLINE);
-	framebuffer.Draw(FrameBufferPipeline, MainCommandBuffer[imageIndex], imageIndex);
-	vkCmdEndRenderPass(MainCommandBuffer[imageIndex]);
-	vkEndCommandBuffer(MainCommandBuffer[imageIndex]);
-
-	VkSubmitInfo submitInfo{};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	vkBeginCommandBuffer(MainCommandBuffer[DrawFrame], &CommandBufferInfo);
+	vkCmdBeginRenderPass(MainCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+	vkCmdExecuteCommands(MainCommandBuffer[DrawFrame], RunCommandBuffers.size(), RunCommandBuffers.data());
+	vkCmdNextSubpass(MainCommandBuffer[DrawFrame], VK_SUBPASS_CONTENTS_INLINE);
+	framebuffer.Draw(FrameBufferPipeline, MainCommandBuffer[DrawFrame], DrawFrame);
+	vkCmdEndRenderPass(MainCommandBuffer[DrawFrame]);
+	vkEndCommandBuffer(MainCommandBuffer[DrawFrame]);
 
 	VkSemaphore waitSemaphores[] = { vulkanSemaphores[currentFrame].ImageAcquiredSemaphore };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	VkSemaphore signalSemaphores[] = { vulkanSemaphores[currentFrame].RenderCompleteSemaphore };
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &MainCommandBuffer[imageIndex];
-
-	VkSemaphore signalSemaphores[] = { vulkanSemaphores[currentFrame].RenderCompleteSemaphore };
+	submitInfo.pCommandBuffers = &MainCommandBuffer[DrawFrame];
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -594,17 +590,15 @@ void VulkanRenderer::EndFrame(GLFWwindow* window, uint32_t imageIndex)
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
 
+	VkSwapchainKHR swapChains[] = { SwapChain.GetSwapChain() };
+
 	VkPresentInfoKHR presentInfo{};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = signalSemaphores;
-
-	VkSwapchainKHR swapChains[] = { SwapChain.GetSwapChain() };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
-
-	presentInfo.pImageIndices = &imageIndex;
+	presentInfo.pImageIndices = &DrawFrame;
 
 	VkResult result = vkQueuePresentKHR(PresentQueue, &presentInfo);
 

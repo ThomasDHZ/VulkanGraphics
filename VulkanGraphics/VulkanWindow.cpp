@@ -1,4 +1,6 @@
 #include "VulkanWindow.h"
+#include <exception>
+#include <iostream>
 
 VulkanWindow::VulkanWindow()
 {
@@ -29,7 +31,14 @@ VulkanWindow::~VulkanWindow()
 
 void VulkanWindow::Update()
 {
-	glfwPollEvents();
+	try
+	{
+		glfwPollEvents();
+	}
+	catch (std::exception & e)
+	{
+		std::cout << "Standard exception: " << e.what() << std::endl;
+	}
 }
 
 void VulkanWindow::CleanUp()

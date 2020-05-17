@@ -80,6 +80,8 @@ private:
 	
 	Camera camera;
 
+	glm::vec3 LightPos;
+
 	//AmbientLight Ambiant;
 	Lighter lighter;
 

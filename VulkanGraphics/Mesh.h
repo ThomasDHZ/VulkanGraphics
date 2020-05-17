@@ -25,10 +25,10 @@ struct PositionMatrix
 
 struct Lighter
 {
-	alignas(16) glm::vec3 lightPos;
-	alignas(16) glm::vec3 viewPos;
-	alignas(16) glm::vec3 lightColor;
-	alignas(16) glm::vec3 objectColor;
+	alignas(16) glm::vec3 position;
+	alignas(16) glm::vec3 ambient;
+	alignas(16) glm::vec3 diffuse;
+	alignas(16) glm::vec3 specular;
 };
 
 struct Material
@@ -37,6 +37,11 @@ struct Material
 	alignas(16) glm::vec3 Diffuse;
 	alignas(16) glm::vec3 Specular;
 	alignas(4)  float Shininess;
+};
+
+struct ViewPos
+{
+	alignas(16) glm::vec3 viewPos;
 };
 
 class Mesh : public BaseMesh
@@ -56,6 +61,7 @@ public:
 	UniformBuffer MaterialBuffer;
 	UniformBuffer AmbientLightBuffer;
 	UniformBuffer LighterBuffers;
+	UniformBuffer ViewPosBuffer;
 
 	glm::vec3 MeshPosition = glm::vec3();
 	glm::vec3 MeshRotate = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -67,7 +73,7 @@ public:
 	~Mesh();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, int currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, Material material, ViewPos viewpos, int currentImage);
 	void Destroy(VulkanRenderer& Renderer);
 };
 

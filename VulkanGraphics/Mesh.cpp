@@ -26,11 +26,12 @@ void Mesh::CreateUniformBuffers(VulkanRenderer& Renderer)
 	MaterialBuffer = UniformBuffer(Renderer, sizeof(Material));
 	AmbientLightBuffer = UniformBuffer(Renderer, sizeof(AmbientLight));
 	LighterBuffers = UniformBuffer(Renderer, sizeof(Lighter));
+	ViewPosBuffer = UniformBuffer(Renderer, sizeof(ViewPos));
 }
 
 void Mesh::CreateDescriptorPool(VulkanRenderer& Renderer)
 {
-	std::array<DescriptorPoolSizeInfo, 6>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 7>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -38,6 +39,7 @@ void Mesh::CreateDescriptorPool(VulkanRenderer& Renderer)
 	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -47,14 +49,17 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 	BaseMesh::CreateDescriptorSets(Renderer, *GetDescriptorSetLayout(Renderer));
 
 	VkDescriptorImageInfo DiffuseMap = {};
-	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	DiffuseMap.imageView = TextureList[0].textureImageView;
-	DiffuseMap.sampler = TextureList[0].textureSampler;
-
 	VkDescriptorImageInfo SpecularMap = {};
-	SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	SpecularMap.imageView = TextureList[1].textureImageView;
-	SpecularMap.sampler = TextureList[1].textureSampler;
+	if (TextureList.size() != 0)
+	{
+		DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		DiffuseMap.imageView = TextureList[0].textureImageView;
+		DiffuseMap.sampler = TextureList[0].textureSampler;
+
+		SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		SpecularMap.imageView = TextureList[1].textureImageView;
+		SpecularMap.sampler = TextureList[1].textureSampler;
+	}
 
 	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
 	{
@@ -78,39 +83,67 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		LightInfo.offset = 0;
 		LightInfo.range = sizeof(Lighter);
 
-		std::array<WriteDescriptorSetInfo, 6>  WriteDescriptorInfo = {};
+		VkDescriptorBufferInfo ViewPosInfo = {};
+		ViewPosInfo.buffer = LighterBuffers.GetUniformBuffer(i);
+		ViewPosInfo.offset = 0;
+		ViewPosInfo.range = sizeof(ViewPos);
 
-		WriteDescriptorInfo[0].DstBinding = 0;
-		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[0].DescriptorBufferInfo = PositionInfo;
 
-		WriteDescriptorInfo[1].DstBinding = 1;
-		WriteDescriptorInfo[1].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		WriteDescriptorInfo[1].DescriptorImageInfo = DiffuseMap;
+		std::vector<WriteDescriptorSetInfo> DescriptorList;
 
-		WriteDescriptorInfo[2].DstBinding = 2;
-		WriteDescriptorInfo[2].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		WriteDescriptorInfo[2].DescriptorImageInfo = SpecularMap;
+		WriteDescriptorSetInfo PositionDescriptor;
+		PositionDescriptor.DstBinding = 0;
+		PositionDescriptor.DstSet = descriptorSets[i];
+		PositionDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		PositionDescriptor.DescriptorBufferInfo = PositionInfo;
+		DescriptorList.emplace_back(PositionDescriptor);
 
-		WriteDescriptorInfo[3].DstBinding = 3;
-		WriteDescriptorInfo[3].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[3].DescriptorBufferInfo = MarterialInfo;
+		if (TextureList.size() != 0)
+		{
+			WriteDescriptorSetInfo DiffuseMapDescriptor;
+			DiffuseMapDescriptor.DstBinding = 1;
+			DiffuseMapDescriptor.DstSet = descriptorSets[i];
+			DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			DiffuseMapDescriptor.DescriptorImageInfo = DiffuseMap;
+			DescriptorList.emplace_back(DiffuseMapDescriptor);
 
-		WriteDescriptorInfo[4].DstBinding = 4;
-		WriteDescriptorInfo[4].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[4].DescriptorBufferInfo = AmbiantLightInfo;
+			WriteDescriptorSetInfo SpecularMapDescriptor;
+			SpecularMapDescriptor.DstBinding = 2;
+			SpecularMapDescriptor.DstSet = descriptorSets[i];
+			SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
+			DescriptorList.emplace_back(SpecularMapDescriptor);
+		}
 
-		WriteDescriptorInfo[5].DstBinding = 5;
-		WriteDescriptorInfo[5].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[5].DescriptorBufferInfo = LightInfo;
+		WriteDescriptorSetInfo MaterialDescriptor;
+		MaterialDescriptor.DstBinding = 3;
+		MaterialDescriptor.DstSet = descriptorSets[i];
+		MaterialDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		MaterialDescriptor.DescriptorBufferInfo = MarterialInfo;
+		DescriptorList.emplace_back(MaterialDescriptor);
 
-		Mesh::CreateDescriptorSetsData(Renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
+		WriteDescriptorSetInfo AmbiantLightDescriptor;
+		AmbiantLightDescriptor.DstBinding = 4;
+		AmbiantLightDescriptor.DstSet = descriptorSets[i];
+		AmbiantLightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		AmbiantLightDescriptor.DescriptorBufferInfo = AmbiantLightInfo;
+		DescriptorList.emplace_back(AmbiantLightDescriptor);
+
+		WriteDescriptorSetInfo LightDescriptor;
+		LightDescriptor.DstBinding = 5;
+		LightDescriptor.DstSet = descriptorSets[i];
+		LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		LightDescriptor.DescriptorBufferInfo = LightInfo;
+		DescriptorList.emplace_back(LightDescriptor);
+
+		WriteDescriptorSetInfo ViewPosDescriptor;
+		ViewPosDescriptor.DstBinding = 6;
+		ViewPosDescriptor.DstSet = descriptorSets[i];
+		ViewPosDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		ViewPosDescriptor.DescriptorBufferInfo = ViewPosInfo;
+		DescriptorList.emplace_back(ViewPosDescriptor);
+
+		Mesh::CreateDescriptorSetsData(Renderer, DescriptorList);
 	}
 }
 
@@ -141,18 +174,13 @@ void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 	}
 }
 
-void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, int currentImage)
+void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, Material material, ViewPos viewpos, int currentImage)
 {
-	Material material = {};
-	//light.objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
-	//light.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	//light.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
-	//light.viewPos = glm::vec3(0.0f, 0.0f, 3.0f);
-
 	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), currentImage);
 	MaterialBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&material), currentImage);
 	AmbientLightBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&light), currentImage);
 	LighterBuffers.UpdateUniformBuffer(Renderer, static_cast<void*>(&lighter), currentImage);
+	ViewPosBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&viewpos), currentImage);
 }
 
 void Mesh::Destroy(VulkanRenderer& Renderer)
@@ -162,6 +190,7 @@ void Mesh::Destroy(VulkanRenderer& Renderer)
 	MaterialBuffer.Destroy(Renderer);
 	AmbientLightBuffer.Destroy(Renderer);
 	LighterBuffers.Destroy(Renderer);
+	ViewPosBuffer.Destroy(Renderer);
 
 	BaseMesh::Destory(Renderer);
 }

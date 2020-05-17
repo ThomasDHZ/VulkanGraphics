@@ -116,8 +116,8 @@ protected:
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 
 	void UpdateSwapChain(GLFWwindow* window);
-	uint32_t StartFrame(GLFWwindow* window);
-	void EndFrame(GLFWwindow* window, uint32_t imageIndex);
+	void StartFrame(GLFWwindow* window);
+	void EndFrame(GLFWwindow* window);
 	void DestoryVulkan();
 
 	bool UpdateCommandBuffers = true;
@@ -129,4 +129,5 @@ public:
 	~VulkanRenderer();
 
 	VulkanRendererSettings Settings;
+	uint32_t DrawFrame = 0;
 };

@@ -71,6 +71,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
+
+	LightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -128,25 +130,41 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	ubo.proj[1][1] *= -1;
 
 	AmbientLightUniformBuffer buff{};
-	lighter.objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
-	lighter.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	lighter.lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
-	lighter.viewPos = glm::vec3(0.0f, 0.0f, 3.0f);
 
-	MeshList.UpdateUniformBuffer(renderer, ubo, buff, lighter, NextFrameIndex);
+	glm::vec3 lightColor;
+	lightColor.x = sin(glfwGetTime() * 2.0f);
+	lightColor.y = sin(glfwGetTime() * 0.7f);
+	lightColor.z = sin(glfwGetTime() * 1.3f);
+	glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
+	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
+	lighter.ambient = ambientColor;
+	lighter.diffuse = diffuseColor;
+	lighter.position = LightPos;
+	lighter.specular = camera.GetCameraPos();
+
+	Material material = {};
+	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
+	material.Diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+	material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
+	material.Shininess = 32.0f;
+
+	ViewPos viewing = {};
+	viewing.viewPos = glm::vec3(0.5f, 0.5f, 0.5f);
+
+	MeshList.UpdateUniformBuffer(renderer, ubo, buff, lighter, material, viewing, NextFrameIndex);
 
 
 	PositionMatrix ubo2{};
-	ubo2.model = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, 1.0f, 2.0f));
+	ubo2.model = glm::translate(glm::mat4(1.0f), LightPos);
 	ubo2.view = camera.GetViewMatrix();
 	ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo2.proj[1][1] *= -1;
 
 
-	lighter.objectColor = glm::vec3(1.0f, 0.0f, 0.0f);
-	lighter.lightColor = glm::vec3(1.0f, 0.0f, 0.0f);
-	lighter.lightPos = glm::vec3(1.0f, 0.0f, 0.0f);
-	lighter.viewPos = glm::vec3(1.0f, 0.0f, 0.0f);
+	lighter.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
+	lighter.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	lighter.position = glm::vec3(1.2f, 1.0f, 2.0f);
+	lighter.specular = glm::vec3(0.0f, 0.0f, 3.0f);
 
 	debugLightMesh.UpdateUniformBuffer(renderer, ubo2, lighter, NextFrameIndex);
 
@@ -203,13 +221,13 @@ void VulkanGraphics::Draw()
 		renderer.UpdateSwapChain(Window.GetWindowPtr());
 	}
 
-	auto NextFrameIndex = renderer.StartFrame(Window.GetWindowPtr());
-	Update(NextFrameIndex);
-	UpdateCommandBuffers(NextFrameIndex);
+	renderer.StartFrame(Window.GetWindowPtr());
+	Update(renderer.DrawFrame);
+	UpdateCommandBuffers(renderer.DrawFrame);
 	renderer.RunCommandBuffers.clear();
-	renderer.RunCommandBuffers.emplace_back(renderer.SecondaryCommandBuffers[NextFrameIndex]);
-	renderer.RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(NextFrameIndex));
-	renderer.EndFrame(Window.GetWindowPtr(), NextFrameIndex);
+	renderer.RunCommandBuffers.emplace_back(renderer.SecondaryCommandBuffers[renderer.DrawFrame]);
+	renderer.RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(renderer.DrawFrame));
+	renderer.EndFrame(Window.GetWindowPtr());
 }
 
 void VulkanGraphics::MainLoop()
@@ -228,6 +246,7 @@ void VulkanGraphics::MainLoop()
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMeshs);
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
+			ImGui::ColorEdit3("Light Pos", (float*)&LightPos);
 			//ImGui::SliderFloat("float", Ambiant.GetColorStrengthPtr(), 0.0f, 1.0f);
 			//ImGui::ColorEdit3("Ambiant color", (float*)Ambiant.GetColorPtr());
 			//ImGui::ColorEdit3("Position", (float*)&lighter.Position);
