@@ -23,7 +23,7 @@ public:
 	~DebugLightMesh();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, Lighter lighter, int currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, Lighter lighter);
 	void Destroy(VulkanRenderer& Renderer);
 };
 

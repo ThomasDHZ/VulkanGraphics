@@ -81,7 +81,7 @@ public:
 	~SkyBox();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxPositionMatrix positionMatrix, uint32_t currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxPositionMatrix positionMatrix);
 	void Destory(VulkanRenderer& Renderer);
 };
 

@@ -108,9 +108,9 @@ void SkyBox::Draw(VulkanRenderer& Renderer, int currentFrame)
 	vkCmdDraw(*GetSecondaryCommandBuffer(Renderer, currentFrame), VertexSize, 1, 0, 0);
 }
 
-void SkyBox::UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxPositionMatrix positionMatrix, uint32_t currentImage)
+void SkyBox::UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxPositionMatrix positionMatrix)
 {
-	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), currentImage);
+	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), Renderer.DrawFrame);
 }
 
 void SkyBox::Destory(VulkanRenderer& Renderer)

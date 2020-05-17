@@ -151,7 +151,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	ViewPos viewing = {};
 	viewing.viewPos = glm::vec3(0.5f, 0.5f, 0.5f);
 
-	MeshList.UpdateUniformBuffer(renderer, ubo, buff, lighter, material, viewing, NextFrameIndex);
+	MeshList.UpdateUniformBuffer(renderer, ubo, buff, lighter, material, viewing);
 
 
 	PositionMatrix ubo2{};
@@ -166,14 +166,14 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	lighter.position = glm::vec3(1.2f, 1.0f, 2.0f);
 	lighter.specular = glm::vec3(0.0f, 0.0f, 3.0f);
 
-	debugLightMesh.UpdateUniformBuffer(renderer, ubo2, lighter, NextFrameIndex);
+	debugLightMesh.UpdateUniformBuffer(renderer, ubo2, lighter);
 
 	SkyBoxPositionMatrix skyUbo = {};
 	skyUbo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 	skyUbo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	skyUbo.projection[1][1] *= -1;
 
-	Skybox.UpdateUniformBuffer(renderer, skyUbo, NextFrameIndex);
+	Skybox.UpdateUniformBuffer(renderer, skyUbo);
 }
 
 void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)

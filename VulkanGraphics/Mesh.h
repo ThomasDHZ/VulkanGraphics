@@ -73,7 +73,7 @@ public:
 	~Mesh();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, Material material, ViewPos viewpos, int currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, Material material, ViewPos viewpos);
 	void Destroy(VulkanRenderer& Renderer);
 };
 

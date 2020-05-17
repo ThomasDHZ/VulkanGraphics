@@ -174,13 +174,13 @@ void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 	}
 }
 
-void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, Material material, ViewPos viewpos, int currentImage)
+void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, Material material, ViewPos viewpos)
 {
-	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), currentImage);
-	MaterialBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&material), currentImage);
-	AmbientLightBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&light), currentImage);
-	LighterBuffers.UpdateUniformBuffer(Renderer, static_cast<void*>(&lighter), currentImage);
-	ViewPosBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&viewpos), currentImage);
+	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), Renderer.DrawFrame);
+	MaterialBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&material), Renderer.DrawFrame);
+	AmbientLightBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&light), Renderer.DrawFrame);
+	LighterBuffers.UpdateUniformBuffer(Renderer, static_cast<void*>(&lighter), Renderer.DrawFrame);
+	ViewPosBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&viewpos), Renderer.DrawFrame);
 }
 
 void Mesh::Destroy(VulkanRenderer& Renderer)
