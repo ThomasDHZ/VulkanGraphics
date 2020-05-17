@@ -72,7 +72,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
-	LightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+	LightPos = glm::vec3(0.0f, 0.0f, 2.0f);
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -124,7 +124,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	PositionMatrix ubo{};
-	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.model = glm::mat4(1.0f);
 	ubo.view = camera.GetViewMatrix();
 	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
@@ -140,7 +140,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	lighter.ambient = ambientColor;
 	lighter.diffuse = diffuseColor;
 	lighter.position = LightPos;
-	lighter.specular = camera.GetCameraPos();
+	lighter.specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	Material material = {};
 	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
@@ -149,7 +149,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	material.Shininess = 32.0f;
 
 	ViewPos viewing = {};
-	viewing.viewPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	viewing.viewPos = camera.GetCameraPos();
 
 	MeshList.UpdateUniformBuffer(renderer, ubo, buff, lighter, material, viewing);
 
@@ -161,10 +161,10 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	ubo2.proj[1][1] *= -1;
 
 
-	lighter.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
+	lighter.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
 	lighter.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	lighter.position = glm::vec3(1.2f, 1.0f, 2.0f);
-	lighter.specular = glm::vec3(0.0f, 0.0f, 3.0f);
+	lighter.position = LightPos;
+	lighter.specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	debugLightMesh.UpdateUniformBuffer(renderer, ubo2, lighter);
 

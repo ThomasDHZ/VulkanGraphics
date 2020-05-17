@@ -84,7 +84,7 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		LightInfo.range = sizeof(Lighter);
 
 		VkDescriptorBufferInfo ViewPosInfo = {};
-		ViewPosInfo.buffer = LighterBuffers.GetUniformBuffer(i);
+		ViewPosInfo.buffer = ViewPosBuffer.GetUniformBuffer(i);
 		ViewPosInfo.offset = 0;
 		ViewPosInfo.range = sizeof(ViewPos);
 
