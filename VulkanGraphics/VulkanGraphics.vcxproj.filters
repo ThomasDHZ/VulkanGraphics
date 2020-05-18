@@ -156,6 +156,9 @@
     <ClCompile Include="DebugLightRenderingPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VulkanStarter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -192,12 +195,6 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\FrameBufferShader.vert">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\MaterialTest.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\MaterialTest.vert">
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\DebugLightShader.vert">
@@ -356,6 +353,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DebugLightRenderingPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanStarter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

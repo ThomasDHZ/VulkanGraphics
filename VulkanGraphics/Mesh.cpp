@@ -23,23 +23,17 @@ Mesh::~Mesh()
 void Mesh::CreateUniformBuffers(VulkanRenderer& Renderer)
 {
 	PositionMatrixBuffer = UniformBuffer(Renderer, sizeof(PositionMatrix));
-	MaterialBuffer = UniformBuffer(Renderer, sizeof(Material));
-	AmbientLightBuffer = UniformBuffer(Renderer, sizeof(AmbientLight));
-	LighterBuffers = UniformBuffer(Renderer, sizeof(Lighter));
-	ViewPosBuffer = UniformBuffer(Renderer, sizeof(ViewPos));
+	ViewPosBuffer = UniformBuffer(Renderer, sizeof(MeshProp));
 }
 
 void Mesh::CreateDescriptorPool(VulkanRenderer& Renderer)
 {
-	std::array<DescriptorPoolSizeInfo, 7>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 5>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -68,25 +62,10 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		PositionInfo.offset = 0;
 		PositionInfo.range = sizeof(PositionMatrix);
 
-		VkDescriptorBufferInfo MarterialInfo = {};
-		MarterialInfo.buffer = MaterialBuffer.GetUniformBuffer(i);
-		MarterialInfo.offset = 0;
-		MarterialInfo.range = sizeof(Material);
-
-		VkDescriptorBufferInfo AmbiantLightInfo = {};
-		AmbiantLightInfo.buffer = AmbientLightBuffer.GetUniformBuffer(i);
-		AmbiantLightInfo.offset = 0;
-		AmbiantLightInfo.range = sizeof(AmbientLightUniformBuffer);
-
-		VkDescriptorBufferInfo LightInfo = {};
-		LightInfo.buffer = LighterBuffers.GetUniformBuffer(i);
-		LightInfo.offset = 0;
-		LightInfo.range = sizeof(Lighter);
-
 		VkDescriptorBufferInfo ViewPosInfo = {};
 		ViewPosInfo.buffer = ViewPosBuffer.GetUniformBuffer(i);
 		ViewPosInfo.offset = 0;
-		ViewPosInfo.range = sizeof(ViewPos);
+		ViewPosInfo.range = sizeof(MeshProp);
 
 
 		std::vector<WriteDescriptorSetInfo> DescriptorList;
@@ -115,29 +94,8 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 			DescriptorList.emplace_back(SpecularMapDescriptor);
 		}
 
-		WriteDescriptorSetInfo MaterialDescriptor;
-		MaterialDescriptor.DstBinding = 3;
-		MaterialDescriptor.DstSet = descriptorSets[i];
-		MaterialDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		MaterialDescriptor.DescriptorBufferInfo = MarterialInfo;
-		DescriptorList.emplace_back(MaterialDescriptor);
-
-		WriteDescriptorSetInfo AmbiantLightDescriptor;
-		AmbiantLightDescriptor.DstBinding = 4;
-		AmbiantLightDescriptor.DstSet = descriptorSets[i];
-		AmbiantLightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		AmbiantLightDescriptor.DescriptorBufferInfo = AmbiantLightInfo;
-		DescriptorList.emplace_back(AmbiantLightDescriptor);
-
-		WriteDescriptorSetInfo LightDescriptor;
-		LightDescriptor.DstBinding = 5;
-		LightDescriptor.DstSet = descriptorSets[i];
-		LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		LightDescriptor.DescriptorBufferInfo = LightInfo;
-		DescriptorList.emplace_back(LightDescriptor);
-
 		WriteDescriptorSetInfo ViewPosDescriptor;
-		ViewPosDescriptor.DstBinding = 6;
+		ViewPosDescriptor.DstBinding = 3;
 		ViewPosDescriptor.DstSet = descriptorSets[i];
 		ViewPosDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		ViewPosDescriptor.DescriptorBufferInfo = ViewPosInfo;
@@ -174,12 +132,9 @@ void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 	}
 }
 
-void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, Material material, ViewPos viewpos)
+void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, MeshProp viewpos)
 {
 	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), Renderer.DrawFrame);
-	MaterialBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&material), Renderer.DrawFrame);
-	AmbientLightBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&light), Renderer.DrawFrame);
-	LighterBuffers.UpdateUniformBuffer(Renderer, static_cast<void*>(&lighter), Renderer.DrawFrame);
 	ViewPosBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&viewpos), Renderer.DrawFrame);
 }
 
@@ -187,9 +142,6 @@ void Mesh::Destroy(VulkanRenderer& Renderer)
 {
 
 	PositionMatrixBuffer.Destroy(Renderer);
-	MaterialBuffer.Destroy(Renderer);
-	AmbientLightBuffer.Destroy(Renderer);
-	LighterBuffers.Destroy(Renderer);
 	ViewPosBuffer.Destroy(Renderer);
 
 	BaseMesh::Destory(Renderer);

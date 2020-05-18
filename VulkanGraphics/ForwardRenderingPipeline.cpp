@@ -17,7 +17,7 @@ ForwardRenderingPipeline::~ForwardRenderingPipeline()
 
 void ForwardRenderingPipeline::CreateDescriptorSetLayout()
 {
-	std::array<DescriptorSetLayoutBindingInfo, 7> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 5> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -39,21 +39,13 @@ void ForwardRenderingPipeline::CreateDescriptorSetLayout()
 	LayoutBindingInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	LayoutBindingInfo[4].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	LayoutBindingInfo[5].Binding = 5;
-	LayoutBindingInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	LayoutBindingInfo[5].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	LayoutBindingInfo[6].Binding = 6;
-	LayoutBindingInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	LayoutBindingInfo[6].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
 	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
 void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
-	auto vertShaderCode = ReadShaderFile("shaders/MaterialTestVert.spv");
-	auto fragShaderCode = ReadShaderFile("shaders/MaterialTestFrag.spv");
+	auto vertShaderCode = ReadShaderFile("shaders/ForwardRendererVert.spv");
+	auto fragShaderCode = ReadShaderFile("shaders/ForwardRendererFrag.spv");
 
 	VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
 	VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
@@ -72,8 +64,8 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, 
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-	auto bindingDescription = Vertex::getBindingDescription();
-	auto attributeDescriptions = Vertex::getAttributeDescriptions();
+	auto bindingDescription = Vertex::GetBindingDescription();
+	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

@@ -39,8 +39,10 @@ struct Material
 	alignas(4)  float Shininess;
 };
 
-struct ViewPos
+struct MeshProp
 {
+	Lighter light;
+	Material material;
 	alignas(16) glm::vec3 viewPos;
 };
 
@@ -58,9 +60,6 @@ public:
 	std::string MeshName;
 
 	UniformBuffer PositionMatrixBuffer;
-	UniformBuffer MaterialBuffer;
-	UniformBuffer AmbientLightBuffer;
-	UniformBuffer LighterBuffers;
 	UniformBuffer ViewPosBuffer;
 
 	glm::vec3 MeshPosition = glm::vec3();
@@ -73,7 +72,7 @@ public:
 	~Mesh();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, AmbientLightUniformBuffer light, Lighter lighter, Material material, ViewPos viewpos);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, MeshProp viewpos);
 	void Destroy(VulkanRenderer& Renderer);
 };
 

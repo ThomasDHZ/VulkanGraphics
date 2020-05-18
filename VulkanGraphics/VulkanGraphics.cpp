@@ -31,7 +31,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 	texture = Texture2D(renderer, "texture/container2.png");
-	std::vector<Texture2D> textureList = { texture, texture };
+	texture2 = Texture2D(renderer, "texture/container2_specular.png");
+	std::vector<Texture2D> textureList = { texture, texture2 };
 
 	//Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -129,8 +130,6 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
-	AmbientLightUniformBuffer buff{};
-
 	glm::vec3 lightColor;
 	lightColor.x = sin(glfwGetTime() * 2.0f);
 	lightColor.y = sin(glfwGetTime() * 0.7f);
@@ -148,10 +147,12 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
 	material.Shininess = 32.0f;
 
-	ViewPos viewing = {};
+	MeshProp viewing = {};
+	viewing.light = lighter;
+	viewing.material = material;
 	viewing.viewPos = camera.GetCameraPos();
 
-	MeshList.UpdateUniformBuffer(renderer, ubo, buff, lighter, material, viewing);
+	MeshList.UpdateUniformBuffer(renderer, ubo, viewing);
 
 
 	PositionMatrix ubo2{};
