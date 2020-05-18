@@ -1,12 +1,12 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-struct Lighter
+struct DirectionalLight
 {
-    vec3 position;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    vec3 Direction;
+    vec3 Ambient;
+    vec3 Diffuse;
+    vec3 Specular;
 };
 
 struct Material
@@ -29,7 +29,7 @@ layout(binding = 1) uniform sampler2D DiffuseMap;
 layout(binding = 2) uniform sampler2D SpecularMap;
 layout(binding = 3) uniform MeshProp
 {
-	Lighter light;
+	DirectionalLight directionalLight;
 	Material material;
     vec3 viewPos;
 } mesh;
@@ -37,19 +37,19 @@ layout(binding = 3) uniform MeshProp
 void main()
 {
     // ambient
-    vec3 ambient = mesh.light.ambient * texture(DiffuseMap, TexCoords).rgb;
+    vec3 ambient = mesh.directionalLight.Ambient * texture(DiffuseMap, TexCoords).rgb;
   	
     // diffuse 
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(mesh.light.position - FragPos);
+	vec3 lightDir = normalize(-mesh.directionalLight.Direction);  
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = mesh.light.diffuse * (diff * texture(DiffuseMap, TexCoords).rgb);
+    vec3 diffuse = mesh.directionalLight.Diffuse * (diff * texture(DiffuseMap, TexCoords).rgb);
     
     // specular
     vec3 viewDir = normalize(mesh.viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), mesh.material.shininess);
-    vec3 specular = mesh.light.specular * spec * texture(SpecularMap, TexCoords).rgb;  
+    vec3 specular = mesh.directionalLight.Specular * spec * texture(SpecularMap, TexCoords).rgb;  
         
     vec3 result = ambient + diffuse + specular;
     outColor = vec4(result, 1.0);

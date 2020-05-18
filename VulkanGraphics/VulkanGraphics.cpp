@@ -60,17 +60,18 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	Skybox = SkyBox(renderer, SkyboxTexture);
 
 	InitializeGUIDebugger();
-	MeshList = Mesh(renderer, vertices, indices, textureList);
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+
 	debugLightMesh = DebugLightMesh(renderer, vertices);
-	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	//MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
 	LightPos = glm::vec3(0.0f, 0.0f, 2.0f);
@@ -81,11 +82,11 @@ VulkanGraphics::~VulkanGraphics()
 	vkDeviceWaitIdle(*GetDevice(renderer));
 
 	//modelLoader.CleanTextureMemory(renderer);
-	//for (auto mesh : MeshList)
-	//{
-	MeshList.Destroy(renderer);
+	for (auto mesh : MeshList)
+	{
+		mesh.Destroy(renderer);
+	}
 	debugLightMesh.Destroy(renderer);
-	//}
 	//for (auto model : ModelList)
 	//{
 	//	model.Destroy(renderer);
@@ -124,22 +125,24 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	PositionMatrix ubo{};
-	ubo.model = glm::mat4(1.0f);
-	ubo.view = camera.GetViewMatrix();
-	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-	ubo.proj[1][1] *= -1;
+	glm::vec3 cubePositions[] = {
+	glm::vec3(0.0f,  0.0f,  0.0f),
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
 
-	glm::vec3 lightColor;
-	lightColor.x = sin(glfwGetTime() * 2.0f);
-	lightColor.y = sin(glfwGetTime() * 0.7f);
-	lightColor.z = sin(glfwGetTime() * 1.3f);
-	glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
-	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
-	lighter.ambient = ambientColor;
-	lighter.diffuse = diffuseColor;
-	lighter.position = LightPos;
-	lighter.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	//lighter.
+	lighter.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+	lighter.Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+	lighter.Diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+	lighter.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	Material material = {};
 	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
@@ -152,7 +155,21 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	viewing.material = material;
 	viewing.viewPos = camera.GetCameraPos();
 
-	MeshList.UpdateUniformBuffer(renderer, ubo, viewing);
+
+	for (unsigned int i = 0; i < 10; i++)
+	{
+		float angle = 20.0f * i;
+
+		PositionMatrix ubo{};
+		ubo.model = glm::mat4(1.0f);
+		ubo.model = glm::translate(ubo.model, cubePositions[i]);
+		ubo.model = glm::rotate(ubo.model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+		ubo.view = camera.GetViewMatrix();
+		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+		ubo.proj[1][1] *= -1;
+
+		MeshList[i].UpdateUniformBuffer(renderer, ubo, viewing);
+	}
 
 
 	PositionMatrix ubo2{};
@@ -162,10 +179,10 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	ubo2.proj[1][1] *= -1;
 
 
-	lighter.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
-	lighter.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	lighter.position = LightPos;
-	lighter.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	lighter.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+	lighter.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	lighter.Direction = LightPos;
+	lighter.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	debugLightMesh.UpdateUniformBuffer(renderer, ubo2, lighter);
 
@@ -194,7 +211,10 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 			BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
 
 			vkBeginCommandBuffer(renderer.SecondaryCommandBuffers[i], &BeginSecondaryCommandBuffer);
-			MeshList.Draw(renderer, i);
+			for (auto mesh : MeshList)
+			{
+				mesh.Draw(renderer, i);
+			}
 			if (renderer.Settings.ShowDebugLightMeshs)
 			{
 				debugLightMesh.Draw(renderer, i);

@@ -23,12 +23,12 @@ struct PositionMatrix
 	alignas(16) glm::mat4 proj;
 };
 
-struct Lighter
+struct DirectionalLight
 {
-	alignas(16) glm::vec3 position;
-	alignas(16) glm::vec3 ambient;
-	alignas(16) glm::vec3 diffuse;
-	alignas(16) glm::vec3 specular;
+	alignas(16) glm::vec3 Direction;
+	alignas(16) glm::vec3 Ambient;
+	alignas(16) glm::vec3 Diffuse;
+	alignas(16) glm::vec3 Specular;
 };
 
 struct Material
@@ -41,7 +41,7 @@ struct Material
 
 struct MeshProp
 {
-	Lighter light;
+	DirectionalLight light;
 	Material material;
 	alignas(16) glm::vec3 viewPos;
 };

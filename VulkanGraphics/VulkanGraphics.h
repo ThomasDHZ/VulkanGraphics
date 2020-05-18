@@ -83,7 +83,7 @@ private:
 	glm::vec3 LightPos;
 
 	//AmbientLight Ambiant;
-	Lighter lighter;
+	DirectionalLight lighter;
 
 	//ModelLoader modelLoader;
 	//Model Nanosuit;
@@ -93,7 +93,7 @@ private:
 
 	Texture2D texture;
 	Texture2D texture2;
-	Mesh MeshList;
+	std::vector<Mesh> MeshList;
 	//std::vector<Model> ModelList;
 	GUIDebugger guiDebugger;
 
