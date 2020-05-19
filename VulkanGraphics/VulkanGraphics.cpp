@@ -138,11 +138,66 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
+	glm::vec3 pointLightPositions[] = {
+	glm::vec3(0.7f,  0.2f,  2.0f),
+	glm::vec3(2.3f, -3.3f, -4.0f),
+	glm::vec3(-4.0f,  2.0f, -12.0f),
+	glm::vec3(0.0f,  0.0f, -3.0f)
+	};
+
 	//lighter.
 	lighter.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
-	lighter.Ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-	lighter.Diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-	lighter.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	lighter.Ambient = glm::vec3(0.0, 0.0, 0.0);
+	lighter.Diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+	lighter.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
+
+	PointLight light1;
+	light1.Position = pointLightPositions[0];
+	light1.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+	light1.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	light1.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	light1.Constant = 1.0f;
+	light1.Linear = 0.09f;
+	light1.Quadratic = 0.032;
+
+	PointLight light2;
+	light2.Position = pointLightPositions[1];
+	light2.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+	light2.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	light2.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	light2.Constant = 1.0f;
+	light2.Linear = 0.09f;
+	light2.Quadratic = 0.032;
+
+	PointLight light3;
+	light3.Position = pointLightPositions[2];
+	light3.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+	light3.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	light3.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	light3.Constant = 1.0f;
+	light3.Linear = 0.09f;
+	light3.Quadratic = 0.032;
+
+	PointLight light4;
+	light4.Position = pointLightPositions[3];
+	light4.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+	light4.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	light4.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	light4.Constant = 1.0f;
+	light4.Linear = 0.09f;
+	light4.Quadratic = 0.032;
+
+	SpotLight spotLight = {};
+	spotLight.Position = camera.GetCameraPos();
+	spotLight.Direction = camera.Front;
+	spotLight.Ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+	spotLight.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	spotLight.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	spotLight.Constant = 1.0f;
+	spotLight.Linear = 0.09f;
+	spotLight.Quadratic = 0.032f;
+	spotLight.CutOff = glm::cos(glm::radians(12.5f));
+	spotLight.OuterCutOff = glm::cos(glm::radians(15.0f));
 
 	Material material = {};
 	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
@@ -152,6 +207,11 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 
 	MeshProp viewing = {};
 	viewing.directionalLight = lighter;
+	viewing.pointLight[0] = light1;
+	viewing.pointLight[1] = light2;
+	viewing.pointLight[2] = light3;
+	viewing.pointLight[3] = light4;
+	viewing.spotLight = spotLight;
 	viewing.material = material;
 	viewing.viewPos = camera.GetCameraPos();
 

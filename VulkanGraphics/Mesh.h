@@ -71,7 +71,7 @@ struct MeshProp
 {
 	SpotLight spotLight;
 	DirectionalLight directionalLight;
-	PointLight pointLight;
+	PointLight pointLight[4];
 	Material material;
 	alignas(16) glm::vec3 viewPos;
 };
