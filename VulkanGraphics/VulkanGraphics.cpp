@@ -151,7 +151,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	material.Shininess = 32.0f;
 
 	MeshProp viewing = {};
-	viewing.light = lighter;
+	viewing.directionalLight = lighter;
 	viewing.material = material;
 	viewing.viewPos = camera.GetCameraPos();
 
