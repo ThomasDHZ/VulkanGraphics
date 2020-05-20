@@ -13,7 +13,6 @@
 #include "ModelLoader.h"
 #include "Model.h"
 #include "Skybox.h"
-#include "AmbientLight.h"
 #include "DebugLightMesh.h"
 
 #ifdef NDEBUG
@@ -21,6 +20,7 @@ const bool enableValidationLayers = false;
 #else
 const bool enableValidationLayers = true;
 #endif
+#include "Light.h"
 
 
 const std::vector<Vertex> vertices = {
@@ -83,7 +83,9 @@ private:
 	glm::vec3 LightPos;
 
 	//AmbientLight Ambiant;
-	DirectionalLight lighter;
+	DirectionalLight DirLight;
+	PointLight PointLights[4];
+	SpotLight spotlight;
 
 	//ModelLoader modelLoader;
 	//Model Nanosuit;

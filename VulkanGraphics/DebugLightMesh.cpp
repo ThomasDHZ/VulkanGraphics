@@ -25,7 +25,7 @@ DebugLightMesh::~DebugLightMesh()
 void DebugLightMesh::CreateUniformBuffers(VulkanRenderer& Renderer)
 {
 	PositionMatrixBuffer = UniformBuffer(Renderer, sizeof(PositionMatrix));
-	LighterBuffers = UniformBuffer(Renderer, sizeof(DirectionalLight));
+	LighterBuffers = UniformBuffer(Renderer, sizeof(DirectionalLightBuffer));
 }
 
 void DebugLightMesh::CreateDescriptorPool(VulkanRenderer& Renderer)
@@ -53,7 +53,7 @@ void DebugLightMesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		VkDescriptorBufferInfo LightInfo = {};
 		LightInfo.buffer = LighterBuffers.GetUniformBuffer(i);
 		LightInfo.offset = 0;
-		LightInfo.range = sizeof(DirectionalLight);
+		LightInfo.range = sizeof(DirectionalLightBuffer);
 
 		std::array<WriteDescriptorSetInfo, 2>  WriteDescriptorInfo = {};
 
@@ -99,7 +99,7 @@ void DebugLightMesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 	}
 }
 
-void DebugLightMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, DirectionalLight lighter)
+void DebugLightMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, DirectionalLightBuffer lighter)
 {
 	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), Renderer.DrawFrame);
 	LighterBuffers.UpdateUniformBuffer(Renderer, static_cast<void*>(&lighter), Renderer.DrawFrame);

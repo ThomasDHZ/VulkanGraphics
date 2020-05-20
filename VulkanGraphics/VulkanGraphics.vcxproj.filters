@@ -132,12 +132,6 @@
     <ClCompile Include="DifferedRenderingPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AmbientLight.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WireFramePipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -329,9 +323,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DifferedRenderingPipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AmbientLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">

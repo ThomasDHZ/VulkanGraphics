@@ -13,50 +13,14 @@
 #include "BaseMesh.h"
 #include "Texture2D.h"
 #include "Vertex.h"
-#include "AmbientLight.h"
 #include "UniformBuffer.h"
+#include "Light.h"
 
 struct PositionMatrix
 {
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
-};
-
-
-struct DirectionalLight 
-{
-	alignas(16) glm::vec3 Direction;
-	alignas(16) glm::vec3 Ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
-};
-
-struct PointLight 
-{
-	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
-
-	alignas(4) float Constant;
-	alignas(4) float Linear;
-	alignas(4) float Quadratic;
-};
-
-struct SpotLight
-{
-	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Direction;
-	alignas(16) glm::vec3 Ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
-
-	alignas(4) float CutOff;
-	alignas(4) float OuterCutOff;
-	alignas(4) float Constant;
-	alignas(4) float Linear;
-	alignas(4) float Quadratic;
 };
 
 struct Material
@@ -69,9 +33,9 @@ struct Material
 
 struct MeshProp
 {
-	SpotLight spotLight;
-	DirectionalLight directionalLight;
-	PointLight pointLight[4];
+	SpotLightBuffer spotLight;
+	DirectionalLightBuffer directionalLight;
+	PointLightBuffer pointLight[4];
 	Material material;
 	alignas(16) glm::vec3 viewPos;
 };

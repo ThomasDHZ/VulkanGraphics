@@ -146,7 +146,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AmbientLight.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Canvas2D.cpp" />
     <ClCompile Include="Cube.cpp" />
@@ -167,7 +166,6 @@
     <ClCompile Include="ImGui\imgui_impl_vulkan.cpp" />
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
     <ClCompile Include="InputAttachment.cpp" />
-    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -210,7 +208,6 @@
     <None Include="Shaders\SkyboxShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AmbientLight.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Canvas2D.h" />
     <ClInclude Include="Cube.h" />
