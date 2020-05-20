@@ -56,10 +56,10 @@ private:
 		vkUnmapMemory(*GetDevice(Renderer), UniformBufferMemory);
 	}
 
-public:
-
+protected:
 	T LightSettings;
 
+public:
 	Light()
 	{
 	}
@@ -85,7 +85,4 @@ public:
 	}
 };
 
-typedef Light<DirectionalLightBuffer> DirectionalLight;
-typedef Light<PointLightBuffer> PointLight;
-typedef Light<SpotLightBuffer> SpotLight;
 

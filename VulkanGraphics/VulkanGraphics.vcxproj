@@ -153,6 +153,7 @@
     <ClCompile Include="DebugLightMesh.cpp" />
     <ClCompile Include="DebugLightRenderingPipeline.cpp" />
     <ClCompile Include="DeferredRenderer.cpp" />
+    <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="ForwardRenderingPipeline.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="DifferedRenderingPipeline.cpp" />
@@ -170,6 +171,8 @@
     <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
+    <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VulkanRenderer2D.cpp" />
     <ClCompile Include="VulkanStarter.cpp" />
@@ -215,6 +218,7 @@
     <ClInclude Include="DebugLightMesh.h" />
     <ClInclude Include="DebugLightRenderingPipeline.h" />
     <ClInclude Include="DeferredRenderer.h" />
+    <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="ForwardRenderingPipeline.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="DifferedRenderingPipeline.h" />
@@ -234,6 +238,8 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />
+    <ClInclude Include="PointLight.h" />
+    <ClInclude Include="SpotLight.h" />
     <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VulkanRenderer2D.h" />
     <ClInclude Include="VulkanStarter.h" />

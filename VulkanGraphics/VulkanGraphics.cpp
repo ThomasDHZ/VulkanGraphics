@@ -213,12 +213,12 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	material.Shininess = 32.0f;
 
 	MeshProp viewing = {};
-	viewing.directionalLight = DirLight.LightSettings;
-	viewing.pointLight[0] = PointLights[0].LightSettings;
-	viewing.pointLight[1] = PointLights[1].LightSettings;
-	viewing.pointLight[2] = PointLights[2].LightSettings;
-	viewing.pointLight[3] = PointLights[3].LightSettings;
-	viewing.spotLight = spotlight.LightSettings;
+	viewing.directionalLight = DirLight.GetSettings();
+	viewing.pointLight[0] = PointLights[0].GetSettings();
+	viewing.pointLight[1] = PointLights[1].GetSettings();
+	viewing.pointLight[2] = PointLights[2].GetSettings();
+	viewing.pointLight[3] = PointLights[3].GetSettings();
+	viewing.spotLight = spotlight.GetSettings();
 	viewing.material = material;
 	viewing.viewPos = camera.GetCameraPos();
 

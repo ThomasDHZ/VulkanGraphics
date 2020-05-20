@@ -21,6 +21,9 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 #include "Light.h"
+#include "DirectionalLight.h"
+#include "PointLight.h"
+#include "SpotLight.h"
 
 
 const std::vector<Vertex> vertices = {
