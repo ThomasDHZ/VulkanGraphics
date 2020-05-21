@@ -71,7 +71,6 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 
-	debugLightMesh = DebugLightMesh(renderer, vertices);
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
 	glm::vec3 pointLightPositions[] = {
@@ -153,7 +152,13 @@ VulkanGraphics::~VulkanGraphics()
 	{
 		mesh.Destroy(renderer);
 	}
-	debugLightMesh.Destroy(renderer);
+	 DirLight.Destroy(renderer);
+	 PointLights[0].Destroy(renderer);
+	 PointLights[1].Destroy(renderer);
+	 PointLights[2].Destroy(renderer);
+	 PointLights[3].Destroy(renderer);
+	 spotlight.Destroy(renderer);
+	//debugLightMesh.Destroy(renderer);
 	//for (auto model : ModelList)
 	//{
 	//	model.Destroy(renderer);
@@ -185,7 +190,7 @@ void VulkanGraphics::InitializeGUIDebugger()
 	guiDebugger = GUIDebugger(init_info, Window.GetWindowPtr(), *GetRenderPass(renderer));
 }
 
-void VulkanGraphics::Update(uint32_t NextFrameIndex)
+void VulkanGraphics::Update(uint32_t DrawFrame)
 {
 	static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -240,18 +245,43 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 
 
 	PositionMatrix ubo2{};
-	ubo2.model = glm::translate(glm::mat4(1.0f), LightPos);
+	ubo2.model = glm::mat4(1.0f);
+	ubo2.model = glm::translate(ubo2.model, PointLights[0].GetPosition());
+	ubo2.model = glm::scale(ubo2.model, glm::vec3(.2f));
 	ubo2.view = camera.GetViewMatrix();
 	ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo2.proj[1][1] *= -1;
 
+	PositionMatrix ubo3{};
+	ubo3.model = glm::mat4(1.0f);
+	ubo3.model = glm::translate(ubo3.model, PointLights[1].GetPosition());
+	ubo3.model = glm::scale(ubo3.model, glm::vec3(.2f));
+	ubo3.view = camera.GetViewMatrix();
+	ubo3.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo3.proj[1][1] *= -1;
 
-	//lighter.Ambient = glm::vec3(1.0f, 1.0f, 1.0f);
-	//lighter.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	//lighter.Direction = LightPos;
-	//lighter.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	PositionMatrix ubo4{};
+	ubo4.model = glm::mat4(1.0f);
+	ubo4.model = glm::translate(ubo4.model, PointLights[2].GetPosition());
+	ubo4.model = glm::scale(ubo4.model, glm::vec3(.2f));
+	ubo4.view = camera.GetViewMatrix();
+	ubo4.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo4.proj[1][1] *= -1;
 
-	//debugLightMesh.UpdateUniformBuffer(renderer, ubo2, lighter);
+	PositionMatrix ubo5{};
+	ubo5.model = glm::mat4(1.0f);
+	ubo5.model = glm::translate(ubo5.model, PointLights[3].GetPosition());
+	ubo5.model = glm::scale(ubo5.model, glm::vec3(.2f));
+	ubo5.view = camera.GetViewMatrix();
+	ubo5.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo5.proj[1][1] *= -1;
+
+	DirLight.UpdateDebugMesh(renderer, ubo2);
+	PointLights[0].UpdateDebugMesh(renderer, ubo2);
+	PointLights[1].UpdateDebugMesh(renderer, ubo3);
+	PointLights[2].UpdateDebugMesh(renderer, ubo4);
+	PointLights[3].UpdateDebugMesh(renderer, ubo5);
+	spotlight.UpdateDebugMesh(renderer, ubo2);
 
 	SkyBoxPositionMatrix skyUbo = {};
 	skyUbo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
@@ -261,7 +291,7 @@ void VulkanGraphics::Update(uint32_t NextFrameIndex)
 	Skybox.UpdateUniformBuffer(renderer, skyUbo);
 }
 
-void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
+void VulkanGraphics::UpdateCommandBuffers(uint32_t DrawFrame)
 {
 	if (renderer.UpdateCommandBuffers)
 	{
@@ -284,7 +314,12 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 			}
 			if (renderer.Settings.ShowDebugLightMeshs)
 			{
-				debugLightMesh.Draw(renderer, i);
+				DirLight.DrawDebugMesh(renderer, i);
+				PointLights[0].DrawDebugMesh(renderer, i);
+				PointLights[1].DrawDebugMesh(renderer, i);
+				PointLights[2].DrawDebugMesh(renderer, i);
+				PointLights[3].DrawDebugMesh(renderer, i);
+				spotlight.DrawDebugMesh(renderer, i);
 			}
 			if (renderer.Settings.ShowSkyBox)
 			{
@@ -298,7 +333,7 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t NextFrameIndex)
 		renderer.UpdateCommandBuffers = false;
 	}
 
-	guiDebugger.UpdateCommandBuffers(NextFrameIndex, *GetRenderPass(renderer), renderer.SwapChainFramebuffers[NextFrameIndex]);
+	guiDebugger.UpdateCommandBuffers(DrawFrame, *GetRenderPass(renderer), renderer.SwapChainFramebuffers[DrawFrame]);
 }
 
 void VulkanGraphics::Draw()
@@ -329,17 +364,23 @@ void VulkanGraphics::MainLoop()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		{
-			ImGui::Begin("Hello, world!");
+			ImGui::Begin("Settings");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMeshs);
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
-			ImGui::ColorEdit3("Light Pos", (float*)&LightPos);
-			//ImGui::SliderFloat("float", Ambiant.GetColorStrengthPtr(), 0.0f, 1.0f);
-			//ImGui::ColorEdit3("Ambiant color", (float*)Ambiant.GetColorPtr());
-			//ImGui::ColorEdit3("Position", (float*)&lighter.Position);
-			//ImGui::ColorEdit3("Color", (float*)&lighter.Color);
-			//ImGui::ColorEdit3("CameraPosition", (float*)&lighter.viewPos);
+			ImGui::SliderFloat("PointLights 0 x", &PointLights[0].GetLightPos()->x, 0.0f, 1.0f);
+			ImGui::SliderFloat("PointLights 0 y ", &PointLights[0].GetLightPos()->y, 0.0f, 1.0f);
+			ImGui::SliderFloat("PointLights 0 z", &PointLights[0].GetLightPos()->z, 0.0f, 1.0f);
+			ImGui::SliderFloat("PointLights 1 x", &PointLights[1].GetLightPos()->x, -10.0f, 10.0f);
+			ImGui::SliderFloat("PointLights 1 y ", &PointLights[1].GetLightPos()->y, -10.0f, 10.0f);
+			ImGui::SliderFloat("PointLights 1 z", &PointLights[1].GetLightPos()->z, -10.0f, 10.0f);
+			ImGui::SliderFloat("PointLights 2 x", &PointLights[2].GetLightPos()->x, -10.0f, 10.0f);
+			ImGui::SliderFloat("PointLights 2 y ", &PointLights[2].GetLightPos()->y, -10.0f, 10.0f);
+			ImGui::SliderFloat("PointLights 2 z", &PointLights[2].GetLightPos()->z, -10.0f, 10.0f);
+			ImGui::SliderFloat("PointLights 3 x", &PointLights[3].GetLightPos()->x, -10.0f, 10.0f);
+			ImGui::SliderFloat("PointLights 3 y ", &PointLights[3].GetLightPos()->y, -10.0f, 10.0f);
+			ImGui::SliderFloat("PointLights 3 z", &PointLights[3].GetLightPos()->z, -10.0f, 10.0f);
 			ImGui::End();
 		}
 		ImGui::Render();

@@ -15,7 +15,6 @@ protected:
 public:
 
 	UniformBuffer PositionMatrixBuffer;
-	UniformBuffer LighterBuffers;
 
 	DebugLightMesh();
 	DebugLightMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
@@ -23,7 +22,7 @@ public:
 	~DebugLightMesh();
 
 	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, DirectionalLightBuffer lighter);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix);
 	void Destroy(VulkanRenderer& Renderer);
 };
 

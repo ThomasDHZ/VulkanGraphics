@@ -1,7 +1,7 @@
 #pragma once
 #include "Light.h"
 
-class PointLight : Light<PointLightBuffer>
+class PointLight : public Light<PointLightBuffer>
 {
 public:
 
@@ -26,4 +26,5 @@ public:
 	float GetQuadratic();
 
 	PointLightBuffer GetSettings() { return LightSettings; }
+	glm::vec3* GetLightPos() { return &LightSettings.Position; }
 };

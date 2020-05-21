@@ -236,6 +236,7 @@
     <ClInclude Include="InputAttachment.h" />
     <ClInclude Include="BaseMesh.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="LightStructs.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="PointLight.h" />

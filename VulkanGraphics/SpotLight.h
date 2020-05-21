@@ -1,7 +1,7 @@
 #pragma once
 #include "Light.h"
 
-class SpotLight : Light<SpotLightBuffer>
+class SpotLight : public Light<SpotLightBuffer>
 {
 public:
 

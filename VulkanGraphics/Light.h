@@ -1,44 +1,54 @@
 #pragma once
-#include "VulkanResources.h"
-#include "UniformBuffer.h"
+#include "LightStructs.h"
+#include "DebugLightMesh.h"
 
-struct DirectionalLightBuffer
-{
-	alignas(16) glm::vec3 Direction;
-	alignas(16) glm::vec3 Ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
+const std::vector<Vertex> vertices23 = {
+{{-0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  0.0f,  0.0f}},
+	{{0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  1.0f,  0.0f}},
+	{{0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {  1.0f,  1.0f}},
+	{{0.5f,  0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  1.0f,  1.0f}},
+	{{-0.5f,  0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  0.0f,  1.0f}},
+	{{-0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, { 0.0f,  0.0f}},
+
+	{{-0.5f, -0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  0.0f,  0.0f}},
+	{{0.5f, -0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  1.0f,  0.0f}},
+	{{0.5f,  0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  1.0f,  1.0f}},
+	{{0.5f,  0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  1.0f,  1.0f}},
+	{{-0.5f,  0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  0.0f,  1.0f}},
+	{{-0.5f, -0.5f,  0.5f}, {  0.0f,  0.0f,  1.0f}, {  0.0f,  0.0f}},
+
+	{{-0.5f,  0.5f,  0.5f}, { -1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
+	{{-0.5f,  0.5f, -0.5f}, { -1.0f,  0.0f,  0.0f}, {  1.0f,  1.0f}},
+	{{-0.5f, -0.5f, -0.5f}, { -1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
+	{{-0.5f, -0.5f, -0.5f}, { -1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
+	{{-0.5f, -0.5f,  0.5f}, { -1.0f,  0.0f,  0.0f}, {  0.0f,  0.0f}},
+	{{-0.5f,  0.5f,  0.5f}, { -1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
+
+	{{0.5f,  0.5f,  0.5f}, {  1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
+	{{0.5f,  0.5f, -0.5f}, {  1.0f,  0.0f,  0.0f}, {  1.0f,  1.0f}},
+	{{0.5f, -0.5f, -0.5f}, {  1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
+	{{0.5f, -0.5f, -0.5f}, {  1.0f,  0.0f,  0.0f}, {  0.0f,  1.0f}},
+	{{0.5f, -0.5f,  0.5f}, {  1.0f,  0.0f,  0.0f}, {  0.0f,  0.0f}},
+	{{0.5f,  0.5f,  0.5f}, {  1.0f,  0.0f,  0.0f}, {  1.0f,  0.0f}},
+
+	{{-0.5f, -0.5f, -0.5f}, {  0.0f, -1.0f,  0.0f}, {  0.0f,  1.0f}},
+	{{0.5f, -0.5f, -0.5f}, {  0.0f, -1.0f,  0.0f}, {  1.0f,  1.0f}},
+	{{0.5f, -0.5f,  0.5f}, {  0.0f, -1.0f,  0.0f}, {  1.0f,  0.0f}},
+	{{0.5f, -0.5f,  0.5f}, {  0.0f, -1.0f,  0.0f}, {  1.0f,  0.0f}},
+	{{-0.5f, -0.5f,  0.5f}, {  0.0f, -1.0f,  0.0f}, {  0.0f,  0.0f}},
+	{{-0.5f, -0.5f, -0.5f}, {  0.0f, -1.0f,  0.0f}, {  0.0f,  1.0f}},
+
+	{{-0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  1.0f}},
+	{{0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  1.0f,  1.0f}},
+	{{0.5f,  0.5f,  0.5f}, {  0.0f,  1.0f,  0.0f}, {  1.0f,  0.0f}},
+	{{0.5f,  0.5f,  0.5f}, {  0.0f,  1.0f,  0.0f}, {  1.0f,  0.0f}},
+	{{-0.5f,  0.5f,  0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  0.0f}},
+	{{-0.5f,  0.5f, -0.5f}, {  0.0f,  1.0f,  0.0f}, {  0.0f,  1.0f}}
 };
 
-struct PointLightBuffer
-{
-	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
-
-	alignas(4) float Constant;
-	alignas(4) float Linear;
-	alignas(4) float Quadratic;
-};
-
-struct SpotLightBuffer
-{
-	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Direction;
-	alignas(16) glm::vec3 Ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
-
-	alignas(4) float CutOff;
-	alignas(4) float OuterCutOff;
-	alignas(4) float Constant;
-	alignas(4) float Linear;
-	alignas(4) float Quadratic;
-};
 
 template <class T>
-class Light :  VulkanResources
+class Light : VulkanResources
 {
 private:
 	UniformBuffer LightBuffer;
@@ -46,6 +56,7 @@ private:
 	void CreateUniformBuffers(VulkanRenderer& Renderer)
 	{
 		LightBuffer = UniformBuffer(Renderer, sizeof(T));
+		DebugMesh = DebugLightMesh(Renderer, vertices23);
 	}
 
 	void UpdateUniformBuffer(VulkanRenderer& Renderer, VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize)
@@ -54,12 +65,16 @@ private:
 		vkMapMemory(*GetDevice(Renderer), UniformBufferMemory, 0, UniformSize, 0, &UniformData);
 		memcpy(UniformData, UniformObjectData, UniformSize);
 		vkUnmapMemory(*GetDevice(Renderer), UniformBufferMemory);
+
+		DebugMesh = DebugLightMesh(Renderer, vertices23);
 	}
 
 protected:
 	T LightSettings;
 
 public:
+
+	DebugLightMesh DebugMesh;
 	Light()
 	{
 	}
@@ -79,8 +94,19 @@ public:
 		LightBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&PointLightInfo), Renderer.DrawFrame);
 	}
 
+	void UpdateDebugMesh(VulkanRenderer& Renderer, PositionMatrix ubo2)
+	{
+		DebugMesh.UpdateUniformBuffer(Renderer, ubo2);
+	}
+
+	void DrawDebugMesh(VulkanRenderer& Renderer, uint32_t DrawFrame)
+	{
+		DebugMesh.Draw(Renderer, DrawFrame);
+	}
+
 	void Destroy(VulkanRenderer& Renderer)
 	{
+		DebugMesh.Destroy(Renderer);
 		LightBuffer.Destroy(Renderer);
 	}
 };

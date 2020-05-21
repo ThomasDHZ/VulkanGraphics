@@ -25,15 +25,13 @@ DebugLightMesh::~DebugLightMesh()
 void DebugLightMesh::CreateUniformBuffers(VulkanRenderer& Renderer)
 {
 	PositionMatrixBuffer = UniformBuffer(Renderer, sizeof(PositionMatrix));
-	LighterBuffers = UniformBuffer(Renderer, sizeof(DirectionalLightBuffer));
 }
 
 void DebugLightMesh::CreateDescriptorPool(VulkanRenderer& Renderer)
 {
-	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 1>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -50,22 +48,12 @@ void DebugLightMesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		PositionInfo.offset = 0;
 		PositionInfo.range = sizeof(PositionMatrix);
 
-		VkDescriptorBufferInfo LightInfo = {};
-		LightInfo.buffer = LighterBuffers.GetUniformBuffer(i);
-		LightInfo.offset = 0;
-		LightInfo.range = sizeof(DirectionalLightBuffer);
-
-		std::array<WriteDescriptorSetInfo, 2>  WriteDescriptorInfo = {};
+		std::array<WriteDescriptorSetInfo, 1>  WriteDescriptorInfo = {};
 
 		WriteDescriptorInfo[0].DstBinding = 0;
 		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
 		WriteDescriptorInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		WriteDescriptorInfo[0].DescriptorBufferInfo = PositionInfo;
-
-		WriteDescriptorInfo[1].DstBinding = 1;
-		WriteDescriptorInfo[1].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[1].DescriptorBufferInfo = LightInfo;
 
 		CreateDescriptorSetsData(Renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
@@ -99,16 +87,14 @@ void DebugLightMesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 	}
 }
 
-void DebugLightMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, DirectionalLightBuffer lighter)
+void DebugLightMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix)
 {
 	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), Renderer.DrawFrame);
-	LighterBuffers.UpdateUniformBuffer(Renderer, static_cast<void*>(&lighter), Renderer.DrawFrame);
 }
 
 void DebugLightMesh::Destroy(VulkanRenderer& Renderer)
 {
 	PositionMatrixBuffer.Destroy(Renderer);
-	LighterBuffers.Destroy(Renderer);
 
 	BaseMesh::Destory(Renderer);
 }

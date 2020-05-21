@@ -14,7 +14,7 @@
 #include "Texture2D.h"
 #include "Vertex.h"
 #include "UniformBuffer.h"
-#include "Light.h"
+#include "LightStructs.h"
 
 struct PositionMatrix
 {

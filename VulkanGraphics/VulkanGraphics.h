@@ -102,8 +102,6 @@ private:
 	//std::vector<Model> ModelList;
 	GUIDebugger guiDebugger;
 
-	DebugLightMesh debugLightMesh;
-
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
 	float lastX;
@@ -115,8 +113,8 @@ private:
 	void InitializeGUIDebugger();
 	void UpdateMouse();
 	void UpdateKeyboard();
-	void Update(uint32_t NextFrameIndex);
-	void UpdateCommandBuffers(uint32_t NextFrameIndex);
+	void Update(uint32_t DrawFrame);
+	void UpdateCommandBuffers(uint32_t DrawFrame);
 	void Draw();
 
 public:
