@@ -249,11 +249,6 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	}
 
 	vkFreeCommandBuffers(Device, SecondaryCommandPool, static_cast<uint32_t>(SecondaryCommandBuffers.size()), SecondaryCommandBuffers.data());
-	GraphicsPipeline.UpdateSwapChain();
-	DebugLightPipeline.UpdateSwapChain();
-	FrameBufferPipeline.UpdateSwapChain();
-	MeshviewPipeline.UpdateSwapChain();
-	SkyboxPipeline.UpdateSwapChain();
 
 	for (auto imageView : SwapChain.GetSwapChainImageViews())
 	{
@@ -265,6 +260,12 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	vkDestroySwapchainKHR(Device, SwapChain.GetSwapChain(), nullptr);
 
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
+	GraphicsPipeline.UpdateSwapChain();
+	DebugLightPipeline.UpdateSwapChain();
+	FrameBufferPipeline.UpdateSwapChain();
+	MeshviewPipeline.UpdateSwapChain();
+	SkyboxPipeline.UpdateSwapChain();
+
 	GraphicsPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	DebugLightPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	FrameBufferPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);

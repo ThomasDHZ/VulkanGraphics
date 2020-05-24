@@ -3,6 +3,7 @@
 #include "InputAttachment.h"
 #include "VulkanSwapChain.h"
 #include "FrameBuffer.h"
+#include "Renderer2DPipeline.h"
 
 class VulkanRenderer2D : public VulkanStarter
 {
@@ -27,11 +28,10 @@ private:
 	bool framebufferResized = false;
 
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
-	FrameBuffer framebuffer;
 	VulkanSwapChain SwapChain;
 	InputAttachment DepthAttachment;
 
-	//ForwardRenderingPipeline GraphicsPipeline;
+	Renderer2DPipeline Render2DPipeline;
 
 	VkCommandPool MainCommandPool;
 	std::vector<VkCommandBuffer> MainCommandBuffer;

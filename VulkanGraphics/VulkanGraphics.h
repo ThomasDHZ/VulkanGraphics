@@ -25,6 +25,8 @@ const bool enableValidationLayers = true;
 #include "PointLight.h"
 #include "SpotLight.h"
 #include "LightManager.h"
+#include "Keyboard.h"
+#include "Mouse.h"
 
 
 const std::vector<Vertex> vertices = {
@@ -82,6 +84,9 @@ private:
 	VulkanWindow Window;
 	VulkanRenderer renderer;
 	
+	Keyboard keyboard;
+	Mouse mouse;
+
 	Camera camera;
 
 	glm::vec3 LightPos;
@@ -101,17 +106,7 @@ private:
 	//std::vector<Model> ModelList;
 	GUIDebugger guiDebugger;
 
-	float deltaTime = 0.0f;
-	float lastFrame = 0.0f;
-	float lastX;
-	float lastY;
-	bool firstMouse;
-	double MouseXPos;
-	double MouseYPos;
-
 	void InitializeGUIDebugger();
-	void UpdateMouse();
-	void UpdateKeyboard();
 	void Update(uint32_t DrawFrame);
 	void UpdateCommandBuffers(uint32_t DrawFrame);
 	void Draw();

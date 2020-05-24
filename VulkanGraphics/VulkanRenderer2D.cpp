@@ -12,10 +12,7 @@ VulkanRenderer2D::VulkanRenderer2D(GLFWwindow* window) : VulkanStarter(window)
 	InitializeCommandBuffers();
 	InitializeSyncObjects();
 
-	//2DPipeline
-
-	//framebuffer = FrameBuffer(Device, PhysicalDevice, MainCommandPool, GraphicsQueue, SwapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
-
+	Render2DPipeline = Renderer2DPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 }
 
 VulkanRenderer2D::~VulkanRenderer2D()
@@ -88,7 +85,7 @@ void VulkanRenderer2D::InitializeFramebuffers()
 	SwapChainFramebuffers.resize(SwapChain.GetSwapChainImageCount());
 
 	for (size_t i = 0; i < SwapChain.GetSwapChainImageCount(); i++) {
-		std::array<VkImageView, 3> attachments =
+		std::array<VkImageView, 2> attachments =
 		{
 			SwapChain.GetSwapChainImageViews()[i],
 			DepthAttachment.AttachmentImageView
@@ -189,7 +186,6 @@ void VulkanRenderer2D::UpdateSwapChain(GLFWwindow* window)
 	}
 
 	vkFreeCommandBuffers(Device, SecondaryCommandPool, static_cast<uint32_t>(SecondaryCommandBuffers.size()), SecondaryCommandBuffers.data());
-	//Update2DPipelineSwapChain;
 
 	for (auto imageView : SwapChain.GetSwapChainImageViews())
 	{
@@ -201,11 +197,13 @@ void VulkanRenderer2D::UpdateSwapChain(GLFWwindow* window)
 	vkDestroySwapchainKHR(Device, SwapChain.GetSwapChain(), nullptr);
 
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
-	//Update2Dpipeline
+	Render2DPipeline.UpdateSwapChain();
+
+	Render2DPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
-
-	//framebuffer.RecreateSwapChainStage(Device, SwapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
+	
 	UpdateCommandBuffers = true;
 }
 
@@ -300,11 +298,6 @@ void VulkanRenderer2D::EndFrame(GLFWwindow* window)
 void VulkanRenderer2D::DestoryVulkan()
 {
 	DepthAttachment.DeleteInputAttachment(Device);
-
-	//2DPipeline
-
-	framebuffer.Destory(Device);
-
 	SwapChain.Destroy(Device);
 
 	vkDestroyCommandPool(Device, MainCommandPool, nullptr);

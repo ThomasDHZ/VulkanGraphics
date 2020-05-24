@@ -158,6 +158,10 @@
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="DifferedRenderingPipeline.cpp" />
     <ClCompile Include="FrameBufferRenderingPipeline.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="MapTileMesh.cpp" />
+    <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="Renderer2DPipeline.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -224,6 +228,10 @@
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="DifferedRenderingPipeline.h" />
     <ClInclude Include="FrameBufferRenderingPipeline.h" />
+    <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="MapTileMesh.h" />
+    <ClInclude Include="Mouse.h" />
+    <ClInclude Include="Renderer2DPipeline.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="GUIDebugger.h" />
     <ClInclude Include="ImGui\imconfig.h" />

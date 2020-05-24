@@ -313,8 +313,8 @@ void VulkanGraphics::MainLoop()
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
-		UpdateMouse();
-		UpdateKeyboard();
+		mouse.Update(Window.GetWindowPtr(), camera);
+		keyboard.Update(Window.GetWindowPtr(), camera);
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -331,101 +331,5 @@ void VulkanGraphics::MainLoop()
 
 		ImGui::Render();
 		Draw();
-	}
-}
-
-
-//ImGui::NewFrame();
-//{
-//	ImGui::Begin("Hello, world!");
-//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-//
-//
-//	if (ImGui::TreeNode("Tree"))
-//	{
-//		ImGui::Columns(2, "tree", true);
-//		for (int x = 0; x < meshList.size(); x++)
-//		{
-//			float translationvec4f[4] = { meshList[x].MeshPosition.x, meshList[x].MeshPosition.y, meshList[x].MeshPosition.z, 0.0f };
-//			float rotatevec4f[4] = { meshList[x].MeshRotate.x, meshList[x].MeshRotate.y, meshList[x].MeshRotate.z, 0.0f };
-//			float scalevec4f[4] = { meshList[x].MeshScale.x, meshList[x].MeshScale.y, meshList[x].MeshScale.z, 0.0f };
-//
-//			bool open1 = ImGui::TreeNode((void*)(intptr_t)x, meshList[x].MeshName.c_str(), x);
-//			ImGui::NextColumn();
-//			ImGui::Text("Node contents");
-//			ImGui::NextColumn();
-//			if (open1)
-//			{
-//
-//				ImGui::SliderFloat3((meshList[x].MeshName + " Translate").c_str(), translationvec4f, 0.0f, 1.0f);
-//				//ImGui::InputFloat3("Input Translation float3 %d", translationvec4f);
-//				ImGui::SliderFloat3((meshList[x].MeshName + " Rotate").c_str(), rotatevec4f, 0.0f, 1.0f);
-//				//ImGui::InputFloat3("Input Rotate float3 %d", rotatevec4f);
-//				ImGui::SliderFloat3((meshList[x].MeshName + " Scale").c_str(), scalevec4f, 0.0f, 1.0f);
-//				//ImGui::InputFloat3("Input Scale float3", scalevec4f);
-//				meshList[0].MeshPosition.x = translationvec4f[0];
-//				meshList[0].MeshPosition.y = translationvec4f[1];
-//				meshList[0].MeshPosition.z = translationvec4f[2];
-//				meshList[0].MeshRotate.x = rotatevec4f[0];
-//				meshList[0].MeshRotate.y = rotatevec4f[1];
-//				meshList[0].MeshRotate.z = rotatevec4f[2];
-//				meshList[0].MeshScale.x = scalevec4f[0];
-//				meshList[0].MeshScale.y = scalevec4f[1];
-//				meshList[0].MeshScale.z = scalevec4f[2];
-//				ImGui::TreePop();
-//			}
-//		}
-//		ImGui::Columns(1);
-//		ImGui::TreePop();
-//	}
-//	ImGui::End();
-//}
-void VulkanGraphics::UpdateMouse()
-{
-	if (glfwGetMouseButton(Window.GetWindowPtr(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-	{
-		glfwGetCursorPos(Window.GetWindowPtr(), &MouseXPos, &MouseYPos);
-		if (firstMouse)
-		{
-			lastX = MouseXPos;
-			lastY = MouseYPos;
-			firstMouse = false;
-		}
-
-		float xoffset = MouseXPos - lastX;
-		float yoffset = lastY - MouseYPos;
-
-		lastX = MouseXPos;
-		lastY = MouseYPos;
-
-		camera.UpdateMouse(xoffset, yoffset);
-	}
-	else
-	{
-		firstMouse = true;
-	}
-}
-
-void VulkanGraphics::UpdateKeyboard()
-{
-	float currentFrame = glfwGetTime();
-	deltaTime = currentFrame - lastFrame;
-	lastFrame = currentFrame;
-
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_W) == GLFW_PRESS)
-	{
-		camera.UpdateKeyboard(FORWARD, deltaTime);
-	}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_S) == GLFW_PRESS)
-	{
-		camera.UpdateKeyboard(BACKWARD, deltaTime);
-	}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_A) == GLFW_PRESS)
-	{
-		camera.UpdateKeyboard(LEFT, deltaTime);
-	}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_D) == GLFW_PRESS)
-	{
-		camera.UpdateKeyboard(RIGHT, deltaTime);
 	}
 }
