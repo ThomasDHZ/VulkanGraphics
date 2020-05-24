@@ -89,7 +89,7 @@ void DebugLightMesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 
 void DebugLightMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix)
 {
-	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), Renderer.DrawFrame);
+	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix));
 }
 
 void DebugLightMesh::Destroy(VulkanRenderer& Renderer)

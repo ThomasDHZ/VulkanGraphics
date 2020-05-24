@@ -24,6 +24,7 @@ const bool enableValidationLayers = true;
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
+#include "LightManager.h"
 
 
 const std::vector<Vertex> vertices = {
@@ -85,10 +86,8 @@ private:
 
 	glm::vec3 LightPos;
 
-	//AmbientLight Ambiant;
-	DirectionalLight DirLight;
-	PointLight PointLights[4];
-	SpotLight spotlight;
+	LightManager lightManager;
+
 
 	//ModelLoader modelLoader;
 	//Model Nanosuit;

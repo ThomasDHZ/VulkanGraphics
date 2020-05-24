@@ -110,7 +110,7 @@ void SkyBox::Draw(VulkanRenderer& Renderer, int currentFrame)
 
 void SkyBox::UpdateUniformBuffer(VulkanRenderer& Renderer, SkyBoxPositionMatrix positionMatrix)
 {
-	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), Renderer.DrawFrame);
+	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix));
 }
 
 void SkyBox::Destory(VulkanRenderer& Renderer)

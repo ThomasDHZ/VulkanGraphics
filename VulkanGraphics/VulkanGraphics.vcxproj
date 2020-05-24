@@ -167,6 +167,7 @@
     <ClCompile Include="ImGui\imgui_impl_vulkan.cpp" />
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
     <ClCompile Include="InputAttachment.cpp" />
+    <ClCompile Include="LightManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="InputAttachment.h" />
     <ClInclude Include="BaseMesh.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="LightManager.h" />
     <ClInclude Include="LightStructs.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />

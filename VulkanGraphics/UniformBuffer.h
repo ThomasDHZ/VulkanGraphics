@@ -17,7 +17,7 @@ public:
 	UniformBuffer(VulkanRenderer& Renderer, VkDeviceSize bufferSize);
 	~UniformBuffer();
 
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, void* UniformObjectData, int currentImage);
+	void UpdateUniformBuffer(VulkanRenderer& Renderer, void* UniformObjectData);
 	void Destroy(VulkanRenderer& Renderer);
 	VkBuffer GetUniformBuffer(int currentImage) { return UniformBuffers[currentImage]; };
 };

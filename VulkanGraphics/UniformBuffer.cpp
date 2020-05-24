@@ -25,12 +25,12 @@ void UniformBuffer::CreateUniformBuffers(VulkanRenderer& Renderer)
 	}
 }
 
-void UniformBuffer::UpdateUniformBuffer(VulkanRenderer& Renderer, void* UniformObjectData, int currentImage)
+void UniformBuffer::UpdateUniformBuffer(VulkanRenderer& Renderer, void* UniformObjectData)
 {
 	void* UniformData;
-	vkMapMemory(*GetDevice(Renderer), UniformBuffersMemory[currentImage], 0, BufferSize, 0, &UniformData);
+	vkMapMemory(*GetDevice(Renderer), UniformBuffersMemory[Renderer.DrawFrame], 0, BufferSize, 0, &UniformData);
 	memcpy(UniformData, UniformObjectData, BufferSize);
-	vkUnmapMemory(*GetDevice(Renderer), UniformBuffersMemory[currentImage]);
+	vkUnmapMemory(*GetDevice(Renderer), UniformBuffersMemory[Renderer.DrawFrame]);
 }
 
 void UniformBuffer::Destroy(VulkanRenderer& Renderer)

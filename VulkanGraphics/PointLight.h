@@ -9,9 +9,13 @@ public:
 	PointLight(VulkanRenderer& Renderer, PointLightBuffer settings);
 	~PointLight();
 
+	void SetPosition(float Position[2]);
 	void SetPosition(glm::vec3 Position);
+	void SetAmbient(float Position[2]);
 	void SetAmbient(glm::vec3 Ambient);
+	void SetDiffuse(float Position[2]);
 	void SetDiffuse(glm::vec3 Diffuse);
+	void SetSpecular(float Position[2]);
 	void SetSpecular(glm::vec3 Specular);
 	void SetConstant(float Constant);
 	void SetLinear(float Linear);

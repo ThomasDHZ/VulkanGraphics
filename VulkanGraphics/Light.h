@@ -1,6 +1,7 @@
 #pragma once
 #include "LightStructs.h"
 #include "DebugLightMesh.h"
+#include "Camera.h"
 
 const std::vector<Vertex> vertices23 = {
 {{-0.5f, -0.5f, -0.5f}, {  0.0f,  0.0f, -1.0f}, {  0.0f,  0.0f}},

@@ -134,8 +134,8 @@ void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
 
 void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, MeshProp viewpos)
 {
-	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix), Renderer.DrawFrame);
-	ViewPosBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&viewpos), Renderer.DrawFrame);
+	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix));
+	ViewPosBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&viewpos));
 }
 
 void Mesh::Destroy(VulkanRenderer& Renderer)
