@@ -10,39 +10,12 @@
 #include "FrameBufferRenderingPipeline.h"
 #include "DebugLightRenderingPipeline.h"
 
-struct VulkanRendererSettings
-{
-	bool ShowMeshLines = false;
-	bool ShowSkyBox = true;
-	bool ShowDebugLightMeshs = true;
-
-	bool operator!=(const VulkanRendererSettings& OtherSettings)
-	{
-		return (ShowMeshLines != OtherSettings.ShowMeshLines ||
-				ShowSkyBox != OtherSettings.ShowSkyBox ||
-				ShowDebugLightMeshs != OtherSettings.ShowDebugLightMeshs);
-	}
-};
-
 class VulkanRenderer : public VulkanStarter
 {
 	friend class VulkanGraphics;
+	friend class VulkanGraphics2D;
 	friend class VulkanResources;
 private:
-	struct VulkanSemaphores
-	{
-		VkSemaphore ImageAcquiredSemaphore;
-		VkSemaphore RenderCompleteSemaphore;
-		
-		void Destory(VkDevice device)
-		{
-			vkDestroySemaphore(device, RenderCompleteSemaphore, nullptr);
-			vkDestroySemaphore(device, ImageAcquiredSemaphore, nullptr);
-
-			RenderCompleteSemaphore = VK_NULL_HANDLE;
-			ImageAcquiredSemaphore = VK_NULL_HANDLE;
-		}
-	};
 
 	bool framebufferResized = false;
 
@@ -61,15 +34,6 @@ private:
 	SkyBoxPipeline SkyboxPipeline;
 
 	FrameBuffer framebuffer;
-
-	VkCommandPool MainCommandPool;
-	std::vector<VkCommandBuffer> MainCommandBuffer;
-	VkCommandPool SecondaryCommandPool;
-	std::vector<VkCommandBuffer> SecondaryCommandBuffers;
-
-	std::vector<VulkanSemaphores> vulkanSemaphores;
-	std::vector<VkFence> inFlightFences;
-	std::vector<VkFence> imagesInFlight;
 
 	void InitializeRenderPass();
 	void InitializeFramebuffers();

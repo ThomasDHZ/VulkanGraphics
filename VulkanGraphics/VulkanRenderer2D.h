@@ -1,46 +1,39 @@
 #pragma once
 #include "VulkanStarter.h"
-#include "InputAttachment.h"
+#include "VulkanDebugger.h"
 #include "VulkanSwapChain.h"
+#include "ForwardRenderingPipeline.h"
+#include "InputAttachment.h"
+#include "SkyBoxPipeline.h"
+#include "WireFramePipeline.h"
 #include "FrameBuffer.h"
-#include "Renderer2DPipeline.h"
+#include "FrameBufferRenderingPipeline.h"
+#include "DebugLightRenderingPipeline.h"
 
 class VulkanRenderer2D : public VulkanStarter
 {
 	friend class VulkanGraphics;
+	friend class VulkanGraphics2D;
 	friend class VulkanResources;
+
 private:
-	struct VulkanSemaphores
-	{
-		VkSemaphore ImageAcquiredSemaphore;
-		VkSemaphore RenderCompleteSemaphore;
-
-		void Destory(VkDevice device)
-		{
-			vkDestroySemaphore(device, RenderCompleteSemaphore, nullptr);
-			vkDestroySemaphore(device, ImageAcquiredSemaphore, nullptr);
-
-			RenderCompleteSemaphore = VK_NULL_HANDLE;
-			ImageAcquiredSemaphore = VK_NULL_HANDLE;
-		}
-	};
-
 	bool framebufferResized = false;
 
+
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
-	VulkanSwapChain SwapChain;
+
+	InputAttachment ColorAttachment;
 	InputAttachment DepthAttachment;
 
-	Renderer2DPipeline Render2DPipeline;
+	VulkanSwapChain SwapChain;
 
-	VkCommandPool MainCommandPool;
-	std::vector<VkCommandBuffer> MainCommandBuffer;
-	VkCommandPool SecondaryCommandPool;
-	std::vector<VkCommandBuffer> SecondaryCommandBuffers;
+	ForwardRenderingPipeline GraphicsPipeline;
+	FrameBufferRenderingPipeline FrameBufferPipeline;
+	DebugLightRenderingPipeline DebugLightPipeline;
+	WireFramePipeline MeshviewPipeline;
+	SkyBoxPipeline SkyboxPipeline;
 
-	std::vector<VulkanSemaphores> vulkanSemaphores;
-	std::vector<VkFence> inFlightFences;
-	std::vector<VkFence> imagesInFlight;
+	FrameBuffer framebuffer;
 
 	void InitializeRenderPass();
 	void InitializeFramebuffers();
@@ -67,5 +60,6 @@ public:
 	VulkanRenderer2D(GLFWwindow* window);
 	~VulkanRenderer2D();
 
+	VulkanRendererSettings Settings;
 	uint32_t DrawFrame = 0;
 };

@@ -1,14 +1,7 @@
-#include "VulkanGraphics.h"
+#include "VulkanGraphics2D.h"
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
-VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
+VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 {
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = VulkanRenderer(Window.GetWindowPtr());
@@ -18,30 +11,6 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	texture2 = Texture2D(renderer, "texture/container2_specular.png");
 	std::vector<Texture2D> textureList = { texture, texture2 };
 
-	//Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-
-	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/box.obj"));
-	//modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
-	//modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
-	//modelLoader.ModelMeshList[0].TextureList.emplace_back(texture);
-	//modelLoader.ModelMeshList[1].TextureList.emplace_back(texture);
-	//modelLoader.ModelMeshList[1].TextureList.emplace_back(texture);
-	//modelLoader.ModelMeshList[2].TextureList.emplace_back(texture);
-	//modelLoader.ModelMeshList[2].TextureList.emplace_back(texture);
-	//modelLoader.ModelMeshList[3].TextureList.emplace_back(texture);
-	//modelLoader.ModelMeshList[4].TextureList.emplace_back(texture);
-	//modelLoader.ModelMeshList[4].TextureList.emplace_back(texture);
-
-	CubeMapLayout layout;
-	layout.Left = "texture/skybox/left.jpg";
-	layout.Right = "texture/skybox/right.jpg";
-	layout.Top = "texture/skybox/top.jpg";
-	layout.Bottom = "texture/skybox/bottom.jpg";
-	layout.Back = "texture/skybox/back.jpg";
-	layout.Front = "texture/skybox/front.jpg";
-	SkyboxTexture = CubeMapTexture(renderer, layout);
-
-	Skybox = SkyBox(renderer, SkyboxTexture);
 
 	InitializeGUIDebugger();
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
@@ -55,7 +24,6 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 
-	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
 	glm::vec3 pointLightPositions[] = {
 glm::vec3(0.7f,  0.2f,  2.0f),
@@ -99,7 +67,7 @@ glm::vec3(0.0f,  0.0f, -3.0f)
 	light3.Linear = 0.09f;
 	light3.Quadratic = 0.032;
 	VkPhysicalDeviceRayTracingPropertiesNV AL;
-	
+
 	PointLightBuffer light4;
 	light4.Position = pointLightPositions[3];
 	light4.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
@@ -129,33 +97,23 @@ glm::vec3(0.0f,  0.0f, -3.0f)
 	lightManager.SpotlightList.emplace_back(SpotLight(renderer, spotLight));
 }
 
-VulkanGraphics::~VulkanGraphics()
+VulkanGraphics2D::~VulkanGraphics2D()
 {
 	vkDeviceWaitIdle(*GetDevice(renderer));
 
-	//modelLoader.CleanTextureMemory(renderer);
 	for (auto mesh : MeshList)
 	{
 		mesh.Destroy(renderer);
 	}
 	lightManager.Destroy(renderer);
-	//debugLightMesh.Destroy(renderer);
-	//for (auto model : ModelList)
-	//{
-	//	model.Destroy(renderer);
-	//}
-	//Ambiant.Destroy(renderer);
 	texture.Destroy(renderer);
-	
-	Skybox.Destory(renderer);
-	SkyboxTexture.Destroy(renderer);
 
 	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
 	Window.CleanUp();
 }
 
-void VulkanGraphics::InitializeGUIDebugger()
+void VulkanGraphics2D::InitializeGUIDebugger()
 {
 	ImGui_ImplVulkan_InitInfo init_info = {};
 	init_info.Instance = *GetInstance(renderer);
@@ -171,7 +129,7 @@ void VulkanGraphics::InitializeGUIDebugger()
 	guiDebugger = GUIDebugger(init_info, Window.GetWindowPtr(), *GetRenderPass(renderer));
 }
 
-void VulkanGraphics::Update(uint32_t DrawFrame)
+void VulkanGraphics2D::Update(uint32_t DrawFrame)
 {
 	static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -226,16 +184,9 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 
 
 	lightManager.Update(renderer, camera);
-
-	SkyBoxPositionMatrix skyUbo = {};
-	skyUbo.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-	skyUbo.projection = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-	skyUbo.projection[1][1] *= -1;
-
-	Skybox.UpdateUniformBuffer(renderer, skyUbo);
 }
 
-void VulkanGraphics::UpdateCommandBuffers(uint32_t DrawFrame)
+void VulkanGraphics2D::UpdateCommandBuffers(uint32_t DrawFrame)
 {
 	if (renderer.UpdateCommandBuffers)
 	{
@@ -260,10 +211,6 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t DrawFrame)
 			{
 				lightManager.DrawDebugMesh(renderer, i);
 			}
-			if (renderer.Settings.ShowSkyBox)
-			{
-				Skybox.Draw(renderer, i);
-			}
 			if (vkEndCommandBuffer(renderer.SecondaryCommandBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
 			}
@@ -275,7 +222,7 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t DrawFrame)
 	guiDebugger.UpdateCommandBuffers(DrawFrame, *GetRenderPass(renderer), renderer.SwapChainFramebuffers[DrawFrame]);
 }
 
-void VulkanGraphics::Draw()
+void VulkanGraphics2D::Draw()
 {
 	if (CompareVulkanSettings != renderer.Settings)
 	{
@@ -292,7 +239,7 @@ void VulkanGraphics::Draw()
 	renderer.EndFrame(Window.GetWindowPtr());
 }
 
-void VulkanGraphics::MainLoop()
+void VulkanGraphics2D::MainLoop()
 {
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{

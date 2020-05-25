@@ -147,7 +147,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="Canvas2D.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="DebugLightMesh.cpp" />
@@ -162,7 +161,6 @@
     <ClCompile Include="MapTileMesh.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Renderer2DPipeline.cpp" />
-    <ClCompile Include="Image.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
     <ClCompile Include="ImGui\imgui_demo.cpp" />
@@ -179,17 +177,15 @@
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
+    <ClCompile Include="VulkanGraphics2D.cpp" />
     <ClCompile Include="VulkanRenderer2D.cpp" />
     <ClCompile Include="VulkanStarter.cpp" />
     <ClCompile Include="WireFramePipeline.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
-    <ClCompile Include="Renderer2D.cpp" />
-    <ClCompile Include="Screen2DMesh.cpp" />
     <ClCompile Include="SkyBoxPipeline.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Sphere.cpp" />
-    <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="VulkanRenderer.cpp" />
     <ClCompile Include="VulkanResources.cpp" />
     <ClCompile Include="VulkanSwapChain.cpp" />
@@ -217,7 +213,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
-    <ClInclude Include="Canvas2D.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="DebugLightMesh.h" />
@@ -232,7 +227,6 @@
     <ClInclude Include="MapTileMesh.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Renderer2DPipeline.h" />
-    <ClInclude Include="Image.h" />
     <ClInclude Include="GUIDebugger.h" />
     <ClInclude Include="ImGui\imconfig.h" />
     <ClInclude Include="ImGui\imgui.h" />
@@ -252,19 +246,16 @@
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="UniformBuffer.h" />
+    <ClInclude Include="VulkanGraphics2D.h" />
     <ClInclude Include="VulkanRenderer2D.h" />
     <ClInclude Include="VulkanStarter.h" />
     <ClInclude Include="WireFramePipeline.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />
-    <ClInclude Include="Pixel.h" />
-    <ClInclude Include="Renderer2D.h" />
-    <ClInclude Include="Screen2DMesh.h" />
     <ClInclude Include="SkyBoxPipeline.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="SkyBox.h" />
-    <ClInclude Include="Sprite.h" />
     <ClInclude Include="VulkanRenderer.h" />
     <ClInclude Include="VulkanResources.h" />
     <ClInclude Include="VulkanSwapChain.h" />

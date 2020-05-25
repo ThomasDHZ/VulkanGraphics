@@ -1,7 +1,6 @@
 #include "CubeMapTexture.h"
 #include <stb_image.h>
 #include "VulkanBufferManager.h"
-#include "Image.h"
 
 CubeMapTexture::CubeMapTexture() : Texture()
 {

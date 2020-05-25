@@ -14,10 +14,39 @@ const std::vector<const char*> deviceExtensions = {
 };
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
+struct VulkanRendererSettings
+{
+	bool ShowMeshLines = false;
+	bool ShowSkyBox = true;
+	bool ShowDebugLightMeshs = true;
+
+	bool operator!=(const VulkanRendererSettings& OtherSettings)
+	{
+		return (ShowMeshLines != OtherSettings.ShowMeshLines ||
+			ShowSkyBox != OtherSettings.ShowSkyBox ||
+			ShowDebugLightMeshs != OtherSettings.ShowDebugLightMeshs);
+	}
+};
+
 class VulkanStarter
 {
 private:
 protected:
+
+	struct VulkanSemaphores
+	{
+		VkSemaphore ImageAcquiredSemaphore;
+		VkSemaphore RenderCompleteSemaphore;
+
+		void Destory(VkDevice device)
+		{
+			vkDestroySemaphore(device, RenderCompleteSemaphore, nullptr);
+			vkDestroySemaphore(device, ImageAcquiredSemaphore, nullptr);
+
+			RenderCompleteSemaphore = VK_NULL_HANDLE;
+			ImageAcquiredSemaphore = VK_NULL_HANDLE;
+		}
+	};
 
 	VkInstance Instance = VK_NULL_HANDLE;
 	VkDevice Device = VK_NULL_HANDLE;
@@ -32,6 +61,15 @@ protected:
 	int PresentFamily = -1;
 
 	std::vector<VkLayerProperties> VulkanLayers;
+
+	VkCommandPool MainCommandPool;
+	std::vector<VkCommandBuffer> MainCommandBuffer;
+	VkCommandPool SecondaryCommandPool;
+	std::vector<VkCommandBuffer> SecondaryCommandBuffers;
+
+	std::vector<VulkanSemaphores> vulkanSemaphores;
+	std::vector<VkFence> inFlightFences;
+	std::vector<VkFence> imagesInFlight;
 
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkFormat findDepthFormat();

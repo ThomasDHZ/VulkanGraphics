@@ -18,8 +18,6 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
-#include "Image.h"
-
 class Texture2D : public Texture
 {
 private:
