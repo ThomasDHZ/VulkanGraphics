@@ -6,7 +6,9 @@ enum Camera_Movement {
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UP,
+	DOWN
 };
 
 const float YAW = -90.0f;
@@ -45,6 +47,7 @@ public:
 	glm::mat4 GetViewMatrix();
 	float GetCameraZoom();
 	glm::vec3 GetCameraPos() { return Position; }
+	float* GetCameraPosPtr() { return &Position.x; }
 
 	Camera& operator=(const Camera& rhs);
 };

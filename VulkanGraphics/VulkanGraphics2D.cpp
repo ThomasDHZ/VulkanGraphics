@@ -13,16 +13,11 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 
 
 	InitializeGUIDebugger();
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	for (int x = 0; x < 400; x++)
+	{
+		MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	}
+
 
 
 	glm::vec3 pointLightPositions[] = {
@@ -137,16 +132,16 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame)
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	glm::vec3 cubePositions[] = {
-	glm::vec3(0.0f,  0.0f,  0.0f),
-	glm::vec3(2.0f,  5.0f, -15.0f),
-	glm::vec3(-1.5f, -2.2f, -2.5f),
-	glm::vec3(-3.8f, -2.0f, -12.3f),
-	glm::vec3(2.4f, -0.4f, -3.5f),
-	glm::vec3(-1.7f,  3.0f, -7.5f),
-	glm::vec3(1.3f, -2.0f, -2.5f),
-	glm::vec3(1.5f,  2.0f, -2.5f),
-	glm::vec3(1.5f,  0.2f, -1.5f),
-	glm::vec3(-1.3f,  1.0f, -1.5f)
+	glm::vec3(0.0f, 0.0f, 0.0f),
+	glm::vec3(1.0f, 0.0f, 0.0f),
+	glm::vec3(2.0f, 0.0f, 0.0f),
+	glm::vec3(0.0f, 1.0f, 0.0f),
+	glm::vec3(1.0f, 1.0f, 0.0f),
+	glm::vec3(2.0f, 1.0f, 0.0f),
+	glm::vec3(0.0f, 2.0f, 0.0f),
+	glm::vec3(1.0f, 2.0f, 0.0f),
+	glm::vec3(2.0f, 2.0f, 0.0f),
+	glm::vec3(3.0f, 0.0f, 0.0f)
 	};
 
 
@@ -167,19 +162,21 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame)
 	viewing.viewPos = camera.GetCameraPos();
 
 
-	for (unsigned int i = 0; i < 10; i++)
+	for (unsigned int x = 0; x < 20; x++)
 	{
-		float angle = 20.0f * i;
+		for (unsigned int i = 0; i < 20; i++)
+		{
+			float angle = 20.0f * i;
 
-		PositionMatrix ubo{};
-		ubo.model = glm::mat4(1.0f);
-		ubo.model = glm::translate(ubo.model, cubePositions[i]);
-		ubo.model = glm::rotate(ubo.model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		ubo.view = camera.GetViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-		ubo.proj[1][1] *= -1;
+			PositionMatrix ubo{};
+			ubo.model = glm::mat4(1.0f);
+			ubo.model = glm::translate(ubo.model, glm::vec3(i, x, 0.0f));
+			ubo.view = camera.GetViewMatrix();
+			ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+			ubo.proj[1][1] *= -1;
 
-		MeshList[i].UpdateUniformBuffer(renderer, ubo, viewing);
+			MeshList[x + (i * 20)].UpdateUniformBuffer(renderer, ubo, viewing);
+		}
 	}
 
 
@@ -255,6 +252,7 @@ void VulkanGraphics2D::MainLoop()
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMeshs);
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
+			ImGui::SliderFloat3("Camera", camera.GetCameraPosPtr(), -10.0f, 10.0f);
 			ImGui::End();
 
 			lightManager.UpdateLights();

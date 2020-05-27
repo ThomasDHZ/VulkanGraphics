@@ -8,11 +8,11 @@ void Keyboard::Update(GLFWwindow* window, Camera& camera)
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		camera.UpdateKeyboard(FORWARD, deltaTime);
+		camera.UpdateKeyboard(UP, deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		camera.UpdateKeyboard(BACKWARD, deltaTime);
+		camera.UpdateKeyboard(DOWN, deltaTime);
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
