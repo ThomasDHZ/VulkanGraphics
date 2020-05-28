@@ -1,18 +1,32 @@
 #include "Keyboard.h"
 
-void Keyboard::Update(GLFWwindow* window, Camera& camera)
+void Keyboard::Update(GLFWwindow* window, Camera& camera, VulkanRendererSettings settings)
 {
 	float currentFrame = glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (settings.TwoDMode)
 	{
-		camera.UpdateKeyboard(UP, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			camera.UpdateKeyboard(UP, deltaTime);
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			camera.UpdateKeyboard(DOWN, deltaTime);
+		}
 	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	else
 	{
-		camera.UpdateKeyboard(DOWN, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			camera.UpdateKeyboard(FORWARD, deltaTime);
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			camera.UpdateKeyboard(BACKWARD, deltaTime);
+		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{

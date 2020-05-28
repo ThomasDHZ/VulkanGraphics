@@ -1,7 +1,7 @@
 #pragma once
 #include <GLFW\glfw3.h>
 #include "Camera.h"
-
+#include "VulkanStarter.h"
 class Keyboard
 {
 private:
@@ -10,6 +10,6 @@ private:
 
 public:
 
-	void Update(GLFWwindow* window, Camera& camera);
+	void Update(GLFWwindow* window, Camera& camera, VulkanRendererSettings settings);
 };
 

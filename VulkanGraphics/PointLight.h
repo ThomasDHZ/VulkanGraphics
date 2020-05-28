@@ -30,5 +30,8 @@ public:
 	float GetQuadratic();
 
 	PointLightBuffer GetSettings() { return LightSettings; }
-	glm::vec3* GetLightPos() { return &LightSettings.Position; }
+	float* GetLightPosPtr() { return &LightSettings.Position.x; }
+	float* GetAmbientPtr() { return &LightSettings.Ambient.x; }
+	float* GetDiffusePtr() { return &LightSettings.Diffuse.x; }
+	float* GetSpecularPtr() { return &LightSettings.Specular.x; }
 };

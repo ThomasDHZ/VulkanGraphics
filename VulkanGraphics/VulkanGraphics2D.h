@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "VulkanRenderer2D.h"
+#include "VulkanRenderer.h"
 #include "Texture2D.h"
 #include "Mesh.h"
 #include "VulkanWindow.h"
@@ -21,6 +21,7 @@
 #include "LightManager.h"
 #include "Keyboard.h"
 #include "Mouse.h"
+#include <map>
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -32,10 +33,10 @@ const bool enableValidationLayers = true;
 
 const std::vector<Vertex> vertices = 
 {
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {.06666f * 14, 0.0f}},
 	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}},
+	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {.06666f * 14, 0.5f}}
 };
 
 const std::vector<uint16_t> indices = 
@@ -43,9 +44,16 @@ const std::vector<uint16_t> indices =
 	  0, 1, 2, 2, 3, 0
 };
 
+enum TileMap
+{
+	Tile1,
+	Tile2
+};
+
 class VulkanGraphics2D : VulkanResources
 {
 private:
+	std::map<TileMap, int> MapTile;
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
 	VulkanRenderer renderer;
@@ -54,6 +62,9 @@ private:
 	Mouse mouse;
 
 	Camera camera;
+
+	SkyBox Skybox;
+	CubeMapTexture SkyboxTexture;
 
 	glm::vec3 LightPos;
 

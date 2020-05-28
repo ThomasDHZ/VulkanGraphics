@@ -7,13 +7,17 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	renderer = VulkanRenderer(Window.GetWindowPtr());
 	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-	texture = Texture2D(renderer, "texture/container2.png");
-	texture2 = Texture2D(renderer, "texture/container2_specular.png");
+	texture = Texture2D(renderer, "texture/SparkManDiffuse2048.bmp");
+	texture2 = Texture2D(renderer, "texture/SparkManSpec2048.bmp");
 	std::vector<Texture2D> textureList = { texture, texture2 };
 
+	MapTile[TileMap::Tile1] = 34;
+	MapTile[TileMap::Tile2] = 65;
+
+	int a = MapTile[TileMap::Tile2];
 
 	InitializeGUIDebugger();
-	for (int x = 0; x < 400; x++)
+	for (int x = 0; x < 1; x++)
 	{
 		MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
 	}
@@ -175,7 +179,7 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame)
 			ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 			ubo.proj[1][1] *= -1;
 
-			MeshList[x + (i * 20)].UpdateUniformBuffer(renderer, ubo, viewing);
+			MeshList[0].UpdateUniformBuffer(renderer, ubo, viewing);
 		}
 	}
 
@@ -241,8 +245,8 @@ void VulkanGraphics2D::MainLoop()
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
-		mouse.Update(Window.GetWindowPtr(), camera);
-		keyboard.Update(Window.GetWindowPtr(), camera);
+		mouse.Update(Window.GetWindowPtr(), camera, renderer.Settings);
+		keyboard.Update(Window.GetWindowPtr(), camera, renderer.Settings);
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();

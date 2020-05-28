@@ -19,12 +19,14 @@ struct VulkanRendererSettings
 	bool ShowMeshLines = false;
 	bool ShowSkyBox = true;
 	bool ShowDebugLightMeshs = true;
+	bool TwoDMode = false;
 
 	bool operator!=(const VulkanRendererSettings& OtherSettings)
 	{
 		return (ShowMeshLines != OtherSettings.ShowMeshLines ||
-			ShowSkyBox != OtherSettings.ShowSkyBox ||
-			ShowDebugLightMeshs != OtherSettings.ShowDebugLightMeshs);
+				ShowSkyBox != OtherSettings.ShowSkyBox ||
+				ShowDebugLightMeshs != OtherSettings.ShowDebugLightMeshs ||
+				TwoDMode != OtherSettings.TwoDMode);
 	}
 };
 
