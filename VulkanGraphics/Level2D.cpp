@@ -11,10 +11,9 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	LoadTileSet(renderer, tileset);
 	std::vector<Texture2D> textureList = { DiffuseMap, SpecularMap };
 
-	for (int x = 0; x < LevelBoundsX * LevelBoundsY; x++)
-	{
-		TileList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	}
+	CreateLevelGeometry();
+
+		LevelMap = LevelMesh2D(renderer, LevelVertexList, LevelIndiceList, textureList);
 
 	glm::vec3 pointLightPositions[] = {
 glm::vec3(0.7f,  0.2f,  2.0f),
@@ -90,6 +89,33 @@ Level2D::~Level2D()
 {
 }
 
+void Level2D::CreateLevelGeometry()
+{
+	for (unsigned int x = 0; x < LevelBoundsX; x++)
+	{
+		for (unsigned int y = 0; y < LevelBoundsY; y++)
+		{
+			const unsigned int VertexCount = LevelVertexList.size();
+			const Vertex BottomLeftVertex = { {x, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.06666f, 0.0f} };
+			const Vertex BottomRightVertex = { {x + 1.0f, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f} };
+			const Vertex TopRightVertex = { {x + 1.0f, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.5f} };
+			const Vertex TopLeftVertex = { {x, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.06666f, 0.5f} };
+
+			LevelVertexList.emplace_back(BottomLeftVertex);
+			LevelVertexList.emplace_back(BottomRightVertex);
+			LevelVertexList.emplace_back(TopRightVertex);
+			LevelVertexList.emplace_back(TopLeftVertex);
+
+			LevelIndiceList.emplace_back(VertexCount);
+			LevelIndiceList.emplace_back(VertexCount + 1);
+			LevelIndiceList.emplace_back(VertexCount + 2);
+			LevelIndiceList.emplace_back(VertexCount + 2);
+			LevelIndiceList.emplace_back(VertexCount + 3);
+			LevelIndiceList.emplace_back(VertexCount);
+		}
+	}
+}
+
 void Level2D::LevelDebug(Renderer& renderer)
 {
 	ImGui::Begin("Settings");
@@ -125,21 +151,12 @@ void Level2D::Update(Renderer& renderer)
 	viewing.material = material;
 	viewing.viewPos = camera.GetCameraPos();
 
-
-	for (unsigned int x = 0; x < LevelBoundsX; x++)
-	{
-		for (unsigned int y = 0; y < LevelBoundsY; y++)
-		{
-			PositionMatrix ubo{};
-			ubo.model = glm::mat4(1.0f);
-			ubo.model = glm::translate(ubo.model, glm::vec3(x, y, 0.0f));
-			ubo.view = camera.GetViewMatrix();
-			ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-			ubo.proj[1][1] *= -1;
-
-			TileList[x + (y * LevelBoundsX)].UpdateUniformBuffer(renderer, ubo, viewing);
-		}
-	}
+	PositionMatrix ubo{};
+	ubo.model = glm::mat4(1.0f);
+	ubo.view = camera.GetViewMatrix();
+	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo.proj[1][1] *= -1;
+	LevelMap.UpdateUniformBuffer(renderer, ubo, viewing);
 
 
 	lightManager.Update(renderer, camera);
@@ -147,10 +164,8 @@ void Level2D::Update(Renderer& renderer)
 
 void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 {
-	for (auto tile : TileList)
-	{
-		tile.Draw(renderer, DrawFrame);
-	}
+
+	LevelMap.Draw(renderer, DrawFrame);
 	if (renderer.Settings.ShowDebugLightMeshs)
 	{
 		lightManager.DrawDebugMesh(renderer, DrawFrame);
@@ -161,6 +176,7 @@ void Level2D::LoadTileSet(Renderer& renderer, TileSet tileset)
 {
 	DiffuseMap = Texture2D(renderer, tileset.DiffuseMap);
 	SpecularMap = Texture2D(renderer, tileset.SpecularMap);
+	NormalMap = Texture2D(renderer, tileset.NormalMap);
 }
 
 void Level2D::UnloadTileSet(Renderer& renderer)
@@ -174,8 +190,7 @@ void Level2D::Destroy(Renderer& renderer)
 {
 	UnloadTileSet(renderer);
 	lightManager.Destroy(renderer);
-	for (auto tile : TileList)
-	{
-		tile.Destroy(renderer);
-	}
+
+	LevelMap.Destroy(renderer);
+	
 }

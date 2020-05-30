@@ -2,10 +2,10 @@
 #include <string>
 #include "Texture2D.h"
 #include <map>
-#include "Mesh.h"
 #include "Camera.h"
 #include "LightManager.h"
 #include "GUIDebugger.h"
+#include "TileMesh.h"
 
 enum Level
 {
@@ -13,29 +13,13 @@ enum Level
 	Test
 };
 
-struct TileSet
-{
-	std::string DiffuseMap;
-	std::string SpecularMap;
-	std::string NormalMap;
-};
-
-const std::vector<Vertex> vertices =
-{
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.06666f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.06666f, 0.5f}}
-};
-
-const std::vector<uint16_t> indices =
-{
-	  0, 1, 2, 2, 3, 0
-};
-
 class Level2D : VulkanResources
 {
 private:
+	std::vector<Vertex> LevelVertexList;
+	std::vector<uint16_t> LevelIndiceList;
+
+	void CreateLevelGeometry();
 public:
 	
 	Camera camera;
@@ -45,9 +29,9 @@ public:
 	Texture2D SpecularMap;
 	Texture2D NormalMap;
 
-	unsigned int LevelBoundsX = 2;
-	unsigned int LevelBoundsY = 2;
-	std::vector<Mesh> TileList;
+	unsigned int LevelBoundsX = 100;
+	unsigned int LevelBoundsY = 200;
+	LevelMesh2D LevelMap;
 
 	Level2D();
 	Level2D(Renderer& renderer, TileSet tileset);

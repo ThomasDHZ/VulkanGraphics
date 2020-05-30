@@ -176,6 +176,7 @@
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="SpotLight.cpp" />
+    <ClCompile Include="TileMesh.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VulkanGraphics2D.cpp" />
     <ClCompile Include="RendererBase.cpp" />
@@ -185,7 +186,7 @@
     <ClCompile Include="SkyBoxPipeline.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Sphere.cpp" />
-    <ClCompile Include="VulkanRenderer.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="VulkanResources.cpp" />
     <ClCompile Include="VulkanSwapChain.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="SpotLight.h" />
+    <ClInclude Include="TileMesh.h" />
     <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VulkanGraphics2D.h" />
     <ClInclude Include="RendererBase.h" />
@@ -254,7 +256,7 @@
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="SkyBox.h" />
-    <ClInclude Include="VulkanRenderer.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="VulkanResources.h" />
     <ClInclude Include="VulkanSwapChain.h" />
     <ClInclude Include="Texture.h" />

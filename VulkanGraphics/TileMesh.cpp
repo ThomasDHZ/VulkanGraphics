@@ -1,32 +1,28 @@
-#include "Mesh.h"
+#include "TileMesh.h"
 
-Mesh::Mesh() : BaseMesh()
+
+LevelMesh2D::LevelMesh2D() : BaseMesh()
 {
 }
 
-Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
+LevelMesh2D::LevelMesh2D(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList) : BaseMesh(renderer, vertices, indices, textureList)
 {
 	CreateUniformBuffers(renderer);
 	CreateDescriptorPool(renderer);
 	CreateDescriptorSets(renderer);
 }
 
-Mesh::Mesh(Renderer& renderer, const std::vector<Texture2D>& textureList) : BaseMesh(renderer, textureList)
-{
-
-}
-
-Mesh::~Mesh()
+LevelMesh2D::~LevelMesh2D()
 {
 }
 
-void Mesh::CreateUniformBuffers(Renderer& renderer)
+void LevelMesh2D::CreateUniformBuffers(Renderer& renderer)
 {
 	PositionMatrixBuffer = UniformBuffer(renderer, sizeof(PositionMatrix));
 	ViewPosBuffer = UniformBuffer(renderer, sizeof(MeshProp));
 }
 
-void Mesh::CreateDescriptorPool(Renderer& renderer)
+void LevelMesh2D::CreateDescriptorPool(Renderer& renderer)
 {
 	std::array<DescriptorPoolSizeInfo, 4>  DescriptorPoolInfo = {};
 
@@ -38,22 +34,19 @@ void Mesh::CreateDescriptorPool(Renderer& renderer)
 	BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Mesh::CreateDescriptorSets(Renderer& renderer)
+void LevelMesh2D::CreateDescriptorSets(Renderer& renderer)
 {
 	BaseMesh::CreateDescriptorSets(renderer, *GetDescriptorSetLayout(renderer));
 
 	VkDescriptorImageInfo DiffuseMap = {};
-	VkDescriptorImageInfo SpecularMap = {};
-	if (TextureList.size() != 0)
-	{
-		DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		DiffuseMap.imageView = TextureList[0].textureImageView;
-		DiffuseMap.sampler = TextureList[0].textureSampler;
+	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	DiffuseMap.imageView = TextureList[0].textureImageView;
+	DiffuseMap.sampler = TextureList[0].textureSampler;
 
-		SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		SpecularMap.imageView = TextureList[1].textureImageView;
-		SpecularMap.sampler = TextureList[1].textureSampler;
-	}
+	VkDescriptorImageInfo SpecularMap = {};
+	SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	SpecularMap.imageView = TextureList[1].textureImageView;
+	SpecularMap.sampler = TextureList[1].textureSampler;
 
 	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
@@ -77,22 +70,19 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		PositionDescriptor.DescriptorBufferInfo = PositionInfo;
 		DescriptorList.emplace_back(PositionDescriptor);
 
-		if (TextureList.size() != 0)
-		{
-			WriteDescriptorSetInfo DiffuseMapDescriptor;
-			DiffuseMapDescriptor.DstBinding = 1;
-			DiffuseMapDescriptor.DstSet = descriptorSets[i];
-			DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			DiffuseMapDescriptor.DescriptorImageInfo = DiffuseMap;
-			DescriptorList.emplace_back(DiffuseMapDescriptor);
+		WriteDescriptorSetInfo DiffuseMapDescriptor;
+		DiffuseMapDescriptor.DstBinding = 1;
+		DiffuseMapDescriptor.DstSet = descriptorSets[i];
+		DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		DiffuseMapDescriptor.DescriptorImageInfo = DiffuseMap;
+		DescriptorList.emplace_back(DiffuseMapDescriptor);
 
-			WriteDescriptorSetInfo SpecularMapDescriptor;
-			SpecularMapDescriptor.DstBinding = 2;
-			SpecularMapDescriptor.DstSet = descriptorSets[i];
-			SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
-			DescriptorList.emplace_back(SpecularMapDescriptor);
-		}
+		WriteDescriptorSetInfo SpecularMapDescriptor;
+		SpecularMapDescriptor.DstBinding = 2;
+		SpecularMapDescriptor.DstSet = descriptorSets[i];
+		SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
+		DescriptorList.emplace_back(SpecularMapDescriptor);
 
 		WriteDescriptorSetInfo ViewPosDescriptor;
 		ViewPosDescriptor.DstBinding = 3;
@@ -101,16 +91,16 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		ViewPosDescriptor.DescriptorBufferInfo = ViewPosInfo;
 		DescriptorList.emplace_back(ViewPosDescriptor);
 
-		Mesh::CreateDescriptorSetsData(renderer, DescriptorList);
+		BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
 	}
 }
 
-void Mesh::Draw(Renderer& renderer, int currentFrame)
+void LevelMesh2D::Draw(Renderer& renderer, int currentFrame)
 {
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	if(renderer.Settings.ShowMeshLines)
+	if (renderer.Settings.ShowMeshLines)
 	{
 		vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetMeshViewShaderPipeline(renderer));
 	}
@@ -121,24 +111,17 @@ void Mesh::Draw(Renderer& renderer, int currentFrame)
 
 	vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
 	vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	if(IndiceSize == 0)
-	{
-		vkCmdDraw(*GetSecondaryCommandBuffer(renderer, currentFrame), VertexSize, 1, 0, 0);
-	}
-	else
-	{
-		vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		vkCmdDrawIndexed(*GetSecondaryCommandBuffer(renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
-	}
+	vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdDrawIndexed(*GetSecondaryCommandBuffer(renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
 }
 
-void Mesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos)
+void LevelMesh2D::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos)
 {
 	PositionMatrixBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&positionMatrix));
 	ViewPosBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&viewpos));
 }
 
-void Mesh::Destroy(Renderer& renderer)
+void LevelMesh2D::Destroy(Renderer& renderer)
 {
 
 	PositionMatrixBuffer.Destroy(renderer);

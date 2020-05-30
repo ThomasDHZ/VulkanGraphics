@@ -99,9 +99,6 @@
     <ClCompile Include="VulkanSwapChain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GUIDebugger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -156,9 +153,6 @@
     <ClCompile Include="Mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanGraphics2D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WireFramePipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
@@ -166,6 +160,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RendererBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanGraphics2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TileMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -298,9 +301,6 @@
     <ClInclude Include="VulkanSwapChain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GUIDebugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -371,6 +371,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RendererBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TileMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

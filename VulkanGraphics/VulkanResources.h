@@ -1,5 +1,5 @@
 #pragma once
-#include "VulkanRenderer.h"
+#include "Renderer.h"
 
 class VulkanResources
 {
