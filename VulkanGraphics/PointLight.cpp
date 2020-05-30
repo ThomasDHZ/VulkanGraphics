@@ -4,7 +4,7 @@ PointLight::PointLight() : Light<PointLightBuffer>()
 {
 }
 
-PointLight::PointLight(VulkanRenderer& Renderer, PointLightBuffer settings) : Light<PointLightBuffer>(Renderer, settings)
+PointLight::PointLight(Renderer& renderer, PointLightBuffer settings) : Light<PointLightBuffer>(renderer, settings)
 {
 }
 

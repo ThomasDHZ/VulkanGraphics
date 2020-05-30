@@ -4,44 +4,44 @@ DebugLightMesh::DebugLightMesh() : BaseMesh()
 {
 }
 
-DebugLightMesh::DebugLightMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices) : BaseMesh(Renderer, vertices, indices)
+DebugLightMesh::DebugLightMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices) : BaseMesh(renderer, vertices, indices)
 {
-	CreateUniformBuffers(Renderer);
-	CreateDescriptorPool(Renderer);
-	CreateDescriptorSets(Renderer);
+	CreateUniformBuffers(renderer);
+	CreateDescriptorPool(renderer);
+	CreateDescriptorSets(renderer);
 }
 
-DebugLightMesh::DebugLightMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices) : BaseMesh(Renderer, vertices)
+DebugLightMesh::DebugLightMesh(Renderer& renderer, const std::vector<Vertex>& vertices) : BaseMesh(renderer, vertices)
 {
-	CreateUniformBuffers(Renderer);
-	CreateDescriptorPool(Renderer);
-	CreateDescriptorSets(Renderer);
+	CreateUniformBuffers(renderer);
+	CreateDescriptorPool(renderer);
+	CreateDescriptorSets(renderer);
 }
 
 DebugLightMesh::~DebugLightMesh()
 {
 }
 
-void DebugLightMesh::CreateUniformBuffers(VulkanRenderer& Renderer)
+void DebugLightMesh::CreateUniformBuffers(Renderer& renderer)
 {
-	PositionMatrixBuffer = UniformBuffer(Renderer, sizeof(PositionMatrix));
+	PositionMatrixBuffer = UniformBuffer(renderer, sizeof(PositionMatrix));
 }
 
-void DebugLightMesh::CreateDescriptorPool(VulkanRenderer& Renderer)
+void DebugLightMesh::CreateDescriptorPool(Renderer& renderer)
 {
 	std::array<DescriptorPoolSizeInfo, 1>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
-	BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+	BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void DebugLightMesh::CreateDescriptorSets(VulkanRenderer& Renderer)
+void DebugLightMesh::CreateDescriptorSets(Renderer& renderer)
 {
-	const auto pipeline = GetDebugLightPipeline(Renderer);
-	BaseMesh::CreateDescriptorSets(Renderer, pipeline.ShaderPipelineDescriptorLayout);
+	const auto pipeline = GetDebugLightPipeline(renderer);
+	BaseMesh::CreateDescriptorSets(renderer, pipeline.ShaderPipelineDescriptorLayout);
 
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
 		VkDescriptorBufferInfo PositionInfo = {};
 		PositionInfo.buffer = PositionMatrixBuffer.GetUniformBuffer(i);
@@ -55,46 +55,46 @@ void DebugLightMesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		WriteDescriptorInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		WriteDescriptorInfo[0].DescriptorBufferInfo = PositionInfo;
 
-		CreateDescriptorSetsData(Renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
+		CreateDescriptorSetsData(renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
 	}
 }
 
-void DebugLightMesh::Draw(VulkanRenderer& Renderer, int currentFrame)
+void DebugLightMesh::Draw(Renderer& renderer, int currentFrame)
 {
-	const auto pipeline = GetDebugLightPipeline(Renderer);
+	const auto pipeline = GetDebugLightPipeline(renderer);
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	if (Renderer.Settings.ShowMeshLines)
+	if (renderer.Settings.ShowMeshLines)
 	{
-		vkCmdBindPipeline(*GetSecondaryCommandBuffer(Renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
+		vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
 	}
 	else
 	{
-		vkCmdBindPipeline(*GetSecondaryCommandBuffer(Renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
+		vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
 	}
 
-	vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(Renderer, currentFrame), 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(Renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+	vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 	if (IndiceSize == 0)
 	{
-		vkCmdDraw(*GetSecondaryCommandBuffer(Renderer, currentFrame), VertexSize, 1, 0, 0);
+		vkCmdDraw(*GetSecondaryCommandBuffer(renderer, currentFrame), VertexSize, 1, 0, 0);
 	}
 	else
 	{
-		vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(Renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		vkCmdDrawIndexed(*GetSecondaryCommandBuffer(Renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
+		vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(*GetSecondaryCommandBuffer(renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
 	}
 }
 
-void DebugLightMesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix)
+void DebugLightMesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix)
 {
-	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix));
+	PositionMatrixBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&positionMatrix));
 }
 
-void DebugLightMesh::Destroy(VulkanRenderer& Renderer)
+void DebugLightMesh::Destroy(Renderer& renderer)
 {
-	PositionMatrixBuffer.Destroy(Renderer);
+	PositionMatrixBuffer.Destroy(renderer);
 
-	BaseMesh::Destory(Renderer);
+	BaseMesh::Destory(renderer);
 }

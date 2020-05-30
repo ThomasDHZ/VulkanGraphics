@@ -16,9 +16,9 @@ public:
 	std::vector<PointLight> PointLightList;
 	std::vector<SpotLight> SpotlightList;
 
-	void Update(VulkanRenderer& Renderer, Camera camera);
+	void Update(Renderer& renderer, Camera camera);
 	void UpdateLights();
-	void DrawDebugMesh(VulkanRenderer& Renderer, uint32_t DrawFrame);
-	void Destroy(VulkanRenderer& Renderer);
+	void DrawDebugMesh(Renderer& renderer, uint32_t DrawFrame);
+	void Destroy(Renderer& renderer);
 };
 

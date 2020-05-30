@@ -4,16 +4,16 @@ ModelLoader::ModelLoader()
 {
 }
 
-ModelLoader::ModelLoader(VulkanRenderer& Renderer, const std::string& FilePath)
+ModelLoader::ModelLoader(Renderer& renderer, const std::string& FilePath)
 {
-	LoadModel(Renderer, FilePath);
+	LoadModel(renderer, FilePath);
 }
 
 ModelLoader::~ModelLoader()
 {
 }
 
-void ModelLoader::LoadModel(VulkanRenderer& Renderer, const std::string& FilePath)
+void ModelLoader::LoadModel(Renderer& renderer, const std::string& FilePath)
 {
 	Assimp::Importer ModelImporter;
 
@@ -24,10 +24,10 @@ void ModelLoader::LoadModel(VulkanRenderer& Renderer, const std::string& FilePat
 		return;
 	}
 
-	ProcessNode(Renderer, FilePath, Scene->mRootNode, Scene);
+	ProcessNode(renderer, FilePath, Scene->mRootNode, Scene);
 }
 
-void ModelLoader::ProcessNode(VulkanRenderer& Renderer, const std::string& FilePath, aiNode* node, const aiScene* scene)
+void ModelLoader::ProcessNode(Renderer& renderer, const std::string& FilePath, aiNode* node, const aiScene* scene)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -36,14 +36,14 @@ void ModelLoader::ProcessNode(VulkanRenderer& Renderer, const std::string& FileP
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		NewMesh.VertexList = LoadVertices(mesh);
 		NewMesh.IndexList = LoadIndices(mesh);
-		NewMesh.TextureList = LoadTextures(Renderer, FilePath, mesh, scene);
+		NewMesh.TextureList = LoadTextures(renderer, FilePath, mesh, scene);
 		
 		ModelMeshList.emplace_back(NewMesh);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		ProcessNode(Renderer, FilePath, node->mChildren[i], scene);
+		ProcessNode(renderer, FilePath, node->mChildren[i], scene);
 	}
 }
 
@@ -90,7 +90,7 @@ std::vector<uint16_t> ModelLoader::LoadIndices(aiMesh* mesh)
 	return IndexList;
 }
 
-std::vector<Texture2D> ModelLoader::LoadTextures(VulkanRenderer& Renderer, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
+std::vector<Texture2D> ModelLoader::LoadTextures(Renderer& renderer, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<Texture2D> TextureList;
 
@@ -102,20 +102,20 @@ std::vector<Texture2D> ModelLoader::LoadTextures(VulkanRenderer& Renderer, const
 		{
 			aiString TextureLocation;
 			material->GetTexture(aiTextureType_DIFFUSE, y, &TextureLocation);
-			TextureList.emplace_back(Texture2D(Renderer, directory + TextureLocation.C_Str()));
+			TextureList.emplace_back(Texture2D(renderer, directory + TextureLocation.C_Str()));
 		}
 	}
 
 	return TextureList;
 }
 
-void ModelLoader::CleanTextureMemory(VulkanRenderer& Renderer)
+void ModelLoader::CleanTextureMemory(Renderer& renderer)
 {
 	for (auto subMesh : ModelMeshList)
 	{
 		for (auto texture : subMesh.TextureList)
 		{
-			texture.Destroy(Renderer);
+			texture.Destroy(renderer);
 		}
 	}
 }

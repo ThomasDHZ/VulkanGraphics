@@ -6,7 +6,7 @@ class DirectionalLight : public Light<DirectionalLightBuffer>
 public:
 
 	DirectionalLight();
-	DirectionalLight(VulkanRenderer& Renderer, DirectionalLightBuffer settings);
+	DirectionalLight(Renderer& renderer, DirectionalLightBuffer settings);
 	~DirectionalLight();
 
 	void SetAmbient(glm::vec3 Ambient);

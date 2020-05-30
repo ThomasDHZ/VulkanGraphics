@@ -11,14 +11,14 @@ private:
 	std::vector<VkBuffer> UniformBuffers;
 	std::vector<VkDeviceMemory> UniformBuffersMemory;
 
-	void CreateUniformBuffers(VulkanRenderer& Renderer);
+	void CreateUniformBuffers(Renderer& renderer);
 public:
 	UniformBuffer();
-	UniformBuffer(VulkanRenderer& Renderer, VkDeviceSize bufferSize);
+	UniformBuffer(Renderer& renderer, VkDeviceSize bufferSize);
 	~UniformBuffer();
 
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, void* UniformObjectData);
-	void Destroy(VulkanRenderer& Renderer);
+	void UpdateUniformBuffer(Renderer& renderer, void* UniformObjectData);
+	void Destroy(Renderer& renderer);
 	VkBuffer GetUniformBuffer(int currentImage) { return UniformBuffers[currentImage]; };
 };
 

@@ -6,7 +6,7 @@ class SpotLight : public Light<SpotLightBuffer>
 public:
 
 	SpotLight();
-	SpotLight(VulkanRenderer& Renderer, SpotLightBuffer settings);
+	SpotLight(Renderer& renderer, SpotLightBuffer settings);
 	~SpotLight();
 
 	void SetPosition(glm::vec3 Position);

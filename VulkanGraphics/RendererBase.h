@@ -24,13 +24,12 @@ struct VulkanRendererSettings
 	bool operator!=(const VulkanRendererSettings& OtherSettings)
 	{
 		return (ShowMeshLines != OtherSettings.ShowMeshLines ||
-				ShowSkyBox != OtherSettings.ShowSkyBox ||
-				ShowDebugLightMeshs != OtherSettings.ShowDebugLightMeshs ||
-				TwoDMode != OtherSettings.TwoDMode);
+			ShowSkyBox != OtherSettings.ShowSkyBox ||
+			ShowDebugLightMeshs != OtherSettings.ShowDebugLightMeshs ||
+			TwoDMode != OtherSettings.TwoDMode);
 	}
 };
-
-class VulkanStarter
+class RendererBase
 {
 private:
 protected:
@@ -84,8 +83,8 @@ protected:
 
 	void Destory();
 public:
-	VulkanStarter();
-	VulkanStarter(GLFWwindow* window);
-	~VulkanStarter();
+	RendererBase();
+	RendererBase(GLFWwindow* window);
+	~RendererBase();
 };
 

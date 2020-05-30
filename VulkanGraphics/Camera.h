@@ -51,4 +51,3 @@ public:
 
 	Camera& operator=(const Camera& rhs);
 };
-

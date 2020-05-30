@@ -14,11 +14,11 @@ struct CubeMapLayout
 class CubeMapTexture : public Texture
 {
 private:
-	void SetUpCubeMapImage(VulkanRenderer& Renderer, CubeMapLayout CubeMapFiles);
-	void CreateTextureSampler(VulkanRenderer& Renderer);
+	void SetUpCubeMapImage(Renderer& renderer, CubeMapLayout CubeMapFiles);
+	void CreateTextureSampler(Renderer& renderer);
 public:
 	CubeMapTexture();
-	CubeMapTexture(VulkanRenderer& Renderer, CubeMapLayout CubeMapFiles);
+	CubeMapTexture(Renderer& renderer, CubeMapLayout CubeMapFiles);
 	~CubeMapTexture();
 };
 

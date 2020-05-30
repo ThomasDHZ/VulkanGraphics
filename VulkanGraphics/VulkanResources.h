@@ -4,27 +4,27 @@
 class VulkanResources
 {
 public:
-	static VkInstance* GetInstance(VulkanRenderer& renderer);
-	static VkDevice* GetDevice(VulkanRenderer& renderer);
-	static VkPhysicalDevice* GetPhysicalDevice(VulkanRenderer& renderer);
-	static VkSurfaceKHR* GetSurface(VulkanRenderer& renderer);
-	static VkQueue* GetGraphicsQueue(VulkanRenderer& renderer);
-	static VkQueue* GetPresentQueue(VulkanRenderer& renderer);
-	static VkRenderPass* GetRenderPass(VulkanRenderer& renderer);
-	static VkDescriptorSetLayout* GetDescriptorSetLayout(VulkanRenderer& renderer);
-	static VkCommandPool* GetSecondaryCommandPool(VulkanRenderer& renderer);
-	static VkCommandBuffer* GetSecondaryCommandBuffer(VulkanRenderer& renderer, unsigned int frame);
-	static VkPipeline* GetShaderPipeline(VulkanRenderer& renderer);
-	static VkPipelineLayout* GetShaderPipelineLayout(VulkanRenderer& renderer);
-	static VkDescriptorSetLayout* GetMeshViewDescriptorSetLayout(VulkanRenderer& renderer);
-	static DebugLightRenderingPipeline GetDebugLightPipeline(VulkanRenderer& renderer);
-	static VkPipeline* GetMeshViewShaderPipeline(VulkanRenderer& renderer);
-	static VkPipelineLayout* GetMeshViewShaderPipelineLayout(VulkanRenderer& renderer);
-	static VkDescriptorSetLayout* GetSkyboxDescriptorSetLayout(VulkanRenderer& renderer);
-	static VkPipeline* GetSkyboxShaderPipeline(VulkanRenderer& renderer);
-	static VkPipelineLayout* GetSkyboxShaderPipelineLayout(VulkanRenderer& renderer);
-	static VkExtent2D* GetSwapChainResolution(VulkanRenderer& renderer);
-	static uint32_t GetSwapChainMinImageCount(VulkanRenderer& renderer);
-	static uint32_t GetSwapChainImageCount(VulkanRenderer& renderer);
+	static VkInstance* GetInstance(Renderer& renderer);
+	static VkDevice* GetDevice(Renderer& renderer);
+	static VkPhysicalDevice* GetPhysicalDevice(Renderer& renderer);
+	static VkSurfaceKHR* GetSurface(Renderer& renderer);
+	static VkQueue* GetGraphicsQueue(Renderer& renderer);
+	static VkQueue* GetPresentQueue(Renderer& renderer);
+	static VkRenderPass* GetRenderPass(Renderer& renderer);
+	static VkDescriptorSetLayout* GetDescriptorSetLayout(Renderer& renderer);
+	static VkCommandPool* GetSecondaryCommandPool(Renderer& renderer);
+	static VkCommandBuffer* GetSecondaryCommandBuffer(Renderer& renderer, unsigned int frame);
+	static VkPipeline* GetShaderPipeline(Renderer& renderer);
+	static VkPipelineLayout* GetShaderPipelineLayout(Renderer& renderer);
+	static VkDescriptorSetLayout* GetMeshViewDescriptorSetLayout(Renderer& renderer);
+	static DebugLightRenderingPipeline GetDebugLightPipeline(Renderer& renderer);
+	static VkPipeline* GetMeshViewShaderPipeline(Renderer& renderer);
+	static VkPipelineLayout* GetMeshViewShaderPipelineLayout(Renderer& renderer);
+	static VkDescriptorSetLayout* GetSkyboxDescriptorSetLayout(Renderer& renderer);
+	static VkPipeline* GetSkyboxShaderPipeline(Renderer& renderer);
+	static VkPipelineLayout* GetSkyboxShaderPipelineLayout(Renderer& renderer);
+	static VkExtent2D* GetSwapChainResolution(Renderer& renderer);
+	static uint32_t GetSwapChainMinImageCount(Renderer& renderer);
+	static uint32_t GetSwapChainImageCount(Renderer& renderer);
 };
 

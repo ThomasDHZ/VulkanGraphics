@@ -1,7 +1,7 @@
 #pragma once
 #include "Camera.h"
 #include <GLFW\glfw3.h>
-#include "VulkanStarter.h"
+#include "RendererBase.h"
 
 class Mouse
 {
@@ -15,4 +15,3 @@ private:
 public:
 	void Update(GLFWwindow* window, Camera& camera, VulkanRendererSettings settings);
 };
-

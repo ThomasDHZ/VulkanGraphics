@@ -3,13 +3,10 @@
 
 #include <iostream>
 
-#include "VulkanRenderer.h"
 #include "Texture2D.h"
 #include "Mesh.h"
 #include "VulkanWindow.h"
 #include "VulkanResources.h"
-#include "GUIDebugger.h"
-#include "Camera.h"
 #include "ModelLoader.h"
 #include "Model.h"
 #include "Skybox.h"
@@ -22,6 +19,7 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include <map>
+#include "Level2D.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -30,49 +28,19 @@ const bool enableValidationLayers = true;
 #endif
 
 
-
-const std::vector<Vertex> vertices = 
-{
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {.06666f * 14, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {.06666f * 14, 0.5f}}
-};
-
-const std::vector<uint16_t> indices = 
-{
-	  0, 1, 2, 2, 3, 0
-};
-
-enum TileMap
-{
-	Tile1,
-	Tile2
-};
-
 class VulkanGraphics2D : VulkanResources
 {
 private:
-	std::map<TileMap, int> MapTile;
+
+	std::map<Level, TileSet> MapTile;
+	Level2D level;
+
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
-	VulkanRenderer renderer;
+	Renderer renderer;
 
 	Keyboard keyboard;
 	Mouse mouse;
-
-	Camera camera;
-
-	SkyBox Skybox;
-	CubeMapTexture SkyboxTexture;
-
-	glm::vec3 LightPos;
-
-	LightManager lightManager;
-
-	Texture2D texture;
-	Texture2D texture2;
-	std::vector<Mesh> MeshList;
 
 	GUIDebugger guiDebugger;
 

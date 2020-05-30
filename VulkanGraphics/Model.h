@@ -10,7 +10,7 @@ private:
 
 public:
 	Model();
-	Model(VulkanRenderer& Renderer, const std::vector<SubMesh>& SubMeshList);
+	Model(Renderer& renderer, const std::vector<SubMesh>& SubMeshList);
 	~Model();
 
 	std::string ModelName;
@@ -18,9 +18,9 @@ public:
 	glm::vec3 ModelRotate = glm::vec3(0.0f, 0.0f, 1.0f);
 	glm::vec3 ModelScale = glm::vec3(1.0f);
 
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix ubo2, MeshProp viewpos);
-	void Draw(VulkanRenderer& Renderer, int currentImage);
-	void Destroy(VulkanRenderer& Renderer);
+	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix ubo2, MeshProp viewpos);
+	void Draw(Renderer& renderer, int currentImage);
+	void Destroy(Renderer& renderer);
 
 	std::vector<Mesh> GetModelMeshList()
 	{

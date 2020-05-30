@@ -38,9 +38,9 @@ class Mesh : public BaseMesh
 private:
 
 protected:
-	void CreateUniformBuffers(VulkanRenderer& Renderer);
-	void CreateDescriptorPool(VulkanRenderer& Renderer);
-	void CreateDescriptorSets(VulkanRenderer& Renderer);
+	void CreateUniformBuffers(Renderer& renderer);
+	void CreateDescriptorPool(Renderer& renderer);
+	void CreateDescriptorSets(Renderer& renderer);
 
 public:
 
@@ -54,12 +54,12 @@ public:
 	glm::vec3 MeshScale = glm::vec3(1.0f);
 
 	Mesh();
-	Mesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
-	Mesh(VulkanRenderer& Renderer, const std::vector<Texture2D>& textureList);
+	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
+	Mesh(Renderer& renderer, const std::vector<Texture2D>& textureList);
 	~Mesh();
 
-	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, MeshProp viewpos);
-	void Destroy(VulkanRenderer& Renderer);
+	void Draw(Renderer& renderer, int currentFrame);
+	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos);
+	void Destroy(Renderer& renderer);
 };
 

@@ -6,28 +6,28 @@ BaseMesh::BaseMesh()
 {
 }
 
-BaseMesh::BaseMesh(VulkanRenderer& Renderer)
+BaseMesh::BaseMesh(Renderer& renderer)
 {
 }
 
-BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices)
+BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices)
 {
 	VertexSize = vertices.size();
 	IndiceSize = 0;
 
 	VertexList = vertices;
 
-	CreateVertexBuffer(Renderer);
+	CreateVertexBuffer(renderer);
 }
 
-BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Texture2D>& textureList)
+BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Texture2D>& textureList)
 {
 	IndiceSize = 0;
 
 	TextureList = textureList;
 }
 
-BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
+BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
 {
 	VertexSize = vertices.size();
 	IndiceSize = indices.size();
@@ -35,11 +35,11 @@ BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices
 	VertexList = vertices;
 	IndexList = indices;
 
-	CreateVertexBuffer(Renderer);
-	CreateIndiceBuffer(Renderer);
+	CreateVertexBuffer(renderer);
+	CreateIndiceBuffer(renderer);
 }
 
-BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<Texture2D>& textureList)
+BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<Texture2D>& textureList)
 {
 	VertexSize = vertices.size();
 	IndiceSize = 0;
@@ -47,10 +47,10 @@ BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices
 	VertexList = vertices;
 	TextureList = textureList;
 
-	CreateVertexBuffer(Renderer);
+	CreateVertexBuffer(renderer);
 }
 
-BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList)
+BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList)
 {
 	VertexSize = vertices.size();
 	IndiceSize = indices.size();
@@ -59,36 +59,36 @@ BaseMesh::BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices
 	IndexList = indices;
 	TextureList = textureList;
 
-	CreateVertexBuffer(Renderer);
-	CreateIndiceBuffer(Renderer);
+	CreateVertexBuffer(renderer);
+	CreateIndiceBuffer(renderer);
 }
 
 BaseMesh::~BaseMesh()
 {
 }
 
-void BaseMesh::CreateVertexBuffer(VulkanRenderer& Renderer)
+void BaseMesh::CreateVertexBuffer(Renderer& renderer)
 {
 	VkDeviceSize bufferSize = sizeof(VertexList[0]) * VertexList.size();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
+	vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
 	memcpy(data, VertexList.data(), (size_t)bufferSize);
-	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
 
-	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	VulkanBufferManager::CopyBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), stagingBuffer, vertexBuffer, bufferSize, *GetSecondaryCommandPool(Renderer), *GetGraphicsQueue(Renderer));
+	VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, vertexBuffer, bufferSize, *GetSecondaryCommandPool(renderer), *GetGraphicsQueue(renderer));
 
-	vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
-	vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
 }
 
-void BaseMesh::CreateIndiceBuffer(VulkanRenderer& Renderer)
+void BaseMesh::CreateIndiceBuffer(Renderer& renderer)
 {
 	if (IndiceSize != 0)
 	{
@@ -96,23 +96,23 @@ void BaseMesh::CreateIndiceBuffer(VulkanRenderer& Renderer)
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
-		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+		VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 		void* data;
-		vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
+		vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, IndexList.data(), (size_t)bufferSize);
-		vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
+		vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
 
-		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+		VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-		VulkanBufferManager::CopyBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), stagingBuffer, indexBuffer, bufferSize, *GetSecondaryCommandPool(Renderer), *GetGraphicsQueue(Renderer));
+		VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, indexBuffer, bufferSize, *GetSecondaryCommandPool(renderer), *GetGraphicsQueue(renderer));
 
-		vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
-		vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
+		vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
+		vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
 	}
 }
 
-void BaseMesh::CreateDescriptorPool(VulkanRenderer& Renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)
+void BaseMesh::CreateDescriptorPool(Renderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)
 {
 	std::vector<VkDescriptorPoolSize> DescriptorPoolList = {};
 
@@ -120,7 +120,7 @@ void BaseMesh::CreateDescriptorPool(VulkanRenderer& Renderer, std::vector<Descri
 	{
 		VkDescriptorPoolSize DescriptorPoolBinding = {};
 		DescriptorPoolBinding.type = DescriptorPool.DescriptorType;
-		DescriptorPoolBinding.descriptorCount = static_cast<uint32_t>(GetSwapChainImageCount(Renderer));
+		DescriptorPoolBinding.descriptorCount = static_cast<uint32_t>(GetSwapChainImageCount(renderer));
 		DescriptorPoolList.emplace_back(DescriptorPoolBinding);
 	}
 
@@ -128,29 +128,29 @@ void BaseMesh::CreateDescriptorPool(VulkanRenderer& Renderer, std::vector<Descri
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.poolSizeCount = static_cast<uint32_t>(DescriptorPoolList.size());
 	poolInfo.pPoolSizes = DescriptorPoolList.data();
-	poolInfo.maxSets = static_cast<uint32_t>(GetSwapChainImageCount(Renderer));
+	poolInfo.maxSets = static_cast<uint32_t>(GetSwapChainImageCount(renderer));
 
-	if (vkCreateDescriptorPool(*GetDevice(Renderer), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+	if (vkCreateDescriptorPool(*GetDevice(renderer), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
 }
 
-void BaseMesh::CreateDescriptorSets(VulkanRenderer& Renderer, VkDescriptorSetLayout layout)
+void BaseMesh::CreateDescriptorSets(Renderer& renderer, VkDescriptorSetLayout layout)
 {
-	std::vector<VkDescriptorSetLayout> layouts(GetSwapChainImageCount(Renderer), layout);
+	std::vector<VkDescriptorSetLayout> layouts(GetSwapChainImageCount(renderer), layout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	allocInfo.descriptorPool = descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(GetSwapChainImageCount(Renderer));
+	allocInfo.descriptorSetCount = static_cast<uint32_t>(GetSwapChainImageCount(renderer));
 	allocInfo.pSetLayouts = layouts.data();
 
-	descriptorSets.resize(GetSwapChainImageCount(Renderer));
-	if (vkAllocateDescriptorSets(*GetDevice(Renderer), &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+	descriptorSets.resize(GetSwapChainImageCount(renderer));
+	if (vkAllocateDescriptorSets(*GetDevice(renderer), &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
 }
 
-void BaseMesh::CreateDescriptorSetsData(VulkanRenderer& Renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList)
+void BaseMesh::CreateDescriptorSetsData(Renderer& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList)
 {
 	std::vector<VkWriteDescriptorSet>  WriteDescriptorInfo = {};
 
@@ -174,16 +174,16 @@ void BaseMesh::CreateDescriptorSetsData(VulkanRenderer& Renderer, std::vector<Wr
 		WriteDescriptorInfo.emplace_back(DescriptorSet);
 	}
 
-	vkUpdateDescriptorSets(*GetDevice(Renderer), static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
+	vkUpdateDescriptorSets(*GetDevice(renderer), static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
-void BaseMesh::Destory(VulkanRenderer& Renderer)
+void BaseMesh::Destory(Renderer& renderer)
 {
 	if (VertexSize != 0)
 	{
-		vkDestroyDescriptorPool(*GetDevice(Renderer), descriptorPool, nullptr);
-		vkDestroyBuffer(*GetDevice(Renderer), vertexBuffer, nullptr);
-		vkFreeMemory(*GetDevice(Renderer), vertexBufferMemory, nullptr);
+		vkDestroyDescriptorPool(*GetDevice(renderer), descriptorPool, nullptr);
+		vkDestroyBuffer(*GetDevice(renderer), vertexBuffer, nullptr);
+		vkFreeMemory(*GetDevice(renderer), vertexBufferMemory, nullptr);
 
 		descriptorPool = VK_NULL_HANDLE;
 		vertexBuffer = VK_NULL_HANDLE;
@@ -192,8 +192,8 @@ void BaseMesh::Destory(VulkanRenderer& Renderer)
 
 	if (IndiceSize != 0)
 	{
-		vkDestroyBuffer(*GetDevice(Renderer), indexBuffer, nullptr);
-		vkFreeMemory(*GetDevice(Renderer), indexBufferMemory, nullptr);
+		vkDestroyBuffer(*GetDevice(renderer), indexBuffer, nullptr);
+		vkFreeMemory(*GetDevice(renderer), indexBufferMemory, nullptr);
 
 		indexBuffer = VK_NULL_HANDLE;
 		indexBufferMemory = VK_NULL_HANDLE;

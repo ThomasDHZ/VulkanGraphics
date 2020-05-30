@@ -82,7 +82,7 @@ class VulkanGraphics : VulkanResources
 private:
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
-	VulkanRenderer renderer;
+	Renderer renderer;
 	
 	Keyboard keyboard;
 	Mouse mouse;

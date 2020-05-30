@@ -11,7 +11,7 @@
 VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
 	Window = VulkanWindow(Width, Height, AppName);
-	renderer = VulkanRenderer(Window.GetWindowPtr());
+	renderer = Renderer(Window.GetWindowPtr());
 	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 	texture = Texture2D(renderer, "texture/container2.png");
@@ -297,8 +297,8 @@ void VulkanGraphics::MainLoop()
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
-		mouse.Update(Window.GetWindowPtr(), camera);
-		keyboard.Update(Window.GetWindowPtr(), camera);
+		mouse.Update(Window.GetWindowPtr(), camera, renderer.Settings);
+		keyboard.Update(Window.GetWindowPtr(), camera, renderer.Settings);
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();

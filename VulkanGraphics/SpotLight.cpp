@@ -4,7 +4,7 @@ SpotLight::SpotLight() : Light<SpotLightBuffer>()
 {
 }
 
-SpotLight::SpotLight(VulkanRenderer& Renderer, SpotLightBuffer settings) : Light<SpotLightBuffer>(Renderer, settings)
+SpotLight::SpotLight(Renderer& renderer, SpotLightBuffer settings) : Light<SpotLightBuffer>(renderer, settings)
 {
 }
 

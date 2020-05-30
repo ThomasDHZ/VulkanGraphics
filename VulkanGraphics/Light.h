@@ -54,20 +54,20 @@ class Light : VulkanResources
 private:
 	UniformBuffer LightBuffer;
 
-	void CreateUniformBuffers(VulkanRenderer& Renderer)
+	void CreateUniformBuffers(Renderer& renderer)
 	{
-		LightBuffer = UniformBuffer(Renderer, sizeof(T));
-		DebugMesh = DebugLightMesh(Renderer, vertices23);
+		LightBuffer = UniformBuffer(renderer, sizeof(T));
+		DebugMesh = DebugLightMesh(renderer, vertices23);
 	}
 
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize)
+	void UpdateUniformBuffer(Renderer& renderer, VkDeviceMemory UniformBufferMemory, void* UniformObjectData, VkDeviceSize UniformSize)
 	{
 		void* UniformData;
-		vkMapMemory(*GetDevice(Renderer), UniformBufferMemory, 0, UniformSize, 0, &UniformData);
+		vkMapMemory(*GetDevice(renderer), UniformBufferMemory, 0, UniformSize, 0, &UniformData);
 		memcpy(UniformData, UniformObjectData, UniformSize);
-		vkUnmapMemory(*GetDevice(Renderer), UniformBufferMemory);
+		vkUnmapMemory(*GetDevice(renderer), UniformBufferMemory);
 
-		DebugMesh = DebugLightMesh(Renderer, vertices23);
+		DebugMesh = DebugLightMesh(renderer, vertices23);
 	}
 
 protected:
@@ -80,35 +80,35 @@ public:
 	{
 	}
 
-	Light(VulkanRenderer& Renderer, T settings)
+	Light(Renderer& renderer, T settings)
 	{
 		LightSettings = settings;
-		CreateUniformBuffers(Renderer);
+		CreateUniformBuffers(renderer);
 	}
 
 	~Light()
 	{
 	}
 
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, PointLightBuffer PointLightInfo, int currentImage)
+	void UpdateUniformBuffer(Renderer& renderer, PointLightBuffer PointLightInfo, int currentImage)
 	{
-		LightBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&PointLightInfo), Renderer.DrawFrame);
+		LightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&PointLightInfo), renderer.DrawFrame);
 	}
 
-	void UpdateDebugMesh(VulkanRenderer& Renderer, PositionMatrix ubo2)
+	void UpdateDebugMesh(Renderer& renderer, PositionMatrix ubo2)
 	{
-		DebugMesh.UpdateUniformBuffer(Renderer, ubo2);
+		DebugMesh.UpdateUniformBuffer(renderer, ubo2);
 	}
 
-	void DrawDebugMesh(VulkanRenderer& Renderer, uint32_t DrawFrame)
+	void DrawDebugMesh(Renderer& renderer, uint32_t DrawFrame)
 	{
-		DebugMesh.Draw(Renderer, DrawFrame);
+		DebugMesh.Draw(renderer, DrawFrame);
 	}
 
-	void Destroy(VulkanRenderer& Renderer)
+	void Destroy(Renderer& renderer)
 	{
-		DebugMesh.Destroy(Renderer);
-		LightBuffer.Destroy(Renderer);
+		DebugMesh.Destroy(renderer);
+		LightBuffer.Destroy(renderer);
 	}
 };
 

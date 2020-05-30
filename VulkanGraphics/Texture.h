@@ -17,26 +17,26 @@ protected:
 	std::string FileName;
 	TextureType TypeOfTexture;
 
-	void TransitionImageLayout(VulkanRenderer& Renderer, VkImageLayout oldLayout, VkImageLayout newLayout);
-	void CopyBufferToImage(VulkanRenderer& Renderer, VkBuffer buffer);
-	void CreateImage(VulkanRenderer& Renderer);
+	void TransitionImageLayout(Renderer& renderer, VkImageLayout oldLayout, VkImageLayout newLayout);
+	void CopyBufferToImage(Renderer& renderer, VkBuffer buffer);
+	void CreateImage(Renderer& renderer);
 
 public:
 	int Width;
 	int Height;
 
-	VkImage textureImage;
-	VkDeviceMemory textureImageMemory;
-	VkImageView textureImageView;
-	VkSampler textureSampler;
+	VkImage textureImage = VK_NULL_HANDLE;
+	VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;
+	VkImageView textureImageView = VK_NULL_HANDLE;
+	VkSampler textureSampler = VK_NULL_HANDLE;
 
 	Texture();
-	Texture(VulkanRenderer& Renderer, TextureType textureType);
+	Texture(Renderer& Renderer, TextureType textureType);
 	~Texture();
 
-	void CreateImageView(VulkanRenderer& Renderer);
-	void CreateTextureSampler(VulkanRenderer& Renderer, VkSamplerCreateInfo SamplerInfo);
-	void Destroy(VulkanRenderer& Renderer);
+	void CreateImageView(Renderer& renderer);
+	void CreateTextureSampler(Renderer& renderer, VkSamplerCreateInfo SamplerInfo);
+	void Destroy(Renderer& renderer);
 
 	std::string GetTextureName() { return FileName; }
 };

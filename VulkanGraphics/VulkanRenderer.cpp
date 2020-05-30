@@ -1,11 +1,11 @@
 #include "VulkanRenderer.h"
 #include <set>
 
-VulkanRenderer::VulkanRenderer() : VulkanStarter()
+Renderer::Renderer() : RendererBase()
 {
 }
 
-VulkanRenderer::VulkanRenderer(GLFWwindow* window) : VulkanStarter(window)
+Renderer::Renderer(GLFWwindow* window) : RendererBase(window)
 {
 	SwapChain = VulkanSwapChain(window, Device, PhysicalDevice, Surface);
 	InitializeRenderPass();
@@ -22,11 +22,11 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window) : VulkanStarter(window)
 	framebuffer = FrameBuffer(Device, PhysicalDevice, MainCommandPool, GraphicsQueue, SwapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
 }
 
-VulkanRenderer::~VulkanRenderer()
+Renderer::~Renderer()
 {
 }
 
-void VulkanRenderer::InitializeRenderPass()
+void Renderer::InitializeRenderPass()
 {
 	std::vector<VkAttachmentDescription> RenderPassAttachmentList;
 	std::vector<VkSubpassDescription> SubpassDescriptionList;
@@ -138,7 +138,7 @@ void VulkanRenderer::InitializeRenderPass()
 	}
 }
 
-void VulkanRenderer::InitializeFramebuffers()
+void Renderer::InitializeFramebuffers()
 {
 	ColorAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkColorAttachment, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
 	DepthAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkDepthAttachemnt, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
@@ -168,7 +168,7 @@ void VulkanRenderer::InitializeFramebuffers()
 	}
 }
 
-void VulkanRenderer::InitializeCommandBuffers()
+void Renderer::InitializeCommandBuffers()
 {
 	MainCommandBuffer.resize(SwapChain.GetSwapChainImageCount());
 	SecondaryCommandBuffers.resize(SwapChain.GetSwapChainImageCount());
@@ -207,7 +207,7 @@ void VulkanRenderer::InitializeCommandBuffers()
 	}
 }
 
-void VulkanRenderer::InitializeSyncObjects()
+void Renderer::InitializeSyncObjects()
 {
 	vulkanSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -229,7 +229,7 @@ void VulkanRenderer::InitializeSyncObjects()
 	}
 }
 
-void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
+void Renderer::UpdateSwapChain(GLFWwindow* window)
 {
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
@@ -278,7 +278,7 @@ void VulkanRenderer::UpdateSwapChain(GLFWwindow* window)
 	UpdateCommandBuffers = true;
 }
 
-void VulkanRenderer::StartFrame(GLFWwindow* window)
+void Renderer::StartFrame(GLFWwindow* window)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -292,7 +292,7 @@ void VulkanRenderer::StartFrame(GLFWwindow* window)
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 }
-void VulkanRenderer::EndFrame(GLFWwindow* window)
+void Renderer::EndFrame(GLFWwindow* window)
 {
 	std::array<VkClearValue, 3> clearValues = {};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -368,7 +368,7 @@ void VulkanRenderer::EndFrame(GLFWwindow* window)
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void VulkanRenderer::DestoryVulkan()
+void Renderer::DestoryVulkan()
 {
 	ColorAttachment.DeleteInputAttachment(Device);
 	DepthAttachment.DeleteInputAttachment(Device);
@@ -408,5 +408,5 @@ void VulkanRenderer::DestoryVulkan()
 	SecondaryCommandPool = VK_NULL_HANDLE;
 	RenderPass = VK_NULL_HANDLE;
 
-	VulkanStarter::Destory();
+	RendererBase::Destory();
 }

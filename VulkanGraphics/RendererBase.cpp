@@ -1,11 +1,11 @@
-#include "VulkanStarter.h"
+#include "RendererBase.h"
 #include <set>
 
-VulkanStarter::VulkanStarter()
+RendererBase::RendererBase()
 {
 }
 
-VulkanStarter::VulkanStarter(GLFWwindow* window)
+RendererBase::RendererBase(GLFWwindow* window)
 {
 	bool DebuggerAvalible = false;
 	uint32_t LayerCount;
@@ -129,11 +129,11 @@ VulkanStarter::VulkanStarter(GLFWwindow* window)
 	vkGetDeviceQueue(Device, PresentFamily, 0, &PresentQueue);
 }
 
-VulkanStarter::~VulkanStarter()
+RendererBase::~RendererBase()
 {
 }
 
-VkFormat VulkanStarter::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
+VkFormat RendererBase::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
 	for (VkFormat format : candidates) {
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(PhysicalDevice, format, &props);
@@ -149,7 +149,7 @@ VkFormat VulkanStarter::findSupportedFormat(const std::vector<VkFormat>& candida
 	throw std::runtime_error("failed to find supported format!");
 }
 
-VkFormat VulkanStarter::findDepthFormat()
+VkFormat RendererBase::findDepthFormat()
 {
 	return findSupportedFormat(
 		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
@@ -158,7 +158,7 @@ VkFormat VulkanStarter::findDepthFormat()
 	);
 }
 
-std::vector<const char*> VulkanStarter::getRequiredExtensions() {
+std::vector<const char*> RendererBase::getRequiredExtensions() {
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -169,7 +169,7 @@ std::vector<const char*> VulkanStarter::getRequiredExtensions() {
 	return extensions;
 }
 
-bool VulkanStarter::isDeviceSuitable(VkPhysicalDevice GPUDevice)
+bool RendererBase::isDeviceSuitable(VkPhysicalDevice GPUDevice)
 {
 	FindQueueFamilies(GPUDevice, Surface);
 
@@ -207,7 +207,7 @@ bool VulkanStarter::isDeviceSuitable(VkPhysicalDevice GPUDevice)
 		   supportedFeatures.samplerAnisotropy;
 }
 
-bool VulkanStarter::checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice)
+bool RendererBase::checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice)
 {
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(GPUDevice, nullptr, &extensionCount, nullptr);
@@ -224,7 +224,7 @@ bool VulkanStarter::checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice)
 	return requiredExtensions.empty();
 }
 
-void VulkanStarter::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface)
+void RendererBase::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface)
 {
 	uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, &queueFamilyCount, nullptr);
@@ -255,7 +255,7 @@ void VulkanStarter::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurface
 	}
 }
 
-void VulkanStarter::Destory()
+void RendererBase::Destory()
 {
 	Device = VK_NULL_HANDLE;
 

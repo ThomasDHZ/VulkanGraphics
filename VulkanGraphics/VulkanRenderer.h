@@ -1,5 +1,5 @@
 #pragma once
-#include "VulkanStarter.h"
+#include "RendererBase.h"
 #include "VulkanDebugger.h"
 #include "VulkanSwapChain.h"
 #include "ForwardRenderingPipeline.h"
@@ -10,7 +10,7 @@
 #include "FrameBufferRenderingPipeline.h"
 #include "DebugLightRenderingPipeline.h"
 
-class VulkanRenderer : public VulkanStarter
+class Renderer : public RendererBase
 {
 	friend class VulkanGraphics;
 	friend class VulkanGraphics2D;
@@ -56,9 +56,9 @@ protected:
 
 public:
 
-	VulkanRenderer();
-	VulkanRenderer(GLFWwindow* window);
-	~VulkanRenderer();
+	Renderer();
+	Renderer(GLFWwindow* window);
+	~Renderer();
 
 	VulkanRendererSettings Settings;
 	uint32_t DrawFrame = 0;

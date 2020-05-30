@@ -5,40 +5,40 @@ UniformBuffer::UniformBuffer()
 {
 }
 
-UniformBuffer::UniformBuffer(VulkanRenderer& Renderer, VkDeviceSize bufferSize)
+UniformBuffer::UniformBuffer(Renderer& renderer, VkDeviceSize bufferSize)
 {
 	BufferSize = bufferSize;
-	CreateUniformBuffers(Renderer);
+	CreateUniformBuffers(renderer);
 }
 
 UniformBuffer::~UniformBuffer()
 {
 }
 
-void UniformBuffer::CreateUniformBuffers(VulkanRenderer& Renderer)
+void UniformBuffer::CreateUniformBuffers(Renderer& renderer)
 {
-	UniformBuffers.resize(GetSwapChainImageCount(Renderer));
-	UniformBuffersMemory.resize(GetSwapChainImageCount(Renderer));
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	UniformBuffers.resize(GetSwapChainImageCount(renderer));
+	UniformBuffersMemory.resize(GetSwapChainImageCount(renderer));
+	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
-		VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), BufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, UniformBuffers[i], UniformBuffersMemory[i]);
+		VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), BufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, UniformBuffers[i], UniformBuffersMemory[i]);
 	}
 }
 
-void UniformBuffer::UpdateUniformBuffer(VulkanRenderer& Renderer, void* UniformObjectData)
+void UniformBuffer::UpdateUniformBuffer(Renderer& renderer, void* UniformObjectData)
 {
 	void* UniformData;
-	vkMapMemory(*GetDevice(Renderer), UniformBuffersMemory[Renderer.DrawFrame], 0, BufferSize, 0, &UniformData);
+	vkMapMemory(*GetDevice(renderer), UniformBuffersMemory[renderer.DrawFrame], 0, BufferSize, 0, &UniformData);
 	memcpy(UniformData, UniformObjectData, BufferSize);
-	vkUnmapMemory(*GetDevice(Renderer), UniformBuffersMemory[Renderer.DrawFrame]);
+	vkUnmapMemory(*GetDevice(renderer), UniformBuffersMemory[renderer.DrawFrame]);
 }
 
-void UniformBuffer::Destroy(VulkanRenderer& Renderer)
+void UniformBuffer::Destroy(Renderer& renderer)
 {
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
-		vkDestroyBuffer(*GetDevice(Renderer), UniformBuffers[i], nullptr);
-		vkFreeMemory(*GetDevice(Renderer), UniformBuffersMemory[i], nullptr);
+		vkDestroyBuffer(*GetDevice(renderer), UniformBuffers[i], nullptr);
+		vkFreeMemory(*GetDevice(renderer), UniformBuffersMemory[i], nullptr);
 
 		UniformBuffers[i] = VK_NULL_HANDLE;
 		UniformBuffersMemory[i] = VK_NULL_HANDLE;

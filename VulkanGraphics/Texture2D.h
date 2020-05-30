@@ -23,19 +23,19 @@ class Texture2D : public Texture
 private:
 	VkDeviceSize imageSize;
 
-	void CreateTextureSampler(VulkanRenderer& Renderer);
+	void CreateTextureSampler(Renderer& renderer);
 public:
 	std::vector<Pixel> PixelImage;
 
 	Texture2D();
-	Texture2D(VulkanRenderer& Renderer, std::string TexturePath);
-	Texture2D(VulkanRenderer& Renderer, int width, int height, Pixel TextureColor);
+	Texture2D(Renderer& renderer, std::string TexturePath);
+	Texture2D(Renderer& renderer, int width, int height, Pixel TextureColor);
 	~Texture2D();
 
-	void SetPixel(VulkanRenderer& Renderer, glm::ivec2 pos, Pixel pixel);
-	void CopyRange(VulkanRenderer& Renderer, const Texture2D& texture, int CopyWidth, int CopyHeight);
-	void UpdateTexture(VulkanRenderer& Renderer, Pixel pixel);
-	void UpdateTexture(VulkanRenderer& Renderer);
+	void SetPixel(Renderer& renderer, glm::ivec2 pos, Pixel pixel);
+	void CopyRange(Renderer& renderer, const Texture2D& texture, int CopyWidth, int CopyHeight);
+	void UpdateTexture(Renderer& renderer, Pixel pixel);
+	void UpdateTexture(Renderer& renderer);
 
 	Pixel GetPixel(glm::ivec2 pos);
 	void* GetPixelPtr(glm::ivec2 pos);

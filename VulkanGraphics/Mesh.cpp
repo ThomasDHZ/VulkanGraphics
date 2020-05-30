@@ -4,14 +4,14 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(Renderer, vertexList, indexList, textureList)
+Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
 {
-	CreateUniformBuffers(Renderer);
-	CreateDescriptorPool(Renderer);
-	CreateDescriptorSets(Renderer);
+	CreateUniformBuffers(renderer);
+	CreateDescriptorPool(renderer);
+	CreateDescriptorSets(renderer);
 }
 
-Mesh::Mesh(VulkanRenderer& Renderer, const std::vector<Texture2D>& textureList) : BaseMesh(Renderer, textureList)
+Mesh::Mesh(Renderer& renderer, const std::vector<Texture2D>& textureList) : BaseMesh(renderer, textureList)
 {
 
 }
@@ -20,13 +20,13 @@ Mesh::~Mesh()
 {
 }
 
-void Mesh::CreateUniformBuffers(VulkanRenderer& Renderer)
+void Mesh::CreateUniformBuffers(Renderer& renderer)
 {
-	PositionMatrixBuffer = UniformBuffer(Renderer, sizeof(PositionMatrix));
-	ViewPosBuffer = UniformBuffer(Renderer, sizeof(MeshProp));
+	PositionMatrixBuffer = UniformBuffer(renderer, sizeof(PositionMatrix));
+	ViewPosBuffer = UniformBuffer(renderer, sizeof(MeshProp));
 }
 
-void Mesh::CreateDescriptorPool(VulkanRenderer& Renderer)
+void Mesh::CreateDescriptorPool(Renderer& renderer)
 {
 	std::array<DescriptorPoolSizeInfo, 5>  DescriptorPoolInfo = {};
 
@@ -35,12 +35,12 @@ void Mesh::CreateDescriptorPool(VulkanRenderer& Renderer)
 	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
-	BaseMesh::CreateDescriptorPool(Renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+	BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
+void Mesh::CreateDescriptorSets(Renderer& renderer)
 {
-	BaseMesh::CreateDescriptorSets(Renderer, *GetDescriptorSetLayout(Renderer));
+	BaseMesh::CreateDescriptorSets(renderer, *GetDescriptorSetLayout(renderer));
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	VkDescriptorImageInfo SpecularMap = {};
@@ -55,7 +55,7 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		SpecularMap.sampler = TextureList[1].textureSampler;
 	}
 
-	for (size_t i = 0; i < GetSwapChainImageCount(Renderer); i++)
+	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
 		VkDescriptorBufferInfo PositionInfo = {};
 		PositionInfo.buffer = PositionMatrixBuffer.GetUniformBuffer(i);
@@ -101,49 +101,49 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& Renderer)
 		ViewPosDescriptor.DescriptorBufferInfo = ViewPosInfo;
 		DescriptorList.emplace_back(ViewPosDescriptor);
 
-		Mesh::CreateDescriptorSetsData(Renderer, DescriptorList);
+		Mesh::CreateDescriptorSetsData(renderer, DescriptorList);
 	}
 }
 
-void Mesh::Draw(VulkanRenderer& Renderer, int currentFrame)
+void Mesh::Draw(Renderer& renderer, int currentFrame)
 {
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	if(Renderer.Settings.ShowMeshLines)
+	if(renderer.Settings.ShowMeshLines)
 	{
-		vkCmdBindPipeline(*GetSecondaryCommandBuffer(Renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetMeshViewShaderPipeline(Renderer));
+		vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetMeshViewShaderPipeline(renderer));
 	}
 	else
 	{
-		vkCmdBindPipeline(*GetSecondaryCommandBuffer(Renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(Renderer));
+		vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(renderer));
 	}
 
-	vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(Renderer, currentFrame), 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(Renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(Renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+	vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 	if(IndiceSize == 0)
 	{
-		vkCmdDraw(*GetSecondaryCommandBuffer(Renderer, currentFrame), VertexSize, 1, 0, 0);
+		vkCmdDraw(*GetSecondaryCommandBuffer(renderer, currentFrame), VertexSize, 1, 0, 0);
 	}
 	else
 	{
-		vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(Renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		vkCmdDrawIndexed(*GetSecondaryCommandBuffer(Renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
+		vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(*GetSecondaryCommandBuffer(renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
 	}
 }
 
-void Mesh::UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix, MeshProp viewpos)
+void Mesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos)
 {
-	PositionMatrixBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&positionMatrix));
-	ViewPosBuffer.UpdateUniformBuffer(Renderer, static_cast<void*>(&viewpos));
+	PositionMatrixBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&positionMatrix));
+	ViewPosBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&viewpos));
 }
 
-void Mesh::Destroy(VulkanRenderer& Renderer)
+void Mesh::Destroy(Renderer& renderer)
 {
 
-	PositionMatrixBuffer.Destroy(Renderer);
-	ViewPosBuffer.Destroy(Renderer);
+	PositionMatrixBuffer.Destroy(renderer);
+	ViewPosBuffer.Destroy(renderer);
 
-	BaseMesh::Destory(Renderer);
+	BaseMesh::Destory(renderer);
 }
 

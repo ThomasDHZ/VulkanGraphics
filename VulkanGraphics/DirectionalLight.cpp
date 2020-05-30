@@ -3,7 +3,7 @@ DirectionalLight::DirectionalLight() : Light<DirectionalLightBuffer>()
 {
 }
 
-DirectionalLight::DirectionalLight(VulkanRenderer& Renderer, DirectionalLightBuffer settings) : Light<DirectionalLightBuffer>(Renderer, settings)
+DirectionalLight::DirectionalLight(Renderer& renderer, DirectionalLightBuffer settings) : Light<DirectionalLightBuffer>(renderer, settings)
 {
 }
 

@@ -6,7 +6,7 @@ Texture2D::Texture2D() : Texture()
 {
 }
 
-Texture2D::Texture2D(VulkanRenderer& Renderer, std::string TexturePath) : Texture(Renderer, TextureType::vkTexture2D)
+Texture2D::Texture2D(Renderer& renderer, std::string TexturePath) : Texture(renderer, TextureType::vkTexture2D)
 {
 	int texChannels;
 	stbi_uc* pixels = stbi_load(TexturePath.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha);
@@ -14,28 +14,28 @@ Texture2D::Texture2D(VulkanRenderer& Renderer, std::string TexturePath) : Textur
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, pixels, static_cast<size_t>(imageSize));
-	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
 
-	CreateImage(Renderer);
+	CreateImage(renderer);
 
-	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	CopyBufferToImage(Renderer, stagingBuffer);
-	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	CopyBufferToImage(renderer, stagingBuffer);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 
-	vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
-	vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
 
-	CreateImageView(Renderer);
-	CreateTextureSampler(Renderer);
+	CreateImageView(renderer);
+	CreateTextureSampler(renderer);
 }
 
-Texture2D::Texture2D(VulkanRenderer& Renderer, int width, int height, Pixel TextureColor) : Texture(Renderer, TextureType::vkTexture2D)
+Texture2D::Texture2D(Renderer& renderer, int width, int height, Pixel TextureColor) : Texture(renderer, TextureType::vkTexture2D)
 {
 	Width = width;
 	Height = height;
@@ -45,79 +45,79 @@ Texture2D::Texture2D(VulkanRenderer& Renderer, int width, int height, Pixel Text
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, PixelImage.data(), static_cast<size_t>(imageSize));
-	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
 
-	CreateImage(Renderer);
+	CreateImage(renderer);
 
-	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	CopyBufferToImage(Renderer, stagingBuffer);
-	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	CopyBufferToImage(renderer, stagingBuffer);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
-	vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
 
-	CreateImageView(Renderer);
-	CreateTextureSampler(Renderer);
+	CreateImageView(renderer);
+	CreateTextureSampler(renderer);
 }
 
 Texture2D::~Texture2D()
 {
 }
 
-void Texture2D::UpdateTexture(VulkanRenderer& Renderer, Pixel pixel)
+void Texture2D::UpdateTexture(Renderer& renderer, Pixel pixel)
 {
 	VkDeviceSize imageSize = Width * Height * sizeof(Pixel);
 	memset(&PixelImage[0], 0xFF, imageSize);
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, PixelImage.data(), static_cast<size_t>(imageSize));
-	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
 
-	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	CopyBufferToImage(Renderer, stagingBuffer);
-	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	CopyBufferToImage(renderer, stagingBuffer);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
-	vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
 
-	vkDestroyImageView(*GetDevice(Renderer), textureImageView, nullptr);
-	CreateImageView(Renderer);
+	vkDestroyImageView(*GetDevice(renderer), textureImageView, nullptr);
+	CreateImageView(renderer);
 }
 
-void Texture2D::UpdateTexture(VulkanRenderer& Renderer)
+void Texture2D::UpdateTexture(Renderer& renderer)
 {
 	VkDeviceSize imageSize = Width * Height * sizeof(Pixel);
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(*GetDevice(Renderer), *GetPhysicalDevice(Renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(*GetDevice(Renderer), stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, &PixelImage[0], static_cast<size_t>(imageSize));
-	vkUnmapMemory(*GetDevice(Renderer), stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
 
-	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	CopyBufferToImage(Renderer, stagingBuffer);
-	TransitionImageLayout(Renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	CopyBufferToImage(renderer, stagingBuffer);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	vkDestroyBuffer(*GetDevice(Renderer), stagingBuffer, nullptr);
-	vkFreeMemory(*GetDevice(Renderer), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
 
-	vkDestroyImageView(*GetDevice(Renderer), textureImageView, nullptr);
-	CreateImageView(Renderer);
+	vkDestroyImageView(*GetDevice(renderer), textureImageView, nullptr);
+	CreateImageView(renderer);
 }
 
-void Texture2D::CreateTextureSampler(VulkanRenderer& Renderer)
+void Texture2D::CreateTextureSampler(Renderer& renderer)
 {
 	VkSamplerCreateInfo SamplerInfo = {};
 	SamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -134,17 +134,17 @@ void Texture2D::CreateTextureSampler(VulkanRenderer& Renderer)
 	SamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 	SamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
-	Texture::CreateTextureSampler(Renderer, SamplerInfo);
+	Texture::CreateTextureSampler(renderer, SamplerInfo);
 }
 
-void Texture2D::SetPixel(VulkanRenderer& Renderer, glm::ivec2 pos, Pixel pixel)
+void Texture2D::SetPixel(Renderer& renderer, glm::ivec2 pos, Pixel pixel)
 {
 	const int position = pos.x + (pos.y * Width);
 	memcpy(&PixelImage[position], &pixel, sizeof(Pixel));
-	UpdateTexture(Renderer);
+	UpdateTexture(renderer);
 }
 
-void Texture2D::CopyRange(VulkanRenderer& Renderer, const Texture2D& texture, int CopyWidth, int CopyHeight)
+void Texture2D::CopyRange(Renderer& renderer, const Texture2D& texture, int CopyWidth, int CopyHeight)
 {
 	if (Width > texture.Width)
 	{
@@ -164,7 +164,7 @@ void Texture2D::CopyRange(VulkanRenderer& Renderer, const Texture2D& texture, in
 			memcpy(&PixelImage[dstPos], &texture.PixelImage[SourcePos], sizeof(Pixel) * Width);
 		}
 	}
-	UpdateTexture(Renderer);
+	UpdateTexture(renderer);
 }
 
 Pixel Texture2D::GetPixel(glm::ivec2 pos)

@@ -8,21 +8,21 @@ class DebugLightMesh : public BaseMesh
 private:
 
 protected:
-	void CreateUniformBuffers(VulkanRenderer& Renderer);
-	void CreateDescriptorPool(VulkanRenderer& Renderer);
-	void CreateDescriptorSets(VulkanRenderer& Renderer);
+	void CreateUniformBuffers(Renderer& renderer);
+	void CreateDescriptorPool(Renderer& renderer);
+	void CreateDescriptorSets(Renderer& renderer);
 
 public:
 
 	UniformBuffer PositionMatrixBuffer;
 
 	DebugLightMesh();
-	DebugLightMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
-	DebugLightMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices);
+	DebugLightMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
+	DebugLightMesh(Renderer& renderer, const std::vector<Vertex>& vertices);
 	~DebugLightMesh();
 
-	void Draw(VulkanRenderer& Renderer, int currentFrame);
-	void UpdateUniformBuffer(VulkanRenderer& Renderer, PositionMatrix positionMatrix);
-	void Destroy(VulkanRenderer& Renderer);
+	void Draw(Renderer& renderer, int currentFrame);
+	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix);
+	void Destroy(Renderer& renderer);
 };
 

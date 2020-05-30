@@ -23,11 +23,11 @@ protected:
 	std::vector<Vertex> VertexList;
 	std::vector<uint16_t> IndexList;
 
-	void CreateVertexBuffer(VulkanRenderer& Renderer);
-	void CreateIndiceBuffer(VulkanRenderer& Renderer);
-	void CreateDescriptorPool(VulkanRenderer& Renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
-	void CreateDescriptorSets(VulkanRenderer& Renderer, VkDescriptorSetLayout layout);
-	void CreateDescriptorSetsData(VulkanRenderer& Renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
+	void CreateVertexBuffer(Renderer& renderer);
+	void CreateIndiceBuffer(Renderer& renderer);
+	void CreateDescriptorPool(Renderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
+	void CreateDescriptorSets(Renderer& renderer, VkDescriptorSetLayout layout);
+	void CreateDescriptorSetsData(Renderer& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 
 public:
 
@@ -42,14 +42,14 @@ public:
 	std::vector<VkDescriptorSet> descriptorSets;
 	VkDescriptorPool descriptorPool;
 	BaseMesh();
-	BaseMesh(VulkanRenderer& Renderer);
-	BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices);
-	BaseMesh(VulkanRenderer& Renderer, const std::vector<Texture2D>& textureList);
-	BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
-	BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<Texture2D>& textureList);
-	BaseMesh(VulkanRenderer& Renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
+	BaseMesh(Renderer& renderer);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices);
+	BaseMesh(Renderer& renderer, const std::vector<Texture2D>& textureList);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<Texture2D>& textureList);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
 	~BaseMesh();
 
-	void Destory(VulkanRenderer& Renderer);
+	void Destory(Renderer& renderer);
 };
 

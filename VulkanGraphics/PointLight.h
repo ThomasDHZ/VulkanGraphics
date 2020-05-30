@@ -6,7 +6,7 @@ class PointLight : public Light<PointLightBuffer>
 public:
 
 	PointLight();
-	PointLight(VulkanRenderer& Renderer, PointLightBuffer settings);
+	PointLight(Renderer& renderer, PointLightBuffer settings);
 	~PointLight();
 
 	void SetPosition(float Position[2]);
@@ -30,8 +30,5 @@ public:
 	float GetQuadratic();
 
 	PointLightBuffer GetSettings() { return LightSettings; }
-	float* GetLightPosPtr() { return &LightSettings.Position.x; }
-	float* GetAmbientPtr() { return &LightSettings.Ambient.x; }
-	float* GetDiffusePtr() { return &LightSettings.Diffuse.x; }
-	float* GetSpecularPtr() { return &LightSettings.Specular.x; }
+	glm::vec3* GetLightPos() { return &LightSettings.Position; }
 };
