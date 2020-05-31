@@ -14,9 +14,9 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	renderer = Renderer(Window.GetWindowPtr());
 	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-	texture = Texture2D(renderer, "texture/container2.png");
-	texture2 = Texture2D(renderer, "texture/container2_specular.png");
-	std::vector<Texture2D> textureList = { texture, texture2 };
+	TextureMaps maps;
+	maps.DiffuseMap = Texture2D(renderer, "texture/container2.png");
+	maps.NormalMap = Texture2D(renderer, "texture/container2_specular.png");
 
 	//Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -44,16 +44,16 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	Skybox = SkyBox(renderer, SkyboxTexture);
 
 	InitializeGUIDebugger();
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, textureList));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
 
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
@@ -145,7 +145,6 @@ VulkanGraphics::~VulkanGraphics()
 	//	model.Destroy(renderer);
 	//}
 	//Ambiant.Destroy(renderer);
-	texture.Destroy(renderer);
 	
 	Skybox.Destory(renderer);
 	SkyboxTexture.Destroy(renderer);

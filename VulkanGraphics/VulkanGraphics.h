@@ -100,8 +100,6 @@ private:
 	SkyBox Skybox;
 	CubeMapTexture SkyboxTexture;
 
-	Texture2D texture;
-	Texture2D texture2;
 	std::vector<Mesh> MeshList;
 	//std::vector<Model> ModelList;
 	GUIDebugger guiDebugger;

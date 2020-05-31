@@ -4,14 +4,14 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const std::vector<Texture2D>& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
+Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const TextureMaps& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
 {
 	CreateUniformBuffers(renderer);
 	CreateDescriptorPool(renderer);
 	CreateDescriptorSets(renderer);
 }
 
-Mesh::Mesh(Renderer& renderer, const std::vector<Texture2D>& textureList) : BaseMesh(renderer, textureList)
+Mesh::Mesh(Renderer& renderer, const TextureMaps& textureList) : BaseMesh(renderer, textureList)
 {
 
 }
@@ -44,16 +44,16 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	VkDescriptorImageInfo SpecularMap = {};
-	if (TextureList.size() != 0)
-	{
+	//if (TextureList.size() != 0)
+	//{
 		DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		DiffuseMap.imageView = TextureList[0].textureImageView;
-		DiffuseMap.sampler = TextureList[0].textureSampler;
+		DiffuseMap.imageView = TextureList.DiffuseMap.textureImageView;
+		DiffuseMap.sampler = TextureList.DiffuseMap.textureSampler;
 
 		SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		SpecularMap.imageView = TextureList[1].textureImageView;
-		SpecularMap.sampler = TextureList[1].textureSampler;
-	}
+		SpecularMap.imageView = TextureList.SpecularMap.textureImageView;
+		SpecularMap.sampler = TextureList.SpecularMap.textureSampler;
+	//}
 
 	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
@@ -77,8 +77,8 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		PositionDescriptor.DescriptorBufferInfo = PositionInfo;
 		DescriptorList.emplace_back(PositionDescriptor);
 
-		if (TextureList.size() != 0)
-		{
+	/*	if (TextureList.size() != 0)
+		{*/
 			WriteDescriptorSetInfo DiffuseMapDescriptor;
 			DiffuseMapDescriptor.DstBinding = 1;
 			DiffuseMapDescriptor.DstSet = descriptorSets[i];
@@ -92,7 +92,7 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 			SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
 			DescriptorList.emplace_back(SpecularMapDescriptor);
-		}
+		/*}*/
 
 		WriteDescriptorSetInfo ViewPosDescriptor;
 		ViewPosDescriptor.DstBinding = 3;

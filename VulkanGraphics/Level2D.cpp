@@ -7,13 +7,7 @@ Level2D::Level2D()
 Level2D::Level2D(Renderer& renderer, TileSet tileset)
 {
 	camera = Camera(glm::vec3(0.0f, 0.0f, 10.0f));
-
-	LoadTileSet(renderer, tileset);
-	std::vector<Texture2D> textureList = { DiffuseMap, SpecularMap };
-
-	CreateLevelGeometry();
-
-		LevelMap = LevelMesh2D(renderer, LevelVertexList, LevelIndiceList, textureList);
+	LevelMap = LevelMesh2D(renderer, tileset);
 
 	glm::vec3 pointLightPositions[] = {
 glm::vec3(0.7f,  0.2f,  2.0f),
@@ -89,33 +83,6 @@ Level2D::~Level2D()
 {
 }
 
-void Level2D::CreateLevelGeometry()
-{
-	for (unsigned int x = 0; x < LevelBoundsX; x++)
-	{
-		for (unsigned int y = 0; y < LevelBoundsY; y++)
-		{
-			const unsigned int VertexCount = LevelVertexList.size();
-			const Vertex BottomLeftVertex = { {x, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.06666f, 0.0f} };
-			const Vertex BottomRightVertex = { {x + 1.0f, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f} };
-			const Vertex TopRightVertex = { {x + 1.0f, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.5f} };
-			const Vertex TopLeftVertex = { {x, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.06666f, 0.5f} };
-
-			LevelVertexList.emplace_back(BottomLeftVertex);
-			LevelVertexList.emplace_back(BottomRightVertex);
-			LevelVertexList.emplace_back(TopRightVertex);
-			LevelVertexList.emplace_back(TopLeftVertex);
-
-			LevelIndiceList.emplace_back(VertexCount);
-			LevelIndiceList.emplace_back(VertexCount + 1);
-			LevelIndiceList.emplace_back(VertexCount + 2);
-			LevelIndiceList.emplace_back(VertexCount + 2);
-			LevelIndiceList.emplace_back(VertexCount + 3);
-			LevelIndiceList.emplace_back(VertexCount);
-		}
-	}
-}
-
 void Level2D::LevelDebug(Renderer& renderer)
 {
 	ImGui::Begin("Settings");
@@ -172,23 +139,9 @@ void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 	}
 }
 
-void Level2D::LoadTileSet(Renderer& renderer, TileSet tileset)
-{
-	DiffuseMap = Texture2D(renderer, tileset.DiffuseMap);
-	SpecularMap = Texture2D(renderer, tileset.SpecularMap);
-	NormalMap = Texture2D(renderer, tileset.NormalMap);
-}
-
-void Level2D::UnloadTileSet(Renderer& renderer)
-{
-	DiffuseMap.Destroy(renderer);
-	SpecularMap.Destroy(renderer);
-	NormalMap.Destroy(renderer);
-}
-
 void Level2D::Destroy(Renderer& renderer)
 {
-	UnloadTileSet(renderer);
+	//UnloadTileSet(renderer);
 	lightManager.Destroy(renderer);
 
 	LevelMap.Destroy(renderer);

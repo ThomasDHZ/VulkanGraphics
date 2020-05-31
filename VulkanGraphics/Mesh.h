@@ -54,8 +54,8 @@ public:
 	glm::vec3 MeshScale = glm::vec3(1.0f);
 
 	Mesh();
-	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
-	Mesh(Renderer& renderer, const std::vector<Texture2D>& textureList);
+	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList);
+	Mesh(Renderer& renderer, const TextureMaps& textureList);
 	~Mesh();
 
 	void Draw(Renderer& renderer, int currentFrame);

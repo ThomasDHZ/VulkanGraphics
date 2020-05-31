@@ -16,22 +16,11 @@ enum Level
 class Level2D : VulkanResources
 {
 private:
-	std::vector<Vertex> LevelVertexList;
-	std::vector<uint16_t> LevelIndiceList;
-
-	void CreateLevelGeometry();
 public:
 	
 	Camera camera;
-	LightManager lightManager;
-	
-	Texture2D DiffuseMap;
-	Texture2D SpecularMap;
-	Texture2D NormalMap;
-
-	unsigned int LevelBoundsX = 100;
-	unsigned int LevelBoundsY = 200;
 	LevelMesh2D LevelMap;
+	LightManager lightManager;
 
 	Level2D();
 	Level2D(Renderer& renderer, TileSet tileset);
@@ -41,8 +30,6 @@ public:
 	void LevelLoop(Renderer& renderer);
 	void Update(Renderer& renderer);
 	void Draw(Renderer& renderer, uint32_t DrawFrame);
-	void LoadTileSet(Renderer& renderer, TileSet tileset);
-	void UnloadTileSet(Renderer& renderer);
 	void Destroy(Renderer& renderer);
 };
 

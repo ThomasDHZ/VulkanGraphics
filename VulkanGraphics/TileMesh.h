@@ -13,6 +13,12 @@ struct TileSet
 class LevelMesh2D : public BaseMesh
 {
 private:
+
+	unsigned int LevelBoundsX = 16;
+	unsigned int LevelBoundsY = 3;
+
+	void LoadTiles(Renderer& renderer, const TileSet& tileSet);
+	void CreateLevelGeometry();
 	void CreateUniformBuffers(Renderer& renderer);
 	void CreateDescriptorPool(Renderer& renderer);
 	void CreateDescriptorSets(Renderer& renderer);
@@ -22,7 +28,7 @@ public:
 	UniformBuffer ViewPosBuffer;
 
 	LevelMesh2D();
-	LevelMesh2D(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
+	LevelMesh2D(Renderer& renderer, const TileSet& tileSet);
 	~LevelMesh2D();
 
 	void Draw(Renderer& renderer, int currentFrame);

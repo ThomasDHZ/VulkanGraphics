@@ -5,8 +5,12 @@ LevelMesh2D::LevelMesh2D() : BaseMesh()
 {
 }
 
-LevelMesh2D::LevelMesh2D(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList) : BaseMesh(renderer, vertices, indices, textureList)
+LevelMesh2D::LevelMesh2D(Renderer& renderer, const TileSet& tileSet) : BaseMesh(renderer)
 {
+	LoadTiles(renderer, tileSet);
+	CreateLevelGeometry();
+	CreateVertexBuffer(renderer);
+	CreateIndiceBuffer(renderer);
 	CreateUniformBuffers(renderer);
 	CreateDescriptorPool(renderer);
 	CreateDescriptorSets(renderer);
@@ -15,6 +19,50 @@ LevelMesh2D::LevelMesh2D(Renderer& renderer, const std::vector<Vertex>& vertices
 LevelMesh2D::~LevelMesh2D()
 {
 }
+
+void LevelMesh2D::LoadTiles(Renderer& renderer, const TileSet& tileSet)
+{
+	TextureList.DiffuseMap = Texture2D(renderer, tileSet.DiffuseMap);
+	TextureList.SpecularMap = Texture2D(renderer, tileSet.SpecularMap);
+	TextureList.NormalMap = Texture2D(renderer, tileSet.NormalMap);
+}
+
+void LevelMesh2D::CreateLevelGeometry()
+{
+	const unsigned int TileSize = 2048;
+	const float AmtXAxisTiles = TextureList.DiffuseMap.Width / TileSize;
+	const float AmtYAxisTiles = TextureList.DiffuseMap.Height / TileSize;
+	const float UVTileLocU = 1 / AmtXAxisTiles;
+	const float UVTileLocV = 1 / AmtYAxisTiles;
+
+	for (unsigned int x = 1; x < LevelBoundsX; x++)
+	{
+		for (unsigned int y = 1; y < LevelBoundsY; y++)
+		{
+			const unsigned int VertexCount = VertexList.size();
+			const Vertex BottomLeftVertex = { {x, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * x, UVTileLocV * (y - 1)} };
+			const Vertex BottomRightVertex = { {x + 1.0f, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * (x - 1), UVTileLocV * (y - 1)} };
+			const Vertex TopRightVertex = { {x + 1.0f, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * (x - 1), UVTileLocV * y } };
+			const Vertex TopLeftVertex = { {x, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * x, UVTileLocV * y} };
+
+			VertexList.emplace_back(BottomLeftVertex);
+			VertexList.emplace_back(BottomRightVertex);
+			VertexList.emplace_back(TopRightVertex);
+			VertexList.emplace_back(TopLeftVertex);
+
+			IndexList.emplace_back(VertexCount);
+			IndexList.emplace_back(VertexCount + 1);
+			IndexList.emplace_back(VertexCount + 2);
+			IndexList.emplace_back(VertexCount + 2);
+			IndexList.emplace_back(VertexCount + 3);
+			IndexList.emplace_back(VertexCount);
+		}
+	}
+
+	VertexSize = VertexList.size();
+	IndiceSize = IndexList.size();
+}
+
 
 void LevelMesh2D::CreateUniformBuffers(Renderer& renderer)
 {
@@ -40,13 +88,13 @@ void LevelMesh2D::CreateDescriptorSets(Renderer& renderer)
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	DiffuseMap.imageView = TextureList[0].textureImageView;
-	DiffuseMap.sampler = TextureList[0].textureSampler;
+	DiffuseMap.imageView = TextureList.DiffuseMap.textureImageView;
+	DiffuseMap.sampler = TextureList.DiffuseMap.textureSampler;
 
 	VkDescriptorImageInfo SpecularMap = {};
 	SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	SpecularMap.imageView = TextureList[1].textureImageView;
-	SpecularMap.sampler = TextureList[1].textureSampler;
+	SpecularMap.imageView = TextureList.SpecularMap.textureImageView;
+	SpecularMap.sampler = TextureList.SpecularMap.textureSampler;
 
 	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{

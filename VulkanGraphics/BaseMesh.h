@@ -12,6 +12,13 @@ struct PositionMatrix
 	alignas(16) glm::mat4 proj;
 };
 
+struct TextureMaps
+{
+	Texture2D DiffuseMap;
+	Texture2D SpecularMap;
+	Texture2D NormalMap;
+};
+
 class BaseMesh : public VulkanResources
 {
 private:
@@ -31,7 +38,7 @@ protected:
 
 public:
 
-	std::vector<Texture2D> TextureList;
+	TextureMaps TextureList;
 
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
@@ -44,10 +51,10 @@ public:
 	BaseMesh();
 	BaseMesh(Renderer& renderer);
 	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices);
-	BaseMesh(Renderer& renderer, const std::vector<Texture2D>& textureList);
+	BaseMesh(Renderer& renderer, const TextureMaps& textureList);
 	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<Texture2D>& textureList);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const std::vector<Texture2D>& textureList);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const TextureMaps& textureList);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList);
 	~BaseMesh();
 
 	void Destory(Renderer& renderer);
