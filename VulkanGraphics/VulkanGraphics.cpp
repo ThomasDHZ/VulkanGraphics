@@ -15,8 +15,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 	TextureMaps maps;
-	maps.DiffuseMap = Texture2D(renderer, "texture/container2.png");
-	maps.NormalMap = Texture2D(renderer, "texture/container2_specular.png");
+	maps.DiffuseMap = Texture2D(renderer, "texture/window.png");
+	maps.SpecularMap = Texture2D(renderer, "texture/container2_specular.png");
 
 	//Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 

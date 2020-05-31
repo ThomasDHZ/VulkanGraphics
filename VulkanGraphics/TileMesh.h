@@ -2,6 +2,7 @@
 #include "BaseMesh.h"
 #include "UniformBuffer.h"
 #include "Mesh.h"
+#include <map>
 
 struct TileSet
 {
@@ -15,7 +16,11 @@ class LevelMesh2D : public BaseMesh
 private:
 
 	unsigned int LevelBoundsX = 16;
-	unsigned int LevelBoundsY = 3;
+	unsigned int LevelBoundsY = 4;
+
+	std::map<int, glm::ivec2> TileMap;
+	std::vector<int> MapLocs;
+
 
 	void LoadTiles(Renderer& renderer, const TileSet& tileSet);
 	void CreateLevelGeometry();

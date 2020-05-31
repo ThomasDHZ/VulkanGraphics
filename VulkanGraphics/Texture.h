@@ -17,6 +17,7 @@ protected:
 	std::string FileName;
 	TextureType TypeOfTexture;
 
+
 	void TransitionImageLayout(Renderer& renderer, VkImageLayout oldLayout, VkImageLayout newLayout);
 	void CopyBufferToImage(Renderer& renderer, VkBuffer buffer);
 	void CreateImage(Renderer& renderer);
@@ -24,6 +25,7 @@ protected:
 public:
 	int Width;
 	int Height;
+	int ColorChannels;
 
 	VkImage textureImage = VK_NULL_HANDLE;
 	VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;

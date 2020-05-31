@@ -1,4 +1,5 @@
 #include "VulkanGraphics2D.h"
+#include "VulkanGraphics.h"
 
 int main() {
 	VulkanGraphics2D app = VulkanGraphics2D(1920, 1080, "VulkanGraphics");

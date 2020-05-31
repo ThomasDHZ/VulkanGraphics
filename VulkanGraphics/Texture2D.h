@@ -29,15 +29,9 @@ public:
 
 	Texture2D();
 	Texture2D(Renderer& renderer, std::string TexturePath);
-	Texture2D(Renderer& renderer, int width, int height, Pixel TextureColor);
 	~Texture2D();
 
-	void SetPixel(Renderer& renderer, glm::ivec2 pos, Pixel pixel);
-	void CopyRange(Renderer& renderer, const Texture2D& texture, int CopyWidth, int CopyHeight);
 	void UpdateTexture(Renderer& renderer, Pixel pixel);
 	void UpdateTexture(Renderer& renderer);
-
-	Pixel GetPixel(glm::ivec2 pos);
-	void* GetPixelPtr(glm::ivec2 pos);
 };
 

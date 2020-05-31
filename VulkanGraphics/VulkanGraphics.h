@@ -14,12 +14,6 @@
 #include "Model.h"
 #include "Skybox.h"
 #include "DebugLightMesh.h"
-
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
 #include "Light.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
