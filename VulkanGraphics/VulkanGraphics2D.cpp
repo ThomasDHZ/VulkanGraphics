@@ -81,6 +81,7 @@ void VulkanGraphics2D::UpdateCommandBuffers(uint32_t DrawFrame)
 		renderer.UpdateCommandBuffers = false;
 	}
 
+	level.PerFrameDraw(renderer, DrawFrame);
 	guiDebugger.UpdateCommandBuffers(DrawFrame, *GetRenderPass(renderer), renderer.SwapChainFramebuffers[DrawFrame]);
 }
 

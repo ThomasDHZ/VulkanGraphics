@@ -4,6 +4,10 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
+Mesh::Mesh(Renderer& renderer) : BaseMesh(renderer)
+{
+}
+
 Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const TextureMaps& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
 {
 	CreateUniformBuffers(renderer);

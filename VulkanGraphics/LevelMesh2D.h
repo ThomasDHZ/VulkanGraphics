@@ -11,7 +11,7 @@ struct TileSet
 	std::string NormalMap;
 };
 
-class LevelMesh2D : public BaseMesh
+class LevelMesh2D : public Mesh
 {
 private:
 
@@ -24,19 +24,12 @@ private:
 
 	void LoadTiles(Renderer& renderer, const TileSet& tileSet);
 	void CreateLevelGeometry();
-	void CreateUniformBuffers(Renderer& renderer);
-	void CreateDescriptorPool(Renderer& renderer);
-	void CreateDescriptorSets(Renderer& renderer);
 
 public:
-	UniformBuffer PositionMatrixBuffer;
-	UniformBuffer ViewPosBuffer;
 
 	LevelMesh2D();
 	LevelMesh2D(Renderer& renderer, const TileSet& tileSet);
 	~LevelMesh2D();
 
 	void Draw(Renderer& renderer, int currentFrame);
-	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos);
-	void Destroy(Renderer& renderer);
 };

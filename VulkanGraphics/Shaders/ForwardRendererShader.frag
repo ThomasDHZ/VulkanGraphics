@@ -79,7 +79,7 @@ void main()
 
     result += CalcSpotLight(mesh.spotLight, norm, FragPos, viewDir);    
     
-    outColor = vec4(result, 1.0);
+    outColor = vec4(result, texture(DiffuseMap, TexCoords).a);
 } 
 
 vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
