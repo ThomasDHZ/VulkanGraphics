@@ -24,11 +24,17 @@ class BaseMesh : public VulkanResources
 private:
 
 protected:
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
+
+	VkBuffer indexBuffer;
+	VkDeviceMemory indexBufferMemory;
+
+	std::vector<VkDescriptorSet> descriptorSets;
+	VkDescriptorPool descriptorPool;
+
 	int VertexSize;
 	uint16_t IndiceSize;
-
-	std::vector<Vertex> VertexList;
-	std::vector<uint16_t> IndexList;
 
 	void CreateVertexBuffer(Renderer& renderer);
 	void CreateIndiceBuffer(Renderer& renderer);
@@ -38,16 +44,12 @@ protected:
 
 public:
 
+
+	std::vector<Vertex> VertexList;
+	std::vector<uint16_t> IndexList;
+
 	TextureMaps TextureList;
 
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
-
-	std::vector<VkDescriptorSet> descriptorSets;
-	VkDescriptorPool descriptorPool;
 	BaseMesh();
 	BaseMesh(Renderer& renderer);
 	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices);

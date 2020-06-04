@@ -4,40 +4,26 @@ Sprite::Sprite()
 {
 }
 
-Sprite::Sprite(Renderer& renderer) : Mesh(renderer)
+Sprite::Sprite(Renderer& renderer)
 {
-	const std::vector<Vertex> MegaManVertices = {
-		// positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
-		{{0.0f,  0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { 0.0f,  0.0f }},
-	{ {0.0f, -0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { 0.0f,  1.0f }},
-	{ {1.0f, -0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { .11f,  1.0f }},
-
-	{ {0.0f,  0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { 0.0f,  0.0f }},
-	{ {1.0f, -0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { .11f,  1.0f }},
-	{ {1.0f,  0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { .11f,  0.0f }}
+	const std::vector<Vertex> MegaManVertices =
+	{
+		{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.11f, 0.0f}},
+		{{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.11f, 1.0f}}
 	};
 
-	const std::vector<uint16_t> indices = {
-
+	const std::vector<uint16_t> MegaManIndices =
+	{
+		  0, 1, 2, 2, 3, 0
 	};
-
-
-
-	IndiceSize = 0;
 
 	TextureMaps maps;
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 
-	VertexList = MegaManVertices;
-	//IndexList = indices;
-	TextureList = maps;
-
-	CreateVertexBuffer(renderer);
-	//CreateIndiceBuffer(renderer);
-	CreateUniformBuffers(renderer);
-	CreateDescriptorPool(renderer);
-	CreateDescriptorSets(renderer);
+	SpriteMesh = Mesh(renderer, MegaManVertices, MegaManIndices, maps);
 }
 
 
@@ -45,9 +31,45 @@ Sprite::~Sprite()
 {
 }
 
+void Sprite::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos)
+{
+	SpriteMesh.UpdateUniformBuffer(renderer, positionMatrix, viewpos);
+}
+
+void Sprite::Draw(Renderer& renderer, int currentFrame)
+{
+	SpriteMesh.Draw(renderer, currentFrame);
+}
+
 void Sprite::UpdateSpriteUVs(Renderer& renderer)
 {
-	CreateVertexBuffer(renderer);
-	CreateIndiceBuffer(renderer);
+	const std::vector<Vertex> MegaManVertices =
+	{
+		{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.55f, 0.0f}},
+		{{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.55f, 1.0f}}
+	};
+	SpriteMesh.VertexList = MegaManVertices;
+	SpriteMesh.UpdateSpriteUVs(renderer);
+}
 
+void Sprite::SetPosition2D(glm::vec2 Pos)
+{
+	SpriteMesh.MeshPosition = glm::vec3(Pos, 0.0f);
+}
+
+void Sprite::SetPosition2D(float x, float y)
+{
+	SpriteMesh.MeshPosition = glm::vec3(x, y, 0.0f);
+}
+
+void Sprite::SetPosition3D(glm::vec3 Pos)
+{
+	SpriteMesh.MeshPosition = Pos;
+}
+
+void Sprite::SetPosition3D(float x, float y, float z)
+{
+	SpriteMesh.MeshPosition = glm::vec3(x, y, z);
 }

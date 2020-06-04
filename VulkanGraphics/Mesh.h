@@ -60,6 +60,7 @@ public:
 	~Mesh();
 
 	void Draw(Renderer& renderer, int currentFrame);
+	void UpdateSpriteUVs(Renderer& renderer);
 	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos);
 	void Destroy(Renderer& renderer);
 

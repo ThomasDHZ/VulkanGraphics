@@ -6,6 +6,7 @@
 #include "LightManager.h"
 #include "GUIDebugger.h"
 #include "LevelMesh2D.h"
+#include "Sprite.h"
 
 enum Level
 {
@@ -13,27 +14,29 @@ enum Level
 	Test
 };
 
-const std::vector<Vertex> MegaManVertices = {
-	// positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
-	{{0.0f,  0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { 0.0f,  0.0f }},
-{ {0.0f, -0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { 0.0f,  1.0f }},
-{ {1.0f, -0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { .11f,  1.0f }},
+const std::vector<Vertex> MegaManVertices =
+{
+	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+};
 
-{ {0.0f,  0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { 0.0f,  0.0f }},
-{ {1.0f, -0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { .11f,  1.0f }},
-{ {1.0f,  0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { .11f,  0.0f }}
+const std::vector<uint16_t> MegaManIndices =
+{
+	  0, 1, 2, 2, 3, 0
 };
 
 class Level2D : VulkanResources
 {
 private:
 public:
-	
+	bool tempflag = false;
 	Camera camera;
 	LevelMesh2D LevelMap;
 	LightManager lightManager;
 
-	Mesh MeshList;
+	Sprite SpriteList;
 
 	Level2D();
 	Level2D(Renderer& renderer, TileSet tileset);

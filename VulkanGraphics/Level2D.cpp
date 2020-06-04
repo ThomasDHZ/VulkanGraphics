@@ -10,22 +10,11 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	camera = Camera(glm::vec3(0.0f, 0.0f, 10.0f));
 	LevelMap = LevelMesh2D(renderer, tileset);
 
-	const std::vector<Vertex> MegaManVertices = {
-		// positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
-		{{0.0f,  0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { 0.0f,  0.0f }},
-	{ {0.0f, -0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { 0.0f,  1.0f }},
-	{ {1.0f, -0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { .11f,  1.0f }},
-
-	{ {0.0f,  0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { 0.0f,  0.0f }},
-	{ {1.0f, -0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { .11f,  1.0f }},
-	{ {1.0f,  0.5f,  0.0f }, { 0.0f,  0.0f, -1.0f }, { .11f,  0.0f }}
-	};
-
 	TextureMaps maps;
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 
-	MeshList = Mesh(renderer, MegaManVertices, indices, maps);
+	SpriteList = Sprite(renderer);
 
 	glm::vec3 pointLightPositions[] = {
 glm::vec3(0.7f,  0.2f,  2.0f),
@@ -109,7 +98,7 @@ void Level2D::LevelDebug(Renderer& renderer)
 	ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMeshs);
 	ImGui::Checkbox("2D Mode", &renderer.Settings.TwoDMode);
 	ImGui::SliderFloat3("Camera", camera.GetCameraPosPtr(), -10.0f, 10.0f);
-	ImGui::SliderFloat3("Sprite", MeshList.GetMeshPosPtr(), -10.0f, 10.0f);
+	ImGui::SliderFloat3("Sprite", SpriteList.SpriteMesh.GetMeshPosPtr(), -10.0f, 10.0f);
 	ImGui::End();
 
 	lightManager.UpdateLights();
@@ -121,6 +110,9 @@ void Level2D::LevelLoop(Renderer& renderer)
 
 void Level2D::Update(Renderer& renderer)
 {
+
+	SpriteList.SetPosition2D(SpriteList.GetPosition2D().x + 0.0001f, SpriteList.GetPosition2D().y);
+
 	Material material = {};
 	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
 	material.Diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
@@ -144,28 +136,32 @@ void Level2D::Update(Renderer& renderer)
 	ubo.proj[1][1] *= -1;
 	LevelMap.UpdateUniformBuffer(renderer, ubo, viewing);
 
-
-
 	PositionMatrix ubo3{};
 	ubo3.model = glm::mat4(1.0f);
-	ubo3.model = glm::translate(ubo.model, MeshList.MeshPosition);
+	ubo3.model = glm::translate(ubo.model, SpriteList.SpriteMesh.MeshPosition);
 	ubo3.view = camera.GetViewMatrix();
 	ubo3.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo3.proj[1][1] *= -1;
 
-	MeshList.UpdateUniformBuffer(renderer, ubo3, viewing);
+	SpriteList.UpdateUniformBuffer(renderer, ubo3, viewing);
 
 	lightManager.Update(renderer, camera);
 }
 
 void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 {
+	if (tempflag)
+	{
+		SpriteList.UpdateSpriteUVs(renderer);
+	}
+
 	LevelMap.Draw(renderer, DrawFrame);
-	MeshList.Draw(renderer, DrawFrame);
+	SpriteList.Draw(renderer, DrawFrame);
 	if (renderer.Settings.ShowDebugLightMeshs)
 	{
 		lightManager.DrawDebugMesh(renderer, DrawFrame);
 	}
+	tempflag = true;
 }
 
 void Level2D::PerFrameDraw(Renderer& renderer, uint32_t DrawFrame)
