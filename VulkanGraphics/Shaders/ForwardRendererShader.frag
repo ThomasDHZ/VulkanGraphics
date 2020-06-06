@@ -54,13 +54,16 @@ layout(location = 4) in vec3 Bitangent;
   
 layout(binding = 1) uniform sampler2D DiffuseMap;
 layout(binding = 2) uniform sampler2D SpecularMap;
-layout(binding = 3) uniform MeshProp
+layout(binding = 3) uniform sampler2D AlphaMap;
+layout(binding = 4) uniform MeshProp
 {
 	SpotLight spotLight;
     DirectionalLight directionalLight;
 	PointLight pointLight[NR_POINT_LIGHTS];
 	Material material;
     vec3 viewPos;
+    vec3 SpriteUV;
+    float timer;
 } mesh;
 
 vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir);
@@ -79,7 +82,8 @@ void main()
 
     result += CalcSpotLight(mesh.spotLight, norm, FragPos, viewDir);    
     
-    outColor = vec4(result, texture(DiffuseMap, TexCoords).a);
+    outColor = vec4(texture(DiffuseMap, vec2(TexCoords.x + mesh.SpriteUV.x, TexCoords.y + mesh.SpriteUV.y)));
+   // outColor = vec4(result, texture(AlphaMap, TexCoords).a);
 } 
 
 vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)

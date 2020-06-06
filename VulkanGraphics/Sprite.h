@@ -9,7 +9,8 @@ public:
 	Mesh SpriteMesh;
 
 	Sprite();
-	Sprite(Renderer& renderer);
+	Sprite(Renderer& renderer, glm::vec2 StartPos);
+	Sprite(Renderer& renderer, glm::vec3 StartPos);
 	~Sprite();
 
 	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos);

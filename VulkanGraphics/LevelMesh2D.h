@@ -9,6 +9,7 @@ struct TileSet
 	std::string DiffuseMap;
 	std::string SpecularMap;
 	std::string NormalMap;
+	std::string AlphaMap;
 };
 
 class LevelMesh2D : public Mesh
@@ -16,7 +17,7 @@ class LevelMesh2D : public Mesh
 private:
 
 	unsigned int LevelBoundsX = 16;
-	unsigned int LevelBoundsY = 4;
+	unsigned int LevelBoundsY = 8;
 
 	std::map<int, glm::ivec2> TileMap;
 	std::vector<int> MapLocs;

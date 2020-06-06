@@ -48,6 +48,7 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	VkDescriptorImageInfo SpecularMap = {};
+	VkDescriptorImageInfo AlphaMap = {};
 	//if (TextureList.size() != 0)
 	//{
 		DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -57,6 +58,10 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		SpecularMap.imageView = TextureList.SpecularMap.textureImageView;
 		SpecularMap.sampler = TextureList.SpecularMap.textureSampler;
+
+		AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		AlphaMap.imageView = TextureList.AlphaMap.textureImageView;
+		AlphaMap.sampler = TextureList.AlphaMap.textureSampler;
 	//}
 
 	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
@@ -96,10 +101,17 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 			SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
 			DescriptorList.emplace_back(SpecularMapDescriptor);
+
+			WriteDescriptorSetInfo AlphaMapDescriptor;
+			AlphaMapDescriptor.DstBinding = 3;
+			AlphaMapDescriptor.DstSet = descriptorSets[i];
+			AlphaMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			AlphaMapDescriptor.DescriptorImageInfo = AlphaMap;
+			DescriptorList.emplace_back(AlphaMapDescriptor);
 		/*}*/
 
 		WriteDescriptorSetInfo ViewPosDescriptor;
-		ViewPosDescriptor.DstBinding = 3;
+		ViewPosDescriptor.DstBinding = 4;
 		ViewPosDescriptor.DstSet = descriptorSets[i];
 		ViewPosDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		ViewPosDescriptor.DescriptorBufferInfo = ViewPosInfo;
@@ -150,7 +162,6 @@ void Mesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix
 
 void Mesh::Destroy(Renderer& renderer)
 {
-
 	PositionMatrixBuffer.Destroy(renderer);
 	ViewPosBuffer.Destroy(renderer);
 

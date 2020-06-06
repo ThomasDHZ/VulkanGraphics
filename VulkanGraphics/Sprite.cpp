@@ -4,7 +4,7 @@ Sprite::Sprite()
 {
 }
 
-Sprite::Sprite(Renderer& renderer)
+Sprite::Sprite(Renderer& renderer, glm::vec2 StartPos)
 {
 	const std::vector<Vertex> MegaManVertices =
 	{
@@ -22,10 +22,35 @@ Sprite::Sprite(Renderer& renderer)
 	TextureMaps maps;
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
+	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
 
 	SpriteMesh = Mesh(renderer, MegaManVertices, MegaManIndices, maps);
+	SetPosition2D(StartPos);
 }
 
+Sprite::Sprite(Renderer& renderer, glm::vec3 StartPos)
+{
+	const std::vector<Vertex> MegaManVertices =
+	{
+		{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.11f, 0.0f}},
+		{{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.11f, 1.0f}}
+	};
+
+	const std::vector<uint16_t> MegaManIndices =
+	{
+		  0, 1, 2, 2, 3, 0
+	};
+
+	TextureMaps maps;
+	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
+	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
+	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
+
+	SpriteMesh = Mesh(renderer, MegaManVertices, MegaManIndices, maps);
+	SetPosition2D(StartPos);
+}
 
 Sprite::~Sprite()
 {

@@ -5,11 +5,12 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 {
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = Renderer(Window.GetWindowPtr());
-	renderer.Settings.TwoDMode = true;
+	//renderer.Settings.TwoDMode = true;
 
 	MapTile[Level::SparkMan].DiffuseMap = "texture/SparkManDiffuse2048.bmp";
 	MapTile[Level::SparkMan].SpecularMap = "texture/SparkManSpec2048.bmp";
 	MapTile[Level::SparkMan].NormalMap = "texture/SparkManNormal2048.bmp";
+	MapTile[Level::SparkMan].AlphaMap = "texture/SparkManAlpha2048.bmp";
 	MapTile[Level::Test].DiffuseMap = "texture/container2.png";
 	MapTile[Level::Test].SpecularMap = "texture/container2.png";
 

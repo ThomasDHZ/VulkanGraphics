@@ -32,6 +32,7 @@ class Level2D : VulkanResources
 private:
 public:
 	bool tempflag = false;
+	TextureMaps maps;
 	Camera camera;
 	LevelMesh2D LevelMap;
 	LightManager lightManager;

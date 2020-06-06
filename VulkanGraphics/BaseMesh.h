@@ -16,6 +16,7 @@ struct TextureMaps
 {
 	Texture2D DiffuseMap;
 	Texture2D SpecularMap;
+	Texture2D AlphaMap;
 	Texture2D NormalMap;
 };
 

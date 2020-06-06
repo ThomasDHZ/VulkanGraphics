@@ -91,8 +91,8 @@ void Texture2D::CreateTextureSampler(Renderer& renderer)
 {
 	VkSamplerCreateInfo SamplerInfo = {};
 	SamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	SamplerInfo.magFilter = VK_FILTER_LINEAR;
-	SamplerInfo.minFilter = VK_FILTER_LINEAR;
+	SamplerInfo.magFilter = VK_FILTER_NEAREST;
+	SamplerInfo.minFilter = VK_FILTER_NEAREST;
 	SamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	SamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	SamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;

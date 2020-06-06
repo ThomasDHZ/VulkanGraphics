@@ -7,21 +7,15 @@ Level2D::Level2D()
 
 Level2D::Level2D(Renderer& renderer, TileSet tileset)
 {
-	camera = Camera(glm::vec3(0.0f, 0.0f, 10.0f));
+	camera = Camera(glm::vec3(0.0f, 6.0f, 10.0f));
 	LevelMap = LevelMesh2D(renderer, tileset);
 
 	TextureMaps maps;
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
+	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
 
-	SpriteList = Sprite(renderer);
-
-	glm::vec3 pointLightPositions[] = {
-glm::vec3(0.7f,  0.2f,  2.0f),
-glm::vec3(2.3f, -3.3f, -4.0f),
-glm::vec3(-4.0f,  2.0f, -12.0f),
-glm::vec3(0.0f,  0.0f, -3.0f)
-	};
+	SpriteList = Sprite(renderer, glm::vec2(3.33f, 8.5f));
 
 	DirectionalLightBuffer lighter;
 	lighter.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
@@ -30,7 +24,7 @@ glm::vec3(0.0f,  0.0f, -3.0f)
 	lighter.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
 	PointLightBuffer light1;
-	light1.Position = pointLightPositions[0];
+	light1.Position = glm::vec3(4.737f, 6.0f, 4.0f);
 	light1.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
 	light1.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
 	light1.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -39,7 +33,7 @@ glm::vec3(0.0f,  0.0f, -3.0f)
 	light1.Quadratic = 0.032;
 
 	PointLightBuffer light2;
-	light2.Position = pointLightPositions[1];
+	light2.Position = glm::vec3(9.737f, 6.0f, 4.0f);
 	light2.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
 	light2.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
 	light2.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -48,17 +42,16 @@ glm::vec3(0.0f,  0.0f, -3.0f)
 	light2.Quadratic = 0.032;
 
 	PointLightBuffer light3;
-	light3.Position = pointLightPositions[2];
+	light3.Position = glm::vec3(13.737f, 6.0f, 4.0f);
 	light3.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
 	light3.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
 	light3.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
 	light3.Constant = 1.0f;
 	light3.Linear = 0.09f;
 	light3.Quadratic = 0.032;
-	VkPhysicalDeviceRayTracingPropertiesNV AL;
 
 	PointLightBuffer light4;
-	light4.Position = pointLightPositions[3];
+	light4.Position = glm::vec3(17.737f, 6.0f, 4.0f);
 	light4.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
 	light4.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
 	light4.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -110,8 +103,12 @@ void Level2D::LevelLoop(Renderer& renderer)
 
 void Level2D::Update(Renderer& renderer)
 {
+	static auto startTime = std::chrono::high_resolution_clock::now();
 
-	SpriteList.SetPosition2D(SpriteList.GetPosition2D().x + 0.0001f, SpriteList.GetPosition2D().y);
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+	//SpriteList.SetPosition2D(SpriteList.GetPosition2D().x + 0.0001f, SpriteList.GetPosition2D().y);
 
 	Material material = {};
 	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
@@ -128,9 +125,12 @@ void Level2D::Update(Renderer& renderer)
 	viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
 	viewing.material = material;
 	viewing.viewPos = camera.GetCameraPos();
+	viewing.SpriteUV = glm::vec3(0.0f, 0.0f, 0.0f);
+	viewing.timer = time;
 
 	PositionMatrix ubo{};
 	ubo.model = glm::mat4(1.0f);
+	ubo.model = glm::translate(ubo.model, glm::vec3(0.0f, -4.0f, 0.0f));
 	ubo.view = camera.GetViewMatrix();
 	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
@@ -143,6 +143,11 @@ void Level2D::Update(Renderer& renderer)
 	ubo3.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo3.proj[1][1] *= -1;
 
+
+
+	viewing.SpriteUV = glm::vec3(0.0666666701f * 7, 0.0f, 0.0f);
+
+
 	SpriteList.UpdateUniformBuffer(renderer, ubo3, viewing);
 
 	lightManager.Update(renderer, camera);
@@ -150,10 +155,6 @@ void Level2D::Update(Renderer& renderer)
 
 void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 {
-	if (tempflag)
-	{
-		SpriteList.UpdateSpriteUVs(renderer);
-	}
 
 	LevelMap.Draw(renderer, DrawFrame);
 	SpriteList.Draw(renderer, DrawFrame);
@@ -171,6 +172,8 @@ void Level2D::PerFrameDraw(Renderer& renderer, uint32_t DrawFrame)
 
 void Level2D::Destroy(Renderer& renderer)
 {
+	maps.DiffuseMap.Destroy(renderer);
+	maps.SpecularMap.Destroy(renderer);
 	//UnloadTileSet(renderer);
 	lightManager.Destroy(renderer);
 

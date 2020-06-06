@@ -25,6 +25,7 @@ void LevelMesh2D::LoadTiles(Renderer& renderer, const TileSet& tileSet)
 	TextureList.DiffuseMap = Texture2D(renderer, tileSet.DiffuseMap);
 	TextureList.SpecularMap = Texture2D(renderer, tileSet.SpecularMap);
 	TextureList.NormalMap = Texture2D(renderer, tileSet.NormalMap);
+	TextureList.AlphaMap = Texture2D(renderer, tileSet.AlphaMap);
 
 	TileMap[0] = glm::ivec2(1, 0);
 	TileMap[1] = glm::ivec2(2, 0);
@@ -69,6 +70,10 @@ void LevelMesh2D::CreateLevelGeometry()
 	const float UVTileLocV = 1 / AmtYAxisTiles;
 
 	MapLocs = { 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
+				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
+				5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
+				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
+				5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
 				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
 				13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 12, 5, };
 
