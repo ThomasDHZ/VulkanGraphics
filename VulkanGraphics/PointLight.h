@@ -9,13 +9,9 @@ public:
 	PointLight(Renderer& renderer, PointLightBuffer settings);
 	~PointLight();
 
-	void SetPosition(float Position[2]);
 	void SetPosition(glm::vec3 Position);
-	void SetAmbient(float Position[2]);
 	void SetAmbient(glm::vec3 Ambient);
-	void SetDiffuse(float Position[2]);
 	void SetDiffuse(glm::vec3 Diffuse);
-	void SetSpecular(float Position[2]);
 	void SetSpecular(glm::vec3 Specular);
 	void SetConstant(float Constant);
 	void SetLinear(float Linear);
@@ -30,5 +26,11 @@ public:
 	float GetQuadratic();
 
 	PointLightBuffer GetSettings() { return LightSettings; }
-	glm::vec3* GetLightPos() { return &LightSettings.Position; }
+	glm::vec3* GetPosPtr() { return &LightSettings.Position; }
+	glm::vec3* GetAmbientPtr() { return &LightSettings.Ambient; }
+	glm::vec3* GetDiffusePtr() { return &LightSettings.Diffuse; }
+	glm::vec3* GetSpecularPtr() { return &LightSettings.Specular; }
+	float* GetConstantPtr() { return &LightSettings.Constant; }
+	float* GetLinearPtr() { return &LightSettings.Linear; }
+	float* GetQuadraticPtr() { return &LightSettings.Quadratic; }
 };

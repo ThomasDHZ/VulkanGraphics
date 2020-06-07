@@ -71,10 +71,10 @@ private:
 	}
 
 protected:
-	T LightSettings;
+
 
 public:
-
+	T LightSettings;
 	DebugLightMesh DebugMesh;
 	Light()
 	{
