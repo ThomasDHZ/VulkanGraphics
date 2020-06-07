@@ -30,7 +30,7 @@ Sprite::Sprite(Renderer& renderer, glm::vec2 StartPos)
 
 	StandAni = Animation2D(StandFrames, 0.25f);
 	RunAni = Animation2D(RunFrames, 0.1f);
-	CurrentAni = RunAni;
+	CurrentAni = StandAni;
 
 	const std::vector<Vertex> MegaManVertices =
 	{
@@ -77,8 +77,26 @@ Sprite::~Sprite()
 {
 }
 
-void Sprite::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos)
+void Sprite::UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos)
 {
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ||
+		glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			SpriteMesh.MeshPosition.x -= 0.01f;
+		}
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			SpriteMesh.MeshPosition.x += 0.01f;
+		}
+		CurrentAni = RunAni;
+	}
+	else
+	{
+		CurrentAni = StandAni;
+	}
+
 	CurrentAni.Update();
 	viewpos.SpriteUV = glm::vec3(CurrentAni.GetCurrentFrame(), 0.0f);
 
@@ -88,19 +106,6 @@ void Sprite::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatr
 void Sprite::Draw(Renderer& renderer, int currentFrame)
 {
 	SpriteMesh.Draw(renderer, currentFrame);
-}
-
-void Sprite::UpdateSpriteUVs(Renderer& renderer)
-{
-	const std::vector<Vertex> MegaManVertices =
-	{
-		{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.55f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.55f, 1.0f}}
-	};
-	SpriteMesh.VertexList = MegaManVertices;
-	SpriteMesh.UpdateSpriteUVs(renderer);
 }
 
 void Sprite::Destory(Renderer& renderer)

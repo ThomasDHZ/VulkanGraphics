@@ -97,7 +97,7 @@ void Level2D::LevelLoop(Renderer& renderer)
 {
 }
 
-void Level2D::Update(Renderer& renderer)
+void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 {
 	static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -137,7 +137,7 @@ void Level2D::Update(Renderer& renderer)
 	ubo3.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo3.proj[1][1] *= -1;
 
-	SpriteList.UpdateUniformBuffer(renderer, ubo3, viewing);
+	SpriteList.UpdateUniformBuffer(Window, renderer, ubo3, viewing);
 
 	lightManager.Update(renderer, camera);
 }

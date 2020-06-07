@@ -148,12 +148,6 @@ void Mesh::Draw(Renderer& renderer, int currentFrame)
 	}
 }
 
-void Mesh::UpdateSpriteUVs(Renderer& renderer)
-{
-	CreateVertexBuffer(renderer);
-	CreateIndiceBuffer(renderer);
-}
-
 void Mesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos)
 {
 	PositionMatrixBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&positionMatrix));

@@ -38,7 +38,6 @@ private:
 	GUIDebugger guiDebugger;
 
 	void InitializeGUIDebugger();
-	void Update(uint32_t DrawFrame);
 	void UpdateCommandBuffers(uint32_t DrawFrame);
 	void Draw();
 

@@ -46,16 +46,6 @@ void VulkanGraphics2D::InitializeGUIDebugger()
 	guiDebugger = GUIDebugger(init_info, Window.GetWindowPtr(), *GetRenderPass(renderer));
 }
 
-void VulkanGraphics2D::Update(uint32_t DrawFrame)
-{
-	static auto startTime = std::chrono::high_resolution_clock::now();
-
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-	level.Update(renderer);
-}
-
 void VulkanGraphics2D::UpdateCommandBuffers(uint32_t DrawFrame)
 {
 	if (renderer.UpdateCommandBuffers)
@@ -94,7 +84,6 @@ void VulkanGraphics2D::Draw()
 	}
 
 	renderer.StartFrame(Window.GetWindowPtr());
-	Update(renderer.DrawFrame);
 	UpdateCommandBuffers(renderer.DrawFrame);
 	renderer.RunCommandBuffers.clear();
 	renderer.RunCommandBuffers.emplace_back(renderer.SecondaryCommandBuffers[renderer.DrawFrame]);
@@ -107,7 +96,7 @@ void VulkanGraphics2D::MainLoop()
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
 		Window.Update();
-		level.Update(renderer);
+		level.Update(renderer, Window.GetWindowPtr());
 
 		mouse.Update(Window.GetWindowPtr(), level.camera, renderer.Settings);
 		keyboard.Update(Window.GetWindowPtr(), level.camera, renderer.Settings);

@@ -45,7 +45,7 @@ public:
 
 	void LevelDebug(Renderer& renderer);
 	void LevelLoop(Renderer& renderer);
-	void Update(Renderer& renderer);
+	void Update(Renderer& renderer, GLFWwindow* Window);
 	void Draw(Renderer& renderer, uint32_t DrawFrame);
 	void Destroy(Renderer& renderer);
 };

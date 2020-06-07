@@ -34,9 +34,8 @@ public:
 	Sprite(Renderer& renderer, glm::vec3 StartPos);
 	~Sprite();
 
-	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos);
+	void UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos);
 	void Draw(Renderer& renderer, int currentFrame);
-	void UpdateSpriteUVs(Renderer& renderer);
 	void Destory(Renderer& renderer);
 
 	void SetPosition2D(glm::vec2 Pos);

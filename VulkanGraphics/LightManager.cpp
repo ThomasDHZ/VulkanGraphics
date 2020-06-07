@@ -53,10 +53,10 @@ void LightManager::Update(Renderer& renderer, Camera camera)
 void LightManager::UpdateLights()
 {
 		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-		static int selectedNode = -1; // Dumb representation of what may be user-side selection state. You may carry selection state inside or outside your objects in whatever format you see fit.
-		int node_clicked = -1;                // Temporary storage of what node we have clicked to process selection at the end of the loop. May be a pointer to your own node type, etc.
+		static int selectedNode = -1; 
+		int node_clicked = -1;              
 
-		ImGui::Columns(2, "tree", true);
+		ImGui::Columns(2, "Lights", true);
 		for (int i = 0; i < 4; i++)
 		{
 			ImGuiTreeNodeFlags node_flags = base_flags;
@@ -66,7 +66,7 @@ void LightManager::UpdateLights()
 			}
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "Selectable Leaf %d", i);
+			ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "Point Light %d", i);
 			if (ImGui::IsItemClicked())
 			{
 				node_clicked = i;
@@ -78,30 +78,17 @@ void LightManager::UpdateLights()
 			selectedNode = node_clicked;
 		}
 
-		if (selectedNode == 0)
+		if (selectedNode != -1)
 		{
 			ImGui::NextColumn();
 			ImGui::LabelText("", "Directional");
-			ImGui::SliderFloat3("PointLight0Pos", &PointLightList[0].GetPosPtr()->x, -10.0f, 10.0f);
-			ImGui::ColorEdit3("PointLight0Ambient", &PointLightList[0].GetAmbientPtr()->x);
-			ImGui::ColorEdit3("PointLight0Diffuse", &PointLightList[0].GetDiffusePtr()->x);
-			ImGui::ColorEdit3("PointLight0Specular", &PointLightList[0].GetSpecularPtr()->x);
-			ImGui::SliderFloat("PointLight0Constant", PointLightList[0].GetConstantPtr(), 0.0f, 10.0f);
-			ImGui::SliderFloat("PointLight0Linear", PointLightList[0].GetLinearPtr(), 0.0f, 10.0f);
-			ImGui::SliderFloat("PointLight0Quadratic", PointLightList[0].GetQuadraticPtr(), 0.0f, 10.0f);
-			ImGui::NextColumn();
-		}
-		else if (selectedNode == 1)
-		{
-			ImGui::NextColumn();
-			ImGui::LabelText("", "Directional");
-			ImGui::SliderFloat3("PointLight1Pos", &PointLightList[0].GetPosPtr()->x, -10.0f, 10.0f);
-			ImGui::ColorEdit3("PointLight1Ambient", &PointLightList[0].GetAmbientPtr()->x);
-			ImGui::ColorEdit3("PointLight1Diffuse", &PointLightList[0].GetDiffusePtr()->x);
-			ImGui::ColorEdit3("PointLight1Specular", &PointLightList[0].GetSpecularPtr()->x);
-			ImGui::SliderFloat("PointLight1Constant", PointLightList[0].GetConstantPtr(), 0.0f, 10.0f);
-			ImGui::SliderFloat("PointLight1Linear", PointLightList[0].GetLinearPtr(), 0.0f, 10.0f);
-			ImGui::SliderFloat("PointLight1Quadratic", PointLightList[0].GetQuadraticPtr(), 0.0f, 10.0f);
+			ImGui::SliderFloat3("Position", &PointLightList[selectedNode].GetPosPtr()->x, -10.0f, 10.0f);
+			ImGui::ColorEdit3("Ambient", &PointLightList[selectedNode].GetAmbientPtr()->x);
+			ImGui::ColorEdit3("Diffuse", &PointLightList[selectedNode].GetDiffusePtr()->x);
+			ImGui::ColorEdit3("Specular", &PointLightList[selectedNode].GetSpecularPtr()->x);
+			ImGui::SliderFloat("Constant", PointLightList[selectedNode].GetConstantPtr(), 0.0f, 10.0f);
+			ImGui::SliderFloat("Linear", PointLightList[selectedNode].GetLinearPtr(), 0.0f, 10.0f);
+			ImGui::SliderFloat("Quadratic", PointLightList[selectedNode].GetQuadraticPtr(), 0.0f, 10.0f);
 			ImGui::NextColumn();
 		}
 }
