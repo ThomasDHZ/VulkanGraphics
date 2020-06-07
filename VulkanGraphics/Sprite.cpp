@@ -6,7 +6,6 @@ Sprite::Sprite()
 
 Sprite::Sprite(Renderer& renderer, glm::vec2 StartPos)
 {
-	TextureMaps maps;
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
@@ -102,6 +101,15 @@ void Sprite::UpdateSpriteUVs(Renderer& renderer)
 	};
 	SpriteMesh.VertexList = MegaManVertices;
 	SpriteMesh.UpdateSpriteUVs(renderer);
+}
+
+void Sprite::Destory(Renderer& renderer)
+{
+	maps.DiffuseMap.Destroy(renderer);
+	maps.SpecularMap.Destroy(renderer);
+	maps.NormalMap.Destroy(renderer);
+	maps.AlphaMap.Destroy(renderer);
+	SpriteMesh.Destroy(renderer);
 }
 
 void Sprite::SetPosition2D(glm::vec2 Pos)

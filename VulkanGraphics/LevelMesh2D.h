@@ -33,4 +33,5 @@ public:
 	~LevelMesh2D();
 
 	void Draw(Renderer& renderer, int currentFrame);
+	void Destory(Renderer& renderer);
 };

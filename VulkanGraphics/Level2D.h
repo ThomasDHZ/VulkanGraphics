@@ -32,7 +32,6 @@ class Level2D : VulkanResources
 private:
 public:
 	bool tempflag = false;
-	TextureMaps maps;
 	Camera camera;
 	LevelMesh2D LevelMap;
 	LightManager lightManager;
@@ -47,7 +46,6 @@ public:
 	void LevelLoop(Renderer& renderer);
 	void Update(Renderer& renderer);
 	void Draw(Renderer& renderer, uint32_t DrawFrame);
-	void PerFrameDraw(Renderer& renderer, uint32_t DrawFrame);
 	void Destroy(Renderer& renderer);
 };
 

@@ -125,3 +125,12 @@ void LevelMesh2D::Draw(Renderer& renderer, int currentFrame)
 	vkCmdDrawIndexed(*GetSecondaryCommandBuffer(renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
 }
 
+void LevelMesh2D::Destory(Renderer& renderer)
+{
+	TextureList.DiffuseMap.Destroy(renderer);
+	TextureList.SpecularMap.Destroy(renderer);
+	TextureList.NormalMap.Destroy(renderer);
+	TextureList.AlphaMap.Destroy(renderer);
+	Mesh::Destroy(renderer);
+}
+

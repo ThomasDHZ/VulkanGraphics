@@ -24,6 +24,7 @@ private:
 public:
 	Animation2D CurrentAni;
 
+	TextureMaps maps;
 	std::map<SpriteAnime, glm::vec2> AnimationFrame;
 	Mesh SpriteMesh;
 	glm::vec2 UVOffset = glm::vec2(0.0f);
@@ -36,7 +37,8 @@ public:
 	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos);
 	void Draw(Renderer& renderer, int currentFrame);
 	void UpdateSpriteUVs(Renderer& renderer);
-	
+	void Destory(Renderer& renderer);
+
 	void SetPosition2D(glm::vec2 Pos);
 	void SetPosition2D(float x, float y);
 	void SetPosition3D(glm::vec3 Pos);

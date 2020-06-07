@@ -10,11 +10,6 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	camera = Camera(glm::vec3(0.0f, 6.0f, 10.0f));
 	LevelMap = LevelMesh2D(renderer, tileset);
 
-	TextureMaps maps;
-	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
-	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
-	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
-
 	SpriteList = Sprite(renderer, glm::vec2(3.33f, 8.5f));
 
 	DirectionalLightBuffer lighter;
@@ -109,8 +104,6 @@ void Level2D::Update(Renderer& renderer)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	//SpriteList.SetPosition2D(SpriteList.GetPosition2D().x + 0.0001f, SpriteList.GetPosition2D().y);
-
 	Material material = {};
 	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
 	material.Diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
@@ -161,18 +154,9 @@ void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 	tempflag = true;
 }
 
-void Level2D::PerFrameDraw(Renderer& renderer, uint32_t DrawFrame)
-{
-	//MeshList.Draw(renderer, DrawFrame);
-}
-
 void Level2D::Destroy(Renderer& renderer)
 {
-	maps.DiffuseMap.Destroy(renderer);
-	maps.SpecularMap.Destroy(renderer);
-	//UnloadTileSet(renderer);
+	SpriteList.Destory(renderer);
 	lightManager.Destroy(renderer);
-
-	LevelMap.Destroy(renderer);
-	
+	LevelMap.Destory(renderer);
 }
