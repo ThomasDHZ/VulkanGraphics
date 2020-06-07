@@ -7,6 +7,7 @@
 #include "GUIDebugger.h"
 #include "LevelMesh2D.h"
 #include "Sprite.h"
+#include <chrono>
 
 enum Level
 {

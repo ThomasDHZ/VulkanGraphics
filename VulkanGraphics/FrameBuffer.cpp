@@ -128,6 +128,7 @@ void FrameBuffer::Draw(FrameBufferRenderingPipeline FrameBufferPipeline, VkComma
 void FrameBuffer::RecreateSwapChainStage(VkDevice Device, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, 
 										 InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize)
 {
+	vkDestroyDescriptorPool(Device, descriptorPool, nullptr);
 	CreateDescriptorPool(Device, SwapChainSize);
 	CreateDescriptorSets(Device, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView, descriptorSetLayout, SwapChainSize);
 }
