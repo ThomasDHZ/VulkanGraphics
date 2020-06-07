@@ -92,6 +92,7 @@ void Level2D::LevelDebug(Renderer& renderer)
 	ImGui::Checkbox("2D Mode", &renderer.Settings.TwoDMode);
 	ImGui::SliderFloat3("Camera", camera.GetCameraPosPtr(), -10.0f, 10.0f);
 	ImGui::SliderFloat3("Sprite", SpriteList.SpriteMesh.GetMeshPosPtr(), -10.0f, 10.0f);
+	ImGui::SliderFloat2("UVOffset", SpriteList.GetUVOffsetPtr(), 0.0f, 1.0f);
 	ImGui::End();
 
 	lightManager.UpdateLights();
@@ -142,11 +143,6 @@ void Level2D::Update(Renderer& renderer)
 	ubo3.view = camera.GetViewMatrix();
 	ubo3.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo3.proj[1][1] *= -1;
-
-
-
-	viewing.SpriteUV = glm::vec3(0.0666666701f * 7, 0.0f, 0.0f);
-
 
 	SpriteList.UpdateUniformBuffer(renderer, ubo3, viewing);
 

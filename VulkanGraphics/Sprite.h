@@ -1,12 +1,32 @@
 #pragma once
 #include "Mesh.h"
+#include <map>
+#include "Animation2D.h"
+
+enum SpriteAnime
+{
+	Stand1,
+	Stand2,
+	Stand3,
+	Run1,
+	Run2,
+	Run3,
+	Run4
+};
 
 class Sprite
 {
 private:
-public:
 
+	Animation2D StandAni;
+	Animation2D RunAni;
+
+public:
+	Animation2D CurrentAni;
+
+	std::map<SpriteAnime, glm::vec2> AnimationFrame;
 	Mesh SpriteMesh;
+	glm::vec2 UVOffset = glm::vec2(0.0f);
 
 	Sprite();
 	Sprite(Renderer& renderer, glm::vec2 StartPos);
@@ -24,5 +44,6 @@ public:
 
 	glm::vec2 GetPosition2D() { return glm::vec2(SpriteMesh.MeshPosition.x, SpriteMesh.MeshPosition.y); }
 	glm::vec3 GetPosition3D() { return SpriteMesh.MeshPosition; }
+	float* GetUVOffsetPtr() { return &UVOffset.x; };
 };
 
