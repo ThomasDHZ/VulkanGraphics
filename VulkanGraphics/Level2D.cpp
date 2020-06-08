@@ -10,7 +10,14 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	camera = Camera(glm::vec3(0.0f, 6.0f, 10.0f));
 	LevelMap = LevelMesh2D(renderer, tileset);
 
+	TextureMaps maps;
+	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
+	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
+	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
+
 	SpriteList = Sprite(renderer, glm::vec2(3.33f, 8.5f));
+	ColliderSprite = Mesh(renderer, MegaManVertices, MegaManIndices, maps);
+	ColliderSprite.MeshPosition = glm::vec3(5.0f, 8.5, 0.0f);
 
 	DirectionalLightBuffer lighter;
 	lighter.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
@@ -88,7 +95,6 @@ void Level2D::LevelDebug(Renderer& renderer)
 	ImGui::Checkbox("2D Mode", &renderer.Settings.TwoDMode);
 	ImGui::SliderFloat3("Camera", camera.GetCameraPosPtr(), -10.0f, 10.0f);
 	ImGui::SliderFloat3("Sprite", SpriteList.SpriteMesh.GetMeshPosPtr(), -10.0f, 10.0f);
-	ImGui::SliderFloat2("UVOffset", SpriteList.GetUVOffsetPtr(), 0.0f, 1.0f);
 	ImGui::End();
 
 	lightManager.UpdateLights();
@@ -138,8 +144,15 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	ubo3.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo3.proj[1][1] *= -1;
 
-	SpriteList.UpdateUniformBuffer(Window, renderer, ubo3, viewing);
+	PositionMatrix ubo4{};
+	ubo4.model = glm::mat4(1.0f);
+	ubo4.model = glm::translate(ubo.model, ColliderSprite.MeshPosition);
+	ubo4.view = camera.GetViewMatrix();
+	ubo4.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo4.proj[1][1] *= -1;
 
+	ColliderSprite.UpdateUniformBuffer(renderer, ubo4, viewing);
+	SpriteList.UpdateUniformBuffer(Window, renderer, ubo3, viewing, ColliderSprite);
 	lightManager.Update(renderer, camera);
 }
 
@@ -148,6 +161,7 @@ void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 
 	LevelMap.Draw(renderer, DrawFrame);
 	SpriteList.Draw(renderer, DrawFrame);
+	ColliderSprite.Draw(renderer, DrawFrame);
 	if (renderer.Settings.ShowDebugLightMesh)
 	{
 		lightManager.DrawDebugMesh(renderer, DrawFrame);
@@ -157,6 +171,7 @@ void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 
 void Level2D::Destroy(Renderer& renderer)
 {
+	ColliderSprite.Destory(renderer);
 	SpriteList.Destory(renderer);
 	lightManager.Destroy(renderer);
 	LevelMap.Destory(renderer);

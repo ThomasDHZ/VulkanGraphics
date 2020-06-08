@@ -37,6 +37,7 @@ public:
 	LevelMesh2D LevelMap;
 	LightManager lightManager;
 
+	Mesh ColliderSprite;
 	Sprite SpriteList;
 
 	Level2D();

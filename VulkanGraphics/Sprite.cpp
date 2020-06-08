@@ -77,18 +77,28 @@ Sprite::~Sprite()
 {
 }
 
-void Sprite::UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos)
+void Sprite::UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos, Mesh otherSprite)
 {
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ||
 		glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
-			SpriteMesh.MeshPosition.x -= 0.01f;
+			if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x)
+			{
+				SpriteMesh.MeshPosition.x -= 0.01f;
+			}
 		}
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
-			SpriteMesh.MeshPosition.x += 0.01f;
+			if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x - 1.0f)
+			{
+				SpriteMesh.MeshPosition.x += 0.01f;
+			}
+			else
+			{
+				SpriteMesh.MeshPosition.x = otherSprite.MeshPosition.x - 1.0f;
+			}
 		}
 		CurrentAni = RunAni;
 	}
