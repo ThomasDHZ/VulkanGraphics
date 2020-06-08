@@ -6,9 +6,10 @@
 #include "InputAttachment.h"
 #include "SkyBoxPipeline.h"
 #include "WireFramePipeline.h"
-#include "FrameBuffer.h"
+#include "FrameBufferMesh.h"
 #include "FrameBufferRenderingPipeline.h"
 #include "DebugLightRenderingPipeline.h"
+#include "CollisionDebugPipeline.h"
 
 class Renderer : public RendererBase
 {
@@ -30,10 +31,12 @@ private:
 	ForwardRenderingPipeline GraphicsPipeline;
 	FrameBufferRenderingPipeline FrameBufferPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
+	CollisionDebugPipeline DebugCollisionPipeline;
 	WireFramePipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 
-	FrameBuffer framebuffer;
+
+	FrameBufferMesh framebuffer;
 
 	void InitializeRenderPass();
 	void InitializeFramebuffers();

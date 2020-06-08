@@ -1,11 +1,11 @@
-#include "FrameBuffer.h"
+#include "FrameBufferMesh.h"
 #include <array>
 
-FrameBuffer::FrameBuffer()
+FrameBufferMesh::FrameBufferMesh()
 {
 }
 
-FrameBuffer::FrameBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, VkExtent2D swapChainExtent, VkRenderPass renderPass,
+FrameBufferMesh::FrameBufferMesh(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, VkExtent2D swapChainExtent, VkRenderPass renderPass,
 						 InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize)
 {
 	CreateVertexBuffer(Device, PhysicalDevice, CommandPool, GraphicsQueue);
@@ -13,11 +13,11 @@ FrameBuffer::FrameBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCom
 	CreateDescriptorSets(Device, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView, descriptorSetLayout, SwapChainSize);
 }
 
-FrameBuffer::~FrameBuffer()
+FrameBufferMesh::~FrameBufferMesh()
 {
 }
 
-void FrameBuffer::CreateVertexBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue)
+void FrameBufferMesh::CreateVertexBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue)
 {
 	VkDeviceSize bufferSize = sizeof(FrameBufferVertices[0]) * FrameBufferVertices.size();
 
@@ -37,7 +37,7 @@ void FrameBuffer::CreateVertexBuffer(VkDevice Device, VkPhysicalDevice PhysicalD
 	vkFreeMemory(Device, stagingBufferMemory, nullptr);
 }
 
-void FrameBuffer::CreateDescriptorPool(VkDevice Device, int SwapChainSize)
+void FrameBufferMesh::CreateDescriptorPool(VkDevice Device, int SwapChainSize)
 {
 	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
 
@@ -66,7 +66,7 @@ void FrameBuffer::CreateDescriptorPool(VkDevice Device, int SwapChainSize)
 	}
 }
 
-void FrameBuffer::CreateDescriptorSets(VkDevice Device, VkImageView ColorImageView, VkImageView DepthImageView, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize)
+void FrameBufferMesh::CreateDescriptorSets(VkDevice Device, VkImageView ColorImageView, VkImageView DepthImageView, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize)
 {
 	std::vector<VkDescriptorSetLayout> layouts(SwapChainSize, descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo = {};
@@ -114,7 +114,7 @@ void FrameBuffer::CreateDescriptorSets(VkDevice Device, VkImageView ColorImageVi
 	}
 }
 
-void FrameBuffer::Draw(FrameBufferRenderingPipeline FrameBufferPipeline, VkCommandBuffer commandbuffer, int currentImage)
+void FrameBufferMesh::Draw(FrameBufferRenderingPipeline FrameBufferPipeline, VkCommandBuffer commandbuffer, int currentImage)
 {
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
@@ -125,7 +125,7 @@ void FrameBuffer::Draw(FrameBufferRenderingPipeline FrameBufferPipeline, VkComma
 	vkCmdDraw(commandbuffer, 6, 1, 0, 0);
 }
 
-void FrameBuffer::RecreateSwapChainStage(VkDevice Device, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment, 
+void FrameBufferMesh::RecreateSwapChainStage(VkDevice Device, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment,
 										 InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize)
 {
 	vkDestroyDescriptorPool(Device, descriptorPool, nullptr);
@@ -133,7 +133,7 @@ void FrameBuffer::RecreateSwapChainStage(VkDevice Device, VkExtent2D swapChainEx
 	CreateDescriptorSets(Device, ColorAttachment.AttachmentImageView, DepthAttachment.AttachmentImageView, descriptorSetLayout, SwapChainSize);
 }
 
-void FrameBuffer::Destory(VkDevice device)
+void FrameBufferMesh::Destory(VkDevice device)
 {
 	vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 	vkDestroyBuffer(device, vertexBuffer, nullptr);

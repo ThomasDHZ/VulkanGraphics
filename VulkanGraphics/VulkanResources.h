@@ -20,6 +20,8 @@ public:
 	static DebugLightRenderingPipeline GetDebugLightPipeline(Renderer& renderer);
 	static VkPipeline* GetMeshViewShaderPipeline(Renderer& renderer);
 	static VkPipelineLayout* GetMeshViewShaderPipelineLayout(Renderer& renderer);
+	static VkPipeline* GetCollisionShaderPipeline(Renderer& renderer);
+	static VkPipelineLayout* GetCollisionShaderPipelineLayout(Renderer& renderer);
 	static VkDescriptorSetLayout* GetSkyboxDescriptorSetLayout(Renderer& renderer);
 	static VkPipeline* GetSkyboxShaderPipeline(Renderer& renderer);
 	static VkPipelineLayout* GetSkyboxShaderPipelineLayout(Renderer& renderer);

@@ -82,8 +82,9 @@ void Level2D::LevelDebug(Renderer& renderer)
 {
 	ImGui::Begin("Settings");
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
-	ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMeshs);
+	ImGui::Checkbox("Mesh View", &renderer.Settings.ShowMeshLines);
+	ImGui::Checkbox("Collision View", &renderer.Settings.ShowDebugCollisionMesh);
+	ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 	ImGui::Checkbox("2D Mode", &renderer.Settings.TwoDMode);
 	ImGui::SliderFloat3("Camera", camera.GetCameraPosPtr(), -10.0f, 10.0f);
 	ImGui::SliderFloat3("Sprite", SpriteList.SpriteMesh.GetMeshPosPtr(), -10.0f, 10.0f);
@@ -147,7 +148,7 @@ void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 
 	LevelMap.Draw(renderer, DrawFrame);
 	SpriteList.Draw(renderer, DrawFrame);
-	if (renderer.Settings.ShowDebugLightMeshs)
+	if (renderer.Settings.ShowDebugLightMesh)
 	{
 		lightManager.DrawDebugMesh(renderer, DrawFrame);
 	}

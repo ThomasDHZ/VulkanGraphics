@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Pipelines">
       <UniqueIdentifier>{d45f75e9-73f0-4b92-b408-2ba1df828dbc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Mesh">
+      <UniqueIdentifier>{cf9bf4c8-6779-4a35-905a-81b898f21629}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Mesh">
+      <UniqueIdentifier>{e94e28f0-3e9c-4b8f-aac5-be07b109f276}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -45,22 +51,10 @@
     <ClCompile Include="InputAttachment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FrameBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VulkanDebugger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VulkanWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsPipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
@@ -112,9 +106,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UniformBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugLightMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DirectionalLight.cpp">
@@ -171,11 +162,32 @@
     <ClCompile Include="Sprite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LevelMesh2D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Animation2D.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsPipeline.cpp">
+      <Filter>Source Files\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelMesh2D.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBufferMesh.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugLightMesh.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseMesh.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="WireFrameMesh.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionDebugPipeline.cpp">
+      <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +233,12 @@
     <None Include="Shaders\DebugLightShader.frag">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Shaders\CollisionShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\CollisionShader.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -241,9 +259,6 @@
     <ClInclude Include="InputAttachment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VulkanDebugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -251,15 +266,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsPipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
@@ -325,9 +331,6 @@
     <ClInclude Include="UniformBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DebugLightMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DirectionalLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -385,11 +388,32 @@
     <ClInclude Include="Sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LevelMesh2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Animation2D.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsPipeline.h">
+      <Filter>Header Files\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseMesh.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugLightMesh.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferMesh.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelMesh2D.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="WireFrameMesh.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionDebugPipeline.h">
+      <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

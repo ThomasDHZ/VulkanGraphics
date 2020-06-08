@@ -1,21 +1,21 @@
-#include "WireFramePipeline.h"
+#include "CollisionDebugPipeline.h"
 #include "Vertex.h"
 
-WireFramePipeline::WireFramePipeline() : GraphicsPipeline()
+CollisionDebugPipeline::CollisionDebugPipeline() : GraphicsPipeline()
 {
 }
 
-WireFramePipeline::WireFramePipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_MeshView)
+CollisionDebugPipeline::CollisionDebugPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_MeshView)
 {
 	CreateDescriptorSetLayout();
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }
 
-WireFramePipeline::~WireFramePipeline()
+CollisionDebugPipeline::~CollisionDebugPipeline()
 {
 }
 
-void WireFramePipeline::CreateDescriptorSetLayout()
+void CollisionDebugPipeline::CreateDescriptorSetLayout()
 {
 	std::array<DescriptorSetLayoutBindingInfo, 1> LayoutBindingInfo = {};
 
@@ -26,10 +26,10 @@ void WireFramePipeline::CreateDescriptorSetLayout()
 	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void WireFramePipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void CollisionDebugPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
-	auto vertShaderCode = ReadShaderFile("shaders/WireFrameShaderVert.spv");
-	auto fragShaderCode = ReadShaderFile("shaders/WireFrameShaderFrag.spv");
+	auto vertShaderCode = ReadShaderFile("shaders/CollisionShaderVert.spv");
+	auto fragShaderCode = ReadShaderFile("shaders/CollisionShaderFrag.spv");
 
 	VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
 	VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
@@ -87,7 +87,7 @@ void WireFramePipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRende
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
-	rasterizer.lineWidth = 2.0f;
+	rasterizer.lineWidth = 8.0f;
 	rasterizer.cullMode = VK_CULL_MODE_NONE;
 	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
@@ -149,7 +149,7 @@ void WireFramePipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRende
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }
 
-void WireFramePipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void CollisionDebugPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }

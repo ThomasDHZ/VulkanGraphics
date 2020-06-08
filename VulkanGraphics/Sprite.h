@@ -14,6 +14,12 @@ enum SpriteAnime
 	Run4
 };
 
+struct ColisionGeo
+{
+	std::vector<glm::vec3> CollisionVertexs;
+	std::vector<uint16_t> CollisionIndices;
+};
+
 class Sprite
 {
 private:
@@ -28,6 +34,7 @@ public:
 	std::map<SpriteAnime, glm::vec2> AnimationFrame;
 	Mesh SpriteMesh;
 	glm::vec2 UVOffset = glm::vec2(0.0f);
+	ColisionGeo CollisionVertexs;
 
 	Sprite();
 	Sprite(Renderer& renderer, glm::vec2 StartPos);

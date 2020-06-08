@@ -16,7 +16,7 @@ const std::vector<Vertex2D> FrameBufferVertices =
 	{{ 1.0f,  1.0f}, {1.0f, 1.0f}}
 };
 
-class FrameBuffer
+class FrameBufferMesh
 {
 private:
 
@@ -29,10 +29,10 @@ private:
 	void CreateDescriptorPool(VkDevice Device, int SwapChainSize);
 	void CreateDescriptorSets(VkDevice Device, VkImageView ColorImageView, VkImageView DepthImageView, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize);
 public:
-	FrameBuffer();
-	FrameBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, VkExtent2D swapChainExtent, VkRenderPass renderPass,
+	FrameBufferMesh();
+	FrameBufferMesh(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, VkExtent2D swapChainExtent, VkRenderPass renderPass,
 				InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize);
-	~FrameBuffer();
+	~FrameBufferMesh();
 
 	std::vector<VkDescriptorSet> descriptorSets;
 

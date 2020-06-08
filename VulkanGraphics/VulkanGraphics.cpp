@@ -255,7 +255,7 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t DrawFrame)
 			{
 				mesh.Draw(renderer, i);
 			}
-			if (renderer.Settings.ShowDebugLightMeshs)
+			if (renderer.Settings.ShowDebugLightMesh)
 			{
 				lightManager.DrawDebugMesh(renderer, i);
 			}
@@ -305,7 +305,7 @@ void VulkanGraphics::MainLoop()
 			ImGui::Begin("Settings");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
-			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMeshs);
+			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 			ImGui::End();
 

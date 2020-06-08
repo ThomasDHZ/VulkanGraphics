@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="Animation2D.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="CollisionDebugPipeline.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="DebugLightMesh.cpp" />
@@ -155,7 +156,7 @@
     <ClCompile Include="DeferredRenderer.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="ForwardRenderingPipeline.cpp" />
-    <ClCompile Include="FrameBuffer.cpp" />
+    <ClCompile Include="FrameBufferMesh.cpp" />
     <ClCompile Include="DifferedRenderingPipeline.cpp" />
     <ClCompile Include="FrameBufferRenderingPipeline.cpp" />
     <ClCompile Include="Keyboard.cpp" />
@@ -182,6 +183,7 @@
     <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VulkanGraphics2D.cpp" />
     <ClCompile Include="RendererBase.cpp" />
+    <ClCompile Include="WireFrameMesh.cpp" />
     <ClCompile Include="WireFramePipeline.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
@@ -198,6 +200,8 @@
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\CollisionShader.frag" />
+    <None Include="Shaders\CollisionShader.vert" />
     <None Include="Shaders\DifferedRenderingShader.frag" />
     <None Include="Shaders\DifferedRenderingShader.vert" />
     <None Include="Shaders\FrameBufferShader.frag" />
@@ -216,6 +220,7 @@
   <ItemGroup>
     <ClInclude Include="Animation2D.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="CollisionDebugPipeline.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="DebugLightMesh.h" />
@@ -223,7 +228,7 @@
     <ClInclude Include="DeferredRenderer.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="ForwardRenderingPipeline.h" />
-    <ClInclude Include="FrameBuffer.h" />
+    <ClInclude Include="FrameBufferMesh.h" />
     <ClInclude Include="DifferedRenderingPipeline.h" />
     <ClInclude Include="FrameBufferRenderingPipeline.h" />
     <ClInclude Include="Keyboard.h" />
@@ -253,6 +258,7 @@
     <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VulkanGraphics2D.h" />
     <ClInclude Include="RendererBase.h" />
+    <ClInclude Include="WireFrameMesh.h" />
     <ClInclude Include="WireFramePipeline.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />

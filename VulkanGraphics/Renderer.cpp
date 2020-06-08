@@ -16,10 +16,11 @@ Renderer::Renderer(GLFWwindow* window) : RendererBase(window)
 	GraphicsPipeline = ForwardRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	FrameBufferPipeline = FrameBufferRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	DebugLightPipeline = DebugLightRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	DebugCollisionPipeline = CollisionDebugPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	MeshviewPipeline = WireFramePipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline = SkyBoxPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 
-	framebuffer = FrameBuffer(Device, PhysicalDevice, MainCommandPool, GraphicsQueue, SwapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
+	framebuffer = FrameBufferMesh(Device, PhysicalDevice, MainCommandPool, GraphicsQueue, SwapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
 }
 
 Renderer::~Renderer()
@@ -262,12 +263,14 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 	GraphicsPipeline.UpdateSwapChain();
 	DebugLightPipeline.UpdateSwapChain();
+	DebugCollisionPipeline.UpdateSwapChain();
 	FrameBufferPipeline.UpdateSwapChain();
 	MeshviewPipeline.UpdateSwapChain();
 	SkyboxPipeline.UpdateSwapChain();
 
 	GraphicsPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	DebugLightPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	DebugCollisionPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	FrameBufferPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	MeshviewPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
@@ -375,6 +378,7 @@ void Renderer::DestoryVulkan()
 
 	GraphicsPipeline.Destroy();
 	DebugLightPipeline.Destroy();
+	DebugCollisionPipeline.Destroy();
 	FrameBufferPipeline.Destroy();
 	MeshviewPipeline.Destroy();
 	SkyboxPipeline.Destroy();

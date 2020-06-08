@@ -80,6 +80,16 @@ VkPipelineLayout* VulkanResources::GetMeshViewShaderPipelineLayout(Renderer& ren
 	return &renderer.MeshviewPipeline.ShaderPipelineLayout;
 }
 
+VkPipeline* VulkanResources::GetCollisionShaderPipeline(Renderer& renderer)
+{
+	return &renderer.DebugCollisionPipeline.ShaderPipeline;
+}
+
+VkPipelineLayout* VulkanResources::GetCollisionShaderPipelineLayout(Renderer& renderer)
+{
+	return &renderer.DebugCollisionPipeline.ShaderPipelineLayout;
+}
+
 VkDescriptorSetLayout* VulkanResources::GetSkyboxDescriptorSetLayout(Renderer& renderer)
 {
 	return &renderer.SkyboxPipeline.ShaderPipelineDescriptorLayout;
