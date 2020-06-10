@@ -42,13 +42,6 @@ struct Material
 	float Shininess;
 };
 
-struct TextureMapCheck
-{
-    bool UsingDiffuseMap;
-    bool UsingSpecularMap;
-    bool UsingAlphaMap;
-};
-
 #define NR_POINT_LIGHTS 4
 
 layout(location = 0) out vec4 outColor;
@@ -69,7 +62,6 @@ layout(binding = 5) uniform MeshProp
     DirectionalLight directionalLight;
 	PointLight pointLight[NR_POINT_LIGHTS];
 	Material material;
-    TextureMapCheck Maps;
     vec3 viewPos;
     vec3 SpriteUV;
     float timer;
@@ -81,7 +73,11 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec2 AnimationCoords = vec2(TexCoords.x + mesh.SpriteUV.x, TexCoords.y + mesh.SpriteUV.y);
 void main()
 {
-
+    if(textureSize(AlphaMap, 0).x > 1 &&
+       texture(AlphaMap, AnimationCoords).r == 0)
+    {
+        discard;
+    }
 
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(mesh.viewPos - FragPos);
@@ -93,28 +89,11 @@ void main()
 
     result += CalcSpotLight(mesh.spotLight, norm, FragPos, viewDir);    
     
-    vec2 a = textureSize(AlphaMap, 0);
-    if(a.x == 1)
-    {
-        outColor = vec4(texture(DiffuseMap, AnimationCoords));
-    }
-    else
-    {
-        outColor = vec4(result, texture(AlphaMap, AnimationCoords).rgb);
-    }
+    vec3 I = normalize(FragPos - mesh.viewPos);
+    vec3 R = reflect(I, normalize(Normal));
+    result = result + (texture(CubeMap, R).rgb * 0.0f);
 
-
-    vec2 ab = textureSize(CubeMap, 0);
-    if(ab.x == 2048)
-    {
-        vec3 I = normalize(FragPos - mesh.viewPos);
-        vec3 R = reflect(I, normalize(Normal));
-        outColor = vec4(texture(CubeMap, R).rgb, 1.0);
-    }
-    else
-    {
-     outColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    }
+    outColor = vec4(result, 1.0f);
 } 
 
 vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)

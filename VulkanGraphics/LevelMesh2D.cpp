@@ -22,10 +22,19 @@ LevelMesh2D::~LevelMesh2D()
 
 void LevelMesh2D::LoadTiles(Renderer& renderer, const TileSet& tileSet)
 {
+	CubeMapLayout layout;
+	layout.Left = "texture/skybox/left.jpg";
+	layout.Right = "texture/skybox/right.jpg";
+	layout.Top = "texture/skybox/top.jpg";
+	layout.Bottom = "texture/skybox/bottom.jpg";
+	layout.Back = "texture/skybox/back.jpg";
+	layout.Front = "texture/skybox/front.jpg";
+
 	TextureList.DiffuseMap = Texture2D(renderer, tileSet.DiffuseMap);
 	TextureList.SpecularMap = Texture2D(renderer, tileSet.SpecularMap);
 	TextureList.NormalMap = Texture2D(renderer, tileSet.NormalMap);
 	TextureList.AlphaMap = Texture2D(renderer, tileSet.AlphaMap);
+	TextureList.CubeMap = CubeMapTexture(renderer, layout);
 
 	TileMap[0] = glm::ivec2(1, 0);
 	TileMap[1] = glm::ivec2(2, 0);

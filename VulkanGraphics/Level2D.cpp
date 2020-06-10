@@ -10,10 +10,20 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	camera = Camera(glm::vec3(0.0f, 6.0f, 10.0f));
 	LevelMap = LevelMesh2D(renderer, tileset);
 
+
+	CubeMapLayout layout;
+	layout.Left = "texture/skybox/left.jpg";
+	layout.Right = "texture/skybox/right.jpg";
+	layout.Top = "texture/skybox/top.jpg";
+	layout.Bottom = "texture/skybox/bottom.jpg";
+	layout.Back = "texture/skybox/back.jpg";
+	layout.Front = "texture/skybox/front.jpg";
+
 	TextureMaps maps;
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
+	maps.CubeMap = CubeMapTexture(renderer, layout);
 
 	SpriteList = Sprite(renderer, glm::vec2(3.33f, 8.5f));
 	ColliderSprite = Mesh(renderer, MegaManVertices, MegaManIndices, maps);
@@ -126,7 +136,7 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
 	viewing.material = material;
 	viewing.viewPos = camera.GetCameraPos();
-	viewing.SpriteUV = glm::vec3(0.0f, 0.0f, 0.0f);
+	viewing.SpriteUV = glm::vec2(0.0f, 0.0f);
 	viewing.timer = time;
 
 	PositionMatrix ubo{};

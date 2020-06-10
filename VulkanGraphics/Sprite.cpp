@@ -6,9 +6,18 @@ Sprite::Sprite()
 
 Sprite::Sprite(Renderer& renderer, glm::vec2 StartPos)
 {
+	CubeMapLayout layout;
+	layout.Left = "texture/skybox/left.jpg";
+	layout.Right = "texture/skybox/right.jpg";
+	layout.Top = "texture/skybox/top.jpg";
+	layout.Bottom = "texture/skybox/bottom.jpg";
+	layout.Back = "texture/skybox/back.jpg";
+	layout.Front = "texture/skybox/front.jpg";
+
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
+	maps.CubeMap = CubeMapTexture(renderer, layout);
 
 	const unsigned int TileSize = 2048;
 	const float AmtXAxisTiles = maps.DiffuseMap.Width / TileSize;
@@ -84,21 +93,21 @@ void Sprite::UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, Positio
 	{
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
-			if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x)
-			{
+			/*if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x)
+			{*/
 				SpriteMesh.MeshPosition.x -= 0.01f;
-			}
+			/*}*/
 		}
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
-			if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x - 1.0f)
-			{
+			/*if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x - 1.0f)
+			{*/
 				SpriteMesh.MeshPosition.x += 0.01f;
-			}
-			else
-			{
-				SpriteMesh.MeshPosition.x = otherSprite.MeshPosition.x - 1.0f;
-			}
+			//}
+			//else
+			//{
+			//	SpriteMesh.MeshPosition.x = otherSprite.MeshPosition.x - 1.0f;
+			//}
 		}
 		CurrentAni = RunAni;
 	}
@@ -108,7 +117,7 @@ void Sprite::UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, Positio
 	}
 
 	CurrentAni.Update();
-	viewpos.SpriteUV = glm::vec3(CurrentAni.GetCurrentFrame(), 0.0f);
+	viewpos.SpriteUV = glm::vec2(CurrentAni.GetCurrentFrame());
 
 	SpriteMesh.UpdateUniformBuffer(renderer, positionMatrix, viewpos);
 }

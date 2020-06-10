@@ -31,7 +31,7 @@ struct MeshProp
 	PointLightBuffer pointLight[4];
 	Material material;
 	alignas(16) glm::vec3 viewPos;
-	alignas(16) glm::vec3 SpriteUV;
+	alignas(8) glm::vec2 SpriteUV;
 	alignas(4) float timer;
 };
 
