@@ -32,12 +32,14 @@ void Mesh::CreateUniformBuffers(Renderer& renderer)
 
 void Mesh::CreateDescriptorPool(Renderer& renderer)
 {
-	std::array<DescriptorPoolSizeInfo, 4>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 6>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -49,20 +51,23 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 	VkDescriptorImageInfo DiffuseMap = {};
 	VkDescriptorImageInfo SpecularMap = {};
 	VkDescriptorImageInfo AlphaMap = {};
-	//if (TextureList.size() != 0)
-	//{
-		DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		DiffuseMap.imageView = TextureList.DiffuseMap.textureImageView;
-		DiffuseMap.sampler = TextureList.DiffuseMap.textureSampler;
+	VkDescriptorImageInfo CubeMap = {};
 
-		SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		SpecularMap.imageView = TextureList.SpecularMap.textureImageView;
-		SpecularMap.sampler = TextureList.SpecularMap.textureSampler;
+	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	DiffuseMap.imageView = TextureList.DiffuseMap.textureImageView;
+	DiffuseMap.sampler = TextureList.DiffuseMap.textureSampler;
 
-		AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		AlphaMap.imageView = TextureList.AlphaMap.textureImageView;
-		AlphaMap.sampler = TextureList.AlphaMap.textureSampler;
-	//}
+	SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	SpecularMap.imageView = TextureList.SpecularMap.textureImageView;
+	SpecularMap.sampler = TextureList.SpecularMap.textureSampler;
+
+	AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	AlphaMap.imageView = TextureList.AlphaMap.textureImageView;
+	AlphaMap.sampler = TextureList.AlphaMap.textureSampler;
+
+	CubeMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	CubeMap.imageView = TextureList.CubeMap.textureImageView;
+	CubeMap.sampler = TextureList.CubeMap.textureSampler;
 
 	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
@@ -86,32 +91,36 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		PositionDescriptor.DescriptorBufferInfo = PositionInfo;
 		DescriptorList.emplace_back(PositionDescriptor);
 
-	/*	if (TextureList.size() != 0)
-		{*/
-			WriteDescriptorSetInfo DiffuseMapDescriptor;
-			DiffuseMapDescriptor.DstBinding = 1;
-			DiffuseMapDescriptor.DstSet = descriptorSets[i];
-			DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			DiffuseMapDescriptor.DescriptorImageInfo = DiffuseMap;
-			DescriptorList.emplace_back(DiffuseMapDescriptor);
+		WriteDescriptorSetInfo DiffuseMapDescriptor;
+		DiffuseMapDescriptor.DstBinding = 1;
+		DiffuseMapDescriptor.DstSet = descriptorSets[i];
+		DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		DiffuseMapDescriptor.DescriptorImageInfo = DiffuseMap;
+		DescriptorList.emplace_back(DiffuseMapDescriptor);
 
-			WriteDescriptorSetInfo SpecularMapDescriptor;
-			SpecularMapDescriptor.DstBinding = 2;
-			SpecularMapDescriptor.DstSet = descriptorSets[i];
-			SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
-			DescriptorList.emplace_back(SpecularMapDescriptor);
+		WriteDescriptorSetInfo SpecularMapDescriptor;
+		SpecularMapDescriptor.DstBinding = 2;
+		SpecularMapDescriptor.DstSet = descriptorSets[i];
+		SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
+		DescriptorList.emplace_back(SpecularMapDescriptor);
 
-			WriteDescriptorSetInfo AlphaMapDescriptor;
-			AlphaMapDescriptor.DstBinding = 3;
-			AlphaMapDescriptor.DstSet = descriptorSets[i];
-			AlphaMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			AlphaMapDescriptor.DescriptorImageInfo = AlphaMap;
-			DescriptorList.emplace_back(AlphaMapDescriptor);
-		/*}*/
+		WriteDescriptorSetInfo AlphaMapDescriptor;
+		AlphaMapDescriptor.DstBinding = 3;
+		AlphaMapDescriptor.DstSet = descriptorSets[i];
+		AlphaMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		AlphaMapDescriptor.DescriptorImageInfo = AlphaMap;
+		DescriptorList.emplace_back(AlphaMapDescriptor);
+
+		WriteDescriptorSetInfo CubeMapDescriptor;
+		CubeMapDescriptor.DstBinding = 4;
+		CubeMapDescriptor.DstSet = descriptorSets[i];
+		CubeMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		CubeMapDescriptor.DescriptorImageInfo = CubeMap;
+		DescriptorList.emplace_back(CubeMapDescriptor);
 
 		WriteDescriptorSetInfo ViewPosDescriptor;
-		ViewPosDescriptor.DstBinding = 4;
+		ViewPosDescriptor.DstBinding = 5;
 		ViewPosDescriptor.DstSet = descriptorSets[i];
 		ViewPosDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		ViewPosDescriptor.DescriptorBufferInfo = ViewPosInfo;

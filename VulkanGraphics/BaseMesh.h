@@ -4,6 +4,7 @@
 #include "Structs.h"
 #include "Vertex.h"
 #include "Texture2D.h"
+#include "CubeMapTexture.h"
 
 struct PositionMatrix
 {
@@ -18,6 +19,7 @@ struct TextureMaps
 	Texture2D SpecularMap;
 	Texture2D AlphaMap;
 	Texture2D NormalMap;
+	CubeMapTexture CubeMap;
 };
 
 class BaseMesh : public VulkanResources
@@ -31,8 +33,7 @@ protected:
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
 
-	std::vector<VkDescriptorSet> descriptorSets;
-	VkDescriptorPool descriptorPool;
+
 
 	int VertexSize;
 	uint16_t IndiceSize;
@@ -50,6 +51,9 @@ public:
 	std::vector<uint16_t> IndexList;
 
 	TextureMaps TextureList;
+
+	std::vector<VkDescriptorSet> descriptorSets;
+	VkDescriptorPool descriptorPool;
 
 	BaseMesh();
 	BaseMesh(Renderer& renderer);

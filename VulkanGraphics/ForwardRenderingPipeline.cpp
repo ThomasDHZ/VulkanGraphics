@@ -17,7 +17,7 @@ ForwardRenderingPipeline::~ForwardRenderingPipeline()
 
 void ForwardRenderingPipeline::CreateDescriptorSetLayout()
 {
-	std::array<DescriptorSetLayoutBindingInfo, 5> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 6> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -36,8 +36,12 @@ void ForwardRenderingPipeline::CreateDescriptorSetLayout()
 	LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	LayoutBindingInfo[4].Binding = 4;
-	LayoutBindingInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LayoutBindingInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	LayoutBindingInfo[4].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[5].Binding = 5;
+	LayoutBindingInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LayoutBindingInfo[5].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
@@ -104,7 +108,7 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, 
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+	rasterizer.cullMode = VK_CULL_MODE_NONE;
 	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 

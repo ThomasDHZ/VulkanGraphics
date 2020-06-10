@@ -11,7 +11,7 @@ Texture2D::Texture2D(Renderer& renderer, std::string TexturePath) : Texture(rend
 	stbi_set_flip_vertically_on_load(true);
 
 	stbi_uc* pixels = stbi_load(TexturePath.c_str(), &Width, &Height, &ColorChannels, STBI_rgb_alpha);
-	VkDeviceSize imageSize = Width * Height * ColorChannels;
+	VkDeviceSize imageSize = Width * Height * 4;
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;

@@ -14,10 +14,6 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	renderer = Renderer(Window.GetWindowPtr());
 	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-	TextureMaps maps;
-	maps.DiffuseMap = Texture2D(renderer, "texture/window.png");
-	maps.SpecularMap = Texture2D(renderer, "texture/container2_specular.png");
-
 	//Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/box.obj"));
@@ -39,9 +35,13 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	layout.Bottom = "texture/skybox/bottom.jpg";
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
-	SkyboxTexture = CubeMapTexture(renderer, layout);
 
-	Skybox = SkyBox(renderer, SkyboxTexture);
+	maps.DiffuseMap = Texture2D(renderer, "texture/window.png");
+	maps.SpecularMap = Texture2D(renderer, "texture/container2_specular.png");
+	maps.AlphaMap = Texture2D(renderer, "texture/temp.bmp");
+	maps.CubeMap = CubeMapTexture(renderer, layout);
+
+	Skybox = SkyBox(renderer, maps.CubeMap);
 
 	InitializeGUIDebugger();
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
@@ -147,7 +147,6 @@ VulkanGraphics::~VulkanGraphics()
 	//Ambiant.Destroy(renderer);
 	
 	Skybox.Destory(renderer);
-	SkyboxTexture.Destroy(renderer);
 
 	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
@@ -302,11 +301,14 @@ void VulkanGraphics::MainLoop()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		{
+
 			ImGui::Begin("Settings");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
+			//ImGui::Image(&descriptorWrites, ImVec2(100.0f, 100.0f));
+
 			ImGui::End();
 
 			lightManager.UpdateLights();
