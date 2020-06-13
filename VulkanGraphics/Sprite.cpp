@@ -16,6 +16,7 @@ Sprite::Sprite(Renderer& renderer, glm::vec2 StartPos)
 
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
+	maps.NormalMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
 	maps.CubeMap = CubeMapTexture(renderer, layout);
 

@@ -54,9 +54,11 @@ layout(location = 4) in vec3 Bitangent;
   
 layout(binding = 1) uniform sampler2D DiffuseMap;
 layout(binding = 2) uniform sampler2D SpecularMap;
-layout(binding = 3) uniform sampler2D AlphaMap;
-layout(binding = 4) uniform samplerCube CubeMap;
-layout(binding = 5) uniform MeshProp
+layout(binding = 3) uniform sampler2D NormalMap;
+layout(binding = 4) uniform sampler2D DisplacementMap;
+layout(binding = 5) uniform sampler2D AlphaMap;
+layout(binding = 6) uniform samplerCube CubeMap;
+layout(binding = 7) uniform MeshProp
 {
 	SpotLight spotLight;
     DirectionalLight directionalLight;

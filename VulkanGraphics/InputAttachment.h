@@ -5,6 +5,7 @@
 enum AttachmentType
 {
 	VkColorAttachment,
+	VkHDRColorAttachment,
 	VkPositionAttachment,
 	VkNormalAttachment,
 	VkAlbedoAttachment,

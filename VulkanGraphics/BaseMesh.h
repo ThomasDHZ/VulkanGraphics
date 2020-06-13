@@ -11,14 +11,18 @@ struct PositionMatrix
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
+	alignas(16) glm::vec3 lightPos;
+	alignas(16) glm::vec3 viewPos;
+	alignas(4) float timer;
 };
 
 struct TextureMaps
 {
 	Texture2D DiffuseMap;
 	Texture2D SpecularMap;
-	Texture2D AlphaMap;
 	Texture2D NormalMap;
+	Texture2D DisplacementMap;
+	Texture2D AlphaMap;
 	CubeMapTexture CubeMap;
 };
 

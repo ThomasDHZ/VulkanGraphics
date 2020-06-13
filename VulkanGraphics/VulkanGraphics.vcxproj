@@ -204,12 +204,14 @@
     <None Include="Shaders\CollisionShader.vert" />
     <None Include="Shaders\DifferedRenderingShader.frag" />
     <None Include="Shaders\DifferedRenderingShader.vert" />
+    <None Include="Shaders\ForwardRendererShader.frag" />
+    <None Include="Shaders\ForwardRendererShader.vert" />
     <None Include="Shaders\FrameBufferShader.frag" />
     <None Include="Shaders\FrameBufferShader.vert" />
     <None Include="Shaders\DebugLightShader.frag" />
     <None Include="Shaders\DebugLightShader.vert" />
-    <None Include="Shaders\ForwardRendererShader.frag" />
-    <None Include="Shaders\ForwardRendererShader.vert" />
+    <None Include="Shaders\NormalMapForwardRendererShader.frag" />
+    <None Include="Shaders\NormalMapForwardRendererShader.vert" />
     <None Include="Shaders\WireFrameShader.frag" />
     <None Include="Shaders\WireFrameShader.vert" />
     <None Include="Shaders\Renderer2DShader.frag" />

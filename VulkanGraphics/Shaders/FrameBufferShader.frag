@@ -18,5 +18,6 @@ vec3 brightnessContrast(vec3 color, float brightness, float contrast) {
 void main() 
 {
 	vec3 color = subpassLoad(inputColor).rgb;
+	//vec3 result = vec3(1.0) - exp(-color * 1.0f);
 	outColor.rgb = color;
 }

@@ -23,7 +23,7 @@ private:
 
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
 
-	InputAttachment ColorAttachment;
+	InputAttachment HDRColorAttachment;
 	InputAttachment DepthAttachment;
 
 	VulkanSwapChain SwapChain;

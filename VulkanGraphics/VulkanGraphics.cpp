@@ -10,9 +10,10 @@
 
 VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
+	CalcTangent();
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = Renderer(Window.GetWindowPtr());
-	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	camera = Camera(glm::vec3(0.5f, 1.0f, 0.3f));
 
 	//Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -36,24 +37,26 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
 
-	maps.DiffuseMap = Texture2D(renderer, "texture/window.png");
-	maps.SpecularMap = Texture2D(renderer, "texture/container2_specular.png");
-	maps.AlphaMap = Texture2D(renderer, "texture/temp.bmp");
+	maps.DiffuseMap = Texture2D(renderer, "texture/bricks2.jpg");
+	maps.NormalMap = Texture2D(renderer, "texture/bricks2_normal.jpg");
+	maps.DisplacementMap = Texture2D(renderer, "texture/bricks2_disp.jpg");
+	maps.SpecularMap = Texture2D(renderer, "texture/SparkManSpec2048.bmp");
+	maps.AlphaMap = Texture2D(renderer, "texture/SparkManAlpha2048.bmp");
 	maps.CubeMap = CubeMapTexture(renderer, layout);
 
 	Skybox = SkyBox(renderer, maps.CubeMap);
 
 	InitializeGUIDebugger();
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	//MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
 
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
@@ -98,7 +101,6 @@ glm::vec3(0.0f,  0.0f, -3.0f)
 	light3.Constant = 1.0f;
 	light3.Linear = 0.09f;
 	light3.Quadratic = 0.032;
-	VkPhysicalDeviceRayTracingPropertiesNV AL;
 	
 	PointLightBuffer light4;
 	light4.Position = pointLightPositions[3];
@@ -133,6 +135,12 @@ VulkanGraphics::~VulkanGraphics()
 {
 	vkDeviceWaitIdle(*GetDevice(renderer));
 
+	maps.DiffuseMap.Destroy(renderer);
+	maps.NormalMap.Destroy(renderer);
+	maps.DisplacementMap.Destroy(renderer);
+	maps.SpecularMap.Destroy(renderer);
+	maps.AlphaMap.Destroy(renderer);
+	maps.CubeMap.Destroy(renderer);
 	//modelLoader.CleanTextureMemory(renderer);
 	for (auto mesh : MeshList)
 	{
@@ -151,6 +159,52 @@ VulkanGraphics::~VulkanGraphics()
 	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
 	Window.CleanUp();
+}
+
+void VulkanGraphics::CalcTangent()
+{
+
+	// calculate tangent/bitangent vectors of both triangles
+	glm::vec3 tangent1, bitangent1;
+	glm::vec3 tangent2, bitangent2;
+	// triangle 1
+	// ----------
+	glm::vec3 edge1 = vertices[1].Position - vertices[0].Position;
+	glm::vec3 edge2 = vertices[2].Position - vertices[0].Position;
+	glm::vec2 deltaUV1 = vertices[1].TexureCoord - vertices[0].TexureCoord;
+	glm::vec2 deltaUV2 = vertices[2].TexureCoord - vertices[0].TexureCoord;
+
+	GLfloat f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+	tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+	tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+	tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+	tangent1 = glm::normalize(tangent1);
+
+	bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+	bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+	bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+	bitangent1 = glm::normalize(bitangent1);
+
+	// triangle 2
+	// ----------
+	edge1 = vertices[2].Position - vertices[0].Position;
+	edge2 = vertices[3].Position - vertices[0].Position;
+	deltaUV1 = vertices[2].TexureCoord - vertices[0].TexureCoord;
+	deltaUV2 = vertices[3].TexureCoord - vertices[0].TexureCoord;
+
+	f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+	tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+	tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+	tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+	tangent2 = glm::normalize(tangent2);
+
+
+	bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+	bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+	bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+	
 }
 
 void VulkanGraphics::InitializeGUIDebugger()
@@ -204,20 +258,23 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
 	viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
 	viewing.material = material;
+	//viewing.lightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 	viewing.viewPos = camera.GetCameraPos();
 
 
-	for (unsigned int i = 0; i < 10; i++)
+	for (unsigned int i = 0; i < 1; i++)
 	{
 		float angle = 20.0f * i;
 
 		PositionMatrix ubo{};
 		ubo.model = glm::mat4(1.0f);
 		ubo.model = glm::translate(ubo.model, cubePositions[i]);
-		ubo.model = glm::rotate(ubo.model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+		ubo.model = glm::rotate(ubo.model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0))); // rotate the quad to show normal mapping from multiple directions
 		ubo.view = camera.GetViewMatrix();
 		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;
+		ubo.lightPos = glm::vec3(0.5f, 1.0f, 0.3f);
+		ubo.viewPos = camera.GetCameraPos();
 
 		MeshList[i].UpdateUniformBuffer(renderer, ubo, viewing);
 	}

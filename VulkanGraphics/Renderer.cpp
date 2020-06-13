@@ -20,7 +20,7 @@ Renderer::Renderer(GLFWwindow* window) : RendererBase(window)
 	MeshviewPipeline = WireFramePipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline = SkyBoxPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 
-	framebuffer = FrameBufferMesh(Device, PhysicalDevice, MainCommandPool, GraphicsQueue, SwapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
+	framebuffer = FrameBufferMesh(Device, PhysicalDevice, MainCommandPool, GraphicsQueue, SwapChain.GetSwapChainResolution(), RenderPass, HDRColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
 }
 
 Renderer::~Renderer()
@@ -44,7 +44,7 @@ void Renderer::InitializeRenderPass()
 	SwapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 	VkAttachmentDescription ColorAttachment = {};
-	ColorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+	ColorAttachment.format = VK_FORMAT_R32G32B32A32_SFLOAT;
 	ColorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 	ColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	ColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -141,7 +141,7 @@ void Renderer::InitializeRenderPass()
 
 void Renderer::InitializeFramebuffers()
 {
-	ColorAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkColorAttachment, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
+	HDRColorAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkHDRColorAttachment, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
 	DepthAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkDepthAttachemnt, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
 
 	SwapChainFramebuffers.resize(SwapChain.GetSwapChainImageCount());
@@ -150,7 +150,7 @@ void Renderer::InitializeFramebuffers()
 		std::array<VkImageView, 3> attachments =
 		{
 			SwapChain.GetSwapChainImageViews()[i],
-			ColorAttachment.AttachmentImageView,
+			HDRColorAttachment.AttachmentImageView,
 			DepthAttachment.AttachmentImageView
 		};
 
@@ -241,7 +241,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 
 	vkDeviceWaitIdle(Device);
 
-	ColorAttachment.DeleteInputAttachment(Device);
+	HDRColorAttachment.DeleteInputAttachment(Device);
 	DepthAttachment.DeleteInputAttachment(Device);
 
 	for (auto framebuffer : SwapChainFramebuffers)
@@ -277,7 +277,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 
-	framebuffer.RecreateSwapChainStage(Device, SwapChain.GetSwapChainResolution(), RenderPass, ColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
+	framebuffer.RecreateSwapChainStage(Device, SwapChain.GetSwapChainResolution(), RenderPass, HDRColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
 	UpdateCommandBuffers = true;
 }
 
@@ -373,7 +373,7 @@ void Renderer::EndFrame(GLFWwindow* window)
 
 void Renderer::DestoryVulkan()
 {
-	ColorAttachment.DeleteInputAttachment(Device);
+	HDRColorAttachment.DeleteInputAttachment(Device);
 	DepthAttachment.DeleteInputAttachment(Device);
 
 	GraphicsPipeline.Destroy();

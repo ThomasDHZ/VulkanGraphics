@@ -21,41 +21,48 @@ void InputAttachment::GetAttachmentTypeInfo(VkDevice device, VkPhysicalDevice ph
 {
 	switch (attachmentType)
 	{
-	case AttachmentType::VkColorAttachment:
-	{
-		Format = VK_FORMAT_R8G8B8A8_UNORM;
-		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
-		break;
-	}
-	case AttachmentType::VkPositionAttachment:
-	{
-		Format = VK_FORMAT_R16G16B16A16_SFLOAT;
-		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
-		break;
-	}
-	case AttachmentType::VkNormalAttachment:
-	{
-		Format = VK_FORMAT_R16G16B16A16_SFLOAT;
-		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
-		break;
-	}
-	case AttachmentType::VkAlbedoAttachment:
-	{
-		Format = VK_FORMAT_R8G8B8A8_UNORM;
-		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
-		break;
-	}
-	case AttachmentType::VkDepthAttachemnt:
-	{
-		Format = VK_FORMAT_D32_SFLOAT;
-		CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		CreateAttachmentView(device, VK_IMAGE_ASPECT_DEPTH_BIT);
-		break;
-	}
+		case AttachmentType::VkColorAttachment:
+		{
+			Format = VK_FORMAT_R8G8B8A8_UNORM;
+			CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
+			break;
+		}
+		case AttachmentType::VkHDRColorAttachment:
+		{
+			Format = VK_FORMAT_R32G32B32A32_SFLOAT;
+			CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
+			break;
+		}
+		case AttachmentType::VkPositionAttachment:
+		{
+			Format = VK_FORMAT_R16G16B16A16_SFLOAT;
+			CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
+			break;
+		}
+		case AttachmentType::VkNormalAttachment:
+		{
+			Format = VK_FORMAT_R16G16B16A16_SFLOAT;
+			CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
+			break;
+		}
+		case AttachmentType::VkAlbedoAttachment:
+		{
+			Format = VK_FORMAT_R8G8B8A8_UNORM;
+			CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			CreateAttachmentView(device, VK_IMAGE_ASPECT_COLOR_BIT);
+			break;
+		}
+		case AttachmentType::VkDepthAttachemnt:
+		{
+			Format = VK_FORMAT_D32_SFLOAT;
+			CreateAttachmentImage(device, physicalDevice, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			CreateAttachmentView(device, VK_IMAGE_ASPECT_DEPTH_BIT);
+			break;
+		}
 	}
 }
 
