@@ -33,6 +33,7 @@ void LevelMesh2D::LoadTiles(Renderer& renderer, const TileSet& tileSet)
 	TextureList.DiffuseMap = Texture2D(renderer, tileSet.DiffuseMap);
 	TextureList.SpecularMap = Texture2D(renderer, tileSet.SpecularMap);
 	TextureList.NormalMap = Texture2D(renderer, tileSet.NormalMap);
+	TextureList.DisplacementMap = Texture2D(renderer, tileSet.AlphaMap);
 	TextureList.AlphaMap = Texture2D(renderer, tileSet.AlphaMap);
 	TextureList.CubeMap = CubeMapTexture(renderer, layout);
 

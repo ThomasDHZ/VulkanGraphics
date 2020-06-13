@@ -37,7 +37,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
 
-	maps.DiffuseMap = Texture2D(renderer, "texture/bricks2.jpg");
+	maps.DiffuseMap = Texture2D(renderer, "texture/grass.png");
 	maps.NormalMap = Texture2D(renderer, "texture/bricks2_normal.jpg");
 	maps.DisplacementMap = Texture2D(renderer, "texture/bricks2_disp.jpg");
 	maps.SpecularMap = Texture2D(renderer, "texture/SparkManSpec2048.bmp");

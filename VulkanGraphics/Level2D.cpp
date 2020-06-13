@@ -23,6 +23,7 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 	maps.NormalMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
+	maps.DisplacementMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
 	maps.CubeMap = CubeMapTexture(renderer, layout);
 
@@ -129,16 +130,16 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	material.Shininess = 32.0f;
 
 	MeshProp viewing = {};
-	//viewing.directionalLight = lightManager.DirectionalLightList[0].GetSettings();
-	//viewing.pointLight[0] = lightManager.PointLightList[0].GetSettings();
-	//viewing.pointLight[1] = lightManager.PointLightList[1].GetSettings();
-	//viewing.pointLight[2] = lightManager.PointLightList[2].GetSettings();
-	//viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
-	//viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
-	//viewing.material = material;
-	//viewing.viewPos = camera.GetCameraPos();
-	//viewing.SpriteUV = glm::vec2(0.0f, 0.0f);
-	//viewing.timer = time;
+	viewing.directionalLight = lightManager.DirectionalLightList[0].GetSettings();
+	viewing.pointLight[0] = lightManager.PointLightList[0].GetSettings();
+	viewing.pointLight[1] = lightManager.PointLightList[1].GetSettings();
+	viewing.pointLight[2] = lightManager.PointLightList[2].GetSettings();
+	viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
+	viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
+	viewing.material = material;
+	viewing.viewPos = camera.GetCameraPos();
+	viewing.SpriteUV = glm::vec2(0.0f, 0.0f);
+	viewing.timer = time;
 
 	PositionMatrix ubo{};
 	ubo.model = glm::mat4(1.0f);

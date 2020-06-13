@@ -73,13 +73,27 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec2 AnimationCoords = vec2(TexCoords.x + mesh.SpriteUV.x, TexCoords.y + mesh.SpriteUV.y);
-void main()
+
+void RemoveAlphaPixels()
 {
-    if(textureSize(AlphaMap, 0).x > 1 &&
-       texture(AlphaMap, AnimationCoords).r == 0)
+    if((textureSize(AlphaMap, 0).x > 1 &&
+       texture(AlphaMap, AnimationCoords).r == 0) ||
+       texture(DiffuseMap, AnimationCoords).a == 0)
     {
         discard;
     }
+}
+
+vec3 CalcReflection(vec3 InputPixel)
+{
+    vec3 I = normalize(FragPos - mesh.viewPos);
+    vec3 R = reflect(I, normalize(Normal));
+    return InputPixel + (texture(CubeMap, R).rgb * 0.5f);
+}
+
+void main()
+{
+    RemoveAlphaPixels();
 
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(mesh.viewPos - FragPos);
@@ -90,11 +104,7 @@ void main()
         result += CalcPointLight(mesh.pointLight[i], norm, FragPos, viewDir);    
 
     result += CalcSpotLight(mesh.spotLight, norm, FragPos, viewDir);    
-    
-    vec3 I = normalize(FragPos - mesh.viewPos);
-    vec3 R = reflect(I, normalize(Normal));
-    result = result + (texture(CubeMap, R).rgb * 0.0f);
-
+    result = CalcReflection(result);
     outColor = vec4(result, 1.0f);
 } 
 

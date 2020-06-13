@@ -9,6 +9,7 @@ struct TileSet
 	std::string DiffuseMap;
 	std::string SpecularMap;
 	std::string NormalMap;
+	std::string DisplacementMap;
 	std::string AlphaMap;
 };
 
