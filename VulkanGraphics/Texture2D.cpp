@@ -43,13 +43,13 @@ void Texture2D::CreateTextureSampler(Renderer& renderer)
 {
 	VkSamplerCreateInfo SamplerInfo = {};
 	SamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	SamplerInfo.magFilter = VK_FILTER_NEAREST;
-	SamplerInfo.minFilter = VK_FILTER_NEAREST;
+	SamplerInfo.magFilter = VK_FILTER_LINEAR;
+	SamplerInfo.minFilter = VK_FILTER_LINEAR;
 	SamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	SamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	SamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	SamplerInfo.anisotropyEnable = VK_FALSE;
-	SamplerInfo.maxAnisotropy = 1;
+	SamplerInfo.anisotropyEnable = VK_TRUE;
+	SamplerInfo.maxAnisotropy = 16;
 	SamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 	SamplerInfo.unnormalizedCoordinates = VK_FALSE;
 	SamplerInfo.compareEnable = VK_FALSE;
@@ -57,4 +57,22 @@ void Texture2D::CreateTextureSampler(Renderer& renderer)
 	SamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
 	Texture::CreateTextureSampler(renderer, SamplerInfo);
+
+	//2D Sampler
+	//VkSamplerCreateInfo SamplerInfo = {};
+	//SamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	//SamplerInfo.magFilter = VK_FILTER_NEAREST;
+	//SamplerInfo.minFilter = VK_FILTER_NEAREST;
+	//SamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	//SamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	//SamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	//SamplerInfo.anisotropyEnable = VK_FALSE;
+	//SamplerInfo.maxAnisotropy = 1;
+	//SamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	//SamplerInfo.unnormalizedCoordinates = VK_FALSE;
+	//SamplerInfo.compareEnable = VK_FALSE;
+	//SamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+	//SamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+	//Texture::CreateTextureSampler(renderer, SamplerInfo);
 }

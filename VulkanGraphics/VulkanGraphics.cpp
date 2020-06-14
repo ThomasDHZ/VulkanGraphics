@@ -13,7 +13,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	CalcTangent();
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = Renderer(Window.GetWindowPtr());
-	camera = Camera(glm::vec3(0.5f, 1.0f, 0.3f));
+	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 	//Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -37,7 +37,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
 
-	maps.DiffuseMap = Texture2D(renderer, "texture/grass.png");
+	maps.DiffuseMap = Texture2D(renderer, "texture/wood.png");
 	maps.NormalMap = Texture2D(renderer, "texture/bricks2_normal.jpg");
 	maps.DisplacementMap = Texture2D(renderer, "texture/bricks2_disp.jpg");
 	maps.SpecularMap = Texture2D(renderer, "texture/SparkManSpec2048.bmp");
@@ -250,15 +250,37 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
 	material.Shininess = 32.0f;
 
+
+	glm::vec3 lightPositions[] = {
+	glm::vec3(-3.0f, 0.0f, 0.0f),
+	glm::vec3(-1.0f, 0.0f, 0.0f),
+	glm::vec3(1.0f, 0.0f, 0.0f),
+	glm::vec3(3.0f, 0.0f, 0.0f)
+	};
+	glm::vec3 lightColors[] = {
+		glm::vec3(0.25f,0.25f,0.25f),
+		glm::vec3(0.50f,0.50f,0.50f),
+		glm::vec3(0.75f,0.75f,0.75f),
+		glm::vec3(1.00f,1.00f,1.00f)
+	};
+
+
 	MeshProp viewing = {};
-	viewing.directionalLight = lightManager.DirectionalLightList[0].GetSettings();
-	viewing.pointLight[0] = lightManager.PointLightList[0].GetSettings();
-	viewing.pointLight[1] = lightManager.PointLightList[1].GetSettings();
-	viewing.pointLight[2] = lightManager.PointLightList[2].GetSettings();
-	viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
-	viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
-	viewing.material = material;
-	//viewing.lightPos = glm::vec3(0.5f, 1.0f, 0.3f);
+	//viewing.directionalLight = lightManager.DirectionalLightList[0].GetSettings();
+	viewing.lights[0].lightPositions = lightPositions[0];
+	viewing.lights[1].lightPositions = lightPositions[1];
+	viewing.lights[2].lightPositions = lightPositions[2];
+	viewing.lights[3].lightPositions = lightPositions[3];
+	viewing.lights[0].lightColors = lightColors[0];
+	viewing.lights[1].lightColors = lightColors[1];
+	viewing.lights[2].lightColors = lightColors[2];
+	viewing.lights[3].lightColors = lightColors[3];
+	//viewing.pointLight[0] = lightManager.PointLightList[0].GetSettings();
+	//viewing.pointLight[1] = lightManager.PointLightList[1].GetSettings();
+	//viewing.pointLight[2] = lightManager.PointLightList[2].GetSettings();
+	//viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
+	//viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
+	//viewing.material = material;
 	viewing.viewPos = camera.GetCameraPos();
 
 
@@ -268,8 +290,6 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 
 		PositionMatrix ubo{};
 		ubo.model = glm::mat4(1.0f);
-		ubo.model = glm::translate(ubo.model, cubePositions[i]);
-		ubo.model = glm::rotate(ubo.model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0))); // rotate the quad to show normal mapping from multiple directions
 		ubo.view = camera.GetViewMatrix();
 		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;

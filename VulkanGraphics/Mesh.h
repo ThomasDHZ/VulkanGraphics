@@ -24,15 +24,16 @@ struct Material
 	alignas(4)  float Shininess;
 };
 
+struct Lightingz
+{
+	alignas(16) glm::vec3 lightPositions;
+	alignas(16) glm::vec3 lightColors;
+};
+
 struct MeshProp
 {
-	SpotLightBuffer spotLight;
-	DirectionalLightBuffer directionalLight;
-	PointLightBuffer pointLight[4];
-	Material material;
+	Lightingz lights[4];
 	alignas(16) glm::vec3 viewPos;
-	alignas(8) glm::vec2 SpriteUV;
-	alignas(4) float timer;
 };
 
 class Mesh : public BaseMesh
