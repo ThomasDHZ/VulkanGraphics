@@ -264,13 +264,13 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 		glm::vec3(1.00f,1.00f,1.00f)
 	};
 
-	//viewing.directionalLightBuffer.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
-	//viewing.directionalLightBuffer.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-	//viewing.directionalLightBuffer.Diffuse = glm::vec3(0.9f, 0.4f, 0.4f);
-	//viewing.directionalLightBuffer.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
+	viewing.directionalLightBuffer.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+	viewing.directionalLightBuffer.Ambient = glm::vec3(0.005f, 0.005f, 0.005f);
+	viewing.directionalLightBuffer.Diffuse = glm::vec3(0.04f, 0.04f, 0.04f);
+	viewing.directionalLightBuffer.Specular = glm::vec3(0.05f, 0.05f, 0.05f);
 	viewing.material.Shininess = 256;
 	viewing.pointLight.Position = glm::vec3(0.0f, 0.0f, 0.0f);
-	viewing.pointLight.Ambient = glm::vec3(0.05f);
+	viewing.pointLight.Ambient = glm::vec3(0.005f);
 	viewing.pointLight.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
 	viewing.pointLight.Specular = glm::vec3(0.3f);
 	viewing.pointLight.Constant = 1.0f;

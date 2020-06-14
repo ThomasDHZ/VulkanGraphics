@@ -60,6 +60,7 @@ layout(binding = 5) uniform sampler2D AlphaMap;
 layout(binding = 6) uniform samplerCube CubeMap;
 layout(binding = 7) uniform MeshProp
 {
+    DirectionalLight directionalLight;
     PointLight pointLight;
     Material material;
     vec3 viewPos;
@@ -76,6 +77,21 @@ void RemoveAlphaPixels()
    // {
    //     discard;
    // }
+}
+
+vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
+{
+    vec3 lightDir = normalize(-light.Direction);
+
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), mesh.material.Shininess);
+
+    vec3 ambient = light.Ambient * vec3(texture(DiffuseMap, TexCoords));
+    vec3 diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, TexCoords));
+    vec3 specular = light.Specular * spec * vec3(texture(SpecularMap, TexCoords));
+    return (ambient + diffuse + specular);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
@@ -113,6 +129,7 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(mesh.viewPos - FragPos);
 
-   vec3 result = CalcPointLight(mesh.pointLight, norm, FragPos, viewDir);
+    vec3 result = CalcDirLight(mesh.directionalLight, norm, viewDir);
+    result += CalcPointLight(mesh.pointLight, norm, FragPos, viewDir);
     outColor = vec4(result, 1.0);
 } 
