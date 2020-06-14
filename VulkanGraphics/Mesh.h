@@ -32,10 +32,12 @@ struct Lightingz
 
 struct MeshProp
 {
-	DirectionalLightBuffer directionalLightBuffer;
+	DirectionalLightBuffer directionalLight;
 	PointLightBuffer pointLight;
+	SpotLightBuffer spotLight;
 	Material material;
 	alignas(16) glm::vec3 viewPos;
+	alignas(8) glm::vec2 SpriteUV;
 };
 
 class Mesh : public BaseMesh

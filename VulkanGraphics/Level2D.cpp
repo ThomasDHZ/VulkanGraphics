@@ -130,15 +130,15 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	material.Shininess = 32.0f;
 
 	MeshProp viewing = {};
-	//viewing.directionalLight = lightManager.DirectionalLightList[0].GetSettings();
-	//viewing.pointLight[0] = lightManager.PointLightList[0].GetSettings();
+	viewing.directionalLight = lightManager.DirectionalLightList[0].GetSettings();
+	viewing.pointLight = lightManager.PointLightList[0].GetSettings();
 	//viewing.pointLight[1] = lightManager.PointLightList[1].GetSettings();
 	//viewing.pointLight[2] = lightManager.PointLightList[2].GetSettings();
 	//viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
-	//viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
-	//viewing.material = material;
-	//viewing.viewPos = camera.GetCameraPos();
-	//viewing.SpriteUV = glm::vec2(0.0f, 0.0f);
+	viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
+	viewing.material = material;
+	viewing.viewPos = camera.GetCameraPos();
+	viewing.SpriteUV = glm::vec2(0.0f, 0.0f);
 	//viewing.timer = time;
 
 	PositionMatrix ubo{};

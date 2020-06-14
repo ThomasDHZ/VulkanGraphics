@@ -264,10 +264,10 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 		glm::vec3(1.00f,1.00f,1.00f)
 	};
 
-	viewing.directionalLightBuffer.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
-	viewing.directionalLightBuffer.Ambient = glm::vec3(0.005f, 0.005f, 0.005f);
-	viewing.directionalLightBuffer.Diffuse = glm::vec3(0.04f, 0.04f, 0.04f);
-	viewing.directionalLightBuffer.Specular = glm::vec3(0.05f, 0.05f, 0.05f);
+	viewing.directionalLight.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+	viewing.directionalLight.Ambient = glm::vec3(0.005f, 0.005f, 0.005f);
+	viewing.directionalLight.Diffuse = glm::vec3(0.04f, 0.04f, 0.04f);
+	viewing.directionalLight.Specular = glm::vec3(0.05f, 0.05f, 0.05f);
 	viewing.material.Shininess = 256;
 	viewing.pointLight.Position = glm::vec3(0.0f, 0.0f, 0.0f);
 	viewing.pointLight.Ambient = glm::vec3(0.005f);
@@ -276,11 +276,16 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	viewing.pointLight.Constant = 1.0f;
 	viewing.pointLight.Linear = 0.09f;
 	viewing.pointLight.Quadratic = 0.032f;
-	//viewing.pointLight.Ambient = glm::vec3(0.05f);
-	//viewing.pointLight.Position = glm::vec3(0.0f, 0.0f, 0.0f);
-	//viewing.pointLight.Diffuse = glm::vec3(0.1f, 0.1f, 0.1f);
-	//viewing.pointLight.Specular = glm::vec3(0.3f);
-	//viewing.reflection = 1.0f;
+	viewing.spotLight.Position = camera.GetCameraPos();
+	viewing.spotLight.Direction = camera.Front;
+	viewing.spotLight.Ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+	viewing.spotLight.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	viewing.spotLight.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	viewing.spotLight.Constant = 1.0f;
+	viewing.spotLight.Linear = 0.09f;
+	viewing.spotLight.Quadratic = 0.032f;
+	viewing.spotLight.CutOff = glm::cos(glm::radians(12.5f));
+	viewing.spotLight.OuterCutOff = glm::cos(glm::radians(15.0f));
 	viewing.viewPos = camera.GetCameraPos();
 
 

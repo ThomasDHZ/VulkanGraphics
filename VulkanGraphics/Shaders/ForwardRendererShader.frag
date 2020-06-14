@@ -62,21 +62,23 @@ layout(binding = 7) uniform MeshProp
 {
     DirectionalLight directionalLight;
     PointLight pointLight;
+    SpotLight spotLight;
     Material material;
     vec3 viewPos;
+    vec2 SpriteUV;
 } mesh;
 
 
-//vec2 AnimationCoords = vec2(TexCoords.x + mesh.SpriteUV.x, TexCoords.y + mesh.SpriteUV.y);
+vec2 AnimationCoords = vec2(TexCoords.x + mesh.SpriteUV.x, TexCoords.y + mesh.SpriteUV.y);
 
 void RemoveAlphaPixels()
 {
-    //if((textureSize(AlphaMap, 0).x > 1 &&
-    //   texture(AlphaMap, AnimationCoords).r == 0) ||
-    //   texture(DiffuseMap, AnimationCoords).a == 0)
-   // {
-   //     discard;
-   // }
+    if((textureSize(AlphaMap, 0).x > 1 &&
+        texture(AlphaMap, AnimationCoords).r == 0) ||
+        texture(DiffuseMap, AnimationCoords).a == 0)
+   {
+        discard;
+   }
 }
 
 vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
@@ -117,6 +119,31 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+{
+    vec3 lightDir = normalize(light.Position - fragPos);
+
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), mesh.material.Shininess);
+
+    float distance = length(light.Position - fragPos);
+    float attenuation = 1.0 / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));    
+
+    float theta = dot(lightDir, normalize(-light.Direction)); 
+    float epsilon = light.CutOff - light.OuterCutOff;
+    float intensity = clamp((theta - light.OuterCutOff) / epsilon, 0.0, 1.0);
+
+    vec3 ambient = light.Ambient * vec3(texture(DiffuseMap, TexCoords));
+    vec3 diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, TexCoords));
+    vec3 specular = light.Specular * spec * vec3(texture(SpecularMap, TexCoords));
+    ambient *= attenuation * intensity;
+    diffuse *= attenuation * intensity;
+    specular *= attenuation * intensity;
+    return (ambient + diffuse + specular);
+}
+
 vec3 CalcReflection(vec3 InputPixel)
 {
     vec3 I = normalize(FragPos - mesh.viewPos);
@@ -126,10 +153,14 @@ vec3 CalcReflection(vec3 InputPixel)
 
 void main()
 {
+    RemoveAlphaPixels();
+
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(mesh.viewPos - FragPos);
 
     vec3 result = CalcDirLight(mesh.directionalLight, norm, viewDir);
     result += CalcPointLight(mesh.pointLight, norm, FragPos, viewDir);
+    result += CalcSpotLight(mesh.spotLight, norm, FragPos, viewDir);
+   // result += CalcReflection(result);
     outColor = vec4(result, 1.0);
 } 
