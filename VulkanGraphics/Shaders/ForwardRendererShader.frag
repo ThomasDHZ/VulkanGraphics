@@ -44,8 +44,8 @@ struct Material
 
 struct Lightingz
 {
-    vec3 lightPositions;
-    vec3 lightColors;
+    vec3 Position;
+    vec3 Color;
 };
 
 #define NR_POINT_LIGHTS 4
@@ -92,38 +92,26 @@ vec3 CalcReflection(vec3 InputPixel)
     return InputPixel + (texture(CubeMap, R).rgb * 0.5f);
 }
 
-vec3 BlinnPhong(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightColor)
-{
-    // diffuse
-    vec3 lightDir = normalize(lightPos - fragPos);
-    float diff = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = diff * lightColor;
-    // specular
-    vec3 viewDir = normalize(mesh.viewPos - fragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = 0.0;
-    vec3 halfwayDir = normalize(lightDir + viewDir);  
-    spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
-    vec3 specular = spec * lightColor;    
-    // simple attenuation
-    float max_distance = 1.5;
-    float distance = length(lightPos - fragPos);
-    float attenuation = 1.0 / distance;
-    
-    diffuse *= attenuation;
-    specular *= attenuation;
-    
-    return diffuse + specular;
-}
-
 void main()
 {
-    //RemoveAlphaPixels();
-
     vec3 color = texture(DiffuseMap, TexCoords).rgb;
+    vec3 normal = normalize(Normal);
+    // ambient
+    vec3 ambient = 0.0 * color;
+    // lighting
     vec3 lighting = vec3(0.0);
-    for(int i = 0; i < 4; ++i)
-        lighting += BlinnPhong(normalize(Normal), FragPos, mesh.lightz[i].lightPositions, mesh.lightz[i].lightColors);
-    color *= lighting;
-    outColor = vec4(color, 1.0);
+    for(int i = 0; i < 4; i++)
+    {
+        // diffuse
+        vec3 lightDir = normalize(mesh.lightz[i].Position - FragPos);
+        float diff = max(dot(lightDir, normal), 0.0);
+        vec3 diffuse = mesh.lightz[i].Color * diff * color;      
+        vec3 result = diffuse;        
+        // attenuation (use quadratic as we have gamma correction)
+        float distance = length(FragPos - mesh.lightz[i].Position);
+        result *= 1.0 / (distance * distance);
+        lighting += result;
+                
+    }
+    outColor = vec4(ambient + lighting, 1.0);
 } 

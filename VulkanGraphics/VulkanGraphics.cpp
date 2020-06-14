@@ -13,7 +13,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	CalcTangent();
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = Renderer(Window.GetWindowPtr());
-	camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
 
 	//Ambiant = AmbientLight(renderer, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -267,14 +267,14 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 
 	MeshProp viewing = {};
 	//viewing.directionalLight = lightManager.DirectionalLightList[0].GetSettings();
-	viewing.lights[0].lightPositions = lightPositions[0];
-	viewing.lights[1].lightPositions = lightPositions[1];
-	viewing.lights[2].lightPositions = lightPositions[2];
-	viewing.lights[3].lightPositions = lightPositions[3];
-	viewing.lights[0].lightColors = lightColors[0];
-	viewing.lights[1].lightColors = lightColors[1];
-	viewing.lights[2].lightColors = lightColors[2];
-	viewing.lights[3].lightColors = lightColors[3];
+	viewing.lights[0].Position = glm::vec3(0.0f, 0.0f, 49.5f);
+	viewing.lights[1].Position = glm::vec3(-1.4f, -1.9f, 9.0f);
+	viewing.lights[2].Position = glm::vec3(0.0f, -1.8f, 4.0f);
+	viewing.lights[3].Position = glm::vec3(0.8f, -1.7f, 6.0f);
+	viewing.lights[0].Color = glm::vec3(200.0f, 200.0f, 200.0f);
+	viewing.lights[1].Color = glm::vec3(0.1f, 0.0f, 0.0f);
+	viewing.lights[2].Color = glm::vec3(0.0f, 0.0f, 0.2f);
+	viewing.lights[3].Color = glm::vec3(0.0f, 0.1f, 0.0f);
 	//viewing.pointLight[0] = lightManager.PointLightList[0].GetSettings();
 	//viewing.pointLight[1] = lightManager.PointLightList[1].GetSettings();
 	//viewing.pointLight[2] = lightManager.PointLightList[2].GetSettings();
@@ -290,6 +290,8 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 
 		PositionMatrix ubo{};
 		ubo.model = glm::mat4(1.0f);
+		ubo.model = glm::translate(ubo.model, glm::vec3(0.0f, 0.0f, 25.0));
+		ubo.model = glm::scale(ubo.model, glm::vec3(2.5f, 2.5f, 27.5f));
 		ubo.view = camera.GetViewMatrix();
 		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;

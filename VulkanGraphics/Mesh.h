@@ -26,8 +26,8 @@ struct Material
 
 struct Lightingz
 {
-	alignas(16) glm::vec3 lightPositions;
-	alignas(16) glm::vec3 lightColors;
+	alignas(16) glm::vec3 Position;
+	alignas(16) glm::vec3 Color;
 };
 
 struct MeshProp
