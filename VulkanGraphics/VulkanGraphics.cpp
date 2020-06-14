@@ -264,23 +264,23 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 		glm::vec3(1.00f,1.00f,1.00f)
 	};
 
-
-	MeshProp viewing = {};
-	//viewing.directionalLight = lightManager.DirectionalLightList[0].GetSettings();
-	viewing.lights[0].Position = glm::vec3(0.0f, 0.0f, 49.5f);
-	viewing.lights[1].Position = glm::vec3(-1.4f, -1.9f, 9.0f);
-	viewing.lights[2].Position = glm::vec3(0.0f, -1.8f, 4.0f);
-	viewing.lights[3].Position = glm::vec3(0.8f, -1.7f, 6.0f);
-	viewing.lights[0].Color = glm::vec3(200.0f, 200.0f, 200.0f);
-	viewing.lights[1].Color = glm::vec3(0.1f, 0.0f, 0.0f);
-	viewing.lights[2].Color = glm::vec3(0.0f, 0.0f, 0.2f);
-	viewing.lights[3].Color = glm::vec3(0.0f, 0.1f, 0.0f);
-	//viewing.pointLight[0] = lightManager.PointLightList[0].GetSettings();
-	//viewing.pointLight[1] = lightManager.PointLightList[1].GetSettings();
-	//viewing.pointLight[2] = lightManager.PointLightList[2].GetSettings();
-	//viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
-	//viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
-	//viewing.material = material;
+	//viewing.directionalLightBuffer.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+	//viewing.directionalLightBuffer.Ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+	//viewing.directionalLightBuffer.Diffuse = glm::vec3(0.9f, 0.4f, 0.4f);
+	//viewing.directionalLightBuffer.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
+	viewing.material.Shininess = 256;
+	viewing.pointLight.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+	viewing.pointLight.Ambient = glm::vec3(0.05f);
+	viewing.pointLight.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	viewing.pointLight.Specular = glm::vec3(0.3f);
+	viewing.pointLight.Constant = 1.0f;
+	viewing.pointLight.Linear = 0.09f;
+	viewing.pointLight.Quadratic = 0.032f;
+	//viewing.pointLight.Ambient = glm::vec3(0.05f);
+	//viewing.pointLight.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+	//viewing.pointLight.Diffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+	//viewing.pointLight.Specular = glm::vec3(0.3f);
+	//viewing.reflection = 1.0f;
 	viewing.viewPos = camera.GetCameraPos();
 
 
@@ -290,8 +290,6 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 
 		PositionMatrix ubo{};
 		ubo.model = glm::mat4(1.0f);
-		ubo.model = glm::translate(ubo.model, glm::vec3(0.0f, 0.0f, 25.0));
-		ubo.model = glm::scale(ubo.model, glm::vec3(2.5f, 2.5f, 27.5f));
 		ubo.view = camera.GetViewMatrix();
 		ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo.proj[1][1] *= -1;
@@ -386,6 +384,7 @@ void VulkanGraphics::MainLoop()
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
+			//ImGui::SliderFloat("Reflection", &viewing.reflection, 0.0f, 1.0f);
 			//ImGui::Image(&descriptorWrites, ImVec2(100.0f, 100.0f));
 
 			ImGui::End();

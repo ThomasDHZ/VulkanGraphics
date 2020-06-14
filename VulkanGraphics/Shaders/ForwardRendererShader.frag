@@ -42,12 +42,6 @@ struct Material
 	float Shininess;
 };
 
-struct Lightingz
-{
-    vec3 Position;
-    vec3 Color;
-};
-
 #define NR_POINT_LIGHTS 4
 
 layout(location = 0) out vec4 outColor;
@@ -66,13 +60,12 @@ layout(binding = 5) uniform sampler2D AlphaMap;
 layout(binding = 6) uniform samplerCube CubeMap;
 layout(binding = 7) uniform MeshProp
 {
-    Lightingz lightz[4];
+    PointLight pointLight;
+    Material material;
     vec3 viewPos;
 } mesh;
 
-vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir);
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+
 //vec2 AnimationCoords = vec2(TexCoords.x + mesh.SpriteUV.x, TexCoords.y + mesh.SpriteUV.y);
 
 void RemoveAlphaPixels()
@@ -85,6 +78,29 @@ void RemoveAlphaPixels()
    // }
 }
 
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+{
+    vec3 lightDir = normalize(light.Position - fragPos);
+
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    vec3 reflectDir = reflect(-lightDir, normal);
+
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), mesh.material.Shininess);
+
+    float distance = length(light.Position - fragPos);
+    float attenuation = 1.0 / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));    
+
+    vec3 ambient = light.Ambient * vec3(texture(DiffuseMap, TexCoords));
+    vec3 diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, TexCoords));
+    vec3 specular = light.Specular * spec * vec3(texture(SpecularMap, TexCoords));
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+    return (ambient + diffuse + specular);
+}
+
 vec3 CalcReflection(vec3 InputPixel)
 {
     vec3 I = normalize(FragPos - mesh.viewPos);
@@ -94,24 +110,9 @@ vec3 CalcReflection(vec3 InputPixel)
 
 void main()
 {
-    vec3 color = texture(DiffuseMap, TexCoords).rgb;
-    vec3 normal = normalize(Normal);
-    // ambient
-    vec3 ambient = 0.0 * color;
-    // lighting
-    vec3 lighting = vec3(0.0);
-    for(int i = 0; i < 4; i++)
-    {
-        // diffuse
-        vec3 lightDir = normalize(mesh.lightz[i].Position - FragPos);
-        float diff = max(dot(lightDir, normal), 0.0);
-        vec3 diffuse = mesh.lightz[i].Color * diff * color;      
-        vec3 result = diffuse;        
-        // attenuation (use quadratic as we have gamma correction)
-        float distance = length(FragPos - mesh.lightz[i].Position);
-        result *= 1.0 / (distance * distance);
-        lighting += result;
-                
-    }
-    outColor = vec4(ambient + lighting, 1.0);
+    vec3 norm = normalize(Normal);
+    vec3 viewDir = normalize(mesh.viewPos - FragPos);
+
+   vec3 result = CalcPointLight(mesh.pointLight, norm, FragPos, viewDir);
+    outColor = vec4(result, 1.0);
 } 

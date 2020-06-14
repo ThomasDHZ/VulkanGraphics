@@ -12,7 +12,7 @@ layout(location = 0) out vec4 outColor;
 void main() 
 {
 	vec3 color = subpassLoad(inputColor).rgb;
-	color = vec3(1.0) - exp(-color * 1.0f);
-	color = pow(color, vec3(1.0/2.2));
+	//color = vec3(1.0) - exp(-color * 1.0f);
+//	color = pow(color, vec3(1.0/2.2));
 	outColor.rgb = color;
 }

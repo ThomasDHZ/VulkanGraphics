@@ -137,7 +137,7 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	//viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
 	//viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
 	//viewing.material = material;
-	viewing.viewPos = camera.GetCameraPos();
+	//viewing.viewPos = camera.GetCameraPos();
 	//viewing.SpriteUV = glm::vec2(0.0f, 0.0f);
 	//viewing.timer = time;
 

@@ -104,7 +104,7 @@ void Texture::CreateImage(Renderer& renderer)
 	ImageInfo.extent.height = Height;
 	ImageInfo.extent.depth = 1;
 	ImageInfo.mipLevels = 1;
-	ImageInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+	ImageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
 	ImageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 	ImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	ImageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -145,7 +145,7 @@ void Texture::CreateImageView(Renderer& renderer)
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	viewInfo.image = textureImage;
-	viewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+	viewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
 	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	viewInfo.subresourceRange.baseMipLevel = 0;
 	viewInfo.subresourceRange.levelCount = 1;

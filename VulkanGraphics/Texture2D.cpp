@@ -58,7 +58,7 @@ void Texture2D::CreateTextureSampler(Renderer& renderer)
 
 	Texture::CreateTextureSampler(renderer, SamplerInfo);
 
-	//2D Sampler
+	//For Textures with Alpha
 	//VkSamplerCreateInfo SamplerInfo = {};
 	//SamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	//SamplerInfo.magFilter = VK_FILTER_NEAREST;
@@ -66,8 +66,8 @@ void Texture2D::CreateTextureSampler(Renderer& renderer)
 	//SamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	//SamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	//SamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	//SamplerInfo.anisotropyEnable = VK_FALSE;
-	//SamplerInfo.maxAnisotropy = 1;
+	//SamplerInfo.anisotropyEnable = VK_TRUE;
+	//SamplerInfo.maxAnisotropy = 16;
 	//SamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 	//SamplerInfo.unnormalizedCoordinates = VK_FALSE;
 	//SamplerInfo.compareEnable = VK_FALSE;
