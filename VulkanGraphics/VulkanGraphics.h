@@ -45,7 +45,7 @@ class VulkanGraphics : VulkanResources
 private:
 	MeshProp viewing = {};
 
-	TextureMaps maps;
+	TextureMaterial maps;
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
 	Renderer renderer;

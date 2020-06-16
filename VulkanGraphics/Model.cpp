@@ -8,7 +8,7 @@
 //{
 //	for (auto mesh : SubMeshList)
 //	{
-//		MeshList.emplace_back(Mesh(renderer, mesh.VertexList, mesh.IndexList, mesh.TextureList));
+//		//MeshList.emplace_back(Mesh(renderer, mesh.VertexList, mesh.IndexList, mesh.TextureList));
 //	}
 //}
 //

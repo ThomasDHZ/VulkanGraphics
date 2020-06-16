@@ -8,14 +8,14 @@ Mesh::Mesh(Renderer& renderer) : BaseMesh(renderer)
 {
 }
 
-Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const TextureMaps& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
+Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const TextureMaterial& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
 {
 	CreateUniformBuffers(renderer);
 	CreateDescriptorPool(renderer);
 	CreateDescriptorSets(renderer);
 }
 
-Mesh::Mesh(Renderer& renderer, const TextureMaps& textureList) : BaseMesh(renderer, textureList)
+Mesh::Mesh(Renderer& renderer, const TextureMaterial& textureList) : BaseMesh(renderer, textureList)
 {
 
 }

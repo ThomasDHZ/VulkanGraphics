@@ -16,7 +16,7 @@ struct PositionMatrix
 	alignas(4) float timer;
 };
 
-struct TextureMaps
+struct TextureMaterial
 {
 	Texture2D DiffuseMap;
 	Texture2D SpecularMap;
@@ -54,7 +54,7 @@ public:
 	std::vector<Vertex> VertexList;
 	std::vector<uint16_t> IndexList;
 
-	TextureMaps TextureList;
+	TextureMaterial TextureList;
 
 	std::vector<VkDescriptorSet> descriptorSets;
 	VkDescriptorPool descriptorPool;
@@ -62,10 +62,10 @@ public:
 	BaseMesh();
 	BaseMesh(Renderer& renderer);
 	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices);
-	BaseMesh(Renderer& renderer, const TextureMaps& textureList);
+	BaseMesh(Renderer& renderer, const TextureMaterial& textureList);
 	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const TextureMaps& textureList);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const TextureMaterial& textureList);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaterial& textureList);
 	~BaseMesh();
 
 	void Destory(Renderer& renderer);

@@ -62,8 +62,8 @@ public:
 
 	Mesh();
 	Mesh(Renderer& renderer);
-	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList);
-	Mesh(Renderer& renderer, const TextureMaps& textureList);
+	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaterial& textureList);
+	Mesh(Renderer& renderer, const TextureMaterial& textureList);
 	~Mesh();
 
 	void Draw(Renderer& renderer, int currentFrame);

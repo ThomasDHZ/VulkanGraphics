@@ -19,7 +19,7 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
 
-	TextureMaps maps;
+	TextureMaterial maps;
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 	maps.NormalMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");

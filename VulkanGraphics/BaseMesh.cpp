@@ -20,7 +20,7 @@ BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices)
 	CreateVertexBuffer(renderer);
 }
 
-BaseMesh::BaseMesh(Renderer& renderer, const TextureMaps& textureList)
+BaseMesh::BaseMesh(Renderer& renderer, const TextureMaterial& textureList)
 {
 	IndiceSize = 0;
 
@@ -39,7 +39,7 @@ BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, cons
 	CreateIndiceBuffer(renderer);
 }
 
-BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const TextureMaps& textureList)
+BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const TextureMaterial& textureList)
 {
 	VertexSize = vertices.size();
 	IndiceSize = 0;
@@ -50,7 +50,7 @@ BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, cons
 	CreateVertexBuffer(renderer);
 }
 
-BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList)
+BaseMesh::BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaterial& textureList)
 {
 	VertexSize = vertices.size();
 	IndiceSize = indices.size();
