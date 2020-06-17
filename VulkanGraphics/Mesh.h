@@ -15,29 +15,12 @@
 #include "Vertex.h"
 #include "UniformBuffer.h"
 #include "LightStructs.h"
-
-struct Material
-{
-	alignas(16) glm::vec3 ambient;
-	alignas(16) glm::vec3 Diffuse;
-	alignas(16) glm::vec3 Specular;
-	alignas(4)  float Shininess;
-};
+#include "Material.h"
 
 struct Lightingz
 {
 	alignas(16) glm::vec3 Position;
 	alignas(16) glm::vec3 Color;
-};
-
-struct MeshProp
-{
-	DirectionalLightBuffer directionalLight;
-	PointLightBuffer pointLight;
-	SpotLightBuffer spotLight;
-	Material material;
-	alignas(16) glm::vec3 viewPos;
-	alignas(8) glm::vec2 SpriteUV;
 };
 
 class Mesh : public BaseMesh

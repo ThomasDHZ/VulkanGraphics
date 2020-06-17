@@ -47,10 +47,11 @@ struct Material
 layout(location = 0) out vec4 outColor;
 
 layout(location = 0) in vec3 FragPos;
-layout(location = 1) in vec3 Normal;
-layout(location = 2) in vec2 TexCoords;
-layout(location = 3) in vec3 Tangent;
-layout(location = 4) in vec3 Bitangent;
+layout(location = 1) in vec2 TexCoords;
+layout(location = 2) in vec3 TangentLightPos;
+layout(location = 3) in vec3 TangentLightPos2;
+layout(location = 4) in vec3 TangentViewPos;
+layout(location = 5) in vec3 TangentFragPos;
   
 layout(binding = 1) uniform sampler2D DiffuseMap;
 layout(binding = 2) uniform sampler2D SpecularMap;
@@ -144,23 +145,65 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
-vec3 CalcReflection(vec3 InputPixel)
+//vec3 CalcReflection(vec3 InputPixel)
+//{
+   // vec3 I = normalize(FragPos - mesh.viewPos);
+    //vec3 R = reflect(I, normalize(Normal));
+  //  return mix(InputPixel, texture(CubeMap, R).rgb, 1.0f);
+//}
+
+
+vec3 Lighterz(vec3 normal, vec3 fragPos, vec3 viewDir, int x)
 {
-    vec3 I = normalize(FragPos - mesh.viewPos);
-    vec3 R = reflect(I, normalize(Normal));
-    return mix(InputPixel, texture(CubeMap, R).rgb, 1.0f);
+    vec3 color = texture(DiffuseMap, TexCoords).rgb;
+    // ambient
+    vec3 ambient = 0.1 * color;
+
+    // diffuse
+    vec3 lightDir; 
+    if(x == 0)
+    {
+        lightDir = normalize(TangentLightPos - TangentFragPos);
+    }
+    else
+    {
+        lightDir = normalize(TangentLightPos2 - TangentFragPos);
+    }
+
+    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 diffuse = diff * color;
+    // specular
+    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+
+    vec3 specular = vec3(0.2) * spec;
+    return ambient + diffuse + specular;
 }
 
 void main()
 {
-    RemoveAlphaPixels();
+    vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
+    vec2 texCoords = TexCoords;
 
-    vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(mesh.viewPos - FragPos);
+    vec3 normal = texture(NormalMap, TexCoords).rgb;
+    // transform normal vector to range [-1,1]
+    normal = normalize(normal * 2.0 - 1.0);  // this normal is in tangent space
+   
+    
+   vec3 result = Lighterz(normal, FragPos, viewDir, 0);
+   result += Lighterz(normal, FragPos, viewDir, 1);
 
-    vec3 result = CalcDirLight(mesh.directionalLight, norm, viewDir);
-    result += CalcPointLight(mesh.pointLight, norm, FragPos, viewDir);
-    result += CalcSpotLight(mesh.spotLight, norm, FragPos, viewDir);
+    outColor = vec4(result,  1.0);
+
+    //RemoveAlphaPixels();
+
+   // vec3 norm = normalize(Normal);
+   // vec3 viewDir = normalize(mesh.viewPos - FragPos);
+
+   // vec3 result = CalcDirLight(mesh.directionalLight, norm, viewDir);
+   // result += CalcPointLight(mesh.pointLight, norm, FragPos, viewDir);
+   // result += CalcSpotLight(mesh.spotLight, norm, FragPos, viewDir);
    // result += CalcReflection(result);
-    outColor = vec4(result, 1.0);
+   // outColor = vec4(result, 1.0f);
 } 

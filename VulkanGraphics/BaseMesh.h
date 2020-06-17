@@ -5,6 +5,7 @@
 #include "Vertex.h"
 #include "Texture2D.h"
 #include "CubeMapTexture.h"
+#include "Material.h"
 
 struct PositionMatrix
 {
@@ -12,22 +13,14 @@ struct PositionMatrix
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
 	alignas(16) glm::vec3 lightPos;
+	alignas(16) glm::vec3 lightPos2;
 	alignas(16) glm::vec3 viewPos;
 	alignas(4) float timer;
 };
 
-struct TextureMaterial
-{
-	Texture2D DiffuseMap;
-	Texture2D SpecularMap;
-	Texture2D NormalMap;
-	Texture2D DisplacementMap;
-	Texture2D AlphaMap;
-	CubeMapTexture CubeMap;
-};
-
 class BaseMesh : public VulkanResources
 {
+	friend class Material;
 private:
 
 protected:
@@ -36,8 +29,6 @@ protected:
 
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
-
-
 
 	int VertexSize;
 	uint16_t IndiceSize;

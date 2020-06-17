@@ -90,9 +90,9 @@
 //	return IndexList;
 //}
 //
-//std::vector<Texture2D> ModelLoader::LoadTextures(Renderer& renderer, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
+//std::vector<TextureMaterial> ModelLoader::LoadTextures(Renderer& renderer, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
 //{
-//	std::vector<Texture2D> TextureList;
+//	std::vector<TextureMaterial> TextureList;
 //
 //	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 //	auto directory = FilePath.substr(0, FilePath.find_last_of('/')) + '/';

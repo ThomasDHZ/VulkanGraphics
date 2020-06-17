@@ -8,7 +8,7 @@
 //{
 //	std::vector<Vertex> VertexList;
 //	std::vector<uint16_t> IndexList;
-//	std::vector<Texture2D> TextureList;
+//	std::vector<TextureMaterial> TextureList;
 //};
 //
 //class ModelLoader : VulkanResources
@@ -20,7 +20,7 @@
 //	void ProcessNode(Renderer& renderer, const std::string& FilePath, aiNode* node, const aiScene* scene);
 //	std::vector<Vertex> LoadVertices(aiMesh* mesh);
 //	std::vector<uint16_t> LoadIndices(aiMesh* mesh);
-//	std::vector<Texture2D> LoadTextures(Renderer& renderer, const std::string& FilePath, aiMesh* mesh, const aiScene* scene);
+//	std::vector<TextureMaterial> LoadTextures(Renderer& renderer, const std::string& FilePath, aiMesh* mesh, const aiScene* scene);
 //
 //public:
 //	ModelLoader();

@@ -24,5 +24,39 @@ struct Vector2D
 		y = Y;
 	}
 
+	T& operator[](int i)
+	{
+		assert(i < 2);
+		return((&x)[i]);
+	}
+
+	const T& operator[](int i) const
+	{
+		assert(i < 2);
+		return((&x)[i]);
+	}
+
+	Vector2D& operator*=(int scaler)
+	{
+		x = scaler;
+		y = scaler;
+		return *this;
+	}
+
+	Vector2D& operator*(int scaler)
+	{
+		return Vector2D(x * scaler, y * scaler);
+	}
+
+	Vector2D& operator/=(int scaler)
+	{
+		scaler = 1.0f / scaler;
+		x = scaler;
+		y = scaler;
+		return *this;
+	}
 };
+
+typedef Vector2D<int> IVec2D;
+typedef Vector2D<float> Vec2D;
 
