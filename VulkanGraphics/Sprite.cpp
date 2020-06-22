@@ -75,7 +75,7 @@ Sprite::Sprite(Renderer& renderer, glm::vec3 StartPos)
 		  0, 1, 2, 2, 3, 0
 	};
 
-	TextureMaterial maps;
+	TextureMaps maps;
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");

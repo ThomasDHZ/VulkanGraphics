@@ -19,7 +19,7 @@ void LightManager::Update(Renderer& renderer, Camera camera)
 		//ubo2.model = glm::translate(ubo2.model, pointLight.GetPosition());
 		ubo2.model = glm::scale(ubo2.model, glm::vec3(.2f));
 		ubo2.view = camera.GetViewMatrix();
-		ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+		ubo2.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo2.proj[1][1] *= -1;
 
 		directionalLight.UpdateDebugMesh(renderer, ubo2);
@@ -31,7 +31,7 @@ void LightManager::Update(Renderer& renderer, Camera camera)
 		ubo2.model = glm::translate(ubo2.model, pointLight.GetPosition());
 		ubo2.model = glm::scale(ubo2.model, glm::vec3(.2f));
 		ubo2.view = camera.GetViewMatrix();
-		ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+		ubo2.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo2.proj[1][1] *= -1;
 
 		pointLight.UpdateDebugMesh(renderer, ubo2);
@@ -43,7 +43,7 @@ void LightManager::Update(Renderer& renderer, Camera camera)
 		//ubo2.model = glm::translate(ubo2.model, pointLight.GetPosition());
 		ubo2.model = glm::scale(ubo2.model, glm::vec3(.2f));
 		ubo2.view = camera.GetViewMatrix();
-		ubo2.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+		ubo2.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 		ubo2.proj[1][1] *= -1;
 
 		spotlight.UpdateDebugMesh(renderer, ubo2);

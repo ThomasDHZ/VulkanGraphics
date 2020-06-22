@@ -15,12 +15,32 @@
 #include "Vertex.h"
 #include "UniformBuffer.h"
 #include "LightStructs.h"
-#include "Material.h"
+
+struct Material
+{
+	alignas(16) glm::vec3 ambient;
+	alignas(16) glm::vec3 Diffuse;
+	alignas(16) glm::vec3 Specular;
+	alignas(4)  float Shininess;
+};
 
 struct Lightingz
 {
 	alignas(16) glm::vec3 Position;
 	alignas(16) glm::vec3 Color;
+};
+
+struct MeshProp
+{
+	DirectionalLightBuffer directionalLight;
+	PointLightBuffer pointLight;
+	SpotLightBuffer spotLight;
+	Material material;
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::vec3 LightPos;
+	alignas(16) glm::vec3 viewPos;
+	alignas(8) glm::vec2 SpriteUV;
+	alignas(4) float Height;
 };
 
 class Mesh : public BaseMesh
@@ -31,6 +51,7 @@ protected:
 	void CreateUniformBuffers(Renderer& renderer);
 	void CreateDescriptorPool(Renderer& renderer);
 	void CreateDescriptorSets(Renderer& renderer);
+	void CalcTangent();
 
 public:
 
@@ -45,8 +66,8 @@ public:
 
 	Mesh();
 	Mesh(Renderer& renderer);
-	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaterial& textureList);
-	Mesh(Renderer& renderer, const TextureMaterial& textureList);
+	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList);
+	Mesh(Renderer& renderer, const TextureMaps& textureList);
 	~Mesh();
 
 	void Draw(Renderer& renderer, int currentFrame);

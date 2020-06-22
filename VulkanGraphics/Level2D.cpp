@@ -19,7 +19,7 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
 
-	TextureMaterial maps;
+	TextureMaps maps;
 	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
 	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
 	maps.NormalMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
@@ -74,7 +74,7 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	light4.Quadratic = 0.032;
 
 	SpotLightBuffer spotLight = {};
-	spotLight.Position = camera.GetCameraPos();
+	spotLight.Position = camera.Position;
 	spotLight.Direction = camera.Front;
 	spotLight.Ambient = glm::vec3(0.0f, 0.0f, 0.0f);
 	spotLight.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -105,7 +105,7 @@ void Level2D::LevelDebug(Renderer& renderer)
 	ImGui::Checkbox("Collision View", &renderer.Settings.ShowDebugCollisionMesh);
 	ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 	ImGui::Checkbox("2D Mode", &renderer.Settings.TwoDMode);
-	ImGui::SliderFloat3("Camera", camera.GetCameraPosPtr(), -10.0f, 10.0f);
+	//ImGui::SliderFloat3("Camera", camera.GetCameraPosPtr(), -10.0f, 10.0f);
 	ImGui::SliderFloat3("Sprite", SpriteList.SpriteMesh.GetMeshPosPtr(), -10.0f, 10.0f);
 	ImGui::End();
 
@@ -123,7 +123,7 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	Materialz material = {};
+	Material material = {};
 	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
 	material.Diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
 	material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -137,7 +137,7 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	//viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
 	viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
 	viewing.material = material;
-	viewing.viewPos = camera.GetCameraPos();
+	viewing.viewPos = camera.Position;
 	viewing.SpriteUV = glm::vec2(0.0f, 0.0f);
 	//viewing.timer = time;
 
@@ -145,7 +145,7 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	ubo.model = glm::mat4(1.0f);
 	ubo.model = glm::translate(ubo.model, glm::vec3(0.0f, -4.0f, 0.0f));
 	ubo.view = camera.GetViewMatrix();
-	ubo.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 	ubo.timer = glfwGetTime();
 
@@ -155,7 +155,7 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	ubo3.model = glm::mat4(1.0f);
 	ubo3.model = glm::translate(ubo.model, SpriteList.SpriteMesh.MeshPosition);
 	ubo3.view = camera.GetViewMatrix();
-	ubo3.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo3.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo3.proj[1][1] *= -1;
 	ubo3.timer = glfwGetTime();
 
@@ -163,7 +163,7 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	ubo4.model = glm::mat4(1.0f);
 	ubo4.model = glm::translate(ubo.model, ColliderSprite.MeshPosition);
 	ubo4.view = camera.GetViewMatrix();
-	ubo4.proj = glm::perspective(glm::radians(camera.GetCameraZoom()), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo4.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
 	ubo4.proj[1][1] *= -1;
 	ubo4.timer = glfwGetTime();
 

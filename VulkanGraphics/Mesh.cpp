@@ -8,16 +8,16 @@ Mesh::Mesh(Renderer& renderer) : BaseMesh(renderer)
 {
 }
 
-Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const TextureMaterial& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
+Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const TextureMaps& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
 {
 	CreateUniformBuffers(renderer);
 	CreateDescriptorPool(renderer);
 	CreateDescriptorSets(renderer);
+	CalcTangent();
 }
 
-Mesh::Mesh(Renderer& renderer, const TextureMaterial& textureList) : BaseMesh(renderer, textureList)
+Mesh::Mesh(Renderer& renderer, const TextureMaps& textureList) : BaseMesh(renderer, textureList)
 {
-
 }
 
 Mesh::~Mesh()
@@ -151,6 +151,46 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		DescriptorList.emplace_back(ViewPosDescriptor);
 
 		Mesh::CreateDescriptorSetsData(renderer, DescriptorList);
+	}
+}
+
+void Mesh::CalcTangent()
+{/*
+	{ {-1, -1, 0.0f}, { 0.0f, 0.0f, 1.0f }, { 1, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }},
+	{ {1, -1, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} },
+	{ {1, 1, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} },
+	{ {-1, 1, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} }*/
+
+	glm::vec3 tangent;
+	glm::vec3 bitangent;
+
+	for (int x = 0; x < IndexList.size(); x += 3)
+	{
+		int index = IndexList[x];
+		int index1 = IndexList[x + 1];
+		int index2 = IndexList[x + 2];
+
+		glm::vec3 edge = VertexList[index1].Position - VertexList[index].Position;
+		glm::vec3 edge2 = VertexList[index2].Position - VertexList[index].Position;
+		glm::vec2 deltaUV = VertexList[index1].TexureCoord - VertexList[index].TexureCoord;
+		glm::vec2 deltaUV2 = VertexList[index2].TexureCoord - VertexList[index].TexureCoord;
+
+		float f = 1.0f / (deltaUV.x * deltaUV2.y - deltaUV2.x * deltaUV.y);
+
+		tangent.x = f * (deltaUV2.y * edge.x - deltaUV.y * edge2.x);
+		tangent.y = f * (deltaUV2.y * edge.y - deltaUV.y * edge2.y);
+		tangent.z = f * (deltaUV2.y * edge.z - deltaUV.y * edge2.z);
+
+		bitangent.x = f * (-deltaUV2.x * edge.x + deltaUV.x * edge2.x);
+		bitangent.y = f * (-deltaUV2.x * edge.y + deltaUV.x * edge2.y);
+		bitangent.z = f * (-deltaUV2.x * edge.z + deltaUV.x * edge2.z);
+
+		VertexList[index].Tangant = glm::vec3(tangent.x, tangent.y, tangent.z);
+		VertexList[index1].Tangant = glm::vec3(tangent.x, tangent.y, tangent.z);
+		VertexList[index2].Tangant = glm::vec3(tangent.x, tangent.y, tangent.z);
+		VertexList[index].BiTangant = glm::vec3(bitangent.x, bitangent.y, bitangent.z);
+		VertexList[index1].BiTangant = glm::vec3(bitangent.x, bitangent.y, bitangent.z);
+		VertexList[index2].BiTangant = glm::vec3(bitangent.x, bitangent.y, bitangent.z);
 	}
 }
 

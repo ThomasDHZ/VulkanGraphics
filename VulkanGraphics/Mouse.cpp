@@ -20,7 +20,7 @@ void Mouse::Update(GLFWwindow* window, Camera& camera, VulkanRendererSettings se
 			lastX = MouseXPos;
 			lastY = MouseYPos;
 
-			camera.UpdateMouse(xoffset, yoffset);
+			camera.ProcessMouseMovement(xoffset, yoffset);
 		}
 		else
 		{

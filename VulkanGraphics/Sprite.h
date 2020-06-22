@@ -30,7 +30,7 @@ private:
 public:
 	Animation2D CurrentAni;
 
-	TextureMaterial maps;
+	TextureMaps maps;
 	std::map<SpriteAnime, glm::vec2> AnimationFrame;
 	Mesh SpriteMesh;
 	glm::vec2 UVOffset = glm::vec2(0.0f);

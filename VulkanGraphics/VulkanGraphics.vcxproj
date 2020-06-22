@@ -161,7 +161,6 @@
     <ClCompile Include="FrameBufferRenderingPipeline.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Level2D.cpp" />
-    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Renderer2DPipeline.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
@@ -178,7 +177,6 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="PointLight.cpp" />
-    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="LevelMesh2D.cpp" />
@@ -237,7 +235,6 @@
     <ClInclude Include="FrameBufferRenderingPipeline.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Level2D.h" />
-    <ClInclude Include="Material.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="Renderer2DPipeline.h" />
     <ClInclude Include="GUIDebugger.h" />
@@ -257,7 +254,6 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="PointLight.h" />
-    <ClInclude Include="Scene.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="LevelMesh2D.h" />

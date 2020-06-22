@@ -23,14 +23,12 @@
 #include "Mouse.h"
 #include <chrono>
 
-
-
 const std::vector<Vertex> vertices =
 {
-	{{-1, -1, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-	{{1, -1, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-	{{1, 1, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-	{{-1, 1, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+	{ {-1, -1, 0.0f}, { 0.0f, 0.0f, 1.0f }, { 1, 0.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }},
+	{ {1, -1, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} },
+	{ {1, 1, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} },
+	{ {-1, 1, 0.0f}, {0.0f, 0.0f, 1.0f}, {1, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} }
 };
 
 const std::vector<uint16_t> indices =
@@ -43,7 +41,9 @@ class VulkanGraphics : VulkanResources
 private:
 	MeshProp viewing = {};
 
-	TextureMaterial maps;
+	ModelLoader modelLoader;
+
+	TextureMaps maps;
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
 	Renderer renderer;
@@ -54,7 +54,7 @@ private:
 	Camera camera;
 
 	glm::vec3 LightPos;
-	glm::vec3 LightPos2;
+
 	LightManager lightManager;
 
 
@@ -67,7 +67,6 @@ private:
 	//std::vector<Model> ModelList;
 	GUIDebugger guiDebugger;
 
-	void CalcTangent();
 	void InitializeGUIDebugger();
 	void Update(uint32_t DrawFrame);
 	void UpdateCommandBuffers(uint32_t DrawFrame);

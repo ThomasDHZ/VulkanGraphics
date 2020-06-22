@@ -5,7 +5,6 @@
 #include "Vertex.h"
 #include "Texture2D.h"
 #include "CubeMapTexture.h"
-#include "Material.h"
 
 struct PositionMatrix
 {
@@ -13,14 +12,22 @@ struct PositionMatrix
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
 	alignas(16) glm::vec3 lightPos;
-	alignas(16) glm::vec3 lightPos2;
 	alignas(16) glm::vec3 viewPos;
 	alignas(4) float timer;
 };
 
+struct TextureMaps
+{
+	Texture2D DiffuseMap;
+	Texture2D SpecularMap;
+	Texture2D NormalMap;
+	Texture2D DisplacementMap;
+	Texture2D AlphaMap;
+	CubeMapTexture CubeMap;
+};
+
 class BaseMesh : public VulkanResources
 {
-	friend class Material;
 private:
 
 protected:
@@ -29,6 +36,8 @@ protected:
 
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+
+
 
 	int VertexSize;
 	uint16_t IndiceSize;
@@ -45,7 +54,7 @@ public:
 	std::vector<Vertex> VertexList;
 	std::vector<uint16_t> IndexList;
 
-	TextureMaterial TextureList;
+	TextureMaps TextureList;
 
 	std::vector<VkDescriptorSet> descriptorSets;
 	VkDescriptorPool descriptorPool;
@@ -53,10 +62,10 @@ public:
 	BaseMesh();
 	BaseMesh(Renderer& renderer);
 	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices);
-	BaseMesh(Renderer& renderer, const TextureMaterial& textureList);
+	BaseMesh(Renderer& renderer, const TextureMaps& textureList);
 	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const TextureMaterial& textureList);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaterial& textureList);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const TextureMaps& textureList);
+	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList);
 	~BaseMesh();
 
 	void Destory(Renderer& renderer);
