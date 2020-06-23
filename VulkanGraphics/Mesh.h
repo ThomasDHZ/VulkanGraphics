@@ -22,20 +22,20 @@ struct Material
 	alignas(16) glm::vec3 Diffuse;
 	alignas(16) glm::vec3 Specular;
 	alignas(4)  float Shininess;
+	alignas(4)  float reflection;
 };
 
-struct Lightingz
-{
-	alignas(16) glm::vec3 Position;
-	alignas(16) glm::vec3 Color;
-};
-
-struct MeshProp
+struct Lights
 {
 	DirectionalLightBuffer directionalLight;
 	PointLightBuffer pointLight;
 	SpotLightBuffer spotLight;
+};
+
+struct MeshProperties
+{
 	Material material;
+	TextureFlags MapFlags;
 	alignas(16) glm::mat4 model;
 	alignas(16) glm::vec3 LightPos;
 	alignas(16) glm::vec3 viewPos;
@@ -59,6 +59,7 @@ public:
 
 	UniformBuffer PositionMatrixBuffer;
 	UniformBuffer ViewPosBuffer;
+	UniformBuffer LightsBuffer;
 
 	glm::vec3 MeshPosition = glm::vec3();
 	glm::vec3 MeshRotate = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -71,7 +72,7 @@ public:
 	~Mesh();
 
 	void Draw(Renderer& renderer, int currentFrame);
-	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos);
+	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProperties viewpos, Lights light);
 	void Destroy(Renderer& renderer);
 
 	float* GetMeshPosPtr() { return &MeshPosition.x; };

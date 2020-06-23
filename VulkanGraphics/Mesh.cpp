@@ -27,12 +27,13 @@ Mesh::~Mesh()
 void Mesh::CreateUniformBuffers(Renderer& renderer)
 {
 	PositionMatrixBuffer = UniformBuffer(renderer, sizeof(PositionMatrix));
-	ViewPosBuffer = UniformBuffer(renderer, sizeof(MeshProp));
+	ViewPosBuffer = UniformBuffer(renderer, sizeof(MeshProperties));
+	LightsBuffer = UniformBuffer(renderer, sizeof(Lights));
 }
 
 void Mesh::CreateDescriptorPool(Renderer& renderer)
 {
-	std::array<DescriptorPoolSizeInfo, 7>  DescriptorPoolInfo = {};
+	std::array<DescriptorPoolSizeInfo, 8>  DescriptorPoolInfo = {};
 
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -41,6 +42,7 @@ void Mesh::CreateDescriptorPool(Renderer& renderer)
 	DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
 	BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -89,8 +91,12 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		VkDescriptorBufferInfo ViewPosInfo = {};
 		ViewPosInfo.buffer = ViewPosBuffer.GetUniformBuffer(i);
 		ViewPosInfo.offset = 0;
-		ViewPosInfo.range = sizeof(MeshProp);
+		ViewPosInfo.range = sizeof(MeshProperties);
 
+		VkDescriptorBufferInfo LightsInfo = {};
+		LightsInfo.buffer = LightsBuffer.GetUniformBuffer(i);
+		LightsInfo.offset = 0;
+		LightsInfo.range = sizeof(Lights);
 
 		std::vector<WriteDescriptorSetInfo> DescriptorList;
 
@@ -149,6 +155,13 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		ViewPosDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		ViewPosDescriptor.DescriptorBufferInfo = ViewPosInfo;
 		DescriptorList.emplace_back(ViewPosDescriptor);
+
+		WriteDescriptorSetInfo LightsDescriptor;
+		LightsDescriptor.DstBinding = 8;
+		LightsDescriptor.DstSet = descriptorSets[i];
+		LightsDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		LightsDescriptor.DescriptorBufferInfo = LightsInfo;
+		DescriptorList.emplace_back(LightsDescriptor);
 
 		Mesh::CreateDescriptorSetsData(renderer, DescriptorList);
 	}
@@ -245,16 +258,18 @@ void Mesh::Draw(Renderer& renderer, int currentFrame)
 	}
 }
 
-void Mesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos)
+void Mesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProperties viewpos, Lights light)
 {
 	PositionMatrixBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&positionMatrix));
 	ViewPosBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&viewpos));
+	LightsBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&light));
 }
 
 void Mesh::Destroy(Renderer& renderer)
 {
 	PositionMatrixBuffer.Destroy(renderer);
 	ViewPosBuffer.Destroy(renderer);
+	LightsBuffer.Destroy(renderer);
 
 	BaseMesh::Destory(renderer);
 }

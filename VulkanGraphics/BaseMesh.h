@@ -16,6 +16,16 @@ struct PositionMatrix
 	alignas(4) float timer;
 };
 
+struct TextureFlags
+{
+	alignas(4) bool DiffuseMapFlag;
+	alignas(4) bool SpecularMapFlag;
+	alignas(4) bool NormalMapFlag;
+	alignas(4) bool DisplacementMapFlag;
+	alignas(4) bool AlphaMapFlag;
+	alignas(4) bool CubeMapFlag;
+};
+
 struct TextureMaps
 {
 	Texture2D DiffuseMap;

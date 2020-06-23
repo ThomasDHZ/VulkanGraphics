@@ -88,7 +88,7 @@ Sprite::~Sprite()
 {
 }
 
-void Sprite::UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, PositionMatrix positionMatrix, MeshProp viewpos, Mesh otherSprite)
+void Sprite::UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, PositionMatrix positionMatrix, MeshProperties viewpos, Mesh otherSprite)
 {
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ||
 		glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
@@ -121,7 +121,8 @@ void Sprite::UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, Positio
 	CurrentAni.Update();
 	viewpos.SpriteUV = glm::vec2(CurrentAni.GetCurrentFrame());
 
-	SpriteMesh.UpdateUniformBuffer(renderer, positionMatrix, viewpos);
+	Lights light = {};
+	SpriteMesh.UpdateUniformBuffer(renderer, positionMatrix, viewpos, light);
 }
 
 void Sprite::Draw(Renderer& renderer, int currentFrame)

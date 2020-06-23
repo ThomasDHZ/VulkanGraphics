@@ -34,6 +34,16 @@ struct SpotLight
     float Quadratic;
 };
 
+struct TextureFlags
+{
+    bool DiffuseMapFlag;
+    bool SpecularMapFlag;
+    bool NormalMapFlag;
+    bool DisplacementMapFlag;
+    bool AlphaMapFlag;
+    bool CubeMapFlag;
+};
+
 struct Material
 {
 	vec3 Ambient;
@@ -58,38 +68,24 @@ layout(binding = 3) uniform sampler2D NormalMap;
 layout(binding = 4) uniform sampler2D DisplacementMap;
 layout(binding = 5) uniform sampler2D AlphaMap;
 layout(binding = 6) uniform samplerCube CubeMap;
-layout(binding = 7) uniform MeshProp
+layout(binding = 7) uniform MeshProperties
 {
-    DirectionalLight directionalLight;
-    PointLight pointLight;
-    SpotLight spotLight;
     Material material;
+    TextureFlags MapFlags;
     mat4 Model;
     vec3 LightPos;
     vec3 viewPos;
     vec2 SpriteUV;
     float height;
-} mesh;
-
-
-vec2 AnimationCoords = vec2(TexCoords.x + mesh.SpriteUV.x, TexCoords.y + mesh.SpriteUV.y);
-vec3 TangentLightPos;
-vec3 TangentViewPos;
-vec3 TangentFragPos;
-
-void TBNMatrix()
+} meshProperties;
+layout(binding = 8) uniform Lights
 {
-    mat3 normalMatrix = transpose(inverse(mat3(mesh.Model)));
-    vec3 T = normalize(normalMatrix * Tangent);
-    vec3 N = normalize(normalMatrix * Normal);
-    T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
-    
-    mat3 TBN = transpose(mat3(T, B, N));    
-    TangentLightPos = TBN * mesh.LightPos;
-    TangentViewPos  = TBN * mesh.viewPos;
-    TangentFragPos  = TBN * FragPos;
-}
+    DirectionalLight directionalLight;
+    PointLight pointLight;
+    SpotLight spotLight;
+} lights;
+
+vec2 AnimationCoords = vec2(TexCoords.x + meshProperties.SpriteUV.x, TexCoords.y + meshProperties.SpriteUV.y);
 
 void RemoveAlphaPixels()
 {
@@ -108,7 +104,7 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
     float diff = max(dot(normal, lightDir), 0.0);
 
     vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), mesh.material.Shininess);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.Shininess);
 
     vec3 ambient = light.Ambient * vec3(texture(DiffuseMap, TexCoords));
     vec3 diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, TexCoords));
@@ -125,7 +121,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     vec3 reflectDir = reflect(-lightDir, normal);
 
     vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), mesh.material.Shininess);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.Shininess);
 
     float distance = length(light.Position - fragPos);
     float attenuation = 1.0 / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));    
@@ -146,7 +142,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float diff = max(dot(normal, lightDir), 0.0);
 
     vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), mesh.material.Shininess);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.Shininess);
 
     float distance = length(light.Position - fragPos);
     float attenuation = 1.0 / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));    
@@ -166,121 +162,21 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
 vec3 CalcReflection(vec3 InputPixel)
 {
-    vec3 normal = normalize(Normal);
-
-    if(textureSize(NormalMap, 0).x > 1)
-    {
-        vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
-        vec2 texCoords = TexCoords;
-        normal = texture(NormalMap, texCoords).rgb;
-        normal = normalize(normal * 2.0 - 1.0);   
-        
-        vec3 I = normalize(FragPos - viewDir);
-        vec3 R = reflect(I, normal);
-        return (texture(CubeMap, R).rgb * 0.5f);
-    }
-    else
-    {
-        vec3 I = normalize(FragPos - mesh.viewPos);
-        vec3 R = reflect(I, normalize(Normal));
-        return texture(CubeMap, R).rgb * 0.5f;
-
-    }
-}
-
-vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
-{ 
-    // number of depth layers
-    const float minLayers = 8;
-    const float maxLayers = 32;
-    float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
-    // calculate the size of each layer
-    float layerDepth = 1.0 / numLayers;
-    // depth of current layer
-    float currentLayerDepth = 0.0;
-    // the amount to shift the texture coordinates per layer (from vector P)
-    vec2 P = viewDir.xy / viewDir.z * mesh.height; 
-    vec2 deltaTexCoords = P / numLayers;
-  
-    // get initial values
-    vec2  currentTexCoords     = texCoords;
-    float currentDepthMapValue = texture(DisplacementMap, currentTexCoords).r;
-
-    while(currentLayerDepth < currentDepthMapValue)
-    {
-        // shift texture coordinates along direction of P
-        currentTexCoords -= deltaTexCoords;
-        // get depthmap value at current texture coordinates
-        currentDepthMapValue = texture(DisplacementMap, currentTexCoords).r;  
-        // get depth of next layer
-        currentLayerDepth += layerDepth;  
-    }
-    
-    // get texture coordinates before collision (reverse operations)
-    vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
-
-    // get depth after and before collision for linear interpolation
-    float afterDepth  = currentDepthMapValue - currentLayerDepth;
-    float beforeDepth = texture(DisplacementMap, prevTexCoords).r - currentLayerDepth + layerDepth;
- 
-    // interpolation of texture coordinates
-    float weight = afterDepth / (afterDepth - beforeDepth);
-    vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
-
-    return finalTexCoords;
-}
-
-vec3 NormalMapping()
-{
-        // offset texture coordinates with Parallax Mapping
-    vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
-    vec2 texCoords = TexCoords;
-    
- //   texCoords = ParallaxMapping(TexCoords,  viewDir);       
-  //  if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
-  //      discard;
-
-    // obtain normal from normal map
-    vec3 normal = texture(NormalMap, texCoords).rgb;
-    normal = normalize(normal * 2.0 - 1.0);   
-   
-    // get diffuse color
-    vec3 color = texture(DiffuseMap, texCoords).rgb;
-    // ambient
-    vec3 ambient = 0.1 * color;
-    // diffuse
-    vec3 lightDir = normalize(TangentLightPos - TangentFragPos);
-    float diff = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = diff * color;
-    // specular    
-    vec3 reflectDir = reflect(-lightDir, normal);
-    vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-
-    vec3 specular = vec3(0.2) * spec;
-    return vec3(ambient + diffuse + specular);
+    vec3 I = normalize(FragPos - meshProperties.viewPos);
+    vec3 R = reflect(I, normalize(Normal));
+    return InputPixel + (texture(CubeMap, R).rgb * 0.5f);
 }
 
 void main()
 {
-    vec3 result = vec3(1.0f);
-
     RemoveAlphaPixels();
 
-    if(textureSize(NormalMap, 0).x > 1)
-    {
-         TBNMatrix();
-         result = NormalMapping();
-    }
-    else
-    {
-        vec3 norm =  mat3(transpose(inverse(mesh.Model))) * Normal; 
-       vec3 viewDir = normalize(mesh.viewPos - FragPos);
+    vec3 norm = normalize(Normal);
+    vec3 viewDir = normalize(meshProperties.viewPos - FragPos);
 
-        vec3 result = CalcDirLight(mesh.directionalLight, norm, viewDir);
-        result += CalcPointLight(mesh.pointLight, norm, FragPos, viewDir);
-        result += CalcSpotLight(mesh.spotLight, norm, FragPos, viewDir);
-    }
-    result += CalcReflection(result);
-    outColor = vec4(result, 1.0f);
+    vec3 result = CalcDirLight(lights.directionalLight, norm, viewDir);
+    result += CalcPointLight(lights.pointLight, norm, FragPos, viewDir);
+    result += CalcSpotLight(lights.spotLight, norm, FragPos, viewDir);
+   // result += CalcReflection(result);
+    outColor = vec4(result, 1.0);
 } 
