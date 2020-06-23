@@ -10,6 +10,7 @@ Mesh::Mesh(Renderer& renderer) : BaseMesh(renderer)
 
 Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const TextureMaps& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
 {
+	properites.material.Shininess = 256;
 	CreateUniformBuffers(renderer);
 	CreateDescriptorPool(renderer);
 	CreateDescriptorSets(renderer);
@@ -27,7 +28,7 @@ Mesh::~Mesh()
 void Mesh::CreateUniformBuffers(Renderer& renderer)
 {
 	PositionMatrixBuffer = UniformBuffer(renderer, sizeof(PositionMatrix));
-	ViewPosBuffer = UniformBuffer(renderer, sizeof(MeshProperties));
+	MeshPropertiesBuffer = UniformBuffer(renderer, sizeof(MeshProperties));
 	LightsBuffer = UniformBuffer(renderer, sizeof(Lights));
 }
 
@@ -89,7 +90,7 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		PositionInfo.range = sizeof(PositionMatrix);
 
 		VkDescriptorBufferInfo ViewPosInfo = {};
-		ViewPosInfo.buffer = ViewPosBuffer.GetUniformBuffer(i);
+		ViewPosInfo.buffer = MeshPropertiesBuffer.GetUniformBuffer(i);
 		ViewPosInfo.offset = 0;
 		ViewPosInfo.range = sizeof(MeshProperties);
 
@@ -207,6 +208,27 @@ void Mesh::CalcTangent()
 	}
 }
 
+void Mesh::Update(Renderer& renderer, Camera& camera, Lights light)
+{
+	PositionMatrix ubo{};
+	ubo.model = glm::mat4(1.0f);
+	ubo.model = glm::translate(ubo.model, MeshPosition);
+	ubo.model = glm::scale(ubo.model, MeshScale);
+	ubo.view = camera.GetViewMatrix();
+	ubo.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo.proj[1][1] *= -1;
+
+	if (RotationAmount != 0 &&
+		(MeshRotate.x != 0 ||
+		 MeshRotate.y != 0 ||
+		 MeshRotate.z != 0))
+	{
+		ubo.model = glm::rotate(ubo.model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+	}
+
+	UpdateUniformBuffer(renderer, ubo, light);
+}
+
 void Mesh::Draw(Renderer& renderer, int currentFrame)
 {
 	VkBuffer vertexBuffers[] = { vertexBuffer };
@@ -258,17 +280,17 @@ void Mesh::Draw(Renderer& renderer, int currentFrame)
 	}
 }
 
-void Mesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProperties viewpos, Lights light)
+void Mesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, Lights light)
 {
 	PositionMatrixBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&positionMatrix));
-	ViewPosBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&viewpos));
+	MeshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
 	LightsBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&light));
 }
 
 void Mesh::Destroy(Renderer& renderer)
 {
 	PositionMatrixBuffer.Destroy(renderer);
-	ViewPosBuffer.Destroy(renderer);
+	MeshPropertiesBuffer.Destroy(renderer);
 	LightsBuffer.Destroy(renderer);
 
 	BaseMesh::Destory(renderer);

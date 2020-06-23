@@ -72,18 +72,16 @@ layout(binding = 7) uniform MeshProperties
 {
     Material material;
     TextureFlags MapFlags;
-    mat4 Model;
-    vec3 LightPos;
-    vec3 viewPos;
     vec2 SpriteUV;
     float height;
 } meshProperties;
-layout(binding = 8) uniform Lights
+layout(binding = 8) uniform LightProperties
 {
     DirectionalLight directionalLight;
     PointLight pointLight;
     SpotLight spotLight;
-} lights;
+    vec3 viewPos;
+} lightProperties;
 
 vec2 AnimationCoords = vec2(TexCoords.x + meshProperties.SpriteUV.x, TexCoords.y + meshProperties.SpriteUV.y);
 
@@ -162,7 +160,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
 vec3 CalcReflection(vec3 InputPixel)
 {
-    vec3 I = normalize(FragPos - meshProperties.viewPos);
+    vec3 I = normalize(FragPos - lightProperties.viewPos);
     vec3 R = reflect(I, normalize(Normal));
     return InputPixel + (texture(CubeMap, R).rgb * 0.5f);
 }
@@ -172,11 +170,11 @@ void main()
     RemoveAlphaPixels();
 
     vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(meshProperties.viewPos - FragPos);
+    vec3 viewDir = normalize(lightProperties.viewPos - FragPos);
 
-    vec3 result = CalcDirLight(lights.directionalLight, norm, viewDir);
-    result += CalcPointLight(lights.pointLight, norm, FragPos, viewDir);
-    result += CalcSpotLight(lights.spotLight, norm, FragPos, viewDir);
+    vec3 result = CalcDirLight(lightProperties.directionalLight, norm, viewDir);
+    result += CalcPointLight(lightProperties.pointLight, norm, FragPos, viewDir);
+    result += CalcSpotLight(lightProperties.spotLight, norm, FragPos, viewDir);
    // result += CalcReflection(result);
     outColor = vec4(result, 1.0);
 } 

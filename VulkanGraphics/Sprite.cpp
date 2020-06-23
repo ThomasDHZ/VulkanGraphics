@@ -122,7 +122,7 @@ void Sprite::UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, Positio
 	viewpos.SpriteUV = glm::vec2(CurrentAni.GetCurrentFrame());
 
 	Lights light = {};
-	SpriteMesh.UpdateUniformBuffer(renderer, positionMatrix, viewpos, light);
+	//SpriteMesh.UpdateUniformBuffer(renderer, positionMatrix, light);
 }
 
 void Sprite::Draw(Renderer& renderer, int currentFrame)

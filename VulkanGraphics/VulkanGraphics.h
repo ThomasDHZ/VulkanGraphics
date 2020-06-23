@@ -42,7 +42,6 @@ class VulkanGraphics : VulkanResources
 {
 private:
 	Lights light = {};
-	MeshProperties viewing = {};
 
 	ModelLoader modelLoader;
 

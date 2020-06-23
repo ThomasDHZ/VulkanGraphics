@@ -4,6 +4,8 @@
 #include "SpotLight.h"
 #include "PointLight.h"
 
+
+
 class LightManager : VulkanResources
 {
 private:
@@ -20,5 +22,6 @@ public:
 	void UpdateLights();
 	void DrawDebugMesh(Renderer& renderer, uint32_t DrawFrame);
 	void Destroy(Renderer& renderer);
+
 };
 

@@ -239,27 +239,11 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	light.spotLight.Quadratic = 0.032f;
 	light.spotLight.CutOff = glm::cos(glm::radians(12.5f));
 	light.spotLight.OuterCutOff = glm::cos(glm::radians(15.0f));
-
-	viewing.material.Shininess = 256;
-	viewing.LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
-	viewing.viewPos = camera.Position;
-
-
+	light.viewPos = camera.Position;
 
 	for (unsigned int i = 0; i < 1; i++)
 	{
-		float angle = 20.0f * i;
-
-		PositionMatrix ubo{};
-		ubo.model = glm::mat4(1.0f);
-		ubo.view = camera.GetViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-		ubo.proj[1][1] *= -1;
-		ubo.lightPos = glm::vec3(0.5f, 1.0f, 0.3f);
-		ubo.viewPos = camera.Position;
-
-		viewing.model = ubo.model;
-		MeshList[i].UpdateUniformBuffer(renderer, ubo, viewing, light);
+		MeshList[i].Update(renderer, camera, light);
 	}
 
 
@@ -347,8 +331,8 @@ void VulkanGraphics::MainLoop()
 			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
-			ImGui::SliderFloat("Displace", &viewing.Height, 0.0f, 1.0f);
-			ImGui::SliderFloat("Reflection", &viewing.material.reflection, 0.0f, 1.0f);
+			//ImGui::SliderFloat("Displace", &viewing.Height, 0.0f, 1.0f);
+			//ImGui::SliderFloat("Reflection", &viewing.material.reflection, 0.0f, 1.0f);
 			//ImGui::Image(&descriptorWrites, ImVec2(100.0f, 100.0f));
 
 			ImGui::End();

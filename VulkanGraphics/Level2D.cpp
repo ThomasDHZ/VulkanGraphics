@@ -136,10 +136,10 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	//viewing.pointLight[2] = lightManager.PointLightList[2].GetSettings();
 	//viewing.pointLight[3] = lightManager.PointLightList[3].GetSettings();
 	viewing.spotLight = lightManager.SpotlightList[0].GetSettings();
+	viewing.viewPos = camera.Position;
 
 	MeshProperties meshProperties = {};
 	meshProperties.material = material;
-	meshProperties.viewPos = camera.Position;
 	meshProperties.SpriteUV = glm::vec2(0.0f, 0.0f);
 	//viewing.timer = time;
 
@@ -151,7 +151,7 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	ubo.proj[1][1] *= -1;
 	ubo.timer = glfwGetTime();
 
-	LevelMap.UpdateUniformBuffer(renderer, ubo, meshProperties, viewing);
+	//LevelMap.UpdateUniformBuffer(renderer, ubo, viewing);
 
 	PositionMatrix ubo3{};
 	ubo3.model = glm::mat4(1.0f);
@@ -169,7 +169,7 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	ubo4.proj[1][1] *= -1;
 	ubo4.timer = glfwGetTime();
 
-	ColliderSprite.UpdateUniformBuffer(renderer, ubo4, meshProperties, viewing);
+	//ColliderSprite.UpdateUniformBuffer(renderer, ubo4, viewing);
 	SpriteList.UpdateUniformBuffer(Window, renderer, ubo3, meshProperties, ColliderSprite);
 	lightManager.Update(renderer, camera);
 }

@@ -15,6 +15,7 @@
 #include "Vertex.h"
 #include "UniformBuffer.h"
 #include "LightStructs.h"
+#include "Camera.h"
 
 struct Material
 {
@@ -25,27 +26,30 @@ struct Material
 	alignas(4)  float reflection;
 };
 
+struct MeshProperties
+{
+	Material material;
+	TextureFlags MapFlags;
+	alignas(8) glm::vec2 SpriteUV;
+	alignas(4) float Height;
+};
+
 struct Lights
 {
 	DirectionalLightBuffer directionalLight;
 	PointLightBuffer pointLight;
 	SpotLightBuffer spotLight;
-};
-
-struct MeshProperties
-{
-	Material material;
-	TextureFlags MapFlags;
-	alignas(16) glm::mat4 model;
-	alignas(16) glm::vec3 LightPos;
 	alignas(16) glm::vec3 viewPos;
-	alignas(8) glm::vec2 SpriteUV;
-	alignas(4) float Height;
 };
 
 class Mesh : public BaseMesh
 {
 private:
+	UniformBuffer PositionMatrixBuffer;
+	UniformBuffer MeshPropertiesBuffer;
+	UniformBuffer LightsBuffer;
+
+	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, Lights light);
 
 protected:
 	void CreateUniformBuffers(Renderer& renderer);
@@ -57,13 +61,12 @@ public:
 
 	std::string MeshName;
 
-	UniformBuffer PositionMatrixBuffer;
-	UniformBuffer ViewPosBuffer;
-	UniformBuffer LightsBuffer;
+	MeshProperties properites;
 
-	glm::vec3 MeshPosition = glm::vec3();
-	glm::vec3 MeshRotate = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 MeshScale = glm::vec3(1.0f);
+	float RotationAmount = 0.0f;
 
 	Mesh();
 	Mesh(Renderer& renderer);
@@ -71,8 +74,8 @@ public:
 	Mesh(Renderer& renderer, const TextureMaps& textureList);
 	~Mesh();
 
+	void Update(Renderer& renderer, Camera& camera, Lights light);
 	void Draw(Renderer& renderer, int currentFrame);
-	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, MeshProperties viewpos, Lights light);
 	void Destroy(Renderer& renderer);
 
 	float* GetMeshPosPtr() { return &MeshPosition.x; };
