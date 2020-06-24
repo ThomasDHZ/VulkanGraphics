@@ -124,7 +124,6 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	Material material = {};
-	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
 	material.Diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
 	material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
 	material.Shininess = 32.0f;

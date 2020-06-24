@@ -16,12 +16,12 @@ struct PositionMatrix
 
 struct TextureFlags
 {
-	alignas(4) bool DiffuseMapFlag;
-	alignas(4) bool SpecularMapFlag;
-	alignas(4) bool NormalMapFlag;
-	alignas(4) bool DisplacementMapFlag;
-	alignas(4) bool AlphaMapFlag;
-	alignas(4) bool CubeMapFlag;
+	alignas(4) int DiffuseMapFlag;
+	alignas(4) int SpecularMapFlag;
+	alignas(4) int NormalMapFlag;
+	alignas(4) int DisplacementMapFlag;
+	alignas(4) int AlphaMapFlag;
+	alignas(4) int CubeMapFlag;
 };
 
 struct TextureMaps

@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "ImGui/imgui.h"
 
 Mesh::Mesh() : BaseMesh()
 {
@@ -10,7 +11,7 @@ Mesh::Mesh(Renderer& renderer) : BaseMesh(renderer)
 
 Mesh::Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, const TextureMaps& textureList) : BaseMesh(renderer, vertexList, indexList, textureList)
 {
-	properites.material.Shininess = 256;
+	CreateMaterialProperties(textureList);
 	CreateUniformBuffers(renderer);
 	CreateDescriptorPool(renderer);
 	CreateDescriptorSets(renderer);
@@ -23,6 +24,60 @@ Mesh::Mesh(Renderer& renderer, const TextureMaps& textureList) : BaseMesh(render
 
 Mesh::~Mesh()
 {
+}
+
+void Mesh::CreateMaterialProperties(const TextureMaps& textureList)
+{
+	properites.material.Diffuse = glm::vec3(0.0f);
+	properites.material.Specular = glm::vec3(1.0f);
+	properites.material.Shininess = 32;
+	properites.material.Alpha = 0;
+	properites.material.reflection = 0;
+	properites.SpriteUV = glm::vec2(0.0f);
+
+
+	properites.MapFlags.DiffuseMapFlag = 1;
+	properites.MapFlags.SpecularMapFlag = 1;
+	properites.MapFlags.NormalMapFlag = 1;
+	properites.MapFlags.DisplacementMapFlag = 1;
+	properites.MapFlags.AlphaMapFlag = 1;
+	properites.MapFlags.CubeMapFlag = 1;
+
+	if (textureList.DiffuseMap.Width == 1 &&
+		textureList.DiffuseMap.Width == 1)
+	{
+		properites.MapFlags.DiffuseMapFlag = 0;
+	}
+
+	if (textureList.SpecularMap.Width == 1 &&
+		textureList.SpecularMap.Width == 1)
+	{
+		properites.MapFlags.SpecularMapFlag = 0;
+	}
+
+	if (textureList.NormalMap.Width == 1 &&
+		textureList.NormalMap.Width == 1)
+	{
+		properites.MapFlags.NormalMapFlag = 0;
+	}
+
+	if (textureList.DisplacementMap.Width == 1 &&
+		textureList.DisplacementMap.Width == 1)
+	{
+		properites.MapFlags.DisplacementMapFlag = 0;
+	}
+
+	if (textureList.AlphaMap.Width == 1 &&
+		textureList.AlphaMap.Width == 1)
+	{
+		properites.MapFlags.AlphaMapFlag = 0;
+	}
+
+	if (textureList.CubeMap.Width == 1 &&
+		textureList.CubeMap.Width == 1)
+	{
+		properites.MapFlags.CubeMapFlag = 0;
+	}
 }
 
 void Mesh::CreateUniformBuffers(Renderer& renderer)
@@ -227,6 +282,41 @@ void Mesh::Update(Renderer& renderer, Camera& camera, Lights light)
 	}
 
 	UpdateUniformBuffer(renderer, ubo, light);
+}
+
+void Mesh::UpdateGUI()
+{
+	ImGui::Begin("Mesh");
+	ImGui::Columns(3, "Lights", true);
+	ImGui::SliderFloat3("Position", &MeshPosition.x, -50.0f, 50.0f);
+	ImGui::SliderFloat3("Rotation", &MeshRotate.x, -1.0f, 1.0f);
+	ImGui::SliderFloat3("Scale", &MeshScale.x, 0.0f, 50.0f);
+	ImGui::SliderFloat("Rotate", &RotationAmount, 0.0f, 50.0f);
+	ImGui::SliderFloat("Shininess", &properites.material.Shininess, 0.0f, 50.0f);
+	ImGui::SliderFloat("Reflection", &properites.material.reflection, 0.0f, 1.0f);
+	ImGui::SliderFloat2("UV Offset", &properites.SpriteUV.x, 0.0f, 3.0f);
+	ImGui::NextColumn();
+
+	ImGui::SliderInt("DiffuseMap", &properites.MapFlags.DiffuseMapFlag, 0, 1);
+	ImGui::SliderInt("SpecularMap", &properites.MapFlags.SpecularMapFlag, 0, 1);
+	ImGui::SliderInt("NormalMap", &properites.MapFlags.NormalMapFlag, 0, 1);
+	ImGui::SliderInt("DisplacementMap", &properites.MapFlags.DisplacementMapFlag, 0, 1);
+	ImGui::SliderInt("AlphaMap", &properites.MapFlags.AlphaMapFlag, 0, 1);
+	ImGui::SliderInt("RelectionCubeMap", &properites.MapFlags.CubeMapFlag, 0, 1);
+
+	ImGui::NextColumn();
+	if (properites.MapFlags.DiffuseMapFlag == 0)
+	{
+		ImGui::ColorPicker3("Diffuse", &properites.material.Diffuse.x);
+	}
+	if (properites.MapFlags.SpecularMapFlag == 0)
+	{
+		ImGui::ColorPicker3("Specular", &properites.material.Specular.x);
+	}
+
+	ImGui::NextColumn();
+
+	ImGui::End();
 }
 
 void Mesh::Draw(Renderer& renderer, int currentFrame)

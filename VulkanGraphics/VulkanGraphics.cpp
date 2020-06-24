@@ -38,10 +38,10 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	layout.Front = "texture/skybox/front.jpg";
 
 	maps.DiffuseMap = Texture2D(renderer, "texture/zxc_diffuseOriginal.bmp");
-	maps.NormalMap = Texture2D(renderer, "texture/zxc_normal.bmp");
-	maps.DisplacementMap = Texture2D(renderer, "texture/zxc_height.bmp");
-	maps.SpecularMap = Texture2D(renderer, "texture/SparkManSpec2048.bmp");
-	maps.AlphaMap = Texture2D(renderer, "texture/temp.bmp");
+	maps.NormalMap = Texture2D(renderer, "texture/Temp.bmp");
+	maps.DisplacementMap = Texture2D(renderer, "texture/Temp.bmp");
+	maps.SpecularMap = Texture2D(renderer, "texture/Temp.bmp");
+	maps.AlphaMap = Texture2D(renderer, "texture/Temp.bmp");
 	maps.CubeMap = CubeMapTexture(renderer, layout);
 
 	Skybox = SkyBox(renderer, maps.CubeMap);
@@ -199,7 +199,6 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 
 
 	Material material = {};
-	material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
 	material.Diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
 	material.Specular = glm::vec3(0.5f, 0.5f, 0.5f);
 	material.Shininess = 32.0f;
@@ -334,12 +333,12 @@ void VulkanGraphics::MainLoop()
 			//ImGui::SliderFloat("Displace", &viewing.Height, 0.0f, 1.0f);
 			//ImGui::SliderFloat("Reflection", &viewing.material.reflection, 0.0f, 1.0f);
 			//ImGui::Image(&descriptorWrites, ImVec2(100.0f, 100.0f));
-
 			ImGui::End();
 
 			lightManager.UpdateLights();
+			MeshList[0].UpdateGUI();
 		}
-
+	
 		ImGui::Render();
 		Draw();
 	}

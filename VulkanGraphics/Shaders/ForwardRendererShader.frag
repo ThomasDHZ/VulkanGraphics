@@ -36,20 +36,21 @@ struct SpotLight
 
 struct TextureFlags
 {
-    bool DiffuseMapFlag;
-    bool SpecularMapFlag;
-    bool NormalMapFlag;
-    bool DisplacementMapFlag;
-    bool AlphaMapFlag;
-    bool CubeMapFlag;
+    int DiffuseMapFlag;
+    int SpecularMapFlag;
+    int NormalMapFlag;
+    int DisplacementMapFlag;
+    int AlphaMapFlag;
+    int CubeMapFlag;
 };
 
 struct Material
 {
-	vec3 Ambient;
 	vec3 Diffuse;
 	vec3 Specular;
 	float Shininess;
+    float Alpha;
+    float Reflection;
 };
 
 #define NR_POINT_LIGHTS 4
@@ -70,8 +71,8 @@ layout(binding = 5) uniform sampler2D AlphaMap;
 layout(binding = 6) uniform samplerCube CubeMap;
 layout(binding = 7) uniform MeshProperties
 {
-    Material material;
     TextureFlags MapFlags;
+    Material material;
     vec2 SpriteUV;
     float height;
 } meshProperties;
@@ -97,6 +98,10 @@ void RemoveAlphaPixels()
 
 vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
 {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
     vec3 lightDir = normalize(-light.Direction);
 
     float diff = max(dot(normal, lightDir), 0.0);
@@ -104,14 +109,33 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.Shininess);
 
-    vec3 ambient = light.Ambient * vec3(texture(DiffuseMap, TexCoords));
-    vec3 diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, TexCoords));
-    vec3 specular = light.Specular * spec * vec3(texture(SpecularMap, TexCoords));
+    if(meshProperties.MapFlags.DiffuseMapFlag == 1)
+    {
+        ambient = light.Ambient * vec3(texture(DiffuseMap, AnimationCoords));
+        diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, AnimationCoords));
+    }
+    else
+    {
+        ambient = light.Ambient * meshProperties.material.Diffuse;
+        diffuse = light.Diffuse * diff * meshProperties.material.Diffuse;
+    }
+    if(meshProperties.MapFlags.SpecularMapFlag == 1)
+    {
+        specular = light.Specular * spec * vec3(texture(SpecularMap, AnimationCoords));
+    }
+    else
+    {
+        specular = light.Specular * spec * meshProperties.material.Specular;
+    }
     return (ambient + diffuse + specular);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
     vec3 lightDir = normalize(light.Position - fragPos);
 
     float diff = max(dot(normal, lightDir), 0.0);
@@ -124,9 +148,24 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float distance = length(light.Position - fragPos);
     float attenuation = 1.0 / (light.Constant + light.Linear * distance + light.Quadratic * (distance * distance));    
 
-    vec3 ambient = light.Ambient * vec3(texture(DiffuseMap, TexCoords));
-    vec3 diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, TexCoords));
-    vec3 specular = light.Specular * spec * vec3(texture(SpecularMap, TexCoords));
+    if(meshProperties.MapFlags.DiffuseMapFlag == 1)
+    {
+        ambient = light.Ambient * vec3(texture(DiffuseMap, AnimationCoords));
+        diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, AnimationCoords));
+    }
+    else
+    {
+        ambient = light.Ambient * meshProperties.material.Diffuse;
+        diffuse = light.Diffuse * diff * meshProperties.material.Diffuse;
+    }
+    if(meshProperties.MapFlags.SpecularMapFlag == 1)
+    {
+        specular = light.Specular * spec * vec3(texture(SpecularMap, AnimationCoords));
+    }
+    else
+    {
+        specular = light.Specular * spec * meshProperties.material.Specular;
+    }
     ambient *= attenuation;
     diffuse *= attenuation;
     specular *= attenuation;
@@ -135,6 +174,10 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
     vec3 lightDir = normalize(light.Position - fragPos);
 
     float diff = max(dot(normal, lightDir), 0.0);
@@ -149,9 +192,24 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float epsilon = light.CutOff - light.OuterCutOff;
     float intensity = clamp((theta - light.OuterCutOff) / epsilon, 0.0, 1.0);
 
-    vec3 ambient = light.Ambient * vec3(texture(DiffuseMap, TexCoords));
-    vec3 diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, TexCoords));
-    vec3 specular = light.Specular * spec * vec3(texture(SpecularMap, TexCoords));
+    if(meshProperties.MapFlags.DiffuseMapFlag == 1)
+    {
+        ambient = light.Ambient * vec3(texture(DiffuseMap, AnimationCoords));
+        diffuse = light.Diffuse * diff * vec3(texture(DiffuseMap, AnimationCoords));
+    }
+    else
+    {
+        ambient = light.Ambient * meshProperties.material.Diffuse;
+        diffuse = light.Diffuse * diff * meshProperties.material.Diffuse;
+    }
+    if(meshProperties.MapFlags.SpecularMapFlag == 1)
+    {
+        specular = light.Specular * spec * vec3(texture(SpecularMap, AnimationCoords));
+    }
+    else
+    {
+        specular = light.Specular * spec * meshProperties.material.Specular;
+    }
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
@@ -162,7 +220,7 @@ vec3 CalcReflection(vec3 InputPixel)
 {
     vec3 I = normalize(FragPos - lightProperties.viewPos);
     vec3 R = reflect(I, normalize(Normal));
-    return InputPixel + (texture(CubeMap, R).rgb * 0.5f);
+    return InputPixel + (texture(CubeMap, R).rgb * meshProperties.material.Reflection);
 }
 
 void main()
@@ -175,6 +233,7 @@ void main()
     vec3 result = CalcDirLight(lightProperties.directionalLight, norm, viewDir);
     result += CalcPointLight(lightProperties.pointLight, norm, FragPos, viewDir);
     result += CalcSpotLight(lightProperties.spotLight, norm, FragPos, viewDir);
-   // result += CalcReflection(result);
+    result += CalcReflection(result);
+
     outColor = vec4(result, 1.0);
 } 

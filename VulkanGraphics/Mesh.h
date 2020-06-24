@@ -19,17 +19,17 @@
 
 struct Material
 {
-	alignas(16) glm::vec3 ambient;
 	alignas(16) glm::vec3 Diffuse;
 	alignas(16) glm::vec3 Specular;
 	alignas(4)  float Shininess;
+	alignas(4)  float Alpha;
 	alignas(4)  float reflection;
 };
 
 struct MeshProperties
 {
-	Material material;
 	TextureFlags MapFlags;
+	Material material;
 	alignas(8) glm::vec2 SpriteUV;
 	alignas(4) float Height;
 };
@@ -52,6 +52,7 @@ private:
 	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, Lights light);
 
 protected:
+	void CreateMaterialProperties(const TextureMaps& textureList);
 	void CreateUniformBuffers(Renderer& renderer);
 	void CreateDescriptorPool(Renderer& renderer);
 	void CreateDescriptorSets(Renderer& renderer);
@@ -64,9 +65,9 @@ public:
 	MeshProperties properites;
 
 	glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 MeshRotate = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 MeshScale = glm::vec3(1.0f);
-	float RotationAmount = 0.0f;
+	float RotationAmount = 1.0f;
 
 	Mesh();
 	Mesh(Renderer& renderer);
@@ -75,6 +76,7 @@ public:
 	~Mesh();
 
 	void Update(Renderer& renderer, Camera& camera, Lights light);
+	void UpdateGUI();
 	void Draw(Renderer& renderer, int currentFrame);
 	void Destroy(Renderer& renderer);
 
