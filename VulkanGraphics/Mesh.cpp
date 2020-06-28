@@ -132,10 +132,10 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 	AlphaMap.imageView = TextureList.AlphaMap.textureImageView;
 	AlphaMap.sampler = TextureList.AlphaMap.textureSampler;
 
-	VkDescriptorImageInfo CubeMap = {};
-	CubeMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	CubeMap.imageView = TextureList.CubeMap.textureImageView;
-	CubeMap.sampler = TextureList.CubeMap.textureSampler;
+	//VkDescriptorImageInfo CubeMap = {};
+	//CubeMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	//CubeMap.imageView = TextureList.CubeMap.textureImageView;
+	//CubeMap.sampler = TextureList.CubeMap.textureSampler;
 
 	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
 	{
@@ -198,12 +198,12 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		AlphaMapDescriptor.DescriptorImageInfo = AlphaMap;
 		DescriptorList.emplace_back(AlphaMapDescriptor);
 
-		WriteDescriptorSetInfo CubeMapDescriptor;
-		CubeMapDescriptor.DstBinding = 6;
-		CubeMapDescriptor.DstSet = descriptorSets[i];
-		CubeMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		CubeMapDescriptor.DescriptorImageInfo = CubeMap;
-		DescriptorList.emplace_back(CubeMapDescriptor);
+		//WriteDescriptorSetInfo CubeMapDescriptor;
+		//CubeMapDescriptor.DstBinding = 6;
+		//CubeMapDescriptor.DstSet = descriptorSets[i];
+		//CubeMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//CubeMapDescriptor.DescriptorImageInfo = CubeMap;
+		//DescriptorList.emplace_back(CubeMapDescriptor);
 
 		WriteDescriptorSetInfo ViewPosDescriptor;
 		ViewPosDescriptor.DstBinding = 7;
@@ -270,7 +270,7 @@ void Mesh::Update(Renderer& renderer, Camera& camera, Lights light)
 	ubo.model = glm::translate(ubo.model, MeshPosition);
 	ubo.model = glm::scale(ubo.model, MeshScale);
 	ubo.view = camera.GetViewMatrix();
-	ubo.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	ubo.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10000.0f);
 	ubo.proj[1][1] *= -1;
 
 	if (RotationAmount != 0 &&

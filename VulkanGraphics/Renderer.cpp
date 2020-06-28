@@ -12,6 +12,7 @@ Renderer::Renderer(GLFWwindow* window) : RendererBase(window)
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 	InitializeSyncObjects();
+	InitializeGUIDebugger(window);
 
 	GraphicsPipeline = ForwardRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	FrameBufferPipeline = FrameBufferRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
@@ -230,6 +231,22 @@ void Renderer::InitializeSyncObjects()
 	}
 }
 
+void Renderer::InitializeGUIDebugger(GLFWwindow* window)
+{
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.Instance = Instance;
+	init_info.PhysicalDevice = PhysicalDevice;
+	init_info.Device = Device;
+	init_info.QueueFamily = 0;
+	init_info.Queue = GraphicsQueue;
+	init_info.PipelineCache = VK_NULL_HANDLE;
+	init_info.Allocator = nullptr;
+	init_info.MinImageCount = SwapChain.GetSwapChainMinImageCount();
+	init_info.ImageCount = SwapChain.GetSwapChainImageCount();
+
+	guiDebugger = GUIDebugger(init_info, window, RenderPass);
+}
+
 void Renderer::UpdateSwapChain(GLFWwindow* window)
 {
 	int width = 0, height = 0;
@@ -281,7 +298,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	UpdateCommandBuffers = true;
 }
 
-void Renderer::StartFrame(GLFWwindow* window)
+void Renderer::Draw(GLFWwindow* window)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -294,9 +311,11 @@ void Renderer::StartFrame(GLFWwindow* window)
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
-}
-void Renderer::EndFrame(GLFWwindow* window)
-{
+
+	RunCommandBuffers.clear();
+	RunCommandBuffers.emplace_back(SecondaryCommandBuffers[DrawFrame]);
+	//RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(DrawFrame));
+
 	std::array<VkClearValue, 3> clearValues = {};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 	clearValues[1].color = { 0.1f, 0.1f, 0.1f, 1.0f };
@@ -324,6 +343,7 @@ void Renderer::EndFrame(GLFWwindow* window)
 	vkCmdExecuteCommands(MainCommandBuffer[DrawFrame], RunCommandBuffers.size(), RunCommandBuffers.data());
 	vkCmdNextSubpass(MainCommandBuffer[DrawFrame], VK_SUBPASS_CONTENTS_INLINE);
 	framebuffer.Draw(FrameBufferPipeline, MainCommandBuffer[DrawFrame], DrawFrame);
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), MainCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(MainCommandBuffer[DrawFrame]);
 	vkEndCommandBuffer(MainCommandBuffer[DrawFrame]);
 
@@ -357,7 +377,7 @@ void Renderer::EndFrame(GLFWwindow* window)
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &DrawFrame;
 
-	VkResult result = vkQueuePresentKHR(PresentQueue, &presentInfo);
+	result = vkQueuePresentKHR(PresentQueue, &presentInfo);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
 	{
@@ -373,6 +393,8 @@ void Renderer::EndFrame(GLFWwindow* window)
 
 void Renderer::DestoryVulkan()
 {
+	guiDebugger.ShutDown(Device);
+
 	HDRColorAttachment.DeleteInputAttachment(Device);
 	DepthAttachment.DeleteInputAttachment(Device);
 

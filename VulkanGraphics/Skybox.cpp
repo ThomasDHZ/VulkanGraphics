@@ -108,8 +108,13 @@ void SkyBox::Draw(Renderer& renderer, int currentFrame)
 	vkCmdDraw(*GetSecondaryCommandBuffer(renderer, currentFrame), VertexSize, 1, 0, 0);
 }
 
-void SkyBox::UpdateUniformBuffer(Renderer& renderer, SkyBoxPositionMatrix positionMatrix)
+void SkyBox::UpdateUniformBuffer(Renderer& renderer, Camera& camera)
 {
+	SkyBoxPositionMatrix positionMatrix = {};
+	positionMatrix.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+	positionMatrix.projection = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
+	positionMatrix.projection[1][1] *= -1;
+
 	PositionMatrixBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&positionMatrix));
 }
 

@@ -16,8 +16,6 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	MapTile[Level::Test].SpecularMap = "texture/container2.png";
 
 	level = Level2D(renderer, MapTile[Level::SparkMan]);
-
-	InitializeGUIDebugger();
 }
 
 VulkanGraphics2D::~VulkanGraphics2D()
@@ -26,25 +24,8 @@ VulkanGraphics2D::~VulkanGraphics2D()
 
 	level.Destroy(renderer);
 
-	guiDebugger.ShutDown(*GetDevice(renderer));
 	renderer.DestoryVulkan();
 	Window.CleanUp();
-}
-
-void VulkanGraphics2D::InitializeGUIDebugger()
-{
-	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = *GetInstance(renderer);
-	init_info.PhysicalDevice = *GetPhysicalDevice(renderer);
-	init_info.Device = *GetDevice(renderer);
-	init_info.QueueFamily = 0;
-	init_info.Queue = *GetGraphicsQueue(renderer);
-	init_info.PipelineCache = VK_NULL_HANDLE;
-	init_info.Allocator = nullptr;
-	init_info.MinImageCount = GetSwapChainMinImageCount(renderer);
-	init_info.ImageCount = GetSwapChainImageCount(renderer);
-
-	guiDebugger = GUIDebugger(init_info, Window.GetWindowPtr(), *GetRenderPass(renderer));
 }
 
 void VulkanGraphics2D::UpdateCommandBuffers(uint32_t DrawFrame)
@@ -73,34 +54,24 @@ void VulkanGraphics2D::UpdateCommandBuffers(uint32_t DrawFrame)
 		renderer.UpdateCommandBuffers = false;
 	}
 
-	guiDebugger.UpdateCommandBuffers(DrawFrame, *GetRenderPass(renderer), renderer.SwapChainFramebuffers[DrawFrame]);
-}
-
-void VulkanGraphics2D::Draw()
-{
-	if (CompareVulkanSettings != renderer.Settings)
-	{
-		CompareVulkanSettings = renderer.Settings;
-		renderer.UpdateSwapChain(Window.GetWindowPtr());
-	}
-
-	renderer.StartFrame(Window.GetWindowPtr());
-	UpdateCommandBuffers(renderer.DrawFrame);
-	renderer.RunCommandBuffers.clear();
-	renderer.RunCommandBuffers.emplace_back(renderer.SecondaryCommandBuffers[renderer.DrawFrame]);
-	renderer.RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(renderer.DrawFrame));
-	renderer.EndFrame(Window.GetWindowPtr());
+	renderer.guiDebugger.UpdateCommandBuffers(DrawFrame, *GetRenderPass(renderer), renderer.SwapChainFramebuffers[DrawFrame]);
 }
 
 void VulkanGraphics2D::MainLoop()
 {
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
 	{
-		Window.Update();
-		level.Update(renderer, Window.GetWindowPtr());
+		if (CompareVulkanSettings != renderer.Settings)
+		{
+			CompareVulkanSettings = renderer.Settings;
+			renderer.UpdateSwapChain(Window.GetWindowPtr());
+		}
 
+		Window.Update();
 		mouse.Update(Window.GetWindowPtr(), level.camera, renderer.Settings);
 		keyboard.Update(Window.GetWindowPtr(), level.camera, renderer.Settings);
+		level.Update(renderer, Window.GetWindowPtr());
+		UpdateCommandBuffers(renderer.DrawFrame);
 
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -110,6 +81,6 @@ void VulkanGraphics2D::MainLoop()
 		}
 
 		ImGui::Render();
-		Draw();
+		renderer.Draw(Window.GetWindowPtr());
 	}
 }

@@ -233,7 +233,7 @@ void main()
     vec3 result = CalcDirLight(lightProperties.directionalLight, norm, viewDir);
     result += CalcPointLight(lightProperties.pointLight, norm, FragPos, viewDir);
     result += CalcSpotLight(lightProperties.spotLight, norm, FragPos, viewDir);
-    result += CalcReflection(result);
+   // result += CalcReflection(result);
 
     outColor = vec4(result, 1.0);
 } 

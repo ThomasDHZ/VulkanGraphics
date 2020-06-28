@@ -10,6 +10,7 @@
 #include "FrameBufferRenderingPipeline.h"
 #include "DebugLightRenderingPipeline.h"
 #include "CollisionDebugPipeline.h"
+#include "GUIDebugger.h"
 
 class Renderer : public RendererBase
 {
@@ -42,6 +43,7 @@ private:
 	void InitializeFramebuffers();
 	void InitializeCommandBuffers();
 	void InitializeSyncObjects();
+	void InitializeGUIDebugger(GLFWwindow* window);
 
 protected:
 
@@ -50,9 +52,10 @@ protected:
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 
+	GUIDebugger guiDebugger;
+
 	void UpdateSwapChain(GLFWwindow* window);
-	void StartFrame(GLFWwindow* window);
-	void EndFrame(GLFWwindow* window);
+	void Draw(GLFWwindow* window);
 	void DestoryVulkan();
 
 	bool UpdateCommandBuffers = true;

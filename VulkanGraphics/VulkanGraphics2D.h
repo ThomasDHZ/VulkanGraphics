@@ -35,11 +35,7 @@ private:
 	Keyboard keyboard;
 	Mouse mouse;
 
-	GUIDebugger guiDebugger;
-
-	void InitializeGUIDebugger();
 	void UpdateCommandBuffers(uint32_t DrawFrame);
-	void Draw();
 
 public:
 	VulkanGraphics2D(int Width, int Height, const char* AppName);

@@ -56,8 +56,12 @@ std::vector<Vertex> ModelLoader::LoadVertices(aiMesh* mesh)
 		Vertex vertex;
 		vertex.Position = glm::vec3{ mesh->mVertices[x].x, mesh->mVertices[x].y, mesh->mVertices[x].z };
 		vertex.Normal = glm::vec3{ mesh->mNormals[x].x, mesh->mNormals[x].y, mesh->mNormals[x].z };
-		vertex.Tangant = glm::vec3{ mesh->mTangents[x].x, mesh->mTangents[x].y, mesh->mTangents[x].z };
-		vertex.BiTangant = glm::vec3{ mesh->mBitangents[x].x, mesh->mBitangents[x].y, mesh->mBitangents[x].z };
+
+		if (mesh->mTangents)
+		{
+			vertex.Tangant = glm::vec3{ mesh->mTangents[x].x, mesh->mTangents[x].y, mesh->mTangents[x].z };
+			vertex.BiTangant = glm::vec3{ mesh->mBitangents[x].x, mesh->mBitangents[x].y, mesh->mBitangents[x].z };
+		}
 
 		if (mesh->mTextureCoords[0])
 		{
@@ -90,33 +94,77 @@ std::vector<uint16_t> ModelLoader::LoadIndices(aiMesh* mesh)
 	return IndexList;
 }
 
-std::vector<Texture2D> ModelLoader::LoadTextures(Renderer& renderer, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
+TextureMaps ModelLoader::LoadTextures(Renderer& renderer, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
 {
-	std::vector<Texture2D> TextureList;
+	TextureMaps TextureList;
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto directory = FilePath.substr(0, FilePath.find_last_of('/')) + '/';
+
 	for (int x = 0; x <= aiTextureType_UNKNOWN; x++)
 	{
-		auto a = material->GetTextureCount(static_cast<aiTextureType>(x));
-		for (unsigned int y = 0; y < material->GetTextureCount(static_cast<aiTextureType>(x)); y++)
+		for (int y = 0; y <= material->GetTextureCount(static_cast<aiTextureType>(x)); y++)
 		{
 			aiString TextureLocation;
-			material->GetTexture(aiTextureType_DIFFUSE, y, &TextureLocation);
-			TextureList.emplace_back(Texture2D(renderer, directory + TextureLocation.C_Str()));
+			auto getTextureStatus = material->GetTexture(static_cast<aiTextureType>(x), y, &TextureLocation);
+			if(getTextureStatus == aiReturn_SUCCESS)
+			{
+				switch (x)
+				{
+					case aiTextureType_DIFFUSE: TextureList.DiffuseMap = Texture2D(renderer, directory + TextureLocation.C_Str()); break;
+					case aiTextureType_SPECULAR: TextureList.SpecularMap = Texture2D(renderer, directory + TextureLocation.C_Str()); break;
+					case aiTextureType_HEIGHT: TextureList.NormalMap = Texture2D(renderer, directory + TextureLocation.C_Str()); break;
+					case aiTextureType_OPACITY: TextureList.AlphaMap = Texture2D(renderer, directory + TextureLocation.C_Str()); break;
+				}
+			}
+			else
+			{
+				std::cout << "Unable to load: " << TextureLocation.C_Str() << std::endl;
+			}
 		}
 	}
 
+	if (TextureList.DiffuseMap.textureImage == VK_NULL_HANDLE)
+	{
+		TextureList.DiffuseMap = Texture2D(renderer, "texture/Temp.bmp");
+	}
+	if (TextureList.SpecularMap.textureImage == VK_NULL_HANDLE)
+	{
+		TextureList.SpecularMap = Texture2D(renderer, "texture/Temp.bmp");
+	}
+	if (TextureList.NormalMap.textureImage == VK_NULL_HANDLE)
+	{
+		TextureList.NormalMap = Texture2D(renderer, "texture/Temp.bmp");
+	}
+	if (TextureList.DisplacementMap.textureImage == VK_NULL_HANDLE)
+	{
+		TextureList.DisplacementMap = Texture2D(renderer, "texture/Temp.bmp");
+	}
+	if (TextureList.AlphaMap.textureImage == VK_NULL_HANDLE)
+	{
+		TextureList.AlphaMap = Texture2D(renderer, "texture/Temp.bmp");
+	}
+	//if (TextureList.CubeMap.textureImage == VK_NULL_HANDLE)
+	//{
+	//	CubeMapLayout layout;
+	//	layout.Left = "texture/skybox/left.jpg";
+	//	layout.Right = "texture/skybox/right.jpg";
+	//	layout.Top = "texture/skybox/top.jpg";
+	//	layout.Bottom = "texture/skybox/bottom.jpg";
+	//	layout.Back = "texture/skybox/back.jpg";
+	//	layout.Front = "texture/skybox/front.jpg";
+	//	TextureList.CubeMap = CubeMapTexture(renderer, layout);
+	//}
 	return TextureList;
 }
 
 void ModelLoader::CleanTextureMemory(Renderer& renderer)
 {
-	for (auto subMesh : ModelMeshList)
-	{
-		for (auto texture : subMesh.TextureList)
-		{
-			texture.Destroy(renderer);
-		}
-	}
+	//for (auto subMesh : ModelMeshList)
+	//{
+	//	for (auto texture : subMesh.TextureList)
+	//	{
+	//		texture.Destroy(renderer);
+	//	}
+	//}
 }

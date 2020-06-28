@@ -77,21 +77,21 @@ GUIDebugger::~GUIDebugger()
 
 void GUIDebugger::UpdateCommandBuffers(uint32_t currentFrame, VkRenderPass renderPass, VkFramebuffer framebuffer)
 {
-	VkCommandBufferInheritanceInfo InheritanceInfo = {};
-	InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-	InheritanceInfo.renderPass = renderPass;
-	InheritanceInfo.framebuffer = framebuffer;
+	//VkCommandBufferInheritanceInfo InheritanceInfo = {};
+	//InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+	//InheritanceInfo.renderPass = renderPass;
+	//InheritanceInfo.framebuffer = framebuffer;
 
-	VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
-	BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-	BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
+	//VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
+	//BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	//BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+	//BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
 
-	vkBeginCommandBuffer(ImGuiCommandBuffers[currentFrame], &BeginSecondaryCommandBuffer);
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), ImGuiCommandBuffers[currentFrame]);
-	if (vkEndCommandBuffer(ImGuiCommandBuffers[currentFrame]) != VK_SUCCESS) {
-		throw std::runtime_error("failed to record command buffer!");
-	}
+	//vkBeginCommandBuffer(ImGuiCommandBuffers[currentFrame], &BeginSecondaryCommandBuffer);
+	//
+	//if (vkEndCommandBuffer(ImGuiCommandBuffers[currentFrame]) != VK_SUCCESS) {
+	//	throw std::runtime_error("failed to record command buffer!");
+	//}
 }
 
 void GUIDebugger::UpdateGuiDebugger()

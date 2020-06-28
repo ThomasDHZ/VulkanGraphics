@@ -59,20 +59,13 @@ private:
 
 	LightManager lightManager;
 
-
-	//ModelLoader modelLoader;
-	//Model Nanosuit;
-
 	SkyBox Skybox;
 
 	std::vector<Mesh> MeshList;
-	//std::vector<Model> ModelList;
-	GUIDebugger guiDebugger;
+	std::vector<Model> ModelList;
 
-	void InitializeGUIDebugger();
 	void Update(uint32_t DrawFrame);
 	void UpdateCommandBuffers(uint32_t DrawFrame);
-	void Draw();
 
 public:
 	VulkanGraphics(int Width, int Height, const char* AppName);

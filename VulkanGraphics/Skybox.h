@@ -11,6 +11,7 @@
 #include "SkyBoxPipeline.h"
 #include "BaseMesh.h"
 #include "UniformBuffer.h"
+#include "Camera.h"
 
 struct SkyBoxPositionMatrix
 {
@@ -66,22 +67,21 @@ const std::vector<SkyBoxVertex> SkyBoxVertices =
 class SkyBox : public BaseMesh
 {
 private:
+	CubeMapTexture CubeMap;
+	UniformBuffer PositionMatrixBuffer;
+
 	void SetUpVertexBuffer(Renderer& renderer);
 	void SetUpUniformBuffers(Renderer& renderer);
 	void SetUpDescriptorPool(Renderer& renderer);
 	void SetUpDescriptorSets(Renderer& renderer);
 
 public:
-	CubeMapTexture CubeMap;
-
-	UniformBuffer PositionMatrixBuffer;
-
 	SkyBox();
 	SkyBox(Renderer& renderer, CubeMapTexture texture);
 	~SkyBox();
 
 	void Draw(Renderer& renderer, int currentFrame);
-	void UpdateUniformBuffer(Renderer& renderer, SkyBoxPositionMatrix positionMatrix);
+	void UpdateUniformBuffer(Renderer& renderer, Camera& camera);
 	void Destory(Renderer& renderer);
 };
 
