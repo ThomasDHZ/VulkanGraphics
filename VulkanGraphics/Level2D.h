@@ -15,19 +15,6 @@ enum Level
 	Test
 };
 
-const std::vector<Vertex> MegaManVertices =
-{
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
-};
-
-const std::vector<uint16_t> MegaManIndices =
-{
-	  0, 1, 2, 2, 3, 0
-};
-
 class Level2D : VulkanResources
 {
 private:
@@ -37,8 +24,9 @@ public:
 	LevelMesh2D LevelMap;
 	LightManager lightManager;
 
-	Mesh ColliderSprite;
+//	Mesh ColliderSprite;
 	Sprite SpriteList;
+
 
 	Level2D();
 	Level2D(Renderer& renderer, TileSet tileset);

@@ -2,7 +2,6 @@
 #include <vulkan\vulkan_core.h>
 #include <vector>
 #include "VulkanResources.h"
-#include "Renderer.h"
 
 class UniformBuffer : public VulkanResources
 {

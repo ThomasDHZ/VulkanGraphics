@@ -8,6 +8,8 @@
 enum Camera_Movement {
     FORWARD,
     BACKWARD,
+    UP,
+    DOWN,
     LEFT,
     RIGHT
 };
@@ -71,6 +73,10 @@ public:
             Position += Front * velocity;
         if (direction == BACKWARD)
             Position -= Front * velocity;
+        if (direction == UP)
+            Position += Up * velocity;
+        if (direction == DOWN)
+            Position -= Up * velocity;
         if (direction == LEFT)
             Position -= Right * velocity;
         if (direction == RIGHT)

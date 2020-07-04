@@ -49,8 +49,6 @@ private:
 	UniformBuffer MeshPropertiesBuffer;
 	UniformBuffer LightsBuffer;
 
-	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, Lights light);
-
 protected:
 	void CreateMaterialProperties(const TextureMaps& textureList);
 	void CreateUniformBuffers(Renderer& renderer);
@@ -68,6 +66,8 @@ public:
 	glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 MeshScale = glm::vec3(1.0f);
 	float RotationAmount = 0.0f;
+
+	void UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, Lights light);
 
 	Mesh();
 	Mesh(Renderer& renderer);

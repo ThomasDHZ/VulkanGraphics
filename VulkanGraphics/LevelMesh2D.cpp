@@ -1,19 +1,15 @@
 #include "LevelMesh2D.h"
 
 
-LevelMesh2D::LevelMesh2D() : Mesh()
+LevelMesh2D::LevelMesh2D()
 {
 }
 
-LevelMesh2D::LevelMesh2D(Renderer& renderer, const TileSet& tileSet) : Mesh(renderer)
+LevelMesh2D::LevelMesh2D(Renderer& renderer, const TileSet& tileSet)
 {
 	LoadTiles(renderer, tileSet);
 	CreateLevelGeometry();
-	CreateVertexBuffer(renderer);
-	CreateIndiceBuffer(renderer);
-	CreateUniformBuffers(renderer);
-	CreateDescriptorPool(renderer);
-	CreateDescriptorSets(renderer);
+	LevelMesh = Mesh(renderer, VertexList, IndexList, TextureList);
 }
 
 LevelMesh2D::~LevelMesh2D()
@@ -37,38 +33,19 @@ void LevelMesh2D::LoadTiles(Renderer& renderer, const TileSet& tileSet)
 	TextureList.AlphaMap = Texture2D(renderer, tileSet.AlphaMap);
 	TextureList.CubeMap = CubeMapTexture(renderer, layout);
 
-	TileMap[0] = glm::ivec2(1, 0);
-	TileMap[1] = glm::ivec2(2, 0);
-	TileMap[2] = glm::ivec2(3, 0);
-	TileMap[3] = glm::ivec2(4, 0);
-	TileMap[4] = glm::ivec2(5, 0);
-	TileMap[5] = glm::ivec2(6, 0);
-	TileMap[6] = glm::ivec2(7, 0);
-	TileMap[7] = glm::ivec2(8, 0);
-	TileMap[8] = glm::ivec2(9, 0);
-	TileMap[9] = glm::ivec2(10, 0);
-	TileMap[10] = glm::ivec2(11, 0);
-	TileMap[11] = glm::ivec2(12, 0);
-	TileMap[12] = glm::ivec2(13, 0);
-	TileMap[13] = glm::ivec2(14, 0);
-	TileMap[14] = glm::ivec2(15, 0);
-	TileMap[15] = glm::ivec2(16, 0);
-	TileMap[16] = glm::ivec2(1, 2);
-	TileMap[17] = glm::ivec2(2, 2);
-	TileMap[18] = glm::ivec2(3, 2);
-	TileMap[19] = glm::ivec2(4, 2);
-	TileMap[20] = glm::ivec2(5, 2);
-	TileMap[21] = glm::ivec2(6, 2);
-	TileMap[22] = glm::ivec2(7, 2);
-	TileMap[23] = glm::ivec2(8, 2);
-	TileMap[24] = glm::ivec2(9, 2);
-	TileMap[25] = glm::ivec2(10, 2);
-	TileMap[26] = glm::ivec2(11, 2);
-	TileMap[27] = glm::ivec2(12, 2);
-	TileMap[28] = glm::ivec2(13, 2);
-	TileMap[29] = glm::ivec2(14, 2);
-	TileMap[30] = glm::ivec2(15, 2);
-	TileMap[31] = glm::ivec2(16, 2);
+	const unsigned int TileSize = 2048;
+	const float AmtXAxisTiles = TextureList.DiffuseMap.Width / TileSize;
+	const float AmtYAxisTiles = TextureList.DiffuseMap.Height / TileSize;
+	const float UVTileLocU = 1 / AmtXAxisTiles;
+	const float UVTileLocV = 1 / AmtYAxisTiles;
+
+	for (int x = 0; x <= AmtXAxisTiles; x++)
+	{
+		for (int y = 0; y < AmtYAxisTiles; y++)
+		{
+			TileMap[x + (y * AmtXAxisTiles)] = glm::ivec2(x + 1, y);
+		}
+	}
 }
 
 void LevelMesh2D::CreateLevelGeometry()
@@ -110,39 +87,16 @@ void LevelMesh2D::CreateLevelGeometry()
 			IndexList.emplace_back(VertexCount);
 		}
 	}
+}
 
-	VertexSize = VertexList.size();
-	IndiceSize = IndexList.size();
+void LevelMesh2D::Update(Renderer& renderer, Camera& camera, Lights light)
+{
+	LevelMesh.Update(renderer, camera, light);
 }
 
 void LevelMesh2D::Draw(Renderer& renderer, int currentFrame)
 {
-	VkBuffer vertexBuffers[] = { vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
-
-	if (renderer.Settings.ShowMeshLines)
-	{
-		vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetMeshViewShaderPipeline(renderer));
-		vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
-		vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-		vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		vkCmdDrawIndexed(*GetSecondaryCommandBuffer(renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
-	}
-
-	if (renderer.Settings.ShowDebugCollisionMesh)
-	{
-		vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetCollisionShaderPipeline(renderer));
-		vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
-		vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-		vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		vkCmdDrawIndexed(*GetSecondaryCommandBuffer(renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
-	}
-
-	vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(renderer));
-	vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	vkCmdBindIndexBuffer(*GetSecondaryCommandBuffer(renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-	vkCmdDrawIndexed(*GetSecondaryCommandBuffer(renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
+	LevelMesh.Draw(renderer, currentFrame);
 }
 
 void LevelMesh2D::Destory(Renderer& renderer)
@@ -151,6 +105,6 @@ void LevelMesh2D::Destory(Renderer& renderer)
 	TextureList.SpecularMap.Destroy(renderer);
 	TextureList.NormalMap.Destroy(renderer);
 	TextureList.AlphaMap.Destroy(renderer);
-	Mesh::Destroy(renderer);
+	LevelMesh.Destroy(renderer);
 }
 

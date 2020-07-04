@@ -41,7 +41,7 @@ public:
 	Sprite(Renderer& renderer, glm::vec3 StartPos);
 	~Sprite();
 
-	void UpdateUniformBuffer(GLFWwindow* window, Renderer& renderer, PositionMatrix positionMatrix, MeshProperties viewpos, Mesh otherSprite);
+	void Update(GLFWwindow* window, Renderer& renderer, Camera& camera, Lights light);
 	void Draw(Renderer& renderer, int currentFrame);
 	void Destory(Renderer& renderer);
 

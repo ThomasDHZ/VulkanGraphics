@@ -19,17 +19,18 @@ Level2D::Level2D(Renderer& renderer, TileSet tileset)
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
 
-	TextureMaps maps;
-	maps.DiffuseMap = Texture2D(renderer, "texture/MegaManDiffuse2048.bmp");
-	maps.SpecularMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
-	maps.NormalMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
-	maps.DisplacementMap = Texture2D(renderer, "texture/MegaManSpecular2048.bmp");
-	maps.AlphaMap = Texture2D(renderer, "texture/MegaManAlpha2048.bmp");
-	maps.CubeMap = CubeMapTexture(renderer, layout);
+	TextureMaps TextureList = {};
+	TextureList.DiffuseMap = Texture2D(renderer, tileset.DiffuseMap);
+	TextureList.SpecularMap = Texture2D(renderer, tileset.SpecularMap);
+	TextureList.NormalMap = Texture2D(renderer, tileset.NormalMap);
+	TextureList.DisplacementMap = Texture2D(renderer, tileset.AlphaMap);
+	TextureList.AlphaMap = Texture2D(renderer, tileset.AlphaMap);
+	TextureList.CubeMap = CubeMapTexture(renderer, layout);
 
 	SpriteList = Sprite(renderer, glm::vec2(3.33f, 8.5f));
-	ColliderSprite = Mesh(renderer, MegaManVertices, MegaManIndices, maps);
-	ColliderSprite.MeshPosition = glm::vec3(5.0f, 8.5, 0.0f);
+    //ColliderSprite = Mesh(renderer, LevelMap.VertexList, LevelMap.IndexList, TextureList);
+	//ColliderSprite.MeshPosition = glm::vec3(5.0f, 8.5, 0.0f);
+
 
 	DirectionalLightBuffer lighter;
 	lighter.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
@@ -150,7 +151,29 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	ubo.proj[1][1] *= -1;
 	ubo.timer = glfwGetTime();
 
-	//LevelMap.UpdateUniformBuffer(renderer, ubo, viewing);
+	Lights light = {};
+	light.directionalLight.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+	light.directionalLight.Ambient = glm::vec3(0.005f, 0.005f, 0.005f);
+	light.directionalLight.Diffuse = glm::vec3(0.04f, 0.04f, 0.04f);
+	light.directionalLight.Specular = glm::vec3(0.05f, 0.05f, 0.05f);
+	light.pointLight.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+	light.pointLight.Ambient = glm::vec3(0.005f);
+	light.pointLight.Diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	light.pointLight.Specular = glm::vec3(0.3f);
+	light.pointLight.Constant = 1.0f;
+	light.pointLight.Linear = 0.09f;
+	light.pointLight.Quadratic = 0.032f;
+	light.spotLight.Position = camera.Position;
+	light.spotLight.Direction = camera.Front;
+	light.spotLight.Ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+	light.spotLight.Diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	light.spotLight.Specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	light.spotLight.Constant = 1.0f;
+	light.spotLight.Linear = 0.09f;
+	light.spotLight.Quadratic = 0.032f;
+	light.spotLight.CutOff = glm::cos(glm::radians(12.5f));
+	light.spotLight.OuterCutOff = glm::cos(glm::radians(15.0f));
+	light.viewPos = camera.Position;
 
 	PositionMatrix ubo3{};
 	ubo3.model = glm::mat4(1.0f);
@@ -160,16 +183,11 @@ void Level2D::Update(Renderer& renderer, GLFWwindow* Window)
 	ubo3.proj[1][1] *= -1;
 	ubo3.timer = glfwGetTime();
 
-	PositionMatrix ubo4{};
-	ubo4.model = glm::mat4(1.0f);
-	ubo4.model = glm::translate(ubo.model, ColliderSprite.MeshPosition);
-	ubo4.view = camera.GetViewMatrix();
-	ubo4.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 100.0f);
-	ubo4.proj[1][1] *= -1;
-	ubo4.timer = glfwGetTime();
 
-	//ColliderSprite.UpdateUniformBuffer(renderer, ubo4, viewing);
-	SpriteList.UpdateUniformBuffer(Window, renderer, ubo3, meshProperties, ColliderSprite);
+	//ColliderSprite.Update(renderer, camera, light);
+
+	LevelMap.Update(renderer, camera, light);
+	SpriteList.Update(Window, renderer, camera, light);
 	lightManager.Update(renderer, camera);
 }
 
@@ -178,7 +196,7 @@ void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 
 	LevelMap.Draw(renderer, DrawFrame);
 	SpriteList.Draw(renderer, DrawFrame);
-	ColliderSprite.Draw(renderer, DrawFrame);
+//	ColliderSprite.Draw(renderer, DrawFrame);
 	if (renderer.Settings.ShowDebugLightMesh)
 	{
 		lightManager.DrawDebugMesh(renderer, DrawFrame);
@@ -188,7 +206,7 @@ void Level2D::Draw(Renderer& renderer, uint32_t DrawFrame)
 
 void Level2D::Destroy(Renderer& renderer)
 {
-	ColliderSprite.Destory(renderer);
+	//ColliderSprite.Destory(renderer);
 	SpriteList.Destory(renderer);
 	lightManager.Destroy(renderer);
 	LevelMap.Destory(renderer);
