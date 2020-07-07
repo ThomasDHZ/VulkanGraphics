@@ -18,7 +18,6 @@ LevelMesh2D::~LevelMesh2D()
 
 void LevelMesh2D::LoadTiles(Renderer& renderer, const TileSet& tileSet)
 {
-	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
 	layout.Right = "texture/skybox/right.jpg";
 	layout.Top = "texture/skybox/top.jpg";
@@ -30,10 +29,11 @@ void LevelMesh2D::LoadTiles(Renderer& renderer, const TileSet& tileSet)
 	TextureList.SpecularMap = Texture2D(renderer, tileSet.SpecularMap);
 	TextureList.NormalMap = Texture2D(renderer, tileSet.NormalMap);
 	TextureList.DisplacementMap = Texture2D(renderer, tileSet.AlphaMap);
+	TextureList.EmissionMap = Texture2D(renderer, tileSet.EmissionMap);
 	TextureList.AlphaMap = Texture2D(renderer, tileSet.AlphaMap);
 	TextureList.CubeMap = CubeMapTexture(renderer, layout);
 
-	const unsigned int TileSize = 2048;
+	const unsigned int TileSize = 16;
 	const float AmtXAxisTiles = TextureList.DiffuseMap.Width / TileSize;
 	const float AmtYAxisTiles = TextureList.DiffuseMap.Height / TileSize;
 	const float UVTileLocU = 1 / AmtXAxisTiles;
@@ -50,7 +50,7 @@ void LevelMesh2D::LoadTiles(Renderer& renderer, const TileSet& tileSet)
 
 void LevelMesh2D::CreateLevelGeometry()
 {
-	const unsigned int TileSize = 2048;
+	const unsigned int TileSize = 16;
 	const float AmtXAxisTiles = TextureList.DiffuseMap.Width / TileSize;
 	const float AmtYAxisTiles = TextureList.DiffuseMap.Height / TileSize;
 	const float UVTileLocU = 1 / AmtXAxisTiles;
@@ -104,7 +104,9 @@ void LevelMesh2D::Destory(Renderer& renderer)
 	TextureList.DiffuseMap.Destroy(renderer);
 	TextureList.SpecularMap.Destroy(renderer);
 	TextureList.NormalMap.Destroy(renderer);
+	TextureList.DisplacementMap.Destroy(renderer);
 	TextureList.AlphaMap.Destroy(renderer);
+	TextureList.CubeMap.Destroy(renderer);
 	LevelMesh.Destroy(renderer);
 }
 

@@ -31,6 +31,7 @@ struct TextureMaps
 	Texture2D NormalMap;
 	Texture2D DisplacementMap;
 	Texture2D AlphaMap;
+	Texture2D EmissionMap;
 	CubeMapTexture CubeMap;
 };
 

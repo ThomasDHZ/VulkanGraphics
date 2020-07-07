@@ -10,12 +10,14 @@ struct TileSet
 	std::string SpecularMap;
 	std::string NormalMap;
 	std::string DisplacementMap;
+	std::string EmissionMap;
 	std::string AlphaMap;
 };
 
 class LevelMesh2D
 {
 private:
+	CubeMapLayout layout;
 
 	unsigned int LevelBoundsX = 16;
 	unsigned int LevelBoundsY = 8;

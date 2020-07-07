@@ -8,6 +8,8 @@
 #include "LevelMesh2D.h"
 #include "Sprite.h"
 #include <chrono>
+#include "MegaMan.h"
+#include "MMShot.h"
 
 enum Level
 {
@@ -18,15 +20,12 @@ enum Level
 class Level2D : VulkanResources
 {
 private:
-public:
-	bool tempflag = false;
-	Camera camera;
 	LevelMesh2D LevelMap;
-	LightManager lightManager;
+	std::vector<Sprite> SpriteList;
 
-//	Mesh ColliderSprite;
-	Sprite SpriteList;
-
+	Lights light = {};
+public:
+	Camera camera;
 
 	Level2D();
 	Level2D(Renderer& renderer, TileSet tileset);

@@ -68,21 +68,24 @@ layout(binding = 2) uniform sampler2D SpecularMap;
 layout(binding = 3) uniform sampler2D NormalMap;
 layout(binding = 4) uniform sampler2D DisplacementMap;
 layout(binding = 5) uniform sampler2D AlphaMap;
-layout(binding = 6) uniform samplerCube CubeMap;
-layout(binding = 7) uniform MeshProperties
+layout(binding = 6) uniform sampler2D EmissionMap;
+layout(binding = 7) uniform samplerCube CubeMap;
+layout(binding = 8) uniform MeshProperties
 {
     TextureFlags MapFlags;
     Material material;
     vec2 SpriteUV;
     float height;
+    int FlipTexture;
 } meshProperties;
-layout(binding = 8) uniform LightProperties
+layout(binding = 9) uniform LightProperties
 {
     DirectionalLight directionalLight;
     PointLight pointLight;
     SpotLight spotLight;
     vec3 viewPos;
 } lightProperties;
+
 
 vec2 AnimationCoords = vec2(TexCoords.x + meshProperties.SpriteUV.x, TexCoords.y + meshProperties.SpriteUV.y);
 
@@ -225,6 +228,16 @@ vec3 CalcReflection(vec3 InputPixel)
 
 void main()
 {
+    if(meshProperties.FlipTexture == 1)
+    {
+        vec2 Flipped = vec2(-TexCoords.x, TexCoords.y);
+        AnimationCoords = vec2(Flipped.x + meshProperties.SpriteUV.x, Flipped.y + meshProperties.SpriteUV.y);
+    }
+    else
+    {
+        AnimationCoords = vec2(TexCoords.x + meshProperties.SpriteUV.x, TexCoords.y + meshProperties.SpriteUV.y);
+    }
+
     RemoveAlphaPixels();
 
     vec3 norm = normalize(Normal);
@@ -234,6 +247,6 @@ void main()
     result += CalcPointLight(lightProperties.pointLight, norm, FragPos, viewDir);
     result += CalcSpotLight(lightProperties.spotLight, norm, FragPos, viewDir);
    // result += CalcReflection(result);
-
+    
     outColor = vec4(result, 1.0);
 } 

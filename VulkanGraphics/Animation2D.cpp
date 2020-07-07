@@ -7,8 +7,9 @@ Animation2D::Animation2D()
 	TimeBetweenFrames = 0;
 }
 
-Animation2D::Animation2D(std::vector<glm::vec2> AnimationFrames, float timeBetweenFrames)
+Animation2D::Animation2D(std::vector<glm::vec2> AnimationFrames, float timeBetweenFrames, unsigned int animationID)
 {
+	AnimationID = animationID;
 	CurrentFrame = 0;
 	lastframeTime = 0;
 	TimeBetweenFrames = timeBetweenFrames;

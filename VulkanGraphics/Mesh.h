@@ -32,6 +32,7 @@ struct MeshProperties
 	Material material;
 	alignas(8) glm::vec2 SpriteUV;
 	alignas(4) float Height;
+	alignas(4) int FlipTexture;
 };
 
 struct Lights
