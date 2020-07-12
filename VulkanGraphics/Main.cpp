@@ -256,6 +256,7 @@ private:
         createSwapChain();
         createImageViews();
         createRenderPass();
+        createQuadRenderPass();
         createDescriptorSetLayout();
         createGraphicsPipeline();
         createquadGraphicsPipeline();
@@ -295,7 +296,73 @@ private:
 
         vkDeviceWaitIdle(device);
     }
+    void createQuadRenderPass()
+    {
+        
+            std::array<VkAttachmentDescription, 2> attchmentDescriptions = {};
+            // Color attachment
+            attchmentDescriptions[0].format = VK_FORMAT_R8G8B8A8_SRGB;
+            attchmentDescriptions[0].samples = VK_SAMPLE_COUNT_1_BIT;
+            attchmentDescriptions[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            attchmentDescriptions[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+            attchmentDescriptions[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            attchmentDescriptions[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            attchmentDescriptions[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            attchmentDescriptions[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            // Depth attachment
+            attchmentDescriptions[1].format = VK_FORMAT_D32_SFLOAT;
+            attchmentDescriptions[1].samples = VK_SAMPLE_COUNT_1_BIT;
+            attchmentDescriptions[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            attchmentDescriptions[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            attchmentDescriptions[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            attchmentDescriptions[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+            attchmentDescriptions[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            attchmentDescriptions[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+            VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+            VkAttachmentReference depthReference = { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
+
+            VkSubpassDescription subpassDescription = {};
+            subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+            subpassDescription.colorAttachmentCount = 1;
+            subpassDescription.pColorAttachments = &colorReference;
+            subpassDescription.pDepthStencilAttachment = &depthReference;
+
+            // Use subpass dependencies for layout transitions
+            std::array<VkSubpassDependency, 2> dependencies;
+
+            dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+            dependencies[0].dstSubpass = 0;
+            dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+            dependencies[1].srcSubpass = 0;
+            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+            // Create the actual renderpass
+            VkRenderPassCreateInfo renderPassInfo = {};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+            renderPassInfo.attachmentCount = static_cast<uint32_t>(attchmentDescriptions.size());
+            renderPassInfo.pAttachments = attchmentDescriptions.data();
+            renderPassInfo.subpassCount = 1;
+            renderPassInfo.pSubpasses = &subpassDescription;
+            renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+            renderPassInfo.pDependencies = dependencies.data();
+
+            if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &offscreenrenderPass))
+            {
+                throw std::runtime_error("failed to create vkCreateImageView!");
+            }
+        
+    }
     void OffscreenShadow()
     {
         {
@@ -347,57 +414,6 @@ private:
             }
         }
         /////////////////////////////////////////////////////////////////////////////////////////////
-        {
-            VkAttachmentDescription DepthAttachmentDescription;
-            DepthAttachmentDescription.format = VK_FORMAT_D32_SFLOAT;
-            DepthAttachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
-            DepthAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            DepthAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            DepthAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            DepthAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            DepthAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            DepthAttachmentDescription.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-            VkAttachmentReference depthReference = { 0, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
-
-            VkSubpassDescription subpassDescription = {};
-            subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-            subpassDescription.pDepthStencilAttachment = &depthReference;
-
-            // Use subpass dependencies for layout transitions
-            std::array<VkSubpassDependency, 2> dependencies;
-
-            dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-            dependencies[0].dstSubpass = 0;
-            dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-            dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-            dependencies[1].srcSubpass = 0;
-            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-            // Create the actual renderpass
-            VkRenderPassCreateInfo renderPassInfo = {};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-            renderPassInfo.attachmentCount = 1;
-            renderPassInfo.pAttachments = &DepthAttachmentDescription;
-            renderPassInfo.subpassCount = 1;
-            renderPassInfo.pSubpasses = &subpassDescription;
-            renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-            renderPassInfo.pDependencies = dependencies.data();
-
-            if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &offscreenrenderPass))
-            {
-                throw std::runtime_error("failed to create vkCreateImageView!");
-            }
-        }
         {
             offscreenFramebuffers.resize(3);
             for (size_t i = 0; i < swapChainImageViews.size(); i++)
@@ -542,70 +558,6 @@ private:
             }
         }
         /////////////////////////////////////////////////////////////////////////////////////////////
-        {
-            std::array<VkAttachmentDescription, 2> attchmentDescriptions = {};
-            // Color attachment
-            attchmentDescriptions[0].format = VK_FORMAT_R8G8B8A8_SRGB;
-            attchmentDescriptions[0].samples = VK_SAMPLE_COUNT_1_BIT;
-            attchmentDescriptions[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            attchmentDescriptions[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-            attchmentDescriptions[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            attchmentDescriptions[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            attchmentDescriptions[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            attchmentDescriptions[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            // Depth attachment
-            attchmentDescriptions[1].format = VK_FORMAT_D32_SFLOAT;
-            attchmentDescriptions[1].samples = VK_SAMPLE_COUNT_1_BIT;
-            attchmentDescriptions[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-            attchmentDescriptions[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            attchmentDescriptions[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-            attchmentDescriptions[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            attchmentDescriptions[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            attchmentDescriptions[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-            VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
-            VkAttachmentReference depthReference = { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
-
-            VkSubpassDescription subpassDescription = {};
-            subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-            subpassDescription.colorAttachmentCount = 1;
-            subpassDescription.pColorAttachments = &colorReference;
-            subpassDescription.pDepthStencilAttachment = &depthReference;
-
-            // Use subpass dependencies for layout transitions
-            std::array<VkSubpassDependency, 2> dependencies;
-
-            dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-            dependencies[0].dstSubpass = 0;
-            dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-            dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-            dependencies[1].srcSubpass = 0;
-            dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-            dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-            dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-            dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-            dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-            // Create the actual renderpass
-            VkRenderPassCreateInfo renderPassInfo = {};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-            renderPassInfo.attachmentCount = static_cast<uint32_t>(attchmentDescriptions.size());
-            renderPassInfo.pAttachments = attchmentDescriptions.data();
-            renderPassInfo.subpassCount = 1;
-            renderPassInfo.pSubpasses = &subpassDescription;
-            renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-            renderPassInfo.pDependencies = dependencies.data();
-
-            if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &offscreenrenderPass))
-            {
-                throw std::runtime_error("failed to create vkCreateImageView!");
-            }
-        }
         {
             offscreenFramebuffers.resize(3);
             for (size_t i = 0; i < swapChainImageViews.size(); i++)
@@ -1244,7 +1196,7 @@ private:
         pipelineInfo.pDepthStencilState = &depthStencil;
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.layout = pipelineLayout;
-        pipelineInfo.renderPass = renderPass;
+        pipelineInfo.renderPass = offscreenrenderPass;
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
@@ -1791,7 +1743,7 @@ private:
                 {
                     VkBuffer vertexBuffers[] = { vertexBuffer };
                     VkDeviceSize offsets[] = { 0 };
-                    vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+                    vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, quadgraphicsPipeline);
                     vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
                     vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
                     vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
@@ -1828,7 +1780,6 @@ private:
                 {
                     VkBuffer vertexBuffers[] = { quadvertexBuffer };
                     VkDeviceSize offsets[] = { 0 };
-                    vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, quadgraphicsPipeline);
                     vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
                     vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
                     vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &quaddescriptorSets[i], 0, nullptr);
