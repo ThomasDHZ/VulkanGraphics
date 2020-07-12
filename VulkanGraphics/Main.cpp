@@ -118,31 +118,75 @@ struct UniformBufferObject {
 };
 
 const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-    {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-
-    {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-    {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+    	{{-0.5,-0.5,-0.5}, {0,-1,0}, {0,1}},
+    	{{0.5,-0.5,-0.5}, {0,-1,0}, {1,1}},
+    	{{0.5,-0.5,0.5}, {0,-1,0}, {1,0}},
+    	{{-0.5,-0.5,0.5}, {0,-1,0}, {0,0}},
+    	{{-0.5,0.5,-0.5}, {0,0,-1}, {0,0}},
+    	{{0.5,0.5,-0.5}, {0,0,-1}, {1,0}},
+    	{{0.5,-0.5,-0.5}, {0,0,-1}, {1,1}},
+    	{{-0.5,-0.5,-0.5}, {0,0,-1}, {0,1}},
+    	{{0.5,0.5,-0.5}, {1,0,0}, {0,0}},
+    	{{0.5,0.5,0.5}, {1,0,0}, {1,0}},
+    	{{0.5,-0.5,0.5}, {1,0,0}, {1,1}},
+    	{{0.5,-0.5,-0.5}, {1,0,0}, {0,1}},
+    	{{0.5,0.5,0.5}, {0,0,1}, {1,0}},
+    	{{-0.5,0.5,0.5}, {0,0,1}, {0,0}},
+    	{{-0.5,-0.5,0.5}, {0,0,1}, {0,1}},
+    	{{0.5,-0.5,0.5}, {0,0,1}, {1,1}},
+    	{{-0.5,0.5,0.5}, {-1,0,0}, {1,0}},
+    	{{-0.5,0.5,-0.5}, {-1,0,0}, {0,0}},
+    	{{-0.5,-0.5,-0.5}, {-1,0,0}, {0,1}},
+    	{{-0.5,-0.5,0.5}, {-1,0,0}, {1,1}},
+    	{{-0.5,0.5,-0.5}, {0,1,0}, {0,1}},
+    	{{-0.5,0.5,0.5}, {0,1,0}, {0,0}},
+    	{{0.5,0.5,0.5}, {0,1,0}, {1,0}},
+    	{{0.5,0.5,-0.5}, {0,1,0}, {1,1}},
 };
 
 const std::vector<uint16_t> indices = {
-    0, 1, 2, 2, 3, 0,
-    4, 5, 6, 6, 7, 4
+    	0,1,2, 0,2,3,
+    	4,5,6, 4,6,7,
+    	8,9,10, 8,10,11,
+    	12,13,14, 12,14,15,
+    	16,17,18, 16,18,19,
+    	20,21,22, 20,22,23,
 };
 
 const std::vector<Vertex> quadvertices = {
-    {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-    {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-    {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+        {{-0.5,-0.5,-0.5}, {0,-1,0}, {0,1}},
+        {{0.5,-0.5,-0.5}, {0,-1,0}, {1,1}},
+        {{0.5,-0.5,0.5}, {0,-1,0}, {1,0}},
+        {{-0.5,-0.5,0.5}, {0,-1,0}, {0,0}},
+        {{-0.5,0.5,-0.5}, {0,0,-1}, {0,0}},
+        {{0.5,0.5,-0.5}, {0,0,-1}, {1,0}},
+        {{0.5,-0.5,-0.5}, {0,0,-1}, {1,1}},
+        {{-0.5,-0.5,-0.5}, {0,0,-1}, {0,1}},
+        {{0.5,0.5,-0.5}, {1,0,0}, {0,0}},
+        {{0.5,0.5,0.5}, {1,0,0}, {1,0}},
+        {{0.5,-0.5,0.5}, {1,0,0}, {1,1}},
+        {{0.5,-0.5,-0.5}, {1,0,0}, {0,1}},
+        {{0.5,0.5,0.5}, {0,0,1}, {1,0}},
+        {{-0.5,0.5,0.5}, {0,0,1}, {0,0}},
+        {{-0.5,-0.5,0.5}, {0,0,1}, {0,1}},
+        {{0.5,-0.5,0.5}, {0,0,1}, {1,1}},
+        {{-0.5,0.5,0.5}, {-1,0,0}, {1,0}},
+        {{-0.5,0.5,-0.5}, {-1,0,0}, {0,0}},
+        {{-0.5,-0.5,-0.5}, {-1,0,0}, {0,1}},
+        {{-0.5,-0.5,0.5}, {-1,0,0}, {1,1}},
+        {{-0.5,0.5,-0.5}, {0,1,0}, {0,1}},
+        {{-0.5,0.5,0.5}, {0,1,0}, {0,0}},
+        {{0.5,0.5,0.5}, {0,1,0}, {1,0}},
+        {{0.5,0.5,-0.5}, {0,1,0}, {1,1}},
 };
 
 const std::vector<uint16_t> quadindices = {
-    0, 1, 2, 2, 3, 0
+        0,1,2, 0,2,3,
+        4,5,6, 4,6,7,
+        8,9,10, 8,10,11,
+        12,13,14, 12,14,15,
+        16,17,18, 16,18,19,
+        20,21,22, 20,22,23,
 };
 
 class HelloTriangleApplication {
@@ -317,7 +361,7 @@ private:
             attchmentDescriptions[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             attchmentDescriptions[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             attchmentDescriptions[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            attchmentDescriptions[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            attchmentDescriptions[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 
             VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
             VkAttachmentReference depthReference = { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
@@ -521,7 +565,7 @@ private:
             depthimage.arrayLayers = 1;
             depthimage.samples = VK_SAMPLE_COUNT_1_BIT;
             depthimage.tiling = VK_IMAGE_TILING_OPTIMAL;
-            depthimage.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+            depthimage.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
             VkMemoryAllocateInfo memAlloc = {};
             memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -555,6 +599,23 @@ private:
             depthStencilView.image = offscreenPassdepthimage;
             if (vkCreateImageView(device, &depthStencilView, nullptr, &offscreenPassdepthView)) {
                 throw std::runtime_error("failed to create vkCreateImageView!");
+            }
+
+            VkSamplerCreateInfo sampler = {};
+            sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+            sampler.magFilter = VK_FILTER_LINEAR;
+            sampler.minFilter = VK_FILTER_LINEAR;
+            sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+            sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+            sampler.addressModeV = sampler.addressModeU;
+            sampler.addressModeW = sampler.addressModeU;
+            sampler.mipLodBias = 0.0f;
+            sampler.maxAnisotropy = 1.0f;
+            sampler.minLod = 0.0f;
+            sampler.maxLod = 1.0f;
+            sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+            if (vkCreateSampler(device, &sampler, nullptr, &offscreenPassdepthSampler)) {
+                throw std::runtime_error("failed to create vkCreateSampler!");
             }
         }
         /////////////////////////////////////////////////////////////////////////////////////////////
@@ -1599,6 +1660,11 @@ private:
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             imageInfo.imageView = offscreenPasscolorView;
             imageInfo.sampler = offscreenPasscolorSampler;
+
+            //VkDescriptorImageInfo imageInfo{};
+            //imageInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+            //imageInfo.imageView = offscreenPassdepthView;
+            //imageInfo.sampler = offscreenPassdepthSampler;
 
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
