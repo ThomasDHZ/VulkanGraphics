@@ -4,6 +4,7 @@
 #include <array>
 #include <GLFW\glfw3.h>
 #include "VulkanDebugger.h"
+#include "VulkanSwapChain.h"
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -74,6 +75,8 @@ protected:
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
 
+	std::vector<VkFramebuffer> SwapChainFramebuffers;
+
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkFormat findDepthFormat();
 
@@ -82,6 +85,11 @@ protected:
 	bool checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice);
 
 	void FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface);
+
+
+	VulkanSwapChain SwapChain;
+	void InitializeCommandBuffers();
+	void InitializeSyncObjects();
 
 	void Destory();
 public:

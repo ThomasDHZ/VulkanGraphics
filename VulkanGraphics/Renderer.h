@@ -27,8 +27,6 @@ private:
 	InputAttachment HDRColorAttachment;
 	InputAttachment DepthAttachment;
 
-	VulkanSwapChain SwapChain;
-
 	ForwardRenderingPipeline GraphicsPipeline;
 	FrameBufferRenderingPipeline FrameBufferPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
@@ -41,8 +39,6 @@ private:
 
 	void InitializeRenderPass();
 	void InitializeFramebuffers();
-	void InitializeCommandBuffers();
-	void InitializeSyncObjects();
 	void InitializeGUIDebugger(GLFWwindow* window);
 
 protected:
@@ -50,7 +46,6 @@ protected:
 	//Pretty much to section off for anything that needs to be used in VUlkanGraphics.
 	size_t currentFrame = 0;
 	std::vector<VkCommandBuffer> RunCommandBuffers = {};
-	std::vector<VkFramebuffer> SwapChainFramebuffers;
 
 	GUIDebugger guiDebugger;
 

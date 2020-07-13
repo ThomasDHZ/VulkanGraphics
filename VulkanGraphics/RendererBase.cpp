@@ -129,6 +129,10 @@ RendererBase::RendererBase(GLFWwindow* window)
 
 	vkGetDeviceQueue(Device, GraphicsFamily, 0, &GraphicsQueue);
 	vkGetDeviceQueue(Device, PresentFamily, 0, &PresentQueue);
+
+	SwapChain = VulkanSwapChain(window, Device, PhysicalDevice, Surface);
+	InitializeCommandBuffers();
+	InitializeSyncObjects();
 }
 
 RendererBase::~RendererBase()
@@ -265,4 +269,65 @@ void RendererBase::Destory()
 
 	vkDestroySurfaceKHR(Instance, Surface, nullptr);
 	vkDestroyInstance(Instance, nullptr);
+}
+
+void RendererBase::InitializeCommandBuffers()
+{
+	MainCommandBuffer.resize(SwapChain.GetSwapChainImageCount());
+	SecondaryCommandBuffers.resize(SwapChain.GetSwapChainImageCount());
+
+	VkCommandPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	poolInfo.queueFamilyIndex = GraphicsFamily;
+
+	if (vkCreateCommandPool(Device, &poolInfo, nullptr, &MainCommandPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create graphics command pool!");
+	}
+
+	if (vkCreateCommandPool(Device, &poolInfo, nullptr, &SecondaryCommandPool) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create graphics command pool!");
+	}
+
+	VkCommandBufferAllocateInfo MainAllocInfo{};
+	MainAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	MainAllocInfo.commandPool = MainCommandPool;
+	MainAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	MainAllocInfo.commandBufferCount = (uint32_t)MainCommandBuffer.size();
+
+	if (vkAllocateCommandBuffers(Device, &MainAllocInfo, MainCommandBuffer.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+	}
+
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = SecondaryCommandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+	allocInfo.commandBufferCount = (uint32_t)SecondaryCommandBuffers.size();
+
+	if (vkAllocateCommandBuffers(Device, &allocInfo, SecondaryCommandBuffers.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+	}
+}
+
+void RendererBase::InitializeSyncObjects()
+{
+	vulkanSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+	imagesInFlight.resize(SwapChain.GetSwapChainImageCount(), VK_NULL_HANDLE);
+
+	VkSemaphoreCreateInfo semaphoreInfo{};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	VkFenceCreateInfo fenceInfo{};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+		if (vkCreateSemaphore(Device, &semaphoreInfo, nullptr, &vulkanSemaphores[i].ImageAcquiredSemaphore) != VK_SUCCESS ||
+			vkCreateSemaphore(Device, &semaphoreInfo, nullptr, &vulkanSemaphores[i].RenderCompleteSemaphore) != VK_SUCCESS ||
+			vkCreateFence(Device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create synchronization objects for a frame!");
+		}
+	}
 }

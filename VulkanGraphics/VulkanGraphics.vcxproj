@@ -161,6 +161,7 @@
     <ClCompile Include="FrameBufferRenderingPipeline.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Level2D.cpp" />
+    <ClCompile Include="MainRenderer.cpp" />
     <ClCompile Include="MegaMan.cpp" />
     <ClCompile Include="MMShot.cpp" />
     <ClCompile Include="Mouse.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="FrameBufferRenderingPipeline.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Level2D.h" />
+    <ClInclude Include="MainRenderer.h" />
     <ClInclude Include="MegaMan.h" />
     <ClInclude Include="MMShot.h" />
     <ClInclude Include="Mouse.h" />

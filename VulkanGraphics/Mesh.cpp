@@ -204,12 +204,12 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 		AlphaMapDescriptor.DescriptorImageInfo = AlphaMap;
 		DescriptorList.emplace_back(AlphaMapDescriptor);
 
-		WriteDescriptorSetInfo EmissionMapDescriptor;
-		EmissionMapDescriptor.DstBinding = 6;
-		EmissionMapDescriptor.DstSet = descriptorSets[i];
-		EmissionMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
-		DescriptorList.emplace_back(EmissionMapDescriptor);
+		//WriteDescriptorSetInfo EmissionMapDescriptor;
+		//EmissionMapDescriptor.DstBinding = 6;
+		//EmissionMapDescriptor.DstSet = descriptorSets[i];
+		//EmissionMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
+		//DescriptorList.emplace_back(EmissionMapDescriptor);
 
 		//WriteDescriptorSetInfo CubeMapDescriptor;
 		//CubeMapDescriptor.DstBinding = 7;
