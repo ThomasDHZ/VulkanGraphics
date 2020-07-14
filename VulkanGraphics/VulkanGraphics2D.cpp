@@ -82,6 +82,6 @@ void VulkanGraphics2D::MainLoop()
 		}
 
 		ImGui::Render();
-		renderer.Draw(Window.GetWindowPtr());
+		//renderer.Draw(Window.GetWindowPtr());
 	}
 }

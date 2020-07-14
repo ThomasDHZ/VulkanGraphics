@@ -16,6 +16,7 @@
 #include "UniformBuffer.h"
 #include "LightStructs.h"
 #include "Camera.h"
+#include "EngineRenderedTexture.h"
 
 struct Material
 {
@@ -73,6 +74,7 @@ public:
 	Mesh();
 	Mesh(Renderer& renderer);
 	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList);
+	Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, VkImageView RenderedTextureImageView, VkSampler RendereredTextureImageSampler);
 	Mesh(Renderer& renderer, const TextureMaps& textureList);
 	~Mesh();
 
@@ -80,6 +82,7 @@ public:
 	void UpdateGUI();
 	void Draw(Renderer& renderer, int currentFrame);
 	void Destroy(Renderer& renderer);
+	void UpdateDescriptorSets(Renderer& renderer, EngineRenderedTexture engineTexture);
 
 	float* GetMeshPosPtr() { return &MeshPosition.x; };
 };

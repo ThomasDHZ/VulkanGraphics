@@ -15,7 +15,10 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	renderer = Renderer(Window.GetWindowPtr());
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
-	modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
+	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
+
+	framebuffer = FrameBufferMesh(renderer.Device, renderer.PhysicalDevice, renderer.MainCommandPool, renderer.GraphicsQueue, renderer.SwapChain.GetSwapChainResolution(), renderer.RenderPass, renderer.HDRColorAttachment, renderer.DepthAttachment, renderer.FrameBufferPipeline.ShaderPipelineDescriptorLayout, renderer.SwapChain.GetSwapChainImageCount());
+	rendereredTexture = EngineRenderedTexture(renderer, VK_FORMAT_R32G32B32A32_SFLOAT, renderer.SwapChain.GetSwapChainResolution());
 
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
@@ -32,9 +35,13 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	maps.AlphaMap = Texture2D(renderer, "texture/Temp.bmp");
 	maps.CubeMap = CubeMapTexture(renderer, layout);
 
+
+
 	Skybox = SkyBox(renderer, maps.CubeMap);
 	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
-	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
+	QuadMesh = Mesh(renderer, quadvertices, quadindices, maps);
+	QuadMesh.UpdateDescriptorSets(renderer, rendereredTexture);
+	//	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
 	LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 }
@@ -57,6 +64,8 @@ VulkanGraphics::~VulkanGraphics()
 	lightManager.Destroy(renderer);
 	
 	Skybox.Destory(renderer);
+
+	framebuffer.Destory(renderer.Device);
 
 	renderer.DestoryVulkan();
 	Window.CleanUp();
@@ -96,6 +105,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	{
 		model.UpdateUniformBuffer(renderer, camera, light);
 	}
+	QuadMesh.Update(renderer, camera, light);
 	Skybox.UpdateUniformBuffer(renderer, camera);
 }
 
@@ -103,39 +113,41 @@ void VulkanGraphics::UpdateCommandBuffers(uint32_t DrawFrame)
 {
 	if (renderer.UpdateCommandBuffers)
 	{
-		for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
-		{
-			VkCommandBufferInheritanceInfo InheritanceInfo = {};
-			InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-			InheritanceInfo.renderPass = *GetRenderPass(renderer);
-			InheritanceInfo.framebuffer = renderer.SwapChainFramebuffers[i];
+		framebuffer.RecreateSwapChainStage(renderer.Device, renderer.SwapChain.GetSwapChainResolution(), renderer.RenderPass, renderer.HDRColorAttachment, renderer.DepthAttachment, renderer.FrameBufferPipeline.ShaderPipelineDescriptorLayout, renderer.SwapChain.GetSwapChainImageCount());
 
-			VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
-			BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-			BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
+		//for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
+		//{
+		//	VkCommandBufferInheritanceInfo InheritanceInfo = {};
+		//	InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+		//	InheritanceInfo.renderPass = *GetRenderPass(renderer);
+		//	InheritanceInfo.framebuffer = renderer.SwapChainFramebuffers[i];
 
-			vkBeginCommandBuffer(renderer.SecondaryCommandBuffers[i], &BeginSecondaryCommandBuffer);
-			for (auto mesh : MeshList)
-			{
-				mesh.Draw(renderer, i);
-			}
-			for (auto model : ModelList)
-			{
-				model.Draw(renderer, i);
-			}
-			if (renderer.Settings.ShowDebugLightMesh)
-			{
-				lightManager.DrawDebugMesh(renderer, i);
-			}
-			if (renderer.Settings.ShowSkyBox)
-			{
-				Skybox.Draw(renderer, i);
-			}
-			if (vkEndCommandBuffer(renderer.SecondaryCommandBuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to record command buffer!");
-			}
-		}
+		//	VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
+		//	BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		//	BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
+		//	BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
+
+		//	vkBeginCommandBuffer(renderer.SecondaryCommandBuffers[i], &BeginSecondaryCommandBuffer);
+		//	for (auto mesh : MeshList)
+		//	{
+		//		mesh.Draw(renderer, i);
+		//	}
+		//	for (auto model : ModelList)
+		//	{
+		//		model.Draw(renderer, i);
+		//	}
+		//	if (renderer.Settings.ShowDebugLightMesh)
+		//	{
+		//		lightManager.DrawDebugMesh(renderer, i);
+		//	}
+		//	if (renderer.Settings.ShowSkyBox)
+		//	{
+		//		Skybox.Draw(renderer, i);
+		//	}
+		//	if (vkEndCommandBuffer(renderer.SecondaryCommandBuffers[i]) != VK_SUCCESS) {
+		//		throw std::runtime_error("failed to record command buffer!");
+		//	}
+		//}
 
 		renderer.UpdateCommandBuffers = false;
 	}
@@ -171,10 +183,130 @@ void VulkanGraphics::MainLoop()
 			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 			ImGui::End();
 
-			MeshList[0].UpdateGUI();
+			QuadMesh.UpdateGUI();
 		}
 	
 		ImGui::Render();
-		renderer.Draw(Window.GetWindowPtr());
+		auto DrawFrame = renderer.DrawStart(Window.GetWindowPtr());
+
+		VkCommandBufferBeginInfo CommandBufferInfo = {};
+		CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		if (vkBeginCommandBuffer(renderer.MainCommandBuffer[DrawFrame], &CommandBufferInfo) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
+
+		{
+			std::array<VkClearValue, 2> clearValues{};
+			clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
+			clearValues[1].depthStencil = { 1.0f, 0 };
+
+			VkRenderPassBeginInfo renderPassInfo{};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderPassInfo.renderPass = renderer.OffscreenRenderPass;
+			renderPassInfo.framebuffer = renderer.OffscreenSwapChainFramebuffers[DrawFrame];
+			renderPassInfo.renderArea.offset = { 0, 0 };
+			renderPassInfo.renderArea.extent = renderer.SwapChain.GetSwapChainResolution();
+			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+			renderPassInfo.pClearValues = clearValues.data();
+
+			vkCmdBeginRenderPass(renderer.MainCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+			{
+				VkBuffer vertexBuffers[] = { MeshList[0].vertexBuffer };
+				VkDeviceSize offsets[] = { 0 };
+
+				vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.renderToTexturePipeline.ShaderPipeline);
+				vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
+				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.renderToTexturePipeline.ShaderPipelineLayout, 0, 1, &MeshList[0].descriptorSets[DrawFrame], 0, nullptr);
+				if (MeshList[0].IndiceSize == 0)
+				{
+					vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], MeshList[0].VertexSize, 1, 0, 0);
+				}
+				else
+				{
+					vkCmdBindIndexBuffer(renderer.MainCommandBuffer[DrawFrame], MeshList[0].indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+					vkCmdDrawIndexed(renderer.MainCommandBuffer[DrawFrame], static_cast<uint32_t>(MeshList[0].IndiceSize), 1, 0, 0, 0);
+				}
+			}
+			//{
+			//	VkBuffer vertexBuffers[] = { Skybox.vertexBuffer };
+			//	VkDeviceSize offsets[] = { 0 };
+
+			//	vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
+			//	vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
+			//	vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &Skybox.descriptorSets[DrawFrame], 0, nullptr);
+			//	vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], Skybox.VertexSize, 1, 0, 0);
+			//}
+			vkCmdEndRenderPass(renderer.MainCommandBuffer[DrawFrame]);
+		}
+
+		{
+			std::array<VkClearValue, 3> clearValues = {};
+			clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+			clearValues[1].color = { 0.1f, 0.1f, 0.1f, 1.0f };
+			clearValues[2].depthStencil = { 1.0f, 0 };
+
+			VkRenderPassBeginInfo renderPassInfo{};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderPassInfo.renderPass = renderer.RenderPass;
+			renderPassInfo.framebuffer = renderer.SwapChainFramebuffers[DrawFrame];
+			renderPassInfo.renderArea.offset = { 0, 0 };
+			renderPassInfo.renderArea.extent = renderer.SwapChain.GetSwapChainResolution();
+			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+			renderPassInfo.pClearValues = clearValues.data();
+
+			vkCmdBeginRenderPass(renderer.MainCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+			{
+				VkBuffer vertexBuffers[] = { MeshList[0].vertexBuffer };
+				VkDeviceSize offsets[] = { 0 };
+
+				vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(renderer));
+				vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
+				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &MeshList[0].descriptorSets[DrawFrame], 0, nullptr);
+				if (MeshList[0].IndiceSize == 0)
+				{
+					vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], MeshList[0].VertexSize, 1, 0, 0);
+				}
+				else
+				{
+					vkCmdBindIndexBuffer(renderer.MainCommandBuffer[DrawFrame], MeshList[0].indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+					vkCmdDrawIndexed(renderer.MainCommandBuffer[DrawFrame], static_cast<uint32_t>(MeshList[0].IndiceSize), 1, 0, 0, 0);
+				}
+			}
+			{
+		/*		VkBuffer vertexBuffers[] = { QuadMesh.vertexBuffer };
+				VkDeviceSize offsets[] = { 0 };
+
+				vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(renderer));
+				vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
+				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &QuadMesh.descriptorSets[DrawFrame], 0, nullptr);
+				if (QuadMesh.IndiceSize == 0)
+				{
+					vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], QuadMesh.VertexSize, 1, 0, 0);
+				}
+				else
+				{
+					vkCmdBindIndexBuffer(renderer.MainCommandBuffer[DrawFrame], QuadMesh.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+					vkCmdDrawIndexed(renderer.MainCommandBuffer[DrawFrame], static_cast<uint32_t>(QuadMesh.IndiceSize), 1, 0, 0, 0);
+				}*/
+			}
+			{
+				VkBuffer vertexBuffers[] = { Skybox.vertexBuffer };
+				VkDeviceSize offsets[] = { 0 };
+
+				vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
+				vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
+				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &Skybox.descriptorSets[DrawFrame], 0, nullptr);
+				vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], Skybox.VertexSize, 1, 0, 0);
+			}
+		}
+		vkCmdNextSubpass(renderer.MainCommandBuffer[DrawFrame], VK_SUBPASS_CONTENTS_INLINE);
+		framebuffer.Draw(renderer.FrameBufferPipeline, renderer.MainCommandBuffer[DrawFrame], DrawFrame);
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer.MainCommandBuffer[DrawFrame]);
+		vkCmdEndRenderPass(renderer.MainCommandBuffer[DrawFrame]);
+		vkEndCommandBuffer(renderer.MainCommandBuffer[DrawFrame]);
+
+		renderer.DrawEnd(Window.GetWindowPtr(), DrawFrame);
 	}
 }

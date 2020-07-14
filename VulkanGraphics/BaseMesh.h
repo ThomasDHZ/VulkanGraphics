@@ -40,16 +40,6 @@ class BaseMesh : public VulkanResources
 private:
 
 protected:
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
-
-
-
-	int VertexSize;
-	uint16_t IndiceSize;
 
 	void CreateVertexBuffer(Renderer& renderer);
 	void CreateIndiceBuffer(Renderer& renderer);
@@ -58,7 +48,14 @@ protected:
 	void CreateDescriptorSetsData(Renderer& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 
 public:
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
 
+	VkBuffer indexBuffer;
+	VkDeviceMemory indexBufferMemory;
+
+	int VertexSize;
+	uint16_t IndiceSize;
 
 	std::vector<Vertex> VertexList;
 	std::vector<uint16_t> IndexList;

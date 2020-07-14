@@ -204,6 +204,12 @@
     <ClCompile Include="MainRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EngineRenderedTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderToTexturePipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -449,6 +455,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MainRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineRenderedTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderToTexturePipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

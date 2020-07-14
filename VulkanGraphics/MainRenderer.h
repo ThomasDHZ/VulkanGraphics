@@ -9,7 +9,9 @@ private:
 	void InitializeRenderPass(RendererBase& renderer);
 
 public:
+	InputAttachment HDRColorAttachment;
 	InputAttachment DepthAttachment;
+
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 	ForwardRenderingPipeline GraphicsPipeline;

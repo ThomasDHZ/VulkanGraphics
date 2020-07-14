@@ -11,6 +11,7 @@
 #include "DebugLightRenderingPipeline.h"
 #include "CollisionDebugPipeline.h"
 #include "GUIDebugger.h"
+#include "RenderToTexturePipeline.h"
 
 class Renderer : public RendererBase
 {
@@ -23,22 +24,25 @@ private:
 
 
 	VkRenderPass RenderPass = VK_NULL_HANDLE;
+	VkRenderPass OffscreenRenderPass = VK_NULL_HANDLE;
+	InputAttachment OffscreenHDRColorAttachment;
+	InputAttachment OffscreenDepthAttachment;
 
 	InputAttachment HDRColorAttachment;
 	InputAttachment DepthAttachment;
 
 	ForwardRenderingPipeline GraphicsPipeline;
+	RenderToTexturePipeline renderToTexturePipeline;
 	FrameBufferRenderingPipeline FrameBufferPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
 	CollisionDebugPipeline DebugCollisionPipeline;
 	WireFramePipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 
-
-	FrameBufferMesh framebuffer;
-
 	void InitializeRenderPass();
+	void InitializeOffscreenRenderPass();
 	void InitializeFramebuffers();
+	void InitializeOffscreenFramebuffers();
 	void InitializeGUIDebugger(GLFWwindow* window);
 
 protected:
@@ -50,7 +54,8 @@ protected:
 	GUIDebugger guiDebugger;
 
 	void UpdateSwapChain(GLFWwindow* window);
-	void Draw(GLFWwindow* window);
+	uint32_t DrawStart(GLFWwindow* window);
+	void DrawEnd(GLFWwindow* window, uint32_t drawFrame);
 	void DestoryVulkan();
 
 	bool UpdateCommandBuffers = true;

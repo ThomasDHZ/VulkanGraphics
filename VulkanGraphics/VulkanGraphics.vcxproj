@@ -155,6 +155,7 @@
     <ClCompile Include="DebugLightRenderingPipeline.cpp" />
     <ClCompile Include="DeferredRenderer.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
+    <ClCompile Include="EngineRenderedTexture.cpp" />
     <ClCompile Include="ForwardRenderingPipeline.cpp" />
     <ClCompile Include="FrameBufferMesh.cpp" />
     <ClCompile Include="DifferedRenderingPipeline.cpp" />
@@ -180,6 +181,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="RenderToTexturePipeline.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="Sprite.cpp" />
@@ -234,6 +236,7 @@
     <ClInclude Include="DebugLightRenderingPipeline.h" />
     <ClInclude Include="DeferredRenderer.h" />
     <ClInclude Include="DirectionalLight.h" />
+    <ClInclude Include="EngineRenderedTexture.h" />
     <ClInclude Include="ForwardRenderingPipeline.h" />
     <ClInclude Include="FrameBufferMesh.h" />
     <ClInclude Include="DifferedRenderingPipeline.h" />
@@ -262,6 +265,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="RenderToTexturePipeline.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Sprite.h" />

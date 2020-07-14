@@ -76,6 +76,7 @@ protected:
 	std::vector<VkFence> imagesInFlight;
 
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
+	std::vector<VkFramebuffer> OffscreenSwapChainFramebuffers;
 
 	VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 	VkFormat findDepthFormat();

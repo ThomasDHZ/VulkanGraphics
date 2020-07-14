@@ -8,17 +8,18 @@ Renderer::Renderer() : RendererBase()
 Renderer::Renderer(GLFWwindow* window) : RendererBase(window)
 {
 	InitializeRenderPass();
+	InitializeOffscreenRenderPass();
 	InitializeFramebuffers();
+	InitializeOffscreenFramebuffers();
 	InitializeGUIDebugger(window);
 
 	GraphicsPipeline = ForwardRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	renderToTexturePipeline = RenderToTexturePipeline(SwapChain.GetSwapChainResolution(), OffscreenRenderPass, Device);
 	FrameBufferPipeline = FrameBufferRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	DebugLightPipeline = DebugLightRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	DebugCollisionPipeline = CollisionDebugPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	MeshviewPipeline = WireFramePipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	SkyboxPipeline = SkyBoxPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-
-	framebuffer = FrameBufferMesh(Device, PhysicalDevice, MainCommandPool, GraphicsQueue, SwapChain.GetSwapChainResolution(), RenderPass, HDRColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
 }
 
 Renderer::~Renderer()
@@ -137,6 +138,70 @@ void Renderer::InitializeRenderPass()
 	}
 }
 
+void Renderer::InitializeOffscreenRenderPass()
+{
+	std::array<VkAttachmentDescription, 2> attchmentDescriptions = {};
+
+	attchmentDescriptions[0].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+	attchmentDescriptions[0].samples = VK_SAMPLE_COUNT_1_BIT;
+	attchmentDescriptions[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attchmentDescriptions[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attchmentDescriptions[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attchmentDescriptions[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attchmentDescriptions[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attchmentDescriptions[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+	attchmentDescriptions[1].format = findDepthFormat();
+	attchmentDescriptions[1].samples = VK_SAMPLE_COUNT_1_BIT;
+	attchmentDescriptions[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attchmentDescriptions[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attchmentDescriptions[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attchmentDescriptions[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attchmentDescriptions[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attchmentDescriptions[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+
+	VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+	VkAttachmentReference depthReference = { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
+
+	VkSubpassDescription subpassDescription = {};
+	subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpassDescription.colorAttachmentCount = 1;
+	subpassDescription.pColorAttachments = &colorReference;
+	subpassDescription.pDepthStencilAttachment = &depthReference;
+
+	std::array<VkSubpassDependency, 2> dependencies;
+
+	dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependencies[0].dstSubpass = 0;
+	dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+	dependencies[1].srcSubpass = 0;
+	dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+	dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+	VkRenderPassCreateInfo renderPassInfo = {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attchmentDescriptions.size());
+	renderPassInfo.pAttachments = attchmentDescriptions.data();
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpassDescription;
+	renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+	renderPassInfo.pDependencies = dependencies.data();
+
+	if (vkCreateRenderPass(Device, &renderPassInfo, nullptr, &OffscreenRenderPass))
+	{
+		throw std::runtime_error("failed to create vkCreateImageView!");
+	}
+}
+
 void Renderer::InitializeFramebuffers()
 {
 	HDRColorAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkHDRColorAttachment, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
@@ -162,6 +227,35 @@ void Renderer::InitializeFramebuffers()
 		framebufferInfo.layers = 1;
 
 		if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &SwapChainFramebuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create framebuffer!");
+		}
+	}
+}
+
+void Renderer::InitializeOffscreenFramebuffers()
+{
+	OffscreenHDRColorAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkHDRColorAttachment, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
+	OffscreenDepthAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkDepthAttachemnt, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
+
+	OffscreenSwapChainFramebuffers.resize(SwapChain.GetSwapChainImageCount());
+
+	for (size_t i = 0; i < SwapChain.GetSwapChainImageCount(); i++) {
+		std::array<VkImageView, 2> attachments =
+		{
+			OffscreenHDRColorAttachment.AttachmentImageView,
+			OffscreenDepthAttachment.AttachmentImageView
+		};
+
+		VkFramebufferCreateInfo framebufferInfo{};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = OffscreenRenderPass;
+		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+		framebufferInfo.pAttachments = attachments.data();
+		framebufferInfo.width = SwapChain.GetSwapChainResolution().width;
+		framebufferInfo.height = SwapChain.GetSwapChainResolution().height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &OffscreenSwapChainFramebuffers[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create framebuffer!");
 		}
 	}
@@ -215,6 +309,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 	GraphicsPipeline.UpdateSwapChain();
+	renderToTexturePipeline.UpdateSwapChain();
 	DebugLightPipeline.UpdateSwapChain();
 	DebugCollisionPipeline.UpdateSwapChain();
 	FrameBufferPipeline.UpdateSwapChain();
@@ -222,6 +317,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	SkyboxPipeline.UpdateSwapChain();
 
 	GraphicsPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	renderToTexturePipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), OffscreenRenderPass, Device);
 	DebugLightPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	DebugCollisionPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	FrameBufferPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
@@ -230,11 +326,10 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	InitializeFramebuffers();
 	InitializeCommandBuffers();
 
-	framebuffer.RecreateSwapChainStage(Device, SwapChain.GetSwapChainResolution(), RenderPass, HDRColorAttachment, DepthAttachment, FrameBufferPipeline.ShaderPipelineDescriptorLayout, SwapChain.GetSwapChainImageCount());
 	UpdateCommandBuffers = true;
 }
 
-void Renderer::Draw(GLFWwindow* window)
+uint32_t Renderer::DrawStart(GLFWwindow* window)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -248,41 +343,16 @@ void Renderer::Draw(GLFWwindow* window)
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
-	RunCommandBuffers.clear();
-	RunCommandBuffers.emplace_back(SecondaryCommandBuffers[DrawFrame]);
-	//RunCommandBuffers.emplace_back(guiDebugger.GetCommandBuffers(DrawFrame));
-
-	std::array<VkClearValue, 3> clearValues = {};
-	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	clearValues[1].color = { 0.1f, 0.1f, 0.1f, 1.0f };
-	clearValues[2].depthStencil = { 1.0f, 0 };
-
 	if (imagesInFlight[DrawFrame] != VK_NULL_HANDLE) {
 		vkWaitForFences(Device, 1, &imagesInFlight[DrawFrame], VK_TRUE, UINT64_MAX);
 	}
 	imagesInFlight[DrawFrame] = inFlightFences[currentFrame];
 
-	VkRenderPassBeginInfo renderPassInfo = {};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = RenderPass;
-	renderPassInfo.framebuffer = SwapChainFramebuffers[DrawFrame];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
+	return DrawFrame;
+}
 
-	VkCommandBufferBeginInfo CommandBufferInfo = {};
-	CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-	vkBeginCommandBuffer(MainCommandBuffer[DrawFrame], &CommandBufferInfo);
-	vkCmdBeginRenderPass(MainCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-	vkCmdExecuteCommands(MainCommandBuffer[DrawFrame], RunCommandBuffers.size(), RunCommandBuffers.data());
-	vkCmdNextSubpass(MainCommandBuffer[DrawFrame], VK_SUBPASS_CONTENTS_INLINE);
-	framebuffer.Draw(FrameBufferPipeline, MainCommandBuffer[DrawFrame], DrawFrame);
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), MainCommandBuffer[DrawFrame]);
-	vkCmdEndRenderPass(MainCommandBuffer[DrawFrame]);
-	vkEndCommandBuffer(MainCommandBuffer[DrawFrame]);
-
+void Renderer::DrawEnd(GLFWwindow* window, uint32_t drawFrame)
+{
 	VkSemaphore waitSemaphores[] = { vulkanSemaphores[currentFrame].ImageAcquiredSemaphore };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	VkSemaphore signalSemaphores[] = { vulkanSemaphores[currentFrame].RenderCompleteSemaphore };
@@ -313,7 +383,7 @@ void Renderer::Draw(GLFWwindow* window)
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &DrawFrame;
 
-	result = vkQueuePresentKHR(PresentQueue, &presentInfo);
+	VkResult result = vkQueuePresentKHR(PresentQueue, &presentInfo);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
 	{
@@ -335,13 +405,12 @@ void Renderer::DestoryVulkan()
 	DepthAttachment.DeleteInputAttachment(Device);
 
 	GraphicsPipeline.Destroy();
+	renderToTexturePipeline.Destroy();
 	DebugLightPipeline.Destroy();
 	DebugCollisionPipeline.Destroy();
 	FrameBufferPipeline.Destroy();
 	MeshviewPipeline.Destroy();
 	SkyboxPipeline.Destroy();
-	
-	framebuffer.Destory(Device);
 
 	SwapChain.Destroy(Device);
 
