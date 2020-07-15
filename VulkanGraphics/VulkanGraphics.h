@@ -102,7 +102,6 @@ private:
 	FrameBufferMesh framebuffer;
 
 	std::vector<Mesh> MeshList;
-    Mesh QuadMesh;
 	std::vector<Model> ModelList;
 
 	void Update(uint32_t DrawFrame);
