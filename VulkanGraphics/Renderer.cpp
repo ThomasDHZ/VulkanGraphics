@@ -7,136 +7,24 @@ Renderer::Renderer() : RendererBase()
 
 Renderer::Renderer(GLFWwindow* window) : RendererBase(window)
 {
-	InitializeRenderPass();
+	forwardRenderer = ForwardRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
+
 	InitializeOffscreenRenderPass();
-	InitializeFramebuffers();
 	InitializeOffscreenFramebuffers();
 	InitializeGUIDebugger(window);
 
-	GraphicsPipeline = ForwardRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	renderToTexturePipeline = RenderToTexturePipeline(SwapChain.GetSwapChainResolution(), OffscreenRenderPass, Device);
-	FrameBufferPipeline = FrameBufferRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	DebugLightPipeline = DebugLightRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	DebugCollisionPipeline = CollisionDebugPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	MeshviewPipeline = WireFramePipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	SkyboxPipeline = SkyBoxPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//renderToTexturePipeline = RenderToTexturePipeline(SwapChain.GetSwapChainResolution(), OffscreenRenderPass, Device);
+	//FrameBufferPipeline = FrameBufferRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//DebugLightPipeline = DebugLightRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//DebugCollisionPipeline = CollisionDebugPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//MeshviewPipeline = WireFramePipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//SkyboxPipeline = SkyBoxPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 }
 
 Renderer::~Renderer()
 {
 }
 
-void Renderer::InitializeRenderPass()
-{
-	std::vector<VkAttachmentDescription> RenderPassAttachmentList;
-	std::vector<VkSubpassDescription> SubpassDescriptionList;
-	std::vector<VkSubpassDependency> SubpassDependencyList;
-
-	VkAttachmentDescription SwapChainAttachment = {};
-	SwapChainAttachment.format = SwapChain.GetSwapChainImageFormat().format;
-	SwapChainAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	SwapChainAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	SwapChainAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	SwapChainAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	SwapChainAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	SwapChainAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	SwapChainAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-	VkAttachmentDescription ColorAttachment = {};
-	ColorAttachment.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-	ColorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	ColorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	ColorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	ColorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	ColorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	ColorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	ColorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-	VkAttachmentDescription DepthAttachment = {};
-	DepthAttachment.format = findDepthFormat();
-	DepthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	DepthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	DepthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	DepthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	DepthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	DepthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	DepthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-	VkAttachmentReference colorReference = { 1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
-	VkAttachmentReference depthReference = { 2, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
-
-	VkAttachmentReference colorReferenceSwapchain = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
-
-	VkAttachmentReference inputReferences[2];
-	inputReferences[0] = { 1, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-	inputReferences[1] = { 2, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-
-	VkSubpassDescription FirstSubPassDescription = {};
-	FirstSubPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	FirstSubPassDescription.colorAttachmentCount = 1;
-	FirstSubPassDescription.pColorAttachments = &colorReference;
-	FirstSubPassDescription.pDepthStencilAttachment = &depthReference;
-	FirstSubPassDescription.inputAttachmentCount = 0;
-
-	VkSubpassDescription SecondSubPassDescription = {};
-	SecondSubPassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	SecondSubPassDescription.colorAttachmentCount = 1;
-	SecondSubPassDescription.pColorAttachments = &colorReferenceSwapchain;
-	SecondSubPassDescription.inputAttachmentCount = 2;
-	SecondSubPassDescription.pInputAttachments = inputReferences;
-
-
-	VkSubpassDependency FirstDependency = {};
-	FirstDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-	FirstDependency.dstSubpass = 0;
-	FirstDependency.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	FirstDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	FirstDependency.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	FirstDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	FirstDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-	VkSubpassDependency SecondDependency = {};
-	SecondDependency.srcSubpass = 0;
-	SecondDependency.dstSubpass = 1;
-	SecondDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	SecondDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	SecondDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	SecondDependency.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	SecondDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-	VkSubpassDependency ThirdDependency = {};
-	ThirdDependency.srcSubpass = 0;
-	ThirdDependency.dstSubpass = VK_SUBPASS_EXTERNAL;
-	ThirdDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	ThirdDependency.dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	ThirdDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	ThirdDependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-	ThirdDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
-
-	RenderPassAttachmentList.emplace_back(SwapChainAttachment);
-	RenderPassAttachmentList.emplace_back(ColorAttachment);
-	RenderPassAttachmentList.emplace_back(DepthAttachment);
-
-	SubpassDescriptionList.emplace_back(FirstSubPassDescription);
-	SubpassDescriptionList.emplace_back(SecondSubPassDescription);
-
-	SubpassDependencyList.emplace_back(FirstDependency);
-	SubpassDependencyList.emplace_back(SecondDependency);
-	SubpassDependencyList.emplace_back(ThirdDependency);
-
-	VkRenderPassCreateInfo RenderPassInfo{};
-	RenderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	RenderPassInfo.attachmentCount = static_cast<uint32_t>(RenderPassAttachmentList.size());
-	RenderPassInfo.pAttachments = RenderPassAttachmentList.data();
-	RenderPassInfo.subpassCount = static_cast<uint32_t>(SubpassDescriptionList.size());
-	RenderPassInfo.pSubpasses = SubpassDescriptionList.data();
-	RenderPassInfo.dependencyCount = static_cast<uint32_t>(SubpassDependencyList.size());
-	RenderPassInfo.pDependencies = SubpassDependencyList.data();
-
-	if (vkCreateRenderPass(Device, &RenderPassInfo, nullptr, &RenderPass) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create render pass!");
-	}
-}
 
 void Renderer::InitializeOffscreenRenderPass()
 {
@@ -202,36 +90,6 @@ void Renderer::InitializeOffscreenRenderPass()
 	}
 }
 
-void Renderer::InitializeFramebuffers()
-{
-	HDRColorAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkHDRColorAttachment, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
-	DepthAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkDepthAttachemnt, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
-
-	SwapChainFramebuffers.resize(SwapChain.GetSwapChainImageCount());
-
-	for (size_t i = 0; i < SwapChain.GetSwapChainImageCount(); i++) {
-		std::array<VkImageView, 3> attachments =
-		{
-			SwapChain.GetSwapChainImageViews()[i],
-			HDRColorAttachment.AttachmentImageView,
-			DepthAttachment.AttachmentImageView
-		};
-
-		VkFramebufferCreateInfo framebufferInfo{};
-		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass = RenderPass;
-		framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-		framebufferInfo.pAttachments = attachments.data();
-		framebufferInfo.width = SwapChain.GetSwapChainResolution().width;
-		framebufferInfo.height = SwapChain.GetSwapChainResolution().height;
-		framebufferInfo.layers = 1;
-
-		if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &SwapChainFramebuffers[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create framebuffer!");
-		}
-	}
-}
-
 void Renderer::InitializeOffscreenFramebuffers()
 {
 	OffscreenHDRColorAttachment = InputAttachment(Device, PhysicalDevice, AttachmentType::VkHDRColorAttachment, SwapChain.GetSwapChainResolution().width, SwapChain.GetSwapChainResolution().height);
@@ -274,7 +132,7 @@ void Renderer::InitializeGUIDebugger(GLFWwindow* window)
 	init_info.MinImageCount = SwapChain.GetSwapChainMinImageCount();
 	init_info.ImageCount = SwapChain.GetSwapChainImageCount();
 
-	guiDebugger = GUIDebugger(init_info, window, RenderPass);
+	guiDebugger = GUIDebugger(init_info, window, forwardRenderer.RenderPass);
 }
 
 void Renderer::UpdateSwapChain(GLFWwindow* window)
@@ -291,10 +149,10 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	HDRColorAttachment.DeleteInputAttachment(Device);
 	DepthAttachment.DeleteInputAttachment(Device);
 
-	for (auto framebuffer : SwapChainFramebuffers)
-	{
-		vkDestroyFramebuffer(Device, framebuffer, nullptr);
-	}
+	//for (auto framebuffer : SwapChainFramebuffers)
+	//{
+	//	vkDestroyFramebuffer(Device, framebuffer, nullptr);
+	//}
 
 	vkFreeCommandBuffers(Device, SecondaryCommandPool, static_cast<uint32_t>(SecondaryCommandBuffers.size()), SecondaryCommandBuffers.data());
 
@@ -307,24 +165,24 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	vkDestroyCommandPool(Device, SecondaryCommandPool, nullptr);
 	vkDestroySwapchainKHR(Device, SwapChain.GetSwapChain(), nullptr);
 
-	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
-	GraphicsPipeline.UpdateSwapChain();
-	renderToTexturePipeline.UpdateSwapChain();
-	DebugLightPipeline.UpdateSwapChain();
-	DebugCollisionPipeline.UpdateSwapChain();
-	FrameBufferPipeline.UpdateSwapChain();
-	MeshviewPipeline.UpdateSwapChain();
-	SkyboxPipeline.UpdateSwapChain();
+	//SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
+	//GraphicsPipeline.UpdateSwapChain();
+	//renderToTexturePipeline.UpdateSwapChain();
+	//DebugLightPipeline.UpdateSwapChain();
+	//DebugCollisionPipeline.UpdateSwapChain();
+	//FrameBufferPipeline.UpdateSwapChain();
+	//MeshviewPipeline.UpdateSwapChain();
+	//SkyboxPipeline.UpdateSwapChain();
 
-	GraphicsPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	renderToTexturePipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), OffscreenRenderPass, Device);
-	DebugLightPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	DebugCollisionPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	FrameBufferPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	MeshviewPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	SkyboxPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
-	InitializeFramebuffers();
-	InitializeCommandBuffers();
+	//GraphicsPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//renderToTexturePipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), OffscreenRenderPass, Device);
+	//DebugLightPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//DebugCollisionPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//FrameBufferPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//MeshviewPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//SkyboxPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), RenderPass, Device);
+	//InitializeFramebuffers();
+	//InitializeCommandBuffers();
 
 	UpdateCommandBuffers = true;
 }
@@ -404,26 +262,26 @@ void Renderer::DestoryVulkan()
 	HDRColorAttachment.DeleteInputAttachment(Device);
 	DepthAttachment.DeleteInputAttachment(Device);
 
-	GraphicsPipeline.Destroy();
-	renderToTexturePipeline.Destroy();
-	DebugLightPipeline.Destroy();
-	DebugCollisionPipeline.Destroy();
-	FrameBufferPipeline.Destroy();
-	MeshviewPipeline.Destroy();
-	SkyboxPipeline.Destroy();
+	//GraphicsPipeline.Destroy();
+	//renderToTexturePipeline.Destroy();
+	//DebugLightPipeline.Destroy();
+	//DebugCollisionPipeline.Destroy();
+	//FrameBufferPipeline.Destroy();
+	//MeshviewPipeline.Destroy();
+	//SkyboxPipeline.Destroy();
 
-	SwapChain.Destroy(Device);
+	//SwapChain.Destroy(Device);
 
-	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
-	vkDestroyCommandPool(Device, SecondaryCommandPool, nullptr);
+	//vkDestroyCommandPool(Device, MainCommandPool, nullptr);
+	//vkDestroyCommandPool(Device, SecondaryCommandPool, nullptr);
 
-	vkDestroyRenderPass(Device, RenderPass, nullptr);
+	//vkDestroyRenderPass(Device, RenderPass, nullptr);
 
-	for (auto& framebuffer : SwapChainFramebuffers)
-	{
-		vkDestroyFramebuffer(Device, framebuffer, nullptr);
-		framebuffer = VK_NULL_HANDLE;
-	}
+	//for (auto& framebuffer : SwapChainFramebuffers)
+	//{
+	//	vkDestroyFramebuffer(Device, framebuffer, nullptr);
+	//	framebuffer = VK_NULL_HANDLE;
+	//}
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 	{
@@ -437,7 +295,7 @@ void Renderer::DestoryVulkan()
 
 	MainCommandPool = VK_NULL_HANDLE;
 	SecondaryCommandPool = VK_NULL_HANDLE;
-	RenderPass = VK_NULL_HANDLE;
+	//RenderPass = VK_NULL_HANDLE;
 
 	RendererBase::Destory();
 }

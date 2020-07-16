@@ -156,6 +156,7 @@
     <ClCompile Include="DeferredRenderer.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="EngineRenderedTexture.cpp" />
+    <ClCompile Include="ForwardRenderer.cpp" />
     <ClCompile Include="ForwardRenderingPipeline.cpp" />
     <ClCompile Include="FrameBufferMesh.cpp" />
     <ClCompile Include="DifferedRenderingPipeline.cpp" />
@@ -164,8 +165,11 @@
     <ClCompile Include="Level2D.cpp" />
     <ClCompile Include="MainRenderer.cpp" />
     <ClCompile Include="MegaMan.cpp" />
+    <ClCompile Include="Mesh2.cpp" />
     <ClCompile Include="MMShot.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="NewTexture.cpp" />
+    <ClCompile Include="NewTexture2D.cpp" />
     <ClCompile Include="Renderer2DPipeline.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -181,6 +185,11 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="RendererBase.cpp" />
+    <ClCompile Include="RendererBase2.cpp" />
+    <ClCompile Include="RendererColorTexture.cpp" />
+    <ClCompile Include="RendererDepthTexture.cpp" />
+    <ClCompile Include="RendereredTexture.cpp" />
     <ClCompile Include="RenderToTexturePipeline.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SpotLight.cpp" />
@@ -189,7 +198,6 @@
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VulkanGraphics2D.cpp" />
-    <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="WireFrameMesh.cpp" />
     <ClCompile Include="WireFramePipeline.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -237,6 +245,7 @@
     <ClInclude Include="DeferredRenderer.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="EngineRenderedTexture.h" />
+    <ClInclude Include="ForwardRenderer.h" />
     <ClInclude Include="ForwardRenderingPipeline.h" />
     <ClInclude Include="FrameBufferMesh.h" />
     <ClInclude Include="DifferedRenderingPipeline.h" />
@@ -245,8 +254,11 @@
     <ClInclude Include="Level2D.h" />
     <ClInclude Include="MainRenderer.h" />
     <ClInclude Include="MegaMan.h" />
+    <ClInclude Include="Mesh2.h" />
     <ClInclude Include="MMShot.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="NewTexture.h" />
+    <ClInclude Include="NewTexture2D.h" />
     <ClInclude Include="Renderer2DPipeline.h" />
     <ClInclude Include="GUIDebugger.h" />
     <ClInclude Include="ImGui\imconfig.h" />
@@ -265,6 +277,11 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="RendererBase.h" />
+    <ClInclude Include="RendererBase2.h" />
+    <ClInclude Include="RendererColorTexture.h" />
+    <ClInclude Include="RendererDepthTexture.h" />
+    <ClInclude Include="RendereredTexture.h" />
     <ClInclude Include="RenderToTexturePipeline.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SpotLight.h" />
@@ -273,7 +290,6 @@
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VulkanGraphics2D.h" />
-    <ClInclude Include="RendererBase.h" />
     <ClInclude Include="WireFrameMesh.h" />
     <ClInclude Include="WireFramePipeline.h" />
     <ClInclude Include="Model.h" />

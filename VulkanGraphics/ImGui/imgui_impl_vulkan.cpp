@@ -766,7 +766,7 @@ bool ImGui_ImplVulkan_CreateDeviceObjects()
     info.pDynamicState = &dynamic_state;
     info.layout = g_PipelineLayout;
     info.renderPass = g_RenderPass;
-    info.subpass = 1;
+    info.subpass = 0;
     err = vkCreateGraphicsPipelines(v->Device, v->PipelineCache, 1, &info, v->Allocator, &g_Pipeline);
     check_vk_result(err);
 

@@ -38,7 +38,7 @@ void VulkanGraphics2D::UpdateCommandBuffers(uint32_t DrawFrame)
 			VkCommandBufferInheritanceInfo InheritanceInfo = {};
 			InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
 			InheritanceInfo.renderPass = *GetRenderPass(renderer);
-			InheritanceInfo.framebuffer = renderer.SwapChainFramebuffers[i];
+			InheritanceInfo.framebuffer = renderer.forwardRenderer.swapChainFramebuffers[i];
 
 			VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
 			BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -55,7 +55,7 @@ void VulkanGraphics2D::UpdateCommandBuffers(uint32_t DrawFrame)
 		renderer.UpdateCommandBuffers = false;
 	}
 
-	renderer.guiDebugger.UpdateCommandBuffers(DrawFrame, *GetRenderPass(renderer), renderer.SwapChainFramebuffers[DrawFrame]);
+	renderer.guiDebugger.UpdateCommandBuffers(DrawFrame, *GetRenderPass(renderer), renderer.forwardRenderer.swapChainFramebuffers[DrawFrame]);
 }
 
 void VulkanGraphics2D::MainLoop()

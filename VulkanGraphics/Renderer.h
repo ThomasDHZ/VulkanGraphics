@@ -12,6 +12,7 @@
 #include "CollisionDebugPipeline.h"
 #include "GUIDebugger.h"
 #include "RenderToTexturePipeline.h"
+#include "ForwardRenderer.h"
 
 class Renderer : public RendererBase
 {
@@ -22,8 +23,9 @@ private:
 
 	bool framebufferResized = false;
 
+	ForwardRenderer forwardRenderer;
 
-	VkRenderPass RenderPass = VK_NULL_HANDLE;
+	std::vector<VkFramebuffer> OffscreenSwapChainFramebuffers;
 	VkRenderPass OffscreenRenderPass = VK_NULL_HANDLE;
 	InputAttachment OffscreenHDRColorAttachment;
 	InputAttachment OffscreenDepthAttachment;
@@ -31,17 +33,14 @@ private:
 	InputAttachment HDRColorAttachment;
 	InputAttachment DepthAttachment;
 
-	ForwardRenderingPipeline GraphicsPipeline;
-	RenderToTexturePipeline renderToTexturePipeline;
-	FrameBufferRenderingPipeline FrameBufferPipeline;
-	DebugLightRenderingPipeline DebugLightPipeline;
-	CollisionDebugPipeline DebugCollisionPipeline;
-	WireFramePipeline MeshviewPipeline;
-	SkyBoxPipeline SkyboxPipeline;
+	//RenderToTexturePipeline renderToTexturePipeline;
+	//FrameBufferRenderingPipeline FrameBufferPipeline;
+	//DebugLightRenderingPipeline DebugLightPipeline;
+	//CollisionDebugPipeline DebugCollisionPipeline;
+	//WireFramePipeline MeshviewPipeline;
+	//SkyBoxPipeline SkyboxPipeline;
 
-	void InitializeRenderPass();
 	void InitializeOffscreenRenderPass();
-	void InitializeFramebuffers();
 	void InitializeOffscreenFramebuffers();
 	void InitializeGUIDebugger(GLFWwindow* window);
 

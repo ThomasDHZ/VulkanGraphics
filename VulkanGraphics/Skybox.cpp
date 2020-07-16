@@ -61,7 +61,7 @@ void SkyBox::SetUpUniformBuffers(Renderer& renderer)
 
 void SkyBox::SetUpDescriptorSets(Renderer& renderer)
 {
-	BaseMesh::CreateDescriptorSets(renderer, *GetSkyboxDescriptorSetLayout(renderer));
+	//BaseMesh::CreateDescriptorSets(renderer, *GetSkyboxDescriptorSetLayout(renderer));
 
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -102,10 +102,10 @@ void SkyBox::Draw(Renderer& renderer, int currentFrame)
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
-	vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	vkCmdDraw(*GetSecondaryCommandBuffer(renderer, currentFrame), VertexSize, 1, 0, 0);
+	//vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
+	//vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
+	//vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+	//vkCmdDraw(*GetSecondaryCommandBuffer(renderer, currentFrame), VertexSize, 1, 0, 0);
 }
 
 void SkyBox::UpdateUniformBuffer(Renderer& renderer, Camera& camera)
