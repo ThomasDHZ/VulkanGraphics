@@ -24,9 +24,9 @@
 #include <chrono>
 #include "EngineRenderedTexture.h"
 #include "Mesh2.h"
+#include "NewTexture2D.h"
 
-const std::vector<Vertex> vertices =
-{
+const std::vector<Vertex> vertices = {
         {{-0.5,-0.5,-0.5}, {0,-1,0}, {0,1}},
         {{0.5,-0.5,-0.5}, {0,-1,0}, {1,1}},
         {{0.5,-0.5,0.5}, {0,-1,0}, {1,0}},
@@ -53,9 +53,8 @@ const std::vector<Vertex> vertices =
         {{0.5,0.5,-0.5}, {0,1,0}, {1,1}},
 };
 
-const std::vector<uint16_t> indices =
-{
-            0,1,2, 0,2,3,
+const std::vector<uint16_t> indices = {
+        0,1,2, 0,2,3,
         4,5,6, 4,6,7,
         8,9,10, 8,10,11,
         12,13,14, 12,14,15,
@@ -106,7 +105,7 @@ private:
 
 	ModelLoader modelLoader;
     EngineRenderedTexture rendereredTexture;
-
+    NewTexture2D texture;
 	TextureMaps maps;
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
@@ -125,8 +124,9 @@ private:
 
 	//FrameBufferMesh framebuffer;
 
-	std::vector<Mesh2> MeshList;
-	std::vector<Model> ModelList;
+
+    Mesh2 mesh;
+    Mesh2 quad;
 
 	void Update(uint32_t DrawFrame);
 	void UpdateCommandBuffers(uint32_t DrawFrame);

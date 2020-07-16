@@ -115,6 +115,7 @@ void GraphicsPipeline::UpdateSwapChain()
 
 void GraphicsPipeline::Destroy()
 {
+
 	vkDestroyPipeline(Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(Device, ShaderPipelineLayout, nullptr);
 	vkDestroyDescriptorSetLayout(Device, ShaderPipelineDescriptorLayout, nullptr);

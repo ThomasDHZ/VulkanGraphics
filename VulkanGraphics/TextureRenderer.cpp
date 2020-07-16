@@ -1,86 +1,91 @@
-#include "ForwardRenderer.h"
+#include "TextureRenderer.h"
 #include <stdexcept>
 #include <array>
 #include "Vertex.h"
-#include "VulkanBufferManager.h"
 
-ForwardRenderer::ForwardRenderer() : RendererBase2()
+TextureRenderer::TextureRenderer()
 {
 }
 
-ForwardRenderer::ForwardRenderer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews) : RendererBase2()
+TextureRenderer::TextureRenderer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews)
 {
     CreateRenderPass(Device);
     CreateDescriptorSets(Device);
     CreateRenderingPipeline(Device, extent);
     DepthTexture = RendererDepthTexture(Device, PhysicalDevice, extent);
+    ColorTexture = RendererColorTexture(Device, PhysicalDevice, extent);
     CreateRendererFramebuffers(Device, extent, swapChainImageViews);
 }
 
-ForwardRenderer::~ForwardRenderer()
+TextureRenderer::~TextureRenderer()
 {
 }
 
-void ForwardRenderer::CreateRenderPass(VkDevice Device)
+void TextureRenderer::CreateRenderPass(VkDevice Device)
 {
-    VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    std::array<VkAttachmentDescription, 2> attchmentDescriptions = {};
 
-    VkAttachmentDescription depthAttachment{};
-    depthAttachment.format = VK_FORMAT_D32_SFLOAT;
-    depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    attchmentDescriptions[0].format = VK_FORMAT_R8G8B8A8_SRGB;
+    attchmentDescriptions[0].samples = VK_SAMPLE_COUNT_1_BIT;
+    attchmentDescriptions[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attchmentDescriptions[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    attchmentDescriptions[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attchmentDescriptions[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attchmentDescriptions[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attchmentDescriptions[0].finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-    VkAttachmentReference colorAttachmentRef{};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    attchmentDescriptions[1].format = VK_FORMAT_D32_SFLOAT;
+    attchmentDescriptions[1].samples = VK_SAMPLE_COUNT_1_BIT;
+    attchmentDescriptions[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    attchmentDescriptions[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attchmentDescriptions[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    attchmentDescriptions[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    attchmentDescriptions[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    attchmentDescriptions[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 
-    VkAttachmentReference depthAttachmentRef{};
-    depthAttachmentRef.attachment = 1;
-    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    VkAttachmentReference colorReference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
+    VkAttachmentReference depthReference = { 1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL };
 
-    VkSubpassDescription subpass{};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    VkSubpassDescription subpassDescription = {};
+    subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpassDescription.colorAttachmentCount = 1;
+    subpassDescription.pColorAttachments = &colorReference;
+    subpassDescription.pDepthStencilAttachment = &depthReference;
 
-    VkSubpassDependency dependency{};
-    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.srcAccessMask = 0;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    std::array<VkSubpassDependency, 2> dependencies;
 
-    std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
-    VkRenderPassCreateInfo renderPassInfo{};
+    dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependencies[0].dstSubpass = 0;
+    dependencies[0].srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependencies[0].srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+    dependencies[1].srcSubpass = 0;
+    dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+    dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+    VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-    renderPassInfo.pAttachments = attachments.data();
+    renderPassInfo.attachmentCount = static_cast<uint32_t>(attchmentDescriptions.size());
+    renderPassInfo.pAttachments = attchmentDescriptions.data();
     renderPassInfo.subpassCount = 1;
-    renderPassInfo.pSubpasses = &subpass;
-    renderPassInfo.dependencyCount = 1;
-    renderPassInfo.pDependencies = &dependency;
+    renderPassInfo.pSubpasses = &subpassDescription;
+    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+    renderPassInfo.pDependencies = dependencies.data();
 
-    if (vkCreateRenderPass(Device, &renderPassInfo, nullptr, &RenderPass) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create render pass!");
+    if (vkCreateRenderPass(Device, &renderPassInfo, nullptr, &RenderPass))
+    {
+        throw std::runtime_error("failed to create vkCreateImageView!");
     }
 }
 
-void ForwardRenderer::CreateDescriptorSets(VkDevice Device)
+void TextureRenderer::CreateDescriptorSets(VkDevice Device)
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -107,10 +112,10 @@ void ForwardRenderer::CreateDescriptorSets(VkDevice Device)
     }
 }
 
-void ForwardRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapChainExtent)
+void TextureRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapChainExtent)
 {
-    auto vertShaderCode = ReadFile("shaders/vert.spv");
-    auto fragShaderCode = ReadFile("shaders/frag.spv");
+    auto vertShaderCode = ReadFile("shaders/FrameBufferVert.spv");
+    auto fragShaderCode = ReadFile("shaders/FrameBufferFrag.spv");
 
     VkShaderModule vertShaderModule = CreateShaderModule(Device, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(Device, fragShaderCode);
@@ -235,26 +240,27 @@ void ForwardRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapCh
     vkDestroyShaderModule(Device, vertShaderModule, nullptr);
 }
 
-void ForwardRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swapChainExtent, std::vector<VkImageView> swapChainImageViews)
+void TextureRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swapChainExtent, std::vector<VkImageView> swapChainImageViews)
 {
-    swapChainFramebuffers.resize(swapChainImageViews.size());
-    for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-        std::array<VkImageView, 2> attachments = {
-            swapChainImageViews[i],
-            DepthTexture.View
-        };
+    swapChainFramebuffers.resize(3);
+    for (size_t i = 0; i < swapChainImageViews.size(); i++)
+    {
+        VkImageView attachments[2];
+        attachments[0] = ColorTexture.View;
+        attachments[1] = DepthTexture.View;
 
-        VkFramebufferCreateInfo framebufferInfo{};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = RenderPass;
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-        framebufferInfo.pAttachments = attachments.data();
-        framebufferInfo.width = swapChainExtent.width;
-        framebufferInfo.height = swapChainExtent.height;
-        framebufferInfo.layers = 1;
+        VkFramebufferCreateInfo fbufCreateInfo = {};
+        fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        fbufCreateInfo.renderPass = RenderPass;
+        fbufCreateInfo.attachmentCount = 2;
+        fbufCreateInfo.pAttachments = attachments;
+        fbufCreateInfo.width = swapChainExtent.width;
+        fbufCreateInfo.height = swapChainExtent.height;
+        fbufCreateInfo.layers = 1;
 
-        if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create framebuffer!");
+        if (vkCreateFramebuffer(Device, &fbufCreateInfo, nullptr, &swapChainFramebuffers[i]))
+        {
+            throw std::runtime_error("failed to create vkCreateImageView!");
         }
     }
 }

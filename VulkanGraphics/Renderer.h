@@ -13,6 +13,7 @@
 #include "GUIDebugger.h"
 #include "RenderToTexturePipeline.h"
 #include "ForwardRenderer.h"
+#include "TextureRenderer.h"
 
 class Renderer : public RendererBase
 {
@@ -24,6 +25,7 @@ private:
 	bool framebufferResized = false;
 
 	ForwardRenderer forwardRenderer;
+	TextureRenderer textureRenderer;
 
 	std::vector<VkFramebuffer> OffscreenSwapChainFramebuffers;
 	VkRenderPass OffscreenRenderPass = VK_NULL_HANDLE;
@@ -40,8 +42,6 @@ private:
 	//WireFramePipeline MeshviewPipeline;
 	//SkyBoxPipeline SkyboxPipeline;
 
-	void InitializeOffscreenRenderPass();
-	void InitializeOffscreenFramebuffers();
 	void InitializeGUIDebugger(GLFWwindow* window);
 
 protected:
