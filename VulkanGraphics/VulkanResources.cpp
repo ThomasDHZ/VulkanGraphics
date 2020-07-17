@@ -32,12 +32,12 @@ VkQueue* VulkanResources::GetPresentQueue(Renderer& renderer)
 
 VkRenderPass* VulkanResources::GetRenderPass(Renderer& renderer)
 {
-	return  &renderer.RenderPass;
+	return  &renderer.forwardRenderer.RenderPass;
 }
 
 VkDescriptorSetLayout* VulkanResources::GetDescriptorSetLayout(Renderer& renderer)
 {
-	return  &renderer.GraphicsPipeline.ShaderPipelineDescriptorLayout;
+	return  &renderer.forwardRenderer.DescriptorSetLayout;
 }
 
 VkCommandPool* VulkanResources::GetSecondaryCommandPool(Renderer& renderer)
@@ -52,12 +52,12 @@ VkCommandBuffer* VulkanResources::GetSecondaryCommandBuffer(Renderer& renderer, 
 
 VkPipeline* VulkanResources::GetShaderPipeline(Renderer& renderer)
 {
-	return &renderer.GraphicsPipeline.ShaderPipeline;
+	return &renderer.forwardRenderer.RendererPipeline;
 }
 
 VkPipelineLayout* VulkanResources::GetShaderPipelineLayout(Renderer& renderer)
 {
-	return &renderer.GraphicsPipeline.ShaderPipelineLayout;
+	return &renderer.forwardRenderer.RendererLayout;
 }
 
 VkDescriptorSetLayout* VulkanResources::GetMeshViewDescriptorSetLayout(Renderer& renderer)

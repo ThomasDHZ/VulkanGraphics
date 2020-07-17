@@ -38,7 +38,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 
 	Skybox = SkyBox(renderer, maps.CubeMap);
-	MeshList.emplace_back(Mesh(renderer, vertices, indices, maps));
+	MeshList.emplace_back(Mesh(renderer, quadvertices, quadindices, maps));
 
 	//	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
@@ -198,8 +198,8 @@ void VulkanGraphics::MainLoop()
 
 			VkRenderPassBeginInfo renderPassInfo{};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderer.RenderPass;
-			renderPassInfo.framebuffer = renderer.SwapChainFramebuffers[DrawFrame];
+			renderPassInfo.renderPass = renderer.forwardRenderer.RenderPass;
+			renderPassInfo.framebuffer = renderer.forwardRenderer.swapChainFramebuffers[DrawFrame];
 			renderPassInfo.renderArea.offset = { 0, 0 };
 			renderPassInfo.renderArea.extent = renderer.SwapChain.GetSwapChainResolution();
 			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

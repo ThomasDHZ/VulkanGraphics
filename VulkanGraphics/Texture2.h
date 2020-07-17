@@ -34,4 +34,6 @@ public:
     Texture2(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, glm::ivec2 TextureSize);
     Texture2(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, glm::ivec3 TextureSize);
     ~Texture2();
+
+    void Delete(VkDevice Device);
 };

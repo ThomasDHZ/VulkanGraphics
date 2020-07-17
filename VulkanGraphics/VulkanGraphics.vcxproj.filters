@@ -219,6 +219,12 @@
     <ClCompile Include="Texture2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ForwardRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -466,17 +472,23 @@
     <ClInclude Include="MainRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RendererColorTexture.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="RendereredTexture.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RendererDepthTexture.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RendereredTexture.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="RendererColorTexture.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Texture2.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ForwardRenderer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

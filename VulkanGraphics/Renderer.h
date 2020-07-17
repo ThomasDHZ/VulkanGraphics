@@ -11,7 +11,7 @@
 #include "DebugLightRenderingPipeline.h"
 #include "CollisionDebugPipeline.h"
 #include "GUIDebugger.h"
-
+#include "ForwardRenderer.h"
 class Renderer : public RendererBase
 {
 	friend class VulkanGraphics;
@@ -22,17 +22,13 @@ private:
 	bool framebufferResized = false;
 
 
-	VkRenderPass RenderPass = VK_NULL_HANDLE;
-	InputAttachment DepthAttachment;
-
-	ForwardRenderingPipeline GraphicsPipeline;
+	ForwardRenderer forwardRenderer;
+	//ForwardRenderingPipeline GraphicsPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
 	CollisionDebugPipeline DebugCollisionPipeline;
 	WireFramePipeline MeshviewPipeline;
 	SkyBoxPipeline SkyboxPipeline;
 
-	void InitializeRenderPass();
-	void InitializeFramebuffers();
 	void InitializeGUIDebugger(GLFWwindow* window);
 
 protected:

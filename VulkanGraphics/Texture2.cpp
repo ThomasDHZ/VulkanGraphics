@@ -136,3 +136,14 @@ void Texture2::CreateTextureSampler(VkDevice Device, VkSamplerCreateInfo Texture
 		throw std::runtime_error("Failed to create Sampler.");
 	}
 }
+
+void Texture2::Delete(VkDevice Device)
+{
+	vkDestroyImageView(Device, View, nullptr);
+	vkDestroyImage(Device, Image, nullptr);
+	vkFreeMemory(Device, Memory, nullptr);
+
+	View = VK_NULL_HANDLE;
+	Image = VK_NULL_HANDLE;
+	Memory = VK_NULL_HANDLE;
+}
