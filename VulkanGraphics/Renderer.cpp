@@ -8,6 +8,7 @@ Renderer::Renderer() : RendererBase()
 Renderer::Renderer(GLFWwindow* window) : RendererBase(window)
 {
 	forwardRenderer = ForwardRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
+	textureRenderer = TextureRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
 	//InitializeRenderPass();
 	//InitializeFramebuffers();
 	InitializeGUIDebugger(window);
@@ -51,14 +52,6 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 
 	vkDeviceWaitIdle(Device);
 
-	forwardRenderer.DepthTexture.Delete(Device);
-
-	for (auto framebuffer : forwardRenderer.swapChainFramebuffers)
-	{
-		vkDestroyFramebuffer(Device, framebuffer, nullptr);
-	}
-
-
 	vkFreeCommandBuffers(Device, SecondaryCommandPool, static_cast<uint32_t>(SecondaryCommandBuffers.size()), SecondaryCommandBuffers.data());
 
 	for (auto imageView : SwapChain.GetSwapChainImageViews())
@@ -71,31 +64,61 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	vkDestroySwapchainKHR(Device, SwapChain.GetSwapChain(), nullptr);
 
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
-	{
-		vkDestroyPipeline(Device, forwardRenderer.RendererPipeline, nullptr);
-		vkDestroyPipelineLayout(Device, forwardRenderer.RendererLayout, nullptr);
 
-		forwardRenderer.RendererPipeline = VK_NULL_HANDLE;
-		forwardRenderer.RendererLayout = VK_NULL_HANDLE;
-	}
 	DebugLightPipeline.UpdateSwapChain();
 	DebugCollisionPipeline.UpdateSwapChain();
 	MeshviewPipeline.UpdateSwapChain();
 	SkyboxPipeline.UpdateSwapChain();
 
-	{
-		forwardRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
-	}
 	DebugLightPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
 	DebugCollisionPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
 	MeshviewPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
 	SkyboxPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
 	{
+
+		forwardRenderer.DepthTexture.Delete(Device);
+
+		for (auto framebuffer : forwardRenderer.swapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(Device, framebuffer, nullptr);
+		}
+
+		vkDestroyPipeline(Device, forwardRenderer.RendererPipeline, nullptr);
+		vkDestroyPipelineLayout(Device, forwardRenderer.RendererLayout, nullptr);
+
+		forwardRenderer.RendererPipeline = VK_NULL_HANDLE;
+		forwardRenderer.RendererLayout = VK_NULL_HANDLE;
+
+
 		forwardRenderer.DepthTexture = RendererDepthTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
+		forwardRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
 		forwardRenderer.CreateRendererFramebuffers(Device, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
+
 		InitializeCommandBuffers();
 	}
+	{
 
+		textureRenderer.DepthTexture.Delete(Device);
+		textureRenderer.ColorTexture.Delete(Device);
+		for (auto framebuffer : textureRenderer.swapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(Device, framebuffer, nullptr);
+		}
+
+		vkDestroyPipeline(Device, textureRenderer.RendererPipeline, nullptr);
+		vkDestroyPipelineLayout(Device, textureRenderer.RendererLayout, nullptr);
+
+		textureRenderer.RendererPipeline = VK_NULL_HANDLE;
+		textureRenderer.RendererLayout = VK_NULL_HANDLE;
+
+
+		textureRenderer.DepthTexture = RendererDepthTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
+		textureRenderer.ColorTexture = RendererColorTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
+		textureRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
+		textureRenderer.CreateRendererFramebuffers(Device, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
+
+		InitializeCommandBuffers();
+	}
 	UpdateCommandBuffers = true;
 }
 

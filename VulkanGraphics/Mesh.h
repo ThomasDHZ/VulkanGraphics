@@ -72,6 +72,7 @@ public:
 
 	Mesh();
 	Mesh(Renderer& renderer);
+	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, Texture2 textureList);
 	Mesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList);
 	Mesh(Renderer& renderer, const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indexList, VkImageView RenderedTextureImageView, VkSampler RendereredTextureImageSampler);
 	Mesh(Renderer& renderer, const TextureMaps& textureList);
@@ -82,6 +83,7 @@ public:
 	void Draw(Renderer& renderer, int currentFrame);
 	void Destroy(Renderer& renderer);
 	void UpdateDescriptorSets(Renderer& renderer);
+	void CreateDescriptorSets(Renderer& renderer, Texture2 texture);
 
 	float* GetMeshPosPtr() { return &MeshPosition.x; };
 };
