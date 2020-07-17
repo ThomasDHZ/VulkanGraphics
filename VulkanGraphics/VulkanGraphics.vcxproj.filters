@@ -240,8 +240,11 @@
     <ClCompile Include="Mesh2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextureRenderer.cpp">
+    <ClCompile Include="DepthMesh.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRenderer.cpp">
+      <Filter>Source Files\Renderers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -520,8 +523,11 @@
     <ClInclude Include="Mesh2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextureRenderer.h">
+    <ClInclude Include="DepthMesh.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRenderer.h">
+      <Filter>Header Files\Renderers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
 #pragma once
 #include "RendererDepthTexture.h"
 #include "RendererBase2.h"
-
+#include "Mesh2.h"
 class ForwardRenderer : public RendererBase2
 {
 private:

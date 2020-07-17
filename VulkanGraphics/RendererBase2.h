@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include "Mesh2.h"
 
 class RendererBase2
 {
@@ -19,5 +20,8 @@ public:
 
 	RendererBase2();
 	~RendererBase2();
+
+	void Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, Mesh2& mesh);
+	void Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, std::vector<Mesh2>& MeshList);
 };
 

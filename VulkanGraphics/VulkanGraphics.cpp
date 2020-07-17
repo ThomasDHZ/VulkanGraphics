@@ -20,9 +20,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/monitor.obj"));
 	texture = NewTexture2D(renderer.Device, renderer.PhysicalDevice, renderer.MainCommandPool, renderer.GraphicsQueue, "texture/texture.jpg");
 
-	mesh = Mesh2(renderer.Device, renderer.PhysicalDevice, renderer.MainCommandPool, renderer.GraphicsQueue, renderer.SwapChain.SwapChainImages, modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, texture, renderer.forwardRenderer.DescriptorSetLayout);
-	quad = Mesh2(renderer.Device, renderer.PhysicalDevice, renderer.MainCommandPool, renderer.GraphicsQueue, renderer.SwapChain.SwapChainImages, quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.textureRenderer.DescriptorSetLayout);
-
+	MeshList.emplace_back(Mesh2(renderer.Device, renderer.PhysicalDevice, renderer.MainCommandPool, renderer.GraphicsQueue, renderer.SwapChain.SwapChainImages, modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, texture, renderer.forwardRenderer.DescriptorSetLayout));
+	MeshList.emplace_back(Mesh2(renderer.Device, renderer.PhysicalDevice, renderer.MainCommandPool, renderer.GraphicsQueue, renderer.SwapChain.SwapChainImages, quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.textureRenderer.DescriptorSetLayout));
 
 	LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 }
@@ -85,14 +84,14 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	{
 		UniformBufferObject ubo{};
 		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = camera.GetViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10000.0f);
+		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.proj = glm::perspective(glm::radians(45.0f), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
 		void* data;
-		vkMapMemory(renderer.Device, mesh.UniformBuffersMemory[DrawFrame], 0, sizeof(ubo), 0, &data);
+		vkMapMemory(renderer.Device, MeshList[0].UniformBuffersMemory[DrawFrame], 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(renderer.Device, mesh.UniformBuffersMemory[DrawFrame]);
+		vkUnmapMemory(renderer.Device, MeshList[0].UniformBuffersMemory[DrawFrame]);
 	}
 	{
 		UniformBufferObject ubo{};
@@ -104,9 +103,9 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 		ubo.proj[1][1] *= -1;
 
 		void* data;
-		vkMapMemory(renderer.Device, quad.UniformBuffersMemory[DrawFrame], 0, sizeof(ubo), 0, &data);
+		vkMapMemory(renderer.Device, MeshList[1].UniformBuffersMemory[DrawFrame], 0, sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(renderer.Device, quad.UniformBuffersMemory[DrawFrame]);
+		vkUnmapMemory(renderer.Device, MeshList[1].UniformBuffersMemory[DrawFrame]);
 	}
 
 
@@ -163,69 +162,10 @@ void VulkanGraphics::MainLoop()
 		if (vkBeginCommandBuffer(renderer.MainCommandBuffer[DrawFrame], &CommandBufferInfo) != VK_SUCCESS) {
 			throw std::runtime_error("failed to begin recording command buffer!");
 		}
-
 		{
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
-			clearValues[1].depthStencil = { 1.0f, 0 };
-
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderer.textureRenderer.RenderPass;
-			renderPassInfo.framebuffer = renderer.textureRenderer.swapChainFramebuffers[DrawFrame];
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = renderer.SwapChain.GetSwapChainResolution();
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
-
-			vkCmdBeginRenderPass(renderer.MainCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-			{
-				VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
-				VkDeviceSize offsets[] = { 0 };
-				vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.textureRenderer.RendererPipeline);
-				vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-				vkCmdBindIndexBuffer(renderer.MainCommandBuffer[DrawFrame], mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.textureRenderer.RendererLayout, 0, 1, &mesh.DescriptorSets[DrawFrame], 0, nullptr);
-				vkCmdDrawIndexed(renderer.MainCommandBuffer[DrawFrame], static_cast<uint32_t>(modelLoader.GetModelMeshs()[0].IndexList.size()), 1, 0, 0, 0);
-			}
-			vkCmdEndRenderPass(renderer.MainCommandBuffer[DrawFrame]);
+			renderer.textureRenderer.Draw(renderer.SwapChain.GetSwapChainResolution(), renderer.MainCommandBuffer[DrawFrame], DrawFrame, MeshList[0]);
+			renderer.forwardRenderer.Draw(renderer.SwapChain.GetSwapChainResolution(), renderer.MainCommandBuffer[DrawFrame], DrawFrame, MeshList);
 		}
-		{
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { 0.2f, 0.2f, 0.2f, 1.0f };
-			clearValues[1].depthStencil = { 1.0f, 0 };
-
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderer.forwardRenderer.RenderPass;
-			renderPassInfo.framebuffer = renderer.forwardRenderer.swapChainFramebuffers[DrawFrame];
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = renderer.SwapChain.GetSwapChainResolution();
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
-
-			vkCmdBeginRenderPass(renderer.MainCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-			{
-				VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
-				VkDeviceSize offsets[] = { 0 };
-				vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.forwardRenderer.RendererPipeline);
-				vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-				vkCmdBindIndexBuffer(renderer.MainCommandBuffer[DrawFrame], mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.forwardRenderer.RendererLayout, 0, 1, &mesh.DescriptorSets[DrawFrame], 0, nullptr);
-				vkCmdDrawIndexed(renderer.MainCommandBuffer[DrawFrame], static_cast<uint32_t>(modelLoader.GetModelMeshs()[0].IndexList.size()), 1, 0, 0, 0);
-			}
-			{
-				VkBuffer vertexBuffers[] = { quad.VertexBuffer };
-				VkDeviceSize offsets[] = { 0 };
-				vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-				vkCmdBindIndexBuffer(renderer.MainCommandBuffer[DrawFrame], quad.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.forwardRenderer.RendererLayout, 0, 1, &quad.DescriptorSets[DrawFrame], 0, nullptr);
-				vkCmdDrawIndexed(renderer.MainCommandBuffer[DrawFrame], static_cast<uint32_t>(quadindices.size()), 1, 0, 0, 0);
-			}
-			vkCmdEndRenderPass(renderer.MainCommandBuffer[DrawFrame]);
-		}
-
 		if (vkEndCommandBuffer(renderer.MainCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer!");
 		}

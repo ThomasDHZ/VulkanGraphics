@@ -154,6 +154,7 @@
     <ClCompile Include="DebugLightMesh.cpp" />
     <ClCompile Include="DebugLightRenderingPipeline.cpp" />
     <ClCompile Include="DeferredRenderer.cpp" />
+    <ClCompile Include="DepthMesh.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="EngineRenderedTexture.cpp" />
     <ClCompile Include="ForwardRenderer.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="DebugLightMesh.h" />
     <ClInclude Include="DebugLightRenderingPipeline.h" />
     <ClInclude Include="DeferredRenderer.h" />
+    <ClInclude Include="DepthMesh.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="EngineRenderedTexture.h" />
     <ClInclude Include="ForwardRenderer.h" />

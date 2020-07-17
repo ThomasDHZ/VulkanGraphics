@@ -124,9 +124,7 @@ private:
 
 	//FrameBufferMesh framebuffer;
 
-
-    Mesh2 mesh;
-    Mesh2 quad;
+    std::vector<Mesh2> MeshList;
 
 	void Update(uint32_t DrawFrame);
 	void UpdateCommandBuffers(uint32_t DrawFrame);

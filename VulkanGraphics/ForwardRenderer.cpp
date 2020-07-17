@@ -3,6 +3,7 @@
 #include <array>
 #include "Vertex.h"
 #include "VulkanBufferManager.h"
+#include "ImGui/imgui_impl_vulkan.h"
 
 ForwardRenderer::ForwardRenderer() : RendererBase2()
 {
@@ -89,14 +90,50 @@ void ForwardRenderer::CreateDescriptorSets(VkDevice Device)
     uboLayoutBinding.pImmutableSamplers = nullptr;
     uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    VkDescriptorSetLayoutBinding samplerLayoutBinding2{};
+    samplerLayoutBinding2.binding = 1;
+    samplerLayoutBinding2.descriptorCount = 1;
+    samplerLayoutBinding2.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding2.pImmutableSamplers = nullptr;
+    samplerLayoutBinding2.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+    VkDescriptorSetLayoutBinding samplerLayoutBinding3{};
+    samplerLayoutBinding3.binding = 2;
+    samplerLayoutBinding3.descriptorCount = 1;
+    samplerLayoutBinding3.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding3.pImmutableSamplers = nullptr;
+    samplerLayoutBinding3.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkDescriptorSetLayoutBinding samplerLayoutBinding4{};
+    samplerLayoutBinding4.binding = 3;
+    samplerLayoutBinding4.descriptorCount = 1;
+    samplerLayoutBinding4.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding4.pImmutableSamplers = nullptr;
+    samplerLayoutBinding4.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkDescriptorSetLayoutBinding samplerLayoutBinding5{};
+    samplerLayoutBinding5.binding = 4;
+    samplerLayoutBinding5.descriptorCount = 1;
+    samplerLayoutBinding5.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding5.pImmutableSamplers = nullptr;
+    samplerLayoutBinding5.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkDescriptorSetLayoutBinding samplerLayoutBinding6{};
+    samplerLayoutBinding6.binding = 5;
+    samplerLayoutBinding6.descriptorCount = 1;
+    samplerLayoutBinding6.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding6.pImmutableSamplers = nullptr;
+    samplerLayoutBinding6.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkDescriptorSetLayoutBinding samplerLayoutBinding7{};
+    samplerLayoutBinding7.binding = 6;
+    samplerLayoutBinding7.descriptorCount = 1;
+    samplerLayoutBinding7.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding7.pImmutableSamplers = nullptr;
+    samplerLayoutBinding7.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    std::array<VkDescriptorSetLayoutBinding, 7> bindings = { uboLayoutBinding, samplerLayoutBinding2, samplerLayoutBinding3, samplerLayoutBinding4,
+                                                             samplerLayoutBinding5, samplerLayoutBinding6, samplerLayoutBinding7};
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());

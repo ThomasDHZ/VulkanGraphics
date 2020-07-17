@@ -2,6 +2,7 @@
 #include "RendererBase2.h"
 #include "RendererColorTexture.h"
 #include "RendererDepthTexture.h"
+#include "Mesh2.h"
 
 class TextureRenderer : public RendererBase2
 {

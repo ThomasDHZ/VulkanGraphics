@@ -6,14 +6,9 @@
 #include "NewTexture.h"
 #include "Vertex.h"
 #include "VulkanBufferManager.h"
+#include "Mesh2.h"
 
-struct UniformBufferObject {
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
-};
-
-struct Mesh2
+struct DepthMesh
 {
 
     VkDevice device;
@@ -35,12 +30,11 @@ struct Mesh2
     std::vector<VkDescriptorSet> DescriptorSets;
 
     NewTexture texture;
-    int IndexSize;
-    int VertexSize;
-    Mesh2()
+
+    DepthMesh()
     {}
 
-    Mesh2(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, std::vector<VkImage> SwapChainImages, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, NewTexture tex, VkDescriptorSetLayout& descriptorSetLayout)
+    DepthMesh(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, std::vector<VkImage> SwapChainImages, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, NewTexture tex, VkDescriptorSetLayout& descriptorSetLayout)
     {
         texture = tex;
         device = Device;
@@ -48,9 +42,6 @@ struct Mesh2
         commandPool = CommandPool;
         graphicsQueue = GraphicsQueue;
         swapChainImages = SwapChainImages;
-
-        VertexSize = vertexdata.size();
-        IndexSize = indicesdata.size();
 
         createVertexBuffer(vertexdata);
         createIndexBuffer(indicesdata);
@@ -159,9 +150,15 @@ struct Mesh2
             bufferInfo.range = sizeof(UniformBufferObject);
 
             VkDescriptorImageInfo imageInfo{};
-            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
             imageInfo.imageView = texture.View;
             imageInfo.sampler = texture.Sampler;
+
+            //VkDescriptorImageInfo imageInfo{};
+            //imageInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+            //imageInfo.imageView = offscreenPassdepthView;
+            //imageInfo.sampler = offscreenPassdepthSampler;
+
 
             std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
@@ -185,6 +182,17 @@ struct Mesh2
         }
     }
 
+    void Draw(VkCommandBuffer commandBuffer, VkPipeline pipeline, VkPipelineLayout layout, std::vector<uint16_t>indices, int frame)
+    {
+        VkBuffer vertexBuffers[] = { VertexBuffer };
+        VkDeviceSize offsets[] = { 0 };
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffer, IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &DescriptorSets[frame], 0, nullptr);
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+    }
+
     void Update(VkDescriptorSetLayout& descriptorSetLayout)
     {
         createUniformBuffers();
@@ -192,4 +200,3 @@ struct Mesh2
         createDescriptorSets(descriptorSetLayout);
     }
 };
-
