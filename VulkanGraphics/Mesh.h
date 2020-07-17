@@ -16,7 +16,6 @@
 #include "UniformBuffer.h"
 #include "LightStructs.h"
 #include "Camera.h"
-#include "EngineRenderedTexture.h"
 
 struct Material
 {
@@ -82,7 +81,7 @@ public:
 	void UpdateGUI();
 	void Draw(Renderer& renderer, int currentFrame);
 	void Destroy(Renderer& renderer);
-	void UpdateDescriptorSets(Renderer& renderer, EngineRenderedTexture engineTexture);
+	void UpdateDescriptorSets(Renderer& renderer);
 
 	float* GetMeshPosPtr() { return &MeshPosition.x; };
 };

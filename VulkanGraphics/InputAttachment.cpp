@@ -129,12 +129,12 @@ void InputAttachment::CreateAttachmentView(VkDevice device, VkImageAspectFlags a
 
 void InputAttachment::DeleteInputAttachment(VkDevice device)
 {
-	//vkDestroyImageView(device, AttachmentImageView, nullptr);
-	//vkDestroyImage(device, AttachmentImage, nullptr);
-	//vkFreeMemory(device, AttachmentImageMemory, nullptr);
+	vkDestroyImageView(device, AttachmentImageView, nullptr);
+	vkDestroyImage(device, AttachmentImage, nullptr);
+	vkFreeMemory(device, AttachmentImageMemory, nullptr);
 
-	//AttachmentImageView = VK_NULL_HANDLE;
-	//AttachmentImage = VK_NULL_HANDLE;
-	//AttachmentImageMemory = VK_NULL_HANDLE;
+	AttachmentImageView = VK_NULL_HANDLE;
+	AttachmentImage = VK_NULL_HANDLE;
+	AttachmentImageMemory = VK_NULL_HANDLE;
 }
 

@@ -6,14 +6,12 @@
 class Model : VulkanResources
 {
 private:
-
+	std::vector<Mesh> MeshList;
 
 public:
 	Model();
 	Model(Renderer& renderer, const std::vector<SubMesh>& SubMeshList);
 	~Model();
-
-	std::vector<Mesh> MeshList;
 
 	std::string ModelName;
 	glm::vec3 ModelPosition = glm::vec3(0.0f);

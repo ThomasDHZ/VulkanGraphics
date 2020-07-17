@@ -32,12 +32,12 @@ VkQueue* VulkanResources::GetPresentQueue(Renderer& renderer)
 
 VkRenderPass* VulkanResources::GetRenderPass(Renderer& renderer)
 {
-	return  &renderer.forwardRenderer.RenderPass;
+	return  &renderer.RenderPass;
 }
 
 VkDescriptorSetLayout* VulkanResources::GetDescriptorSetLayout(Renderer& renderer)
 {
-	return  &renderer.forwardRenderer.DescriptorSetLayout;
+	return  &renderer.GraphicsPipeline.ShaderPipelineDescriptorLayout;
 }
 
 VkCommandPool* VulkanResources::GetSecondaryCommandPool(Renderer& renderer)
@@ -52,58 +52,58 @@ VkCommandBuffer* VulkanResources::GetSecondaryCommandBuffer(Renderer& renderer, 
 
 VkPipeline* VulkanResources::GetShaderPipeline(Renderer& renderer)
 {
-	return &renderer.forwardRenderer.RendererPipeline;
+	return &renderer.GraphicsPipeline.ShaderPipeline;
 }
 
 VkPipelineLayout* VulkanResources::GetShaderPipelineLayout(Renderer& renderer)
 {
-	return &renderer.forwardRenderer.RendererLayout;
+	return &renderer.GraphicsPipeline.ShaderPipelineLayout;
 }
-//
-//VkDescriptorSetLayout* VulkanResources::GetMeshViewDescriptorSetLayout(Renderer& renderer)
-//{
-//	return &renderer.MeshviewPipeline.ShaderPipelineDescriptorLayout;
-//}
-//
-//DebugLightRenderingPipeline VulkanResources::GetDebugLightPipeline(Renderer& renderer)
-//{
-//	return renderer.DebugLightPipeline;
-//}
-//
-//VkPipeline* VulkanResources::GetMeshViewShaderPipeline(Renderer& renderer)
-//{
-//	return &renderer.MeshviewPipeline.ShaderPipeline;
-//}
-//
-//VkPipelineLayout* VulkanResources::GetMeshViewShaderPipelineLayout(Renderer& renderer)
-//{
-//	return &renderer.MeshviewPipeline.ShaderPipelineLayout;
-//}
-//
-//VkPipeline* VulkanResources::GetCollisionShaderPipeline(Renderer& renderer)
-//{
-//	return &renderer.DebugCollisionPipeline.ShaderPipeline;
-//}
-//
-//VkPipelineLayout* VulkanResources::GetCollisionShaderPipelineLayout(Renderer& renderer)
-//{
-//	return &renderer.DebugCollisionPipeline.ShaderPipelineLayout;
-//}
-//
-//VkDescriptorSetLayout* VulkanResources::GetSkyboxDescriptorSetLayout(Renderer& renderer)
-//{
-//	return &renderer.SkyboxPipeline.ShaderPipelineDescriptorLayout;
-//}
-//
-//VkPipeline* VulkanResources::GetSkyboxShaderPipeline(Renderer& renderer)
-//{
-//	return &renderer.SkyboxPipeline.ShaderPipeline;
-//}
-//
-//VkPipelineLayout* VulkanResources::GetSkyboxShaderPipelineLayout(Renderer& renderer)
-//{
-//	return &renderer.SkyboxPipeline.ShaderPipelineLayout;
-//}
+
+VkDescriptorSetLayout* VulkanResources::GetMeshViewDescriptorSetLayout(Renderer& renderer)
+{
+	return &renderer.MeshviewPipeline.ShaderPipelineDescriptorLayout;
+}
+
+DebugLightRenderingPipeline VulkanResources::GetDebugLightPipeline(Renderer& renderer)
+{
+	return renderer.DebugLightPipeline;
+}
+
+VkPipeline* VulkanResources::GetMeshViewShaderPipeline(Renderer& renderer)
+{
+	return &renderer.MeshviewPipeline.ShaderPipeline;
+}
+
+VkPipelineLayout* VulkanResources::GetMeshViewShaderPipelineLayout(Renderer& renderer)
+{
+	return &renderer.MeshviewPipeline.ShaderPipelineLayout;
+}
+
+VkPipeline* VulkanResources::GetCollisionShaderPipeline(Renderer& renderer)
+{
+	return &renderer.DebugCollisionPipeline.ShaderPipeline;
+}
+
+VkPipelineLayout* VulkanResources::GetCollisionShaderPipelineLayout(Renderer& renderer)
+{
+	return &renderer.DebugCollisionPipeline.ShaderPipelineLayout;
+}
+
+VkDescriptorSetLayout* VulkanResources::GetSkyboxDescriptorSetLayout(Renderer& renderer)
+{
+	return &renderer.SkyboxPipeline.ShaderPipelineDescriptorLayout;
+}
+
+VkPipeline* VulkanResources::GetSkyboxShaderPipeline(Renderer& renderer)
+{
+	return &renderer.SkyboxPipeline.ShaderPipeline;
+}
+
+VkPipelineLayout* VulkanResources::GetSkyboxShaderPipelineLayout(Renderer& renderer)
+{
+	return &renderer.SkyboxPipeline.ShaderPipelineLayout;
+}
 
 VkExtent2D* VulkanResources::GetSwapChainResolution(Renderer& renderer)
 {

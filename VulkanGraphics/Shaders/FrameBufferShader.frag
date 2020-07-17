@@ -1,19 +1,18 @@
 #version 450
-#extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 1) uniform sampler2D DiffuseMap;
-layout(binding = 2) uniform sampler2D SpecularMap;
-layout(binding = 3) uniform sampler2D NormalMap;
-layout(binding = 4) uniform sampler2D DisplacementMap;
-layout(binding = 5) uniform sampler2D AlphaMap;
-layout(binding = 6) uniform sampler2D EmissionMap;
-layout(binding = 7) uniform samplerCube CubeMap;
-
-layout(location = 0) in vec3 fragColor;
-layout(location = 1) in vec2 fragTexCoord;
+layout (input_attachment_index = 0, binding = 0) uniform subpassInput inputColor;
+layout (input_attachment_index = 1, binding = 1) uniform subpassInput inputDepth;
+layout (binding = 2) uniform FrameBufferSettings 
+{
+	bool HDR;
+} ubo;
 
 layout(location = 0) out vec4 outColor;
 
-void main() {
-    outColor = texture(DiffuseMap, fragTexCoord);
+void main() 
+{
+	vec3 color = subpassLoad(inputColor).rgb;
+	color = vec3(1.0) - exp(-color * 1.0f);
+	color = pow(color, vec3(1.0/2.2));
+	outColor.rgb = color;
 }
