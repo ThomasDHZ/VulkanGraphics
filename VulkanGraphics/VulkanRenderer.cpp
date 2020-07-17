@@ -1,11 +1,11 @@
-#include "RendererBase.h"
+#include "VulkanRenderer.h"
 #include <set>
 
-RendererBase::RendererBase()
+VulkanRenderer::VulkanRenderer()
 {
 }
 
-RendererBase::RendererBase(GLFWwindow* window)
+VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 {
 	bool DebuggerAvalible = false;
 	uint32_t LayerCount;
@@ -135,11 +135,11 @@ RendererBase::RendererBase(GLFWwindow* window)
 	InitializeSyncObjects();
 }
 
-RendererBase::~RendererBase()
+VulkanRenderer::~VulkanRenderer()
 {
 }
 
-VkFormat RendererBase::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
+VkFormat VulkanRenderer::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
 	for (VkFormat format : candidates) {
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(PhysicalDevice, format, &props);
@@ -155,7 +155,7 @@ VkFormat RendererBase::findSupportedFormat(const std::vector<VkFormat>& candidat
 	throw std::runtime_error("failed to find supported format!");
 }
 
-VkFormat RendererBase::findDepthFormat()
+VkFormat VulkanRenderer::findDepthFormat()
 {
 	return findSupportedFormat(
 		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
@@ -164,7 +164,7 @@ VkFormat RendererBase::findDepthFormat()
 	);
 }
 
-std::vector<const char*> RendererBase::getRequiredExtensions() {
+std::vector<const char*> VulkanRenderer::getRequiredExtensions() {
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -175,7 +175,7 @@ std::vector<const char*> RendererBase::getRequiredExtensions() {
 	return extensions;
 }
 
-bool RendererBase::isDeviceSuitable(VkPhysicalDevice GPUDevice)
+bool VulkanRenderer::isDeviceSuitable(VkPhysicalDevice GPUDevice)
 {
 	FindQueueFamilies(GPUDevice, Surface);
 
@@ -213,7 +213,7 @@ bool RendererBase::isDeviceSuitable(VkPhysicalDevice GPUDevice)
 		   supportedFeatures.samplerAnisotropy;
 }
 
-bool RendererBase::checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice)
+bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice)
 {
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(GPUDevice, nullptr, &extensionCount, nullptr);
@@ -230,7 +230,7 @@ bool RendererBase::checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice)
 	return requiredExtensions.empty();
 }
 
-void RendererBase::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface)
+void VulkanRenderer::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface)
 {
 	uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, &queueFamilyCount, nullptr);
@@ -261,7 +261,7 @@ void RendererBase::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceK
 	}
 }
 
-void RendererBase::Destory()
+void VulkanRenderer::Destory()
 {
 	Device = VK_NULL_HANDLE;
 
@@ -271,7 +271,7 @@ void RendererBase::Destory()
 	vkDestroyInstance(Instance, nullptr);
 }
 
-void RendererBase::InitializeCommandBuffers()
+void VulkanRenderer::InitializeCommandBuffers()
 {
 	MainCommandBuffer.resize(SwapChain.GetSwapChainImageCount());
 	SecondaryCommandBuffers.resize(SwapChain.GetSwapChainImageCount());
@@ -310,7 +310,7 @@ void RendererBase::InitializeCommandBuffers()
 	}
 }
 
-void RendererBase::InitializeSyncObjects()
+void VulkanRenderer::InitializeSyncObjects()
 {
 	vulkanSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);

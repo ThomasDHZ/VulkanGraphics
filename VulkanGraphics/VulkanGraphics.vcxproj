@@ -195,7 +195,7 @@
     <ClCompile Include="TextureSkyboxRenderer.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VulkanGraphics2D.cpp" />
-    <ClCompile Include="RendererBase.cpp" />
+    <ClCompile Include="VulkanRenderer.cpp" />
     <ClCompile Include="WireFrameMesh.cpp" />
     <ClCompile Include="WireFramePipeline.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -284,7 +284,7 @@
     <ClInclude Include="TextureSkyboxRenderer.h" />
     <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VulkanGraphics2D.h" />
-    <ClInclude Include="RendererBase.h" />
+    <ClInclude Include="VulkanRenderer.h" />
     <ClInclude Include="WireFrameMesh.h" />
     <ClInclude Include="WireFramePipeline.h" />
     <ClInclude Include="Model.h" />

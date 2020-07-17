@@ -4,7 +4,7 @@ MainRenderer::MainRenderer()
 {
 }
 
-MainRenderer::MainRenderer(RendererBase& renderer)
+MainRenderer::MainRenderer(VulkanRenderer& renderer)
 {
 	InitializeRenderPass(renderer);
 	InitializeFramebuffers(renderer);
@@ -15,7 +15,7 @@ MainRenderer::~MainRenderer()
 {
 }
 
-void MainRenderer::InitializeRenderPass(RendererBase& renderer)
+void MainRenderer::InitializeRenderPass(VulkanRenderer& renderer)
 {
 	VkAttachmentDescription colorAttachment{};
 	colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
@@ -74,7 +74,7 @@ void MainRenderer::InitializeRenderPass(RendererBase& renderer)
 	//}
 }
 
-void MainRenderer::InitializeFramebuffers(RendererBase& renderer)
+void MainRenderer::InitializeFramebuffers(VulkanRenderer& renderer)
 {
 	//DepthAttachment = InputAttachment(renderer.Device, renderer.PhysicalDevice, AttachmentType::VkDepthAttachemnt, renderer.SwapChain.GetSwapChainResolution().width, renderer.SwapChain.GetSwapChainResolution().height);
 

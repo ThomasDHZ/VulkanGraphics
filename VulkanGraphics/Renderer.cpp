@@ -1,11 +1,11 @@
 #include "Renderer.h"
 #include <set>
 
-Renderer::Renderer() : RendererBase()
+Renderer::Renderer() : VulkanRenderer()
 {
 }
 
-Renderer::Renderer(GLFWwindow* window) : RendererBase(window)
+Renderer::Renderer(GLFWwindow* window) : VulkanRenderer(window)
 {
 	forwardRenderer = ForwardRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
 	textureRenderer = TextureRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
@@ -249,5 +249,5 @@ void Renderer::DestoryVulkan()
 	SecondaryCommandPool = VK_NULL_HANDLE;
 	//RenderPass = VK_NULL_HANDLE;
 
-	RendererBase::Destory();
+	VulkanRenderer::Destory();
 }

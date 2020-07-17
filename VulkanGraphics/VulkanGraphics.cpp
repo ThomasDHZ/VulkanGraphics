@@ -212,9 +212,9 @@ void VulkanGraphics::MainLoop()
 				VkBuffer vertexBuffers[] = { MeshList[0].vertexBuffer };
 				VkDeviceSize offsets[] = { 0 };
 
-				vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(renderer));
+				vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.textureRenderer.RendererPipeline);
 				vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &MeshList[0].descriptorSets[DrawFrame], 0, nullptr);
+				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.textureRenderer.RendererLayout, 0, 1, &MeshList[0].descriptorSets[DrawFrame], 0, nullptr);
 				if (MeshList[0].IndiceSize == 0)
 				{
 					vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], MeshList[0].VertexSize, 1, 0, 0);
@@ -224,15 +224,15 @@ void VulkanGraphics::MainLoop()
 					vkCmdBindIndexBuffer(renderer.MainCommandBuffer[DrawFrame], MeshList[0].indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 					vkCmdDrawIndexed(renderer.MainCommandBuffer[DrawFrame], static_cast<uint32_t>(MeshList[0].IndiceSize), 1, 0, 0, 0);
 				}
-				{
-					VkBuffer vertexBuffers[] = { Skybox.vertexBuffer };
-					VkDeviceSize offsets[] = { 0 };
+				//{
+				//	VkBuffer vertexBuffers[] = { Skybox.vertexBuffer };
+				//	VkDeviceSize offsets[] = { 0 };
 
-					vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
-					vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-					vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &Skybox.descriptorSets[DrawFrame], 0, nullptr);
-					vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], Skybox.VertexSize, 1, 0, 0);
-				}
+				//	vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
+				//	vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
+				//	vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &Skybox.descriptorSets[DrawFrame], 0, nullptr);
+				//	vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], Skybox.VertexSize, 1, 0, 0);
+				//}
 			}
 			vkCmdEndRenderPass(renderer.MainCommandBuffer[DrawFrame]);
 		}

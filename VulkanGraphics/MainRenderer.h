@@ -1,12 +1,12 @@
 #pragma once
-#include "RendererBase.h"
+#include "VulkanRenderer.h"
 #include "InputAttachment.h"
 #include "ForwardRenderingPipeline.h"
 class MainRenderer
 {
 private:
 
-	void InitializeRenderPass(RendererBase& renderer);
+	void InitializeRenderPass(VulkanRenderer& renderer);
 
 public:
 	InputAttachment HDRColorAttachment;
@@ -17,9 +17,9 @@ public:
 	ForwardRenderingPipeline GraphicsPipeline;
 
 	MainRenderer();
-	MainRenderer(RendererBase& renderer);
+	MainRenderer(VulkanRenderer& renderer);
 	~MainRenderer();
 
-	void InitializeFramebuffers(RendererBase& renderer);
+	void InitializeFramebuffers(VulkanRenderer& renderer);
 };
 

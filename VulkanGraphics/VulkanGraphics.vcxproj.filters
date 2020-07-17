@@ -31,6 +31,12 @@
     <Filter Include="Header Files\Mesh">
       <UniqueIdentifier>{e94e28f0-3e9c-4b8f-aac5-be07b109f276}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Renderer">
+      <UniqueIdentifier>{004d9ca2-1db8-4b9c-b930-901ab21a801e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer">
+      <UniqueIdentifier>{fab53b7c-4a1a-4bb8-8612-f34a1e60b9c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -150,9 +156,6 @@
     <ClCompile Include="Level2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RendererBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -219,13 +222,16 @@
     <ClCompile Include="Texture2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ForwardRenderer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="TextureSkyboxRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="TextureRenderer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="TextureSkyboxRenderer.cpp">
+    <ClCompile Include="ForwardRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -424,12 +430,6 @@
     <ClInclude Include="Level2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RendererBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -487,13 +487,19 @@
     <ClInclude Include="Texture2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextureSkyboxRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="TextureRenderer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="ForwardRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextureSkyboxRenderer.h">
+    <ClInclude Include="VulkanRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

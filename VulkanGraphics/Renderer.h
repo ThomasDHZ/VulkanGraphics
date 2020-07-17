@@ -1,5 +1,5 @@
 #pragma once
-#include "RendererBase.h"
+#include "VulkanRenderer.h"
 #include "VulkanDebugger.h"
 #include "VulkanSwapChain.h"
 #include "ForwardRenderingPipeline.h"
@@ -14,7 +14,7 @@
 #include "ForwardRenderer.h"
 #include "TextureRenderer.h"
 #include "TextureSkyboxRenderer.h"
-class Renderer : public RendererBase
+class Renderer : public VulkanRenderer
 {
 	friend class VulkanGraphics;
 	friend class VulkanGraphics2D;

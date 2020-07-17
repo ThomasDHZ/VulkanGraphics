@@ -32,7 +32,7 @@ struct VulkanRendererSettings
 			TwoDMode != OtherSettings.TwoDMode);
 	}
 };
-class RendererBase
+class VulkanRenderer
 {
 private:
 protected:
@@ -92,8 +92,8 @@ protected:
 
 	void Destory();
 public:
-	RendererBase();
-	RendererBase(GLFWwindow* window);
-	~RendererBase();
+	VulkanRenderer();
+	VulkanRenderer(GLFWwindow* window);
+	~VulkanRenderer();
 };
 
