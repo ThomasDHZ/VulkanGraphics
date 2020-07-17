@@ -192,6 +192,7 @@
     <ClCompile Include="Texture2.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TextureRenderer.cpp" />
+    <ClCompile Include="TextureSkyboxRenderer.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VulkanGraphics2D.cpp" />
     <ClCompile Include="RendererBase.cpp" />
@@ -280,6 +281,7 @@
     <ClInclude Include="Texture2.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="TextureRenderer.h" />
+    <ClInclude Include="TextureSkyboxRenderer.h" />
     <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VulkanGraphics2D.h" />
     <ClInclude Include="RendererBase.h" />

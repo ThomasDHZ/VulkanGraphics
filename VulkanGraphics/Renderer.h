@@ -13,6 +13,7 @@
 #include "GUIDebugger.h"
 #include "ForwardRenderer.h"
 #include "TextureRenderer.h"
+#include "TextureSkyboxRenderer.h"
 class Renderer : public RendererBase
 {
 	friend class VulkanGraphics;
@@ -25,6 +26,7 @@ private:
 
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
+	TextureSkyboxRenderer textureSkyboxRenderer;
 	//ForwardRenderingPipeline GraphicsPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
 	CollisionDebugPipeline DebugCollisionPipeline;

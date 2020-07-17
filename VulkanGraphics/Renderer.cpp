@@ -9,6 +9,7 @@ Renderer::Renderer(GLFWwindow* window) : RendererBase(window)
 {
 	forwardRenderer = ForwardRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
 	textureRenderer = TextureRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
+	textureSkyboxRenderer = TextureSkyboxRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
 	//InitializeRenderPass();
 	//InitializeFramebuffers();
 	InitializeGUIDebugger(window);
@@ -94,7 +95,6 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 		forwardRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
 		forwardRenderer.CreateRendererFramebuffers(Device, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
 
-		InitializeCommandBuffers();
 	}
 	{
 
@@ -116,9 +116,29 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 		textureRenderer.ColorTexture = RendererColorTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
 		textureRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
 		textureRenderer.CreateRendererFramebuffers(Device, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
-
-		InitializeCommandBuffers();
 	}
+	{
+
+		textureSkyboxRenderer.DepthTexture.Delete(Device);
+		textureSkyboxRenderer.ColorTexture.Delete(Device);
+		for (auto framebuffer : textureSkyboxRenderer.swapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(Device, framebuffer, nullptr);
+		}
+
+		vkDestroyPipeline(Device, textureSkyboxRenderer.RendererPipeline, nullptr);
+		vkDestroyPipelineLayout(Device, textureSkyboxRenderer.RendererLayout, nullptr);
+
+		textureSkyboxRenderer.RendererPipeline = VK_NULL_HANDLE;
+		textureSkyboxRenderer.RendererLayout = VK_NULL_HANDLE;
+
+
+		textureSkyboxRenderer.DepthTexture = RendererDepthTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
+		textureSkyboxRenderer.ColorTexture = RendererColorTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
+		textureSkyboxRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
+		textureSkyboxRenderer.CreateRendererFramebuffers(Device, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
+	}
+	InitializeCommandBuffers();
 	UpdateCommandBuffers = true;
 }
 
