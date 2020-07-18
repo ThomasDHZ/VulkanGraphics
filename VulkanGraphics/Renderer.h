@@ -39,6 +39,7 @@ protected:
 
 	//Pretty much to section off for anything that needs to be used in VUlkanGraphics.
 	size_t currentFrame = 0;
+	std::vector<VkCommandBuffer> RunCommandBuffers = {};
 
 	GUIDebugger guiDebugger;
 
@@ -54,4 +55,7 @@ public:
 	Renderer();
 	Renderer(GLFWwindow* window);
 	~Renderer();
+
+	VulkanRendererSettings Settings;
+	uint32_t DrawFrame = 0;
 };

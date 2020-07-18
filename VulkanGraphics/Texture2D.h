@@ -4,12 +4,12 @@
 class Texture2D : public Texture
 {
 private:
-	void CreateTextureSampler(VulkanRenderer& renderer);
+	void CreateTextureSampler(Renderer& renderer);
 
 public:
 
 	Texture2D();
-	Texture2D(VulkanRenderer& renderer, std::string TexturePath);
+	Texture2D(Renderer& renderer, std::string TexturePath);
 	~Texture2D();
 };
 

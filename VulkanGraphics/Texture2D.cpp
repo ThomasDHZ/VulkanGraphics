@@ -6,7 +6,7 @@ Texture2D::Texture2D() : Texture()
 {
 }
 
-Texture2D::Texture2D(VulkanRenderer& renderer, std::string TexturePath) : Texture(renderer, TextureType::vkTexture2D)
+Texture2D::Texture2D(Renderer& renderer, std::string TexturePath) : Texture(renderer, TextureType::vkTexture2D)
 {
 	stbi_set_flip_vertically_on_load(true);
 
@@ -17,12 +17,12 @@ Texture2D::Texture2D(VulkanRenderer& renderer, std::string TexturePath) : Textur
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(renderer.Device, renderer.PhysicalDevice, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(renderer.Device, stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, pixels, static_cast<size_t>(imageSize));
-	vkUnmapMemory(renderer.Device, stagingBufferMemory);
+	vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
 
 	CreateImage(renderer);
 
@@ -30,8 +30,8 @@ Texture2D::Texture2D(VulkanRenderer& renderer, std::string TexturePath) : Textur
 	CopyBufferToImage(renderer, stagingBuffer);
 	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
-	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
+	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
+	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
 
 	CreateImageView(renderer);
 	CreateTextureSampler(renderer);
@@ -41,7 +41,7 @@ Texture2D::~Texture2D()
 {
 }
 
-void Texture2D::CreateTextureSampler(VulkanRenderer& renderer)
+void Texture2D::CreateTextureSampler(Renderer& renderer)
 {
 	//VkSamplerCreateInfo SamplerInfo = {};
 	//SamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

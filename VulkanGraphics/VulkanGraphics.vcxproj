@@ -164,8 +164,10 @@
     <ClCompile Include="Level2D.cpp" />
     <ClCompile Include="MainRenderer.cpp" />
     <ClCompile Include="MegaMan.cpp" />
+    <ClCompile Include="Mesh2.cpp" />
     <ClCompile Include="MMShot.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="NewTexture.cpp" />
     <ClCompile Include="Renderer2DPipeline.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -250,8 +252,10 @@
     <ClInclude Include="Level2D.h" />
     <ClInclude Include="MainRenderer.h" />
     <ClInclude Include="MegaMan.h" />
+    <ClInclude Include="Mesh2.h" />
     <ClInclude Include="MMShot.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="NewTexture.h" />
     <ClInclude Include="Renderer2DPipeline.h" />
     <ClInclude Include="GUIDebugger.h" />
     <ClInclude Include="ImGui\imconfig.h" />
