@@ -9,12 +9,8 @@ Renderer::Renderer(GLFWwindow* window) : VulkanRenderer(window)
 {
 	forwardRenderer = ForwardRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
 	textureRenderer = TextureRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
-	textureSkyboxRenderer = TextureSkyboxRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
-	//InitializeRenderPass();
-	//InitializeFramebuffers();
 	InitializeGUIDebugger(window);
 
-	//GraphicsPipeline = ForwardRenderingPipeline(SwapChain.GetSwapChainResolution(), RenderPass, Device);
 	DebugLightPipeline = DebugLightRenderingPipeline(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
 	DebugCollisionPipeline = CollisionDebugPipeline(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
 	MeshviewPipeline = WireFramePipeline(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
@@ -53,15 +49,12 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 
 	vkDeviceWaitIdle(Device);
 
-	vkFreeCommandBuffers(Device, SecondaryCommandPool, static_cast<uint32_t>(SecondaryCommandBuffers.size()), SecondaryCommandBuffers.data());
-
 	for (auto imageView : SwapChain.GetSwapChainImageViews())
 	{
 		vkDestroyImageView(Device, imageView, nullptr);
 	}
 
-	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
-	vkDestroyCommandPool(Device, SecondaryCommandPool, nullptr);
+	vkDestroyCommandPool(Device, RenderCommandPool, nullptr);
 	vkDestroySwapchainKHR(Device, SwapChain.GetSwapChain(), nullptr);
 
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
@@ -90,11 +83,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 		forwardRenderer.RendererPipeline = VK_NULL_HANDLE;
 		forwardRenderer.RendererLayout = VK_NULL_HANDLE;
 
-
-		forwardRenderer.DepthTexture = RendererDepthTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
-		forwardRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
-		forwardRenderer.CreateRendererFramebuffers(Device, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
-
+		forwardRenderer.UpdateSwapChain(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
 	}
 	{
 
@@ -117,27 +106,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 		textureRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
 		textureRenderer.CreateRendererFramebuffers(Device, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
 	}
-	{
 
-		textureSkyboxRenderer.DepthTexture.Delete(Device);
-		textureSkyboxRenderer.ColorTexture.Delete(Device);
-		for (auto framebuffer : textureSkyboxRenderer.swapChainFramebuffers)
-		{
-			vkDestroyFramebuffer(Device, framebuffer, nullptr);
-		}
-
-		vkDestroyPipeline(Device, textureSkyboxRenderer.RendererPipeline, nullptr);
-		vkDestroyPipelineLayout(Device, textureSkyboxRenderer.RendererLayout, nullptr);
-
-		textureSkyboxRenderer.RendererPipeline = VK_NULL_HANDLE;
-		textureSkyboxRenderer.RendererLayout = VK_NULL_HANDLE;
-
-
-		textureSkyboxRenderer.DepthTexture = RendererDepthTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
-		textureSkyboxRenderer.ColorTexture = RendererColorTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
-		textureSkyboxRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
-		textureSkyboxRenderer.CreateRendererFramebuffers(Device, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
-	}
 	InitializeCommandBuffers();
 	UpdateCommandBuffers = true;
 }
@@ -176,7 +145,7 @@ void Renderer::DrawEnd(GLFWwindow* window, uint32_t drawFrame)
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &MainCommandBuffer[DrawFrame];
+	submitInfo.pCommandBuffers = &RenderCommandBuffer[DrawFrame];
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -224,8 +193,7 @@ void Renderer::DestoryVulkan()
 
 	SwapChain.Destroy(Device);
 
-	vkDestroyCommandPool(Device, MainCommandPool, nullptr);
-	vkDestroyCommandPool(Device, SecondaryCommandPool, nullptr);
+	vkDestroyCommandPool(Device, RenderCommandPool, nullptr);
 
 	//vkDestroyRenderPass(Device, RenderPass, nullptr);
 
@@ -245,8 +213,7 @@ void Renderer::DestoryVulkan()
 
 	vkDestroyDevice(Device, nullptr);
 
-	MainCommandPool = VK_NULL_HANDLE;
-	SecondaryCommandPool = VK_NULL_HANDLE;
+	RenderCommandPool = VK_NULL_HANDLE;
 	//RenderPass = VK_NULL_HANDLE;
 
 	VulkanRenderer::Destory();

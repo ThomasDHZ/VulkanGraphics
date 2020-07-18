@@ -12,8 +12,8 @@ public:
 	static VkQueue* GetPresentQueue(Renderer& renderer);
 	static VkRenderPass* GetRenderPass(Renderer& renderer);
 	static VkDescriptorSetLayout* GetDescriptorSetLayout(Renderer& renderer);
-	static VkCommandPool* GetSecondaryCommandPool(Renderer& renderer);
-	static VkCommandBuffer* GetSecondaryCommandBuffer(Renderer& renderer, unsigned int frame);
+	static VkCommandPool* GetRendererCommandPool(Renderer& renderer);
+	static VkCommandBuffer* GetRendererCommandBuffer(Renderer& renderer, unsigned int frame);
 	static VkPipeline* GetShaderPipeline(Renderer& renderer);
 	static VkPipelineLayout* GetShaderPipelineLayout(Renderer& renderer);
 	static VkDescriptorSetLayout* GetMeshViewDescriptorSetLayout(Renderer& renderer);

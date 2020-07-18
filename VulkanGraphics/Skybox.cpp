@@ -38,7 +38,7 @@ void SkyBox::SetUpVertexBuffer(Renderer& renderer)
 
 	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, vertexBuffer, bufferSize, *GetSecondaryCommandPool(renderer), *GetGraphicsQueue(renderer));
+	VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, vertexBuffer, bufferSize, *GetRendererCommandPool(renderer), *GetGraphicsQueue(renderer));
 
 	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
 	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
@@ -102,10 +102,10 @@ void SkyBox::Draw(Renderer& renderer, int currentFrame)
 	VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
-	vkCmdBindPipeline(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
-	vkCmdBindVertexBuffers(*GetSecondaryCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
-	vkCmdBindDescriptorSets(*GetSecondaryCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	vkCmdDraw(*GetSecondaryCommandBuffer(renderer, currentFrame), VertexSize, 1, 0, 0);
+	vkCmdBindPipeline(*GetRendererCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
+	vkCmdBindVertexBuffers(*GetRendererCommandBuffer(renderer, currentFrame), 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(*GetRendererCommandBuffer(renderer, currentFrame), VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+	vkCmdDraw(*GetRendererCommandBuffer(renderer, currentFrame), VertexSize, 1, 0, 0);
 }
 
 void SkyBox::UpdateUniformBuffer(Renderer& renderer, Camera& camera)

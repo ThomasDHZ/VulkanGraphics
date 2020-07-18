@@ -82,7 +82,7 @@ void BaseMesh::CreateVertexBuffer(Renderer& renderer)
 
 	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, vertexBuffer, bufferSize, *GetSecondaryCommandPool(renderer), *GetGraphicsQueue(renderer));
+	VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, vertexBuffer, bufferSize, *GetRendererCommandPool(renderer), *GetGraphicsQueue(renderer));
 
 	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
 	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
@@ -105,7 +105,7 @@ void BaseMesh::CreateIndiceBuffer(Renderer& renderer)
 
 		VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-		VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, indexBuffer, bufferSize, *GetSecondaryCommandPool(renderer), *GetGraphicsQueue(renderer));
+		VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, indexBuffer, bufferSize, *GetRendererCommandPool(renderer), *GetGraphicsQueue(renderer));
 
 		vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
 		vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);

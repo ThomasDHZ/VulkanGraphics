@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 
-class RendererBase2
+class RendererBase
 {
 protected:
 	std::vector<char> ReadFile(const std::string& filename);
@@ -17,7 +17,7 @@ public:
 	VkPipeline RendererPipeline;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
 
-	RendererBase2();
-	~RendererBase2();
+	RendererBase();
+	~RendererBase();
 };
 

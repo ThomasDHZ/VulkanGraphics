@@ -1,9 +1,9 @@
 #pragma once
-#include "RendererBase2.h"
+#include "RendererBase.h"
 #include "RendererColorTexture.h"
 #include "RendererDepthTexture.h"
 
-class TextureRenderer : public RendererBase2
+class TextureRenderer : public RendererBase
 {
 private:
 

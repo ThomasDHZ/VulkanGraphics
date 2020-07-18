@@ -4,11 +4,11 @@
 #include "Vertex.h"
 #include "VulkanBufferManager.h"
 
-ForwardRenderer::ForwardRenderer() : RendererBase2()
+ForwardRenderer::ForwardRenderer() : RendererBase()
 {
 }
 
-ForwardRenderer::ForwardRenderer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews) : RendererBase2()
+ForwardRenderer::ForwardRenderer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews) : RendererBase()
 {
     CreateRenderPass(Device);
     CreateDescriptorSets(Device);
@@ -257,4 +257,11 @@ void ForwardRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swa
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
+}
+
+void ForwardRenderer::UpdateSwapChain(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews)
+{
+   DepthTexture = RendererDepthTexture(Device, PhysicalDevice, extent);
+   CreateRenderingPipeline(Device, extent);
+   CreateRendererFramebuffers(Device, extent, swapChainImageViews);
 }

@@ -1,14 +1,14 @@
-#include "RendererBase2.h"
+#include "RendererBase.h"
 
-RendererBase2::RendererBase2()
+RendererBase::RendererBase()
 {
 }
 
-RendererBase2::~RendererBase2()
+RendererBase::~RendererBase()
 {
 }
 
-std::vector<char> RendererBase2::ReadFile(const std::string& filename)
+std::vector<char> RendererBase::ReadFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
@@ -27,7 +27,7 @@ std::vector<char> RendererBase2::ReadFile(const std::string& filename)
     return buffer;
 }
 
-VkShaderModule RendererBase2::CreateShaderModule(VkDevice Device, const std::vector<char>& code)
+VkShaderModule RendererBase::CreateShaderModule(VkDevice Device, const std::vector<char>& code)
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

@@ -66,10 +66,8 @@ protected:
 
 	std::vector<VkLayerProperties> VulkanLayers;
 
-	VkCommandPool MainCommandPool;
-	std::vector<VkCommandBuffer> MainCommandBuffer;
-	VkCommandPool SecondaryCommandPool;
-	std::vector<VkCommandBuffer> SecondaryCommandBuffers;
+	VkCommandPool RenderCommandPool;
+	std::vector<VkCommandBuffer> RenderCommandBuffer;
 
 	std::vector<VulkanSemaphores> vulkanSemaphores;
 	std::vector<VkFence> inFlightFences;
