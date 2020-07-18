@@ -316,3 +316,4 @@ void VulkanRenderer::InitializeSyncObjects()
 		}
 	}
 }
+

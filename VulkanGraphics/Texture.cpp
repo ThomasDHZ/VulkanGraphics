@@ -8,7 +8,7 @@ Texture::Texture()
 	Height = 0;
 }
 
-Texture::Texture(Renderer& renderer, TextureType textureType)
+Texture::Texture(VulkanRenderer& renderer, TextureType textureType)
 {
 	TypeOfTexture = textureType;
 }
@@ -17,9 +17,9 @@ Texture::~Texture()
 {
 }
 
-void Texture::TransitionImageLayout(Renderer& renderer, VkImageLayout oldLayout, VkImageLayout newLayout)
+void Texture::TransitionImageLayout(VulkanRenderer& renderer, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
-	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(*GetDevice(renderer), *GetRendererCommandPool(renderer));
+	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(renderer.Device, renderer.RenderCommandPool);
 
 	VkImageMemoryBarrier barrier = {};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -65,12 +65,12 @@ void Texture::TransitionImageLayout(Renderer& renderer, VkImageLayout oldLayout,
 	}
 
 	vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-	VulkanBufferManager::endSingleTimeCommands(*GetDevice(renderer), commandBuffer, *GetRendererCommandPool(renderer), *GetGraphicsQueue(renderer));
+	VulkanBufferManager::endSingleTimeCommands(renderer.Device, commandBuffer, renderer.RenderCommandPool, renderer.GraphicsQueue);
 }
 
-void Texture::CopyBufferToImage(Renderer& renderer, VkBuffer buffer)
+void Texture::CopyBufferToImage(VulkanRenderer& renderer, VkBuffer buffer)
 {
-	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(*GetDevice(renderer), *GetRendererCommandPool(renderer));
+	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(renderer.Device, renderer.RenderCommandPool);
 
 	VkBufferImageCopy region = {};
 	region.bufferOffset = 0;
@@ -92,10 +92,10 @@ void Texture::CopyBufferToImage(Renderer& renderer, VkBuffer buffer)
 	}
 
 	vkCmdCopyBufferToImage(commandBuffer, buffer, textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-	VulkanBufferManager::endSingleTimeCommands(*GetDevice(renderer), commandBuffer, *GetRendererCommandPool(renderer), *GetGraphicsQueue(renderer));
+	VulkanBufferManager::endSingleTimeCommands(renderer.Device, commandBuffer, renderer.RenderCommandPool, renderer.GraphicsQueue);
 }
 
-void Texture::CreateImage(Renderer& renderer)
+void Texture::CreateImage(VulkanRenderer& renderer)
 {
 	VkImageCreateInfo ImageInfo = {};
 	ImageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -121,26 +121,26 @@ void Texture::CreateImage(Renderer& renderer)
 		ImageInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 	}
 
-	if (vkCreateImage(*GetDevice(renderer), &ImageInfo, nullptr, &textureImage) != VK_SUCCESS) {
+	if (vkCreateImage(renderer.Device, &ImageInfo, nullptr, &textureImage) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create image!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(*GetDevice(renderer), textureImage, &memRequirements);
+	vkGetImageMemoryRequirements(renderer.Device, textureImage, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo = {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = VulkanBufferManager::FindMemoryType(*GetPhysicalDevice(renderer), memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	allocInfo.memoryTypeIndex = VulkanBufferManager::FindMemoryType(renderer.PhysicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-	if (vkAllocateMemory(*GetDevice(renderer), &allocInfo, nullptr, &textureImageMemory) != VK_SUCCESS) {
+	if (vkAllocateMemory(renderer.Device, &allocInfo, nullptr, &textureImageMemory) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate image memory!");
 	}
 
-	vkBindImageMemory(*GetDevice(renderer), textureImage, textureImageMemory, 0);
+	vkBindImageMemory(renderer.Device, textureImage, textureImageMemory, 0);
 }
 
-void Texture::CreateImageView(Renderer& renderer)
+void Texture::CreateImageView(VulkanRenderer& renderer)
 {
 	VkImageViewCreateInfo viewInfo = {};
 	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -163,39 +163,39 @@ void Texture::CreateImageView(Renderer& renderer)
 	}
 
 	VkImageView imageView;
-	if (vkCreateImageView(*GetDevice(renderer), &viewInfo, nullptr, &textureImageView) != VK_SUCCESS) {
+	if (vkCreateImageView(renderer.Device, &viewInfo, nullptr, &textureImageView) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create texture image view!");
 	}
 }
 
-void Texture::CreateTextureSampler(Renderer& renderer, VkSamplerCreateInfo SamplerInfo)
+void Texture::CreateTextureSampler(VulkanRenderer& renderer, VkSamplerCreateInfo SamplerInfo)
 {
-	if (vkCreateSampler(*GetDevice(renderer), &SamplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
+	if (vkCreateSampler(renderer.Device, &SamplerInfo, nullptr, &textureSampler) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create texture sampler.");
 	}
 }
 
-void Texture::Destroy(Renderer& renderer)
+void Texture::Destroy(VulkanRenderer& renderer)
 {
 	if (textureSampler != VK_NULL_HANDLE)
 	{
-		vkDestroySampler(*GetDevice(renderer), textureSampler, nullptr);
+		vkDestroySampler(renderer.Device, textureSampler, nullptr);
 		textureSampler = VK_NULL_HANDLE;
 	}
 	if (textureImageView != VK_NULL_HANDLE)
 	{
-		vkDestroyImageView(*GetDevice(renderer), textureImageView, nullptr);
+		vkDestroyImageView(renderer.Device, textureImageView, nullptr);
 		textureImageView = VK_NULL_HANDLE;
 	}
 	if (textureImage != VK_NULL_HANDLE)
 	{
-		vkDestroyImage(*GetDevice(renderer), textureImage, nullptr);
+		vkDestroyImage(renderer.Device, textureImage, nullptr);
 		textureImage = VK_NULL_HANDLE;
 	}
 	if (textureImageMemory != VK_NULL_HANDLE)
 	{
-		vkFreeMemory(*GetDevice(renderer), textureImageMemory, nullptr);
+		vkFreeMemory(renderer.Device, textureImageMemory, nullptr);
 		textureImageMemory = VK_NULL_HANDLE;
 	}
 }

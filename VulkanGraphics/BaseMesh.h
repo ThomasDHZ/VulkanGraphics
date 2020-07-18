@@ -5,6 +5,7 @@
 #include "Vertex.h"
 #include "Texture2D.h"
 #include "CubeMapTexture.h"
+#include "VulkanResources.h"
 
 struct PositionMatrix
 {

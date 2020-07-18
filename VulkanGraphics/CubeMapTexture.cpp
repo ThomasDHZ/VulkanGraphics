@@ -6,7 +6,7 @@ CubeMapTexture::CubeMapTexture() : Texture()
 {
 }
 
-CubeMapTexture::CubeMapTexture(Renderer& renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, TextureType::vkTextureCube)
+CubeMapTexture::CubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, TextureType::vkTextureCube)
 {
 	SetUpCubeMapImage(renderer, CubeMapFiles);
 	CreateImageView(renderer);
@@ -17,7 +17,7 @@ CubeMapTexture::~CubeMapTexture()
 {
 }
 
-void CubeMapTexture::SetUpCubeMapImage(Renderer& renderer, CubeMapLayout CubeMapFiles)
+void CubeMapTexture::SetUpCubeMapImage(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles)
 {
 	std::vector<unsigned char*> textureData;
 	int texChannels;
@@ -34,17 +34,17 @@ void CubeMapTexture::SetUpCubeMapImage(Renderer& renderer, CubeMapLayout CubeMap
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(renderer.Device, renderer.PhysicalDevice, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	void* data;
-	vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(renderer.Device, stagingBufferMemory, 0, imageSize, 0, &data);
 
 	for (int i = 0; i < 6; ++i)
 	{
 		memcpy(static_cast<char*>(data) + (i * layerSize), textureData[i], static_cast<size_t>(layerSize));
 	}
 
-	vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
+	vkUnmapMemory(renderer.Device, stagingBufferMemory);
 
 	CreateImage(renderer);
 
@@ -52,11 +52,11 @@ void CubeMapTexture::SetUpCubeMapImage(Renderer& renderer, CubeMapLayout CubeMap
 	CopyBufferToImage(renderer, stagingBuffer);
 	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
-	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
+	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
-void CubeMapTexture::CreateTextureSampler(Renderer& renderer)
+void CubeMapTexture::CreateTextureSampler(VulkanRenderer& renderer)
 {
 	VkSamplerCreateInfo SamplerInfo = {};
 	SamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
