@@ -20,4 +20,3 @@ public:
 	void Destroy(Renderer& renderer);
 	VkBuffer GetUniformBuffer(int currentImage) { return UniformBuffers[currentImage]; };
 };
-

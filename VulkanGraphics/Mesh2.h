@@ -3,9 +3,12 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include "NewTexture.h"
 #include "Vertex.h"
 #include "VulkanBufferManager.h"
+#include "Texture2.h"
+#include "NewVulkanBufferManager.h"
+#include "VulkanUniformBuffer.h"
+
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 model;
@@ -13,14 +16,12 @@ struct UniformBufferObject {
     alignas(16) glm::mat4 proj;
 };
 
-struct Mesh2
+class BaseMesh2
 {
+protected:
+    VulkanUniformBuffer uniformBuffer;
 
-    VkDevice device;
-    VkPhysicalDevice physicalDevice;
-    VkCommandPool commandPool;
-    VkQueue graphicsQueue;
-    std::vector<VkImage> swapChainImages;
+public:
 
     VkBuffer VertexBuffer;
     VkDeviceMemory VertexBufferMemory;
@@ -28,133 +29,157 @@ struct Mesh2
     VkBuffer IndexBuffer;
     VkDeviceMemory IndexBufferMemory;
 
-    std::vector<VkBuffer> UniformBuffers;
-    std::vector<VkDeviceMemory> UniformBuffersMemory;
-
     VkDescriptorPool DescriptorPool;
     std::vector<VkDescriptorSet> DescriptorSets;
 
-    NewTexture texture;
+    Texture2 texture;
     int IndexSize;
     int VertexSize;
-    Mesh2()
-    {}
 
-    Mesh2(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, std::vector<VkImage> SwapChainImages, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, NewTexture tex, VkDescriptorSetLayout& descriptorSetLayout)
+    BaseMesh2()
     {
-        texture = tex;
-        device = Device;
-        physicalDevice = PhysicalDevice;
-        commandPool = CommandPool;
-        graphicsQueue = GraphicsQueue;
-        swapChainImages = SwapChainImages;
-
-        VertexSize = vertexdata.size();
-        IndexSize = indicesdata.size();
-
-        createVertexBuffer(vertexdata);
-        createIndexBuffer(indicesdata);
-        createUniformBuffers();
-        createDescriptorPool();
-        createDescriptorSets(descriptorSetLayout);
     }
 
-    void createVertexBuffer(std::vector<Vertex> vertexdata) {
+    ~BaseMesh2()
+    {
+    }
+
+    void createVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex> vertexdata) {
         VkDeviceSize bufferSize = sizeof(vertexdata[0]) * vertexdata.size();
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
-        VulkanBufferManager::CreateBuffer(device, physicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        NewVulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
         void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        vkMapMemory(renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, vertexdata.data(), (size_t)bufferSize);
-        vkUnmapMemory(device, stagingBufferMemory);
+        vkUnmapMemory(renderer.Device, stagingBufferMemory);
 
-        VulkanBufferManager::CreateBuffer(device, physicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
+        NewVulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
 
-        VulkanBufferManager::CopyBuffer(device, physicalDevice, stagingBuffer, VertexBuffer, bufferSize, commandPool, graphicsQueue);
+        NewVulkanBufferManager::CopyBuffer(renderer, stagingBuffer, VertexBuffer, bufferSize);
 
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
+        vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
+        vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
     }
 
-    void createIndexBuffer(std::vector<uint16_t> indicesdata) {
+    void createIndexBuffer(VulkanRenderer& renderer, std::vector<uint16_t> indicesdata) {
         VkDeviceSize bufferSize = sizeof(indicesdata[0]) * indicesdata.size();
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
-        VulkanBufferManager::CreateBuffer(device, physicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        NewVulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
         void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+        vkMapMemory(renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, indicesdata.data(), (size_t)bufferSize);
-        vkUnmapMemory(device, stagingBufferMemory);
+        vkUnmapMemory(renderer.Device, stagingBufferMemory);
 
-        VulkanBufferManager::CreateBuffer(device, physicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, IndexBuffer, IndexBufferMemory);
+        NewVulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, IndexBuffer, IndexBufferMemory);
 
-        VulkanBufferManager::CopyBuffer(device, physicalDevice, stagingBuffer, IndexBuffer, bufferSize, commandPool, graphicsQueue);
+        NewVulkanBufferManager::CopyBuffer(renderer, stagingBuffer, IndexBuffer, bufferSize);
 
-        vkDestroyBuffer(device, stagingBuffer, nullptr);
-        vkFreeMemory(device, stagingBufferMemory, nullptr);
+        vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
+        vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
     }
 
-    void createUniformBuffers() {
-        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+    void Destory(VulkanRenderer& renderer)
+    {
+        if (VertexSize != 0)
+        {
+            vkDestroyDescriptorPool(renderer.Device, DescriptorPool, nullptr);
+            vkDestroyBuffer(renderer.Device, VertexBuffer, nullptr);
+            vkFreeMemory(renderer.Device, VertexBufferMemory, nullptr);
 
-        UniformBuffers.resize(swapChainImages.size());
-        UniformBuffersMemory.resize(swapChainImages.size());
+            DescriptorPool = VK_NULL_HANDLE;
+            VertexBuffer = VK_NULL_HANDLE;
+            VertexBufferMemory = VK_NULL_HANDLE;
+        }
 
-        for (size_t i = 0; i < swapChainImages.size(); i++) {
-            VulkanBufferManager::CreateBuffer(device, physicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, UniformBuffers[i], UniformBuffersMemory[i]);
+        if (IndexSize != 0)
+        {
+            vkDestroyBuffer(renderer.Device, IndexBuffer, nullptr);
+            vkFreeMemory(renderer.Device, IndexBufferMemory, nullptr);
+
+            IndexBuffer = VK_NULL_HANDLE;
+            IndexBufferMemory = VK_NULL_HANDLE;
         }
     }
+};
 
-    void createDescriptorPool() {
+class Mesh2 : public BaseMesh2
+{
+public:
+
+    Mesh2()
+    {}
+
+    Mesh2(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture2 tex, VkDescriptorSetLayout& descriptorSetLayout)
+    {
+        texture = tex;
+
+        VertexSize = vertexdata.size();
+        IndexSize = indicesdata.size();
+
+        createVertexBuffer(renderer, vertexdata);
+        createIndexBuffer(renderer, indicesdata);
+        createUniformBuffers(renderer);
+        createDescriptorPool(renderer);
+        createDescriptorSets(renderer, descriptorSetLayout);
+    }
+
+    void createUniformBuffers(VulkanRenderer& renderer)
+    {
+        uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
+    }
+
+    void createDescriptorPool(VulkanRenderer& renderer) {
         std::array<VkDescriptorPoolSize, 7> poolSizes{};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+        poolSizes[0].descriptorCount = static_cast<uint32_t>(renderer.SwapChain.GetSwapChainImageCount());
         poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+        poolSizes[1].descriptorCount = static_cast<uint32_t>(renderer.SwapChain.GetSwapChainImageCount());
         poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[2].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+        poolSizes[2].descriptorCount = static_cast<uint32_t>(renderer.SwapChain.GetSwapChainImageCount());
         poolSizes[3].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[3].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+        poolSizes[3].descriptorCount = static_cast<uint32_t>(renderer.SwapChain.GetSwapChainImageCount());
         poolSizes[4].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[4].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+        poolSizes[4].descriptorCount = static_cast<uint32_t>(renderer.SwapChain.GetSwapChainImageCount());
         poolSizes[5].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[5].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+        poolSizes[5].descriptorCount = static_cast<uint32_t>(renderer.SwapChain.GetSwapChainImageCount());
         poolSizes[6].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        poolSizes[6].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
+        poolSizes[6].descriptorCount = static_cast<uint32_t>(renderer.SwapChain.GetSwapChainImageCount());
 
         VkDescriptorPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
         poolInfo.pPoolSizes = poolSizes.data();
-        poolInfo.maxSets = static_cast<uint32_t>(swapChainImages.size());
+        poolInfo.maxSets = static_cast<uint32_t>(renderer.SwapChain.GetSwapChainImageCount());
 
-        if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &DescriptorPool) != VK_SUCCESS) {
+        if (vkCreateDescriptorPool(renderer.Device, &poolInfo, nullptr, &DescriptorPool) != VK_SUCCESS) {
             throw std::runtime_error("failed to create descriptor pool!");
         }
     }
 
-    void createDescriptorSets(VkDescriptorSetLayout& descriptorSetLayout)
+    void createDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout)
     {
-        std::vector<VkDescriptorSetLayout> layouts(swapChainImages.size(), descriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> layouts(renderer.SwapChain.GetSwapChainImageCount(), descriptorSetLayout);
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = DescriptorPool;
-        allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size());
+        allocInfo.descriptorSetCount = static_cast<uint32_t>(renderer.SwapChain.GetSwapChainImageCount());
         allocInfo.pSetLayouts = layouts.data();
 
-        DescriptorSets.resize(swapChainImages.size());
-        if (vkAllocateDescriptorSets(device, &allocInfo, DescriptorSets.data()) != VK_SUCCESS) {
+        DescriptorSets.resize(renderer.SwapChain.GetSwapChainImageCount());
+        if (vkAllocateDescriptorSets(renderer.Device, &allocInfo, DescriptorSets.data()) != VK_SUCCESS) {
             throw std::runtime_error("failed to allocate descriptor sets!");
         }
 
-        for (size_t i = 0; i < swapChainImages.size(); i++) {
+        for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
+        {
             VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = UniformBuffers[i];
+            bufferInfo.buffer = uniformBuffer.GetUniformBuffer(i);
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(UniformBufferObject);
 
@@ -181,15 +206,26 @@ struct Mesh2
             descriptorWrites[1].descriptorCount = 1;
             descriptorWrites[1].pImageInfo = &imageInfo;
 
-            vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+            vkUpdateDescriptorSets(renderer.Device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
         }
     }
 
-    void Update(VkDescriptorSetLayout& descriptorSetLayout)
+    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo)
     {
-        createUniformBuffers();
-        createDescriptorPool();
-        createDescriptorSets(descriptorSetLayout);
+        uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
+    }
+
+    void Update(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout)
+    {
+        createUniformBuffers(renderer);
+        createDescriptorPool(renderer);
+        createDescriptorSets(renderer, descriptorSetLayout);
+    }
+
+    void Destory(VulkanRenderer& renderer)
+    {
+        uniformBuffer.Destroy(renderer);
+        BaseMesh2::Destory(renderer);
     }
 };
 

@@ -234,7 +234,10 @@
     <ClCompile Include="Mesh2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NewTexture.cpp">
+    <ClCompile Include="NewTexture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanUniformBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -508,7 +511,13 @@
     <ClInclude Include="Mesh2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NewTexture.h">
+    <ClInclude Include="NewTexture2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NewVulkanBufferManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanUniformBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,6 +8,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include "NewTexture2D.h"
 
 VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
@@ -16,9 +17,6 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
 	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
-
-	//framebuffer = FrameBufferMesh(renderer.Device, renderer.PhysicalDevice, renderer.MainCommandPool, renderer.GraphicsQueue, renderer.SwapChain.GetSwapChainResolution(), renderer.RenderPass, renderer.HDRColorAttachment, renderer.DepthAttachment, renderer.FrameBufferPipeline.ShaderPipelineDescriptorLayout, renderer.SwapChain.GetSwapChainImageCount());
-	//rendereredTexture = EngineRenderedTexture(renderer, VK_FORMAT_R32G32B32A32_SFLOAT, renderer.SwapChain.GetSwapChainResolution());
 
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
@@ -35,11 +33,12 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	maps.AlphaMap = Texture2D(renderer, "texture/Temp.bmp");
 	maps.CubeMap = CubeMapTexture(renderer, layout);
 
-
+	auto a = NewTexture2D(renderer.Device, renderer.PhysicalDevice, renderer.RenderCommandPool, renderer.GraphicsQueue, "texture/zxc_diffuseOriginal.bmp");
 
 	Skybox = SkyBox(renderer, maps.CubeMap);
-	MeshList.emplace_back(Mesh(renderer, quadvertices, quadindices, maps));
-	MeshList.emplace_back(Mesh(renderer, quadvertices, quadindices, renderer.textureRenderer.ColorTexture));
+	auto an = static_cast<VulkanRenderer>(renderer);
+	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, a, renderer.forwardRenderer.DescriptorSetLayout));
+	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.DescriptorSetLayout));
 
 	//	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
@@ -59,20 +58,41 @@ VulkanGraphics::~VulkanGraphics()
 
 	for (auto mesh : MeshList)
 	{
-		mesh.Destroy(renderer);
+		auto an = static_cast<VulkanRenderer>(renderer);
+		mesh.Destory(an);
 	}
 	lightManager.Destroy(renderer);
 	
 	Skybox.Destory(renderer);
 
-	//framebuffer.Destory(renderer.Device);
-
 	renderer.DestoryVulkan();
 	Window.CleanUp();
 }
 
+void VulkanGraphics::UpdateImGUI()
+{
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	{
+
+		ImGui::Begin("Settings");
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
+		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
+		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
+		ImGui::End();
+	}
+
+	ImGui::Render();
+}
+
 void VulkanGraphics::Update(uint32_t DrawFrame)
 {
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 	light.directionalLight.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 	light.directionalLight.Ambient = glm::vec3(0.005f, 0.005f, 0.005f);
@@ -97,58 +117,37 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	light.spotLight.OuterCutOff = glm::cos(glm::radians(15.0f));
 	light.viewPos = camera.Position;
 
-	MeshList[1].MeshPosition = glm::vec3(5.0f, 0.0f, 0.0f);
-	for (auto mesh : MeshList)
-	{
-		mesh.Update(renderer, camera, light);
-	}
+	//MeshList[1].MeshPosition = glm::vec3(5.0f, 0.0f, 0.0f);
+	//for (auto mesh : MeshList)
+	//{
+	//	mesh.Update(renderer, camera, light);
+	//}
 	for (auto model : ModelList)
 	{
 		model.UpdateUniformBuffer(renderer, camera, light);
 	}
 	Skybox.UpdateUniformBuffer(renderer, camera);
-}
 
-void VulkanGraphics::UpdateCommandBuffers(uint32_t DrawFrame)
-{
-	if (renderer.UpdateCommandBuffers)
+	auto an = static_cast<VulkanRenderer>(renderer);
 	{
+		UniformBufferObject ubo{};
+		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.proj = glm::perspective(glm::radians(45.0f), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10.0f);
+		ubo.proj[1][1] *= -1;
 
-		//for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
-		//{
-		//	VkCommandBufferInheritanceInfo InheritanceInfo = {};
-		//	InheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-		//	InheritanceInfo.renderPass = *GetRenderPass(renderer);
-		//	InheritanceInfo.framebuffer = renderer.SwapChainFramebuffers[i];
+		MeshList[0].UpdateUniformBuffer(an, ubo);
+	}
+	{
+		UniformBufferObject ubo{};
+		ubo.model = glm::mat4(1.0f);
+		ubo.model = glm::translate(ubo.model, glm::vec3(-2.5f, 0.0f, 0.0f));
+		// ubo.model = glm::rotate(ubo.model, time * glm::radians(90.0f), glm::vec3(-0.5f, 0.5f, 0.5f));
+		ubo.view = camera.GetViewMatrix();
+		ubo.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10000.0f);
+		ubo.proj[1][1] *= -1;
 
-		//	VkCommandBufferBeginInfo BeginSecondaryCommandBuffer = {};
-		//	BeginSecondaryCommandBuffer.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		//	BeginSecondaryCommandBuffer.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
-		//	BeginSecondaryCommandBuffer.pInheritanceInfo = &InheritanceInfo;
-
-		//	vkBeginCommandBuffer(renderer.SecondaryCommandBuffers[i], &BeginSecondaryCommandBuffer);
-		//	for (auto mesh : MeshList)
-		//	{
-		//		mesh.Draw(renderer, i);
-		//	}
-		//	for (auto model : ModelList)
-		//	{
-		//		model.Draw(renderer, i);
-		//	}
-		//	if (renderer.Settings.ShowDebugLightMesh)
-		//	{
-		//		lightManager.DrawDebugMesh(renderer, i);
-		//	}
-		//	if (renderer.Settings.ShowSkyBox)
-		//	{
-		//		Skybox.Draw(renderer, i);
-		//	}
-		//	if (vkEndCommandBuffer(renderer.SecondaryCommandBuffers[i]) != VK_SUCCESS) {
-		//		throw std::runtime_error("failed to record command buffer!");
-		//	}
-		//}
-
-		renderer.UpdateCommandBuffers = false;
+		MeshList[1].UpdateUniformBuffer(an, ubo);
 	}
 }
 
@@ -165,157 +164,17 @@ void VulkanGraphics::MainLoop()
 		Window.Update();
 		mouse.Update(Window.GetWindowPtr(), camera, renderer.Settings);
 		keyboard.Update(Window.GetWindowPtr(), camera, renderer.Settings);
+		UpdateImGUI();
 		Update(renderer.DrawFrame);
-		UpdateCommandBuffers(renderer.DrawFrame);
+		renderer.Draw(Window.GetWindowPtr(), MeshList);
+		//{
+//	VkBuffer vertexBuffers[] = { Skybox.vertexBuffer };
+//	VkDeviceSize offsets[] = { 0 };
 
-
-
-		ImGui_ImplVulkan_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		{
-
-			ImGui::Begin("Settings");
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
-			ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
-			ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
-			ImGui::End();
-		}
-	
-		ImGui::Render();
-		auto DrawFrame = renderer.DrawStart(Window.GetWindowPtr());
-
-		VkCommandBufferBeginInfo CommandBufferInfo = {};
-		CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-		if (vkBeginCommandBuffer(renderer.RenderCommandBuffer[DrawFrame], &CommandBufferInfo) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to begin recording command buffer!");
-		}
-		{
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-			clearValues[1].depthStencil = { 1.0f, 0 };
-
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderer.textureRenderer.RenderPass;
-			renderPassInfo.framebuffer = renderer.textureRenderer.swapChainFramebuffers[DrawFrame];
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = renderer.SwapChain.GetSwapChainResolution();
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
-
-			vkCmdBeginRenderPass(renderer.RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-			{
-				VkBuffer vertexBuffers[] = { MeshList[0].vertexBuffer };
-				VkDeviceSize offsets[] = { 0 };
-
-				vkCmdBindPipeline(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.textureRenderer.RendererPipeline);
-				vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-				vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, renderer.textureRenderer.RendererLayout, 0, 1, &MeshList[0].descriptorSets[DrawFrame], 0, nullptr);
-				if (MeshList[0].IndiceSize == 0)
-				{
-					vkCmdDraw(renderer.RenderCommandBuffer[DrawFrame], MeshList[0].VertexSize, 1, 0, 0);
-				}
-				else
-				{
-					vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[DrawFrame], MeshList[0].indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-					vkCmdDrawIndexed(renderer.RenderCommandBuffer[DrawFrame], static_cast<uint32_t>(MeshList[0].IndiceSize), 1, 0, 0, 0);
-				}
-				//{
-				//	VkBuffer vertexBuffers[] = { Skybox.vertexBuffer };
-				//	VkDeviceSize offsets[] = { 0 };
-
-				//	vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
-				//	vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-				//	vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &Skybox.descriptorSets[DrawFrame], 0, nullptr);
-				//	vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], Skybox.VertexSize, 1, 0, 0);
-				//}
-			}
-			vkCmdEndRenderPass(renderer.RenderCommandBuffer[DrawFrame]);
-		}
-		{
-			std::array<VkClearValue, 2> clearValues = {};
-			clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-			clearValues[1].depthStencil = { 1.0f, 0 };
-
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderer.forwardRenderer.RenderPass;
-			renderPassInfo.framebuffer = renderer.forwardRenderer.swapChainFramebuffers[DrawFrame];
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = renderer.SwapChain.GetSwapChainResolution();
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
-
-			vkCmdBeginRenderPass(renderer.RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-			{
-				VkBuffer vertexBuffers[] = { MeshList[0].vertexBuffer };
-				VkDeviceSize offsets[] = { 0 };
-
-				vkCmdBindPipeline(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(renderer));
-				vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-				vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &MeshList[0].descriptorSets[DrawFrame], 0, nullptr);
-				if (MeshList[0].IndiceSize == 0)
-				{
-					vkCmdDraw(renderer.RenderCommandBuffer[DrawFrame], MeshList[0].VertexSize, 1, 0, 0);
-				}
-				else
-				{
-					vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[DrawFrame], MeshList[0].indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-					vkCmdDrawIndexed(renderer.RenderCommandBuffer[DrawFrame], static_cast<uint32_t>(MeshList[0].IndiceSize), 1, 0, 0, 0);
-				}
-
-				VkBuffer vertexBuffers2[] = { MeshList[1].vertexBuffer };
-				VkDeviceSize offsets2[] = { 0 };
-
-				vkCmdBindPipeline(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(renderer));
-				vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[DrawFrame], 0, 1, vertexBuffers2, offsets2);
-				vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &MeshList[1].descriptorSets[DrawFrame], 0, nullptr);
-				if (MeshList[0].IndiceSize == 0)
-				{
-					vkCmdDraw(renderer.RenderCommandBuffer[DrawFrame], MeshList[1].VertexSize, 1, 0, 0);
-				}
-				else
-				{
-					vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[DrawFrame], MeshList[1].indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-					vkCmdDrawIndexed(renderer.RenderCommandBuffer[DrawFrame], static_cast<uint32_t>(MeshList[1].IndiceSize), 1, 0, 0, 0);
-				}
-			}
-			{
-		/*		VkBuffer vertexBuffers[] = { QuadMesh.vertexBuffer };
-				VkDeviceSize offsets[] = { 0 };
-
-				vkCmdBindPipeline(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipeline(renderer));
-				vkCmdBindVertexBuffers(renderer.MainCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-				vkCmdBindDescriptorSets(renderer.MainCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetShaderPipelineLayout(renderer), 0, 1, &QuadMesh.descriptorSets[DrawFrame], 0, nullptr);
-				if (QuadMesh.IndiceSize == 0)
-				{
-					vkCmdDraw(renderer.MainCommandBuffer[DrawFrame], QuadMesh.VertexSize, 1, 0, 0);
-				}
-				else
-				{
-					vkCmdBindIndexBuffer(renderer.MainCommandBuffer[DrawFrame], QuadMesh.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-					vkCmdDrawIndexed(renderer.MainCommandBuffer[DrawFrame], static_cast<uint32_t>(QuadMesh.IndiceSize), 1, 0, 0, 0);
-				}*/
-			}
-			{
-				VkBuffer vertexBuffers[] = { Skybox.vertexBuffer };
-				VkDeviceSize offsets[] = { 0 };
-
-				vkCmdBindPipeline(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
-				vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-				vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &Skybox.descriptorSets[DrawFrame], 0, nullptr);
-				vkCmdDraw(renderer.RenderCommandBuffer[DrawFrame], Skybox.VertexSize, 1, 0, 0);
-			}
-		}
-
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer.RenderCommandBuffer[DrawFrame]);
-		vkCmdEndRenderPass(renderer.RenderCommandBuffer[DrawFrame]);
-		vkEndCommandBuffer(renderer.RenderCommandBuffer[DrawFrame]);
-
-		renderer.DrawEnd(Window.GetWindowPtr(), DrawFrame);
+//	vkCmdBindPipeline(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
+//	vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
+//	vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &Skybox.descriptorSets[DrawFrame], 0, nullptr);
+//	vkCmdDraw(renderer.RenderCommandBuffer[DrawFrame], Skybox.VertexSize, 1, 0, 0);
+//}
 	}
 }

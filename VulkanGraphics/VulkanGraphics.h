@@ -97,11 +97,11 @@ private:
 
 	SkyBox Skybox;
 
-	std::vector<Mesh> MeshList;
+	std::vector<Mesh2> MeshList;
 	std::vector<Model> ModelList;
 
+    void UpdateImGUI();
 	void Update(uint32_t DrawFrame);
-	void UpdateCommandBuffers(uint32_t DrawFrame);
 
 public:
 	VulkanGraphics(int Width, int Height, const char* AppName);

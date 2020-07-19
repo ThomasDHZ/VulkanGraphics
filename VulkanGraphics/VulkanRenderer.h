@@ -51,24 +51,12 @@ protected:
 			ImageAcquiredSemaphore = VK_NULL_HANDLE;
 		}
 	};
-
-	VkInstance Instance = VK_NULL_HANDLE;
-	VkDevice Device = VK_NULL_HANDLE;
-	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
-	VkSurfaceKHR Surface = VK_NULL_HANDLE;
-	VkQueue GraphicsQueue = VK_NULL_HANDLE;
-	VkQueue PresentQueue = VK_NULL_HANDLE;
-
 	VulkanDebugger VulkanDebug;
 
 	int GraphicsFamily = -1;
 	int PresentFamily = -1;
 
 	std::vector<VkLayerProperties> VulkanLayers;
-
-	VkCommandPool RenderCommandPool;
-	std::vector<VkCommandBuffer> RenderCommandBuffer;
-
 	std::vector<VulkanSemaphores> vulkanSemaphores;
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
@@ -83,8 +71,6 @@ protected:
 
 	void FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface);
 
-
-	VulkanSwapChain SwapChain;
 	void InitializeCommandBuffers();
 	void InitializeSyncObjects();
 
@@ -93,5 +79,19 @@ public:
 	VulkanRenderer();
 	VulkanRenderer(GLFWwindow* window);
 	~VulkanRenderer();
+
+	VkInstance Instance = VK_NULL_HANDLE;
+	VkDevice Device = VK_NULL_HANDLE;
+	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
+	VkSurfaceKHR Surface = VK_NULL_HANDLE;
+	VkQueue GraphicsQueue = VK_NULL_HANDLE;
+	VkQueue PresentQueue = VK_NULL_HANDLE;
+
+	VulkanSwapChain SwapChain;
+
+	VkCommandPool RenderCommandPool;
+	std::vector<VkCommandBuffer> RenderCommandBuffer;
+
+	uint32_t DrawFrame = 0;
 };
 

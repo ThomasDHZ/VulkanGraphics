@@ -111,7 +111,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	UpdateCommandBuffers = true;
 }
 
-uint32_t Renderer::DrawStart(GLFWwindow* window)
+uint32_t Renderer::Draw(GLFWwindow* window, std::vector<Mesh2>& MeshList)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -130,11 +130,20 @@ uint32_t Renderer::DrawStart(GLFWwindow* window)
 	}
 	imagesInFlight[DrawFrame] = inFlightFences[currentFrame];
 
-	return DrawFrame;
-}
+	VkCommandBufferBeginInfo CommandBufferInfo = {};
+	CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-void Renderer::DrawEnd(GLFWwindow* window, uint32_t drawFrame)
-{
+	if (vkBeginCommandBuffer(RenderCommandBuffer[DrawFrame], &CommandBufferInfo) != VK_SUCCESS) {
+		throw std::runtime_error("failed to begin recording command buffer!");
+	}
+
+	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[0]);
+	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList);
+
+	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
+		throw std::runtime_error("failed to record command buffer!");
+	}
+
 	VkSemaphore waitSemaphores[] = { vulkanSemaphores[currentFrame].ImageAcquiredSemaphore };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	VkSemaphore signalSemaphores[] = { vulkanSemaphores[currentFrame].RenderCompleteSemaphore };
@@ -165,7 +174,7 @@ void Renderer::DrawEnd(GLFWwindow* window, uint32_t drawFrame)
 	presentInfo.pSwapchains = swapChains;
 	presentInfo.pImageIndices = &DrawFrame;
 
-	VkResult result = vkQueuePresentKHR(PresentQueue, &presentInfo);
+	result = vkQueuePresentKHR(PresentQueue, &presentInfo);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
 	{

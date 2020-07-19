@@ -13,6 +13,7 @@
 #include "GUIDebugger.h"
 #include "ForwardRenderer.h"
 #include "TextureRenderer.h"
+#include "Mesh2.h"
 
 class Renderer : public VulkanRenderer
 {
@@ -44,8 +45,7 @@ protected:
 	GUIDebugger guiDebugger;
 
 	void UpdateSwapChain(GLFWwindow* window);
-	uint32_t DrawStart(GLFWwindow* window);
-	void DrawEnd(GLFWwindow* window, uint32_t drawFrame);
+	uint32_t Draw(GLFWwindow* window, std::vector<Mesh2>& MeshList);
 	void DestoryVulkan();
 
 	bool UpdateCommandBuffers = true;
@@ -57,5 +57,5 @@ public:
 	~Renderer();
 
 	VulkanRendererSettings Settings;
-	uint32_t DrawFrame = 0;
+
 };
