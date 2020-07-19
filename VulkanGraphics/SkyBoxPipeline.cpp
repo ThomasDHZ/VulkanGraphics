@@ -2,6 +2,7 @@
 #include <array>
 #include "Mesh.h"
 #include "Skybox.h"
+#include "Vertex.h"
 
 SkyBoxPipeline::SkyBoxPipeline() : GraphicsPipeline()
 {

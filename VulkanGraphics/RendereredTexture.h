@@ -1,6 +1,6 @@
 #pragma once
 #include "Texture2.h"
-#include "VulkanRenderer.h"
+
 class RendereredTexture : public Texture2
 {
 private:

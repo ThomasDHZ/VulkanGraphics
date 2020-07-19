@@ -1,95 +1,95 @@
-#include "Sprite.h"
-
-Sprite::Sprite()
-{
-}
-
-Sprite::Sprite(Renderer& renderer, float Width, float Height, TextureMaps spriteMaps, glm::vec2 StartPos, SpriteType type)
-{
-	const std::vector<Vertex> MegaManVertices =
-	{
-		{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.064f, 0.0f}},
-		{{Width, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		{{Width, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{0.0f, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.064f, 1.0f}}
-	};
-
-	const std::vector<uint16_t> MegaManIndices =
-	{
-		  0, 1, 2, 2, 3, 0
-	};
-
-	Type = type;
-	SpriteMaps = spriteMaps;
-	SpriteMesh = Mesh(renderer, MegaManVertices, MegaManIndices, SpriteMaps);
-	SetPosition2D(StartPos);
-}
-
-Sprite::Sprite(Renderer& renderer, float Width, float Height, TextureMaps spriteMaps, glm::vec3 StartPos, SpriteType type)
-{
-	const std::vector<Vertex> MegaManVertices =
-	{
-		{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-		{{Width, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-		{{Width, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{0.0f, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}
-	};
-
-	const std::vector<uint16_t> MegaManIndices =
-	{
-		  0, 1, 2, 2, 3, 0
-	};
-
-	Type = type;
-	SpriteMaps = spriteMaps;
-	SpriteMesh = Mesh(renderer, MegaManVertices, MegaManIndices, SpriteMaps);
-	SetPosition2D(StartPos);
-}
-
-Sprite::~Sprite()
-{
-}
-
-void Sprite::Update(Renderer& renderer, Camera& camera, Lights light)
-{
-	//CurrentAni.Update();
-	//SpriteMesh.properites.SpriteUV = glm::vec2(CurrentAni.GetCurrentFrame());
-
-	SpriteMesh.Update(renderer, camera, light);
-}
-
-void Sprite::Draw(Renderer& renderer, int currentFrame)
-{
-	SpriteMesh.Draw(renderer, currentFrame);
-}
-
-void Sprite::Destory(Renderer& renderer)
-{
-	SpriteMaps.DiffuseMap.Destroy(renderer);
-	SpriteMaps.SpecularMap.Destroy(renderer);
-	SpriteMaps.NormalMap.Destroy(renderer);
-	SpriteMaps.DisplacementMap.Destroy(renderer);
-	SpriteMaps.AlphaMap.Destroy(renderer);
-	SpriteMaps.CubeMap.Destroy(renderer);
-	SpriteMesh.Destroy(renderer);
-}
-
-void Sprite::SetPosition2D(glm::vec2 Pos)
-{
-	SpriteMesh.MeshPosition = glm::vec3(Pos, 0.0f);
-}
-
-void Sprite::SetPosition2D(float x, float y)
-{
-	SpriteMesh.MeshPosition = glm::vec3(x, y, 0.0f);
-}
-
-void Sprite::SetPosition3D(glm::vec3 Pos)
-{
-	SpriteMesh.MeshPosition = Pos;
-}
-
-void Sprite::SetPosition3D(float x, float y, float z)
-{
-	SpriteMesh.MeshPosition = glm::vec3(x, y, z);
-}
+//#include "Sprite.h"
+//
+//Sprite::Sprite()
+//{
+//}
+//
+//Sprite::Sprite(Renderer& renderer, float Width, float Height, TextureMaps spriteMaps, glm::vec2 StartPos, SpriteType type)
+//{
+//	const std::vector<Vertex> MegaManVertices =
+//	{
+//		{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.064f, 0.0f}},
+//		{{Width, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+//		{{Width, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+//		{{0.0f, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.064f, 1.0f}}
+//	};
+//
+//	const std::vector<uint16_t> MegaManIndices =
+//	{
+//		  0, 1, 2, 2, 3, 0
+//	};
+//
+//	Type = type;
+//	SpriteMaps = spriteMaps;
+//	SpriteMesh = Mesh(renderer, MegaManVertices, MegaManIndices, SpriteMaps);
+//	SetPosition2D(StartPos);
+//}
+//
+//Sprite::Sprite(Renderer& renderer, float Width, float Height, TextureMaps spriteMaps, glm::vec3 StartPos, SpriteType type)
+//{
+//	const std::vector<Vertex> MegaManVertices =
+//	{
+//		{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+//		{{Width, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+//		{{Width, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+//		{{0.0f, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}
+//	};
+//
+//	const std::vector<uint16_t> MegaManIndices =
+//	{
+//		  0, 1, 2, 2, 3, 0
+//	};
+//
+//	Type = type;
+//	SpriteMaps = spriteMaps;
+//	SpriteMesh = Mesh(renderer, MegaManVertices, MegaManIndices, SpriteMaps);
+//	SetPosition2D(StartPos);
+//}
+//
+//Sprite::~Sprite()
+//{
+//}
+//
+//void Sprite::Update(Renderer& renderer, Camera& camera, Lights light)
+//{
+//	//CurrentAni.Update();
+//	//SpriteMesh.properites.SpriteUV = glm::vec2(CurrentAni.GetCurrentFrame());
+//
+//	SpriteMesh.Update(renderer, camera, light);
+//}
+//
+//void Sprite::Draw(Renderer& renderer, int currentFrame)
+//{
+//	SpriteMesh.Draw(renderer, currentFrame);
+//}
+//
+//void Sprite::Destory(Renderer& renderer)
+//{
+//	SpriteMaps.DiffuseMap.Destroy(renderer);
+//	SpriteMaps.SpecularMap.Destroy(renderer);
+//	SpriteMaps.NormalMap.Destroy(renderer);
+//	SpriteMaps.DisplacementMap.Destroy(renderer);
+//	SpriteMaps.AlphaMap.Destroy(renderer);
+//	SpriteMaps.CubeMap.Destroy(renderer);
+//	SpriteMesh.Destroy(renderer);
+//}
+//
+//void Sprite::SetPosition2D(glm::vec2 Pos)
+//{
+//	SpriteMesh.MeshPosition = glm::vec3(Pos, 0.0f);
+//}
+//
+//void Sprite::SetPosition2D(float x, float y)
+//{
+//	SpriteMesh.MeshPosition = glm::vec3(x, y, 0.0f);
+//}
+//
+//void Sprite::SetPosition3D(glm::vec3 Pos)
+//{
+//	SpriteMesh.MeshPosition = Pos;
+//}
+//
+//void Sprite::SetPosition3D(float x, float y, float z)
+//{
+//	SpriteMesh.MeshPosition = glm::vec3(x, y, z);
+//}

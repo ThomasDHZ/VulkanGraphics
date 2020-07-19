@@ -99,6 +99,17 @@ void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int fr
     vkCmdEndRenderPass(commandBuffer);
 }
 
+//void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, SkyBoxMesh mesh)
+//{
+//    VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
+//	VkDeviceSize offsets[] = { 0 };
+//
+//	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, SkyboxPipeline.RendererPipeline);
+//	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+//	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, SkyboxPipeline.RendererLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
+//	vkCmdDraw(commandBuffer, mesh.VertexSize, 1, 0, 0);
+//}
+
 void RendererBase::Destroy(VkDevice Device)
 {
     vkDestroyPipeline(Device, RendererPipeline, nullptr);

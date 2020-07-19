@@ -1,79 +1,35 @@
-#pragma once
-#include <vulkan\vulkan_core.h>
-#include <vector>
+#include "Texture2.h"
+#include "NewVulkanBufferManager.h"
+#include "VulkanUniformBuffer.h"
 #include "Structs.h"
 #include "Vertex.h"
-#include "Texture2D.h"
-#include "CubeMapTexture.h"
 
-struct PositionMatrix
-{
-	alignas(16) glm::mat4 model;
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 proj;
-	alignas(4) float timer;
-};
-
-struct TextureFlags
-{
-	alignas(4) int DiffuseMapFlag;
-	alignas(4) int SpecularMapFlag;
-	alignas(4) int NormalMapFlag;
-	alignas(4) int DisplacementMapFlag;
-	alignas(4) int AlphaMapFlag;
-	alignas(4) int CubeMapFlag;
-};
-
-struct TextureMaps
-{
-	Texture2D DiffuseMap;
-	Texture2D SpecularMap;
-	Texture2D NormalMap;
-	Texture2D DisplacementMap;
-	Texture2D AlphaMap;
-	Texture2D EmissionMap;
-	CubeMapTexture CubeMap;
-};
-
-class BaseMesh : public VulkanResources
+class BaseMesh
 {
 private:
-
 protected:
-
-	void CreateVertexBuffer(Renderer& renderer);
-	void CreateIndiceBuffer(Renderer& renderer);
-	void CreateDescriptorPool(Renderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
-	void CreateDescriptorSets(Renderer& renderer, VkDescriptorSetLayout layout);
-	void CreateDescriptorSetsData(Renderer& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
-
+    void CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex> vertexdata);
+    void CreateIndexBuffer(VulkanRenderer& renderer, std::vector<uint16_t> indicesdata);
+    void CreateDescriptorPool(VulkanRenderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
+    void CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout layout);
+    void CreateDescriptorSetsData(VulkanRenderer& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 public:
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
 
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
+    VkBuffer VertexBuffer;
+    VkDeviceMemory VertexBufferMemory;
 
-	int VertexSize;
-	uint16_t IndiceSize;
+    VkBuffer IndexBuffer;
+    VkDeviceMemory IndexBufferMemory;
 
-	std::vector<Vertex> VertexList;
-	std::vector<uint16_t> IndexList;
+    VkDescriptorPool DescriptorPool;
+    std::vector<VkDescriptorSet> DescriptorSets;
 
-	TextureMaps TextureList;
+    Texture2 texture;
+    int IndexSize;
+    int VertexSize;
 
-	std::vector<VkDescriptorSet> descriptorSets;
-	VkDescriptorPool descriptorPool;
+    BaseMesh();
+    ~BaseMesh();
 
-	BaseMesh();
-	BaseMesh(Renderer& renderer);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices);
-	BaseMesh(Renderer& renderer, const TextureMaps& textureList);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const TextureMaps& textureList);
-	BaseMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices, const TextureMaps& textureList);
-	~BaseMesh();
-
-	void Destory(Renderer& renderer);
+    void Destory(VulkanRenderer& renderer);
 };
-

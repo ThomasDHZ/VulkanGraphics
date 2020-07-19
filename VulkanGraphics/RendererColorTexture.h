@@ -1,5 +1,6 @@
 #pragma once
 #include "Texture2.h"
+
 class RendererColorTexture : public Texture2
 {
 private:

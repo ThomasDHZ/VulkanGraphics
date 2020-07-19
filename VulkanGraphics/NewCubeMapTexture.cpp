@@ -1,25 +1,34 @@
-#include "NewTexture2D.h"
+#include "NewCubeMapTexture.h"
 
-NewTexture2D::NewTexture2D() : Texture2()
+NewCubeMapTexture::NewCubeMapTexture() : Texture2()
 {
 }
 
-NewTexture2D::NewTexture2D(VulkanRenderer& renderer, std::string TextureLocation) : Texture2(renderer, TextureLocation, TextureType::vkTexture2D)
+NewCubeMapTexture::NewCubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles) : Texture2(renderer, TextureType::vkTextureCube)
 {
-	LoadTexture(renderer, TextureLocation);
+	LoadTexture(renderer, CubeMapFiles);
 	CreateTextureView(renderer);
 	CreateTextureSampler(renderer);
 }
 
-NewTexture2D::~NewTexture2D()
+NewCubeMapTexture::~NewCubeMapTexture()
 {
 }
 
-void NewTexture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation)
+void NewCubeMapTexture::LoadTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles)
 {
-	int ColorChannels;
-	stbi_uc* pixels = stbi_load(TextureLocation.c_str(), &Width, &Height, &ColorChannels, STBI_rgb_alpha);
-	VkDeviceSize imageSize = Width * Height * 4;
+	std::vector<unsigned char*> textureData;
+	int texChannels;
+
+	textureData.emplace_back(stbi_load(CubeMapFiles.Left.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Right.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Top.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Bottom.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Back.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+	textureData.emplace_back(stbi_load(CubeMapFiles.Front.c_str(), &Width, &Height, &texChannels, STBI_rgb_alpha));
+
+	const VkDeviceSize imageSize = Width * Height * 4 * 6;
+	const VkDeviceSize layerSize = imageSize / 6;
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -42,7 +51,10 @@ void NewTexture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLoca
 
 	void* data;
 	vkMapMemory(renderer.Device, stagingBufferMemory, 0, imageSize, 0, &data);
-	memcpy(data, pixels, static_cast<size_t>(imageSize));
+	for (int x = 0; x < 6; ++x)
+	{
+		memcpy(static_cast<char*>(data) + (x * layerSize), textureData[x], static_cast<size_t>(layerSize));
+	}
 	vkUnmapMemory(renderer.Device, stagingBufferMemory);
 
 	Texture2::CreateTextureImage(renderer, TextureInfo);
@@ -55,7 +67,7 @@ void NewTexture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLoca
 	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
-void NewTexture2D::CreateTextureView(VulkanRenderer& renderer)
+void NewCubeMapTexture::CreateTextureView(VulkanRenderer& renderer)
 {
 	VkImageViewCreateInfo TextureImageViewInfo = {};
 	TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -71,7 +83,7 @@ void NewTexture2D::CreateTextureView(VulkanRenderer& renderer)
 	Texture2::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void NewTexture2D::CreateTextureSampler(VulkanRenderer& renderer)
+void NewCubeMapTexture::CreateTextureSampler(VulkanRenderer& renderer)
 {
 	VkSamplerCreateInfo TextureImageSamplerInfo = {};
 	TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

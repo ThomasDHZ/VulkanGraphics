@@ -4,6 +4,7 @@
 #include <string>
 #include <stb_image.h>
 #include "VulkanRenderer.h"
+#include "NewVulkanBufferManager.h"
 
 enum TextureType
 {

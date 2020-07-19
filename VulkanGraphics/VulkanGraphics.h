@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include "Renderer.h"
-#include "Texture2D.h"
 #include "Mesh.h"
 #include "VulkanWindow.h"
 #include "VulkanResources.h"
@@ -78,11 +77,11 @@ const std::vector<uint16_t> quadindices = {
 class VulkanGraphics : VulkanResources
 {
 private:
-	Lights light = {};
+	//Lights light = {};
 
-	ModelLoader modelLoader;
+	//ModelLoader modelLoader;
 
-	TextureMaps maps;
+	//TextureMaps maps;
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
 	Renderer renderer;
@@ -94,12 +93,12 @@ private:
 
 	glm::vec3 LightPos;
 
-	LightManager lightManager;
+	//LightManager lightManager;
 
-	SkyBox Skybox;
+	//SkyBox Skybox;
 
 	std::vector<Mesh2> MeshList;
-	std::vector<Model> ModelList;
+	//std::vector<Model> ModelList;
 
     void UpdateImGUI();
 	void Update(uint32_t DrawFrame);

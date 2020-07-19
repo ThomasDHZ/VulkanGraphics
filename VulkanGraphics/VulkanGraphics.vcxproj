@@ -150,7 +150,6 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="CollisionDebugPipeline.cpp" />
     <ClCompile Include="Cube.cpp" />
-    <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="DebugLightMesh.cpp" />
     <ClCompile Include="DebugLightRenderingPipeline.cpp" />
     <ClCompile Include="DeferredRenderer.cpp" />
@@ -167,6 +166,7 @@
     <ClCompile Include="Mesh2.cpp" />
     <ClCompile Include="MMShot.cpp" />
     <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="NewCubeMapTexture.cpp" />
     <ClCompile Include="NewTexture2D.cpp" />
     <ClCompile Include="Renderer2DPipeline.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
@@ -188,6 +188,7 @@
     <ClCompile Include="RendererDepthTexture.cpp" />
     <ClCompile Include="RendereredTexture.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SkyBoxMesh.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="LevelMesh2D.cpp" />
@@ -208,8 +209,6 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="VulkanResources.cpp" />
     <ClCompile Include="VulkanSwapChain.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="VulkanDebugger.cpp" />
     <ClCompile Include="VulkanGraphics.cpp" />
     <ClCompile Include="VulkanWindow.cpp" />
@@ -239,7 +238,6 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="CollisionDebugPipeline.h" />
     <ClInclude Include="Cube.h" />
-    <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="DebugLightMesh.h" />
     <ClInclude Include="DebugLightRenderingPipeline.h" />
     <ClInclude Include="DeferredRenderer.h" />
@@ -256,6 +254,7 @@
     <ClInclude Include="Mesh2.h" />
     <ClInclude Include="MMShot.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="NewCubeMapTexture.h" />
     <ClInclude Include="NewTexture2D.h" />
     <ClInclude Include="NewVulkanBufferManager.h" />
     <ClInclude Include="Renderer2DPipeline.h" />
@@ -281,6 +280,7 @@
     <ClInclude Include="RendererDepthTexture.h" />
     <ClInclude Include="RendereredTexture.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SkyBoxMesh.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="LevelMesh2D.h" />
@@ -302,8 +302,6 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="VulkanResources.h" />
     <ClInclude Include="VulkanSwapChain.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VulkanBufferManager.h" />
     <ClInclude Include="VulkanDebugger.h" />

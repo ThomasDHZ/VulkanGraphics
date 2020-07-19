@@ -1,9 +1,6 @@
 #include "Texture2.h"
 #include <stdexcept>
 
-#include "VulkanBufferManager.h"
-#include "NewVulkanBufferManager.h"
-
 Texture2::Texture2()
 {
 	FileName = "";
