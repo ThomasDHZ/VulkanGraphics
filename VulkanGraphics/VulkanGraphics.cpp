@@ -37,12 +37,12 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	maps.CubeMap = CubeMapTexture(renderer, layout);
 
 	newtexture = NewTexture2D(an, "texture/zxc_diffuseOriginal.bmp");
-	
+
 	Skybox = SkyBox(renderer, maps.CubeMap);
 	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, newtexture, renderer.forwardRenderer.DescriptorSetLayout));
 	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.DescriptorSetLayout));
 
-		ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
+	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
 	LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 }

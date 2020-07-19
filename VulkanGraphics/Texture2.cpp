@@ -6,18 +6,19 @@
 
 Texture2::Texture2()
 {
+	FileName = "";
+	Width = 0;
+	Height = 0;
 }
 
-Texture2::Texture2(VulkanRenderer& renderer, std::string TextureLocation)
+Texture2::Texture2(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType)
 {
+	TypeOfTexture = textureType;
 }
 
-Texture2::Texture2(VulkanRenderer& renderer, glm::ivec2 TextureSize)
+Texture2::Texture2(VulkanRenderer& renderer, TextureType textureType)
 {
-}
-
-Texture2::Texture2(VulkanRenderer& renderer, glm::ivec3 TextureSize)
-{
+	TypeOfTexture = textureType;
 }
 
 Texture2::~Texture2()
@@ -40,14 +41,14 @@ void Texture2::TransitionImageLayout(VulkanRenderer& renderer, VkImageLayout old
 	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
 
-	//if (TypeOfTexture == TextureType::vkTexture2D)
-	//{
+	if (TypeOfTexture == TextureType::vkTexture2D)
+	{
 		barrier.subresourceRange.layerCount = 1;
-	//}
-	//else if (TypeOfTexture == TextureType::vkTextureCube)
-	//{
-	//	barrier.subresourceRange.layerCount = 6;
-	//}
+	}
+	else if (TypeOfTexture == TextureType::vkTextureCube)
+	{
+		barrier.subresourceRange.layerCount = 6;
+	}
 
 	VkPipelineStageFlags sourceStage;
 	VkPipelineStageFlags destinationStage;
@@ -89,14 +90,14 @@ void Texture2::CopyBufferToImage(VulkanRenderer& renderer, VkBuffer buffer)
 	region.imageOffset = { 0, 0, 0 };
 	region.imageExtent = { static_cast<uint32_t>(Width), static_cast<uint32_t>(Height), 1 };
 
-	//if (TypeOfTexture == TextureType::vkTexture2D)
-	//{
+	if (TypeOfTexture == TextureType::vkTexture2D)
+	{
 		region.imageSubresource.layerCount = 1;
-	//}
-	//else if (TypeOfTexture == TextureType::vkTextureCube)
-	//{
-	//	region.imageSubresource.layerCount = 6;
-	/*}*/
+	}
+	else if (TypeOfTexture == TextureType::vkTextureCube)
+	{
+		region.imageSubresource.layerCount = 6;
+	}
 
 	vkCmdCopyBufferToImage(commandBuffer, buffer, Image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 	NewVulkanBufferManager::endSingleTimeCommands(renderer, commandBuffer);

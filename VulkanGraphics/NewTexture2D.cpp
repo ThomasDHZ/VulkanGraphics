@@ -6,7 +6,7 @@ NewTexture2D::NewTexture2D() : Texture2()
 {
 }
 
-NewTexture2D::NewTexture2D(VulkanRenderer& renderer, std::string TextureLocation) : Texture2(renderer, TextureLocation)
+NewTexture2D::NewTexture2D(VulkanRenderer& renderer, std::string TextureLocation) : Texture2(renderer, TextureLocation, TextureType::vkTexture2D)
 {
 	LoadTexture(renderer, TextureLocation);
 	CreateTextureView(renderer);

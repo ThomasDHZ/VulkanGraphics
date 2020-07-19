@@ -1,10 +1,10 @@
 #include "RendererColorTexture.h"
 
-RendererColorTexture::RendererColorTexture()
+RendererColorTexture::RendererColorTexture() : Texture2()
 {
 }
 
-RendererColorTexture::RendererColorTexture(VulkanRenderer& renderer)
+RendererColorTexture::RendererColorTexture(VulkanRenderer& renderer) : Texture2(renderer, TextureType::vkTexture2D)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);

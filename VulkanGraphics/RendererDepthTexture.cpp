@@ -1,10 +1,10 @@
 #include "RendererDepthTexture.h"
 
-RendererDepthTexture::RendererDepthTexture()
+RendererDepthTexture::RendererDepthTexture() : Texture2()
 {
 }
 
-RendererDepthTexture::RendererDepthTexture(VulkanRenderer& renderer)
+RendererDepthTexture::RendererDepthTexture(VulkanRenderer& renderer) : Texture2(renderer, TextureType::vkTexture2D)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);

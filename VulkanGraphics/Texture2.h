@@ -14,6 +14,15 @@ enum TextureType
 class Texture2
 {
 protected:
+    enum TextureType
+    {
+        vkTexture2D,
+        vkTextureCube
+    };
+
+    std::string FileName;
+    TextureType TypeOfTexture;
+
     int Width;
     int Height;
 
@@ -31,9 +40,8 @@ public:
     VkSampler Sampler;
 
     Texture2();
-    Texture2(VulkanRenderer& renderer, std::string TextureLocation);
-    Texture2(VulkanRenderer& renderer, glm::ivec2 TextureSize);
-    Texture2(VulkanRenderer& renderer, glm::ivec3 TextureSize);
+    Texture2(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType);
+    Texture2(VulkanRenderer& renderer, TextureType textureType);
     ~Texture2();
 
     void Delete(VulkanRenderer& renderer);

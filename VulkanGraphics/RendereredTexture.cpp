@@ -1,10 +1,10 @@
 #include "RendereredTexture.h"
 
-RendereredTexture::RendereredTexture()
+RendereredTexture::RendereredTexture() : Texture2()
 {
 }
 
-RendereredTexture::RendereredTexture(VulkanRenderer& renderer)
+RendereredTexture::RendereredTexture(VulkanRenderer& renderer) : Texture2(renderer, TextureType::vkTexture2D)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);
