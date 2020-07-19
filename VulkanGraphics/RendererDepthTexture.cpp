@@ -4,24 +4,24 @@ RendererDepthTexture::RendererDepthTexture()
 {
 }
 
-RendererDepthTexture::RendererDepthTexture(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent)
+RendererDepthTexture::RendererDepthTexture(VulkanRenderer& renderer)
 {
-    CreateTextureImage(Device, PhysicalDevice, extent);
-    CreateTextureView(Device);
-    CreateTextureSampler(Device);
+    CreateTextureImage(renderer);
+    CreateTextureView(renderer);
+    CreateTextureSampler(renderer);
 }
 
 RendererDepthTexture::~RendererDepthTexture()
 {
 }
 
-void RendererDepthTexture::CreateTextureImage(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent)
+void RendererDepthTexture::CreateTextureImage(VulkanRenderer& renderer)
 {
     VkImageCreateInfo TextureInfo{};
     TextureInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     TextureInfo.imageType = VK_IMAGE_TYPE_2D;
-    TextureInfo.extent.width = extent.width;
-    TextureInfo.extent.height = extent.height;
+    TextureInfo.extent.width = renderer.SwapChain.GetSwapChainResolution().width;
+    TextureInfo.extent.height = renderer.SwapChain.GetSwapChainResolution().height;
     TextureInfo.extent.depth = 1;
     TextureInfo.mipLevels = 1;
     TextureInfo.arrayLayers = 1;
@@ -32,10 +32,10 @@ void RendererDepthTexture::CreateTextureImage(VkDevice Device, VkPhysicalDevice 
     TextureInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     TextureInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    Texture2::CreateTextureImage(Device, PhysicalDevice, TextureInfo);
+    Texture2::CreateTextureImage(renderer, TextureInfo);
 }
 
-void RendererDepthTexture::CreateTextureView(VkDevice Device)
+void RendererDepthTexture::CreateTextureView(VulkanRenderer& renderer)
 {
     VkImageViewCreateInfo TextureImageViewInfo{};
     TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -48,10 +48,10 @@ void RendererDepthTexture::CreateTextureView(VkDevice Device)
     TextureImageViewInfo.subresourceRange.baseArrayLayer = 0;
     TextureImageViewInfo.subresourceRange.layerCount = 1;
 
-    Texture2::CreateTextureView(Device, TextureImageViewInfo);
+    Texture2::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void RendererDepthTexture::CreateTextureSampler(VkDevice Device)
+void RendererDepthTexture::CreateTextureSampler(VulkanRenderer& renderer)
 {
     VkSamplerCreateInfo TextureImageSamplerInfo = {};
     TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -67,5 +67,5 @@ void RendererDepthTexture::CreateTextureSampler(VkDevice Device)
     TextureImageSamplerInfo.maxLod = 1.0f;
     TextureImageSamplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
-    Texture2::CreateTextureSampler(Device, TextureImageSamplerInfo);
+    Texture2::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }

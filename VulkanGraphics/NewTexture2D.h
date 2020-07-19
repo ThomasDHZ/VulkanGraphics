@@ -3,12 +3,12 @@
 class NewTexture2D : public Texture2
 {
 private:
-    void LoadTexture(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, std::string TextureLocation);
-    void CreateTextureImage(VkDevice Device, VkPhysicalDevice PhysicalDevice);
-    void CreateTextureView(VkDevice Device);
-    void CreateTextureSampler(VkDevice Device);
+    void LoadTexture(VulkanRenderer& renderer, std::string TextureLocation);
+    void CreateTextureImage(VulkanRenderer& renderer);
+    void CreateTextureView(VulkanRenderer& renderer);
+    void CreateTextureSampler(VulkanRenderer& renderer);
 public:
     NewTexture2D();
-    NewTexture2D(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, std::string TextureLocation);
+    NewTexture2D(VulkanRenderer& renderer, std::string TextureLocation);
     ~NewTexture2D();
 };

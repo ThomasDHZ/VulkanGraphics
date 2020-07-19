@@ -9,16 +9,16 @@ private:
 
 public:
 	TextureRenderer();
-	TextureRenderer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews);
+	TextureRenderer(VulkanRenderer& renderer);
 	~TextureRenderer();
 
 	RendererColorTexture ColorTexture;
 	RendererDepthTexture DepthTexture;
 
-	void CreateRenderPass(VkDevice Device);
-	void CreateDescriptorSets(VkDevice Device);
-	void CreateRenderingPipeline(VkDevice Device, VkExtent2D swapChainExtent);
-	void CreateRendererFramebuffers(VkDevice Device, VkExtent2D swapChainExtent, std::vector<VkImageView> swapChainImageViews);
-	void Destroy(VkDevice Device);
+	void CreateRenderPass(VulkanRenderer& renderer);
+	void CreateDescriptorSets(VulkanRenderer& renderer);
+	void CreateRenderingPipeline(VulkanRenderer& renderer);
+	void CreateRendererFramebuffers(VulkanRenderer& renderer);
+	void Destroy(VulkanRenderer& renderer);
 };
 

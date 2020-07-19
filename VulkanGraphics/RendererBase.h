@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include "VulkanRenderer.h"
 #include "Mesh2.h"
 
 class RendererBase

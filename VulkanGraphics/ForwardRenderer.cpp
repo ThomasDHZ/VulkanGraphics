@@ -8,20 +8,20 @@ ForwardRenderer::ForwardRenderer() : RendererBase()
 {
 }
 
-ForwardRenderer::ForwardRenderer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews) : RendererBase()
+ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase()
 {
-    CreateRenderPass(Device);
-    CreateDescriptorSets(Device);
-    CreateRenderingPipeline(Device, extent);
-    DepthTexture = RendererDepthTexture(Device, PhysicalDevice, extent);
-    CreateRendererFramebuffers(Device, extent, swapChainImageViews);
+    CreateRenderPass(renderer);
+    CreateDescriptorSets(renderer);
+    CreateRenderingPipeline(renderer);
+    DepthTexture = RendererDepthTexture(renderer);
+    CreateRendererFramebuffers(renderer);
 }
 
 ForwardRenderer::~ForwardRenderer()
 {
 }
 
-void ForwardRenderer::CreateRenderPass(VkDevice Device)
+void ForwardRenderer::CreateRenderPass(VulkanRenderer& renderer)
 {
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
@@ -75,12 +75,12 @@ void ForwardRenderer::CreateRenderPass(VkDevice Device)
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(Device, &renderPassInfo, nullptr, &RenderPass) != VK_SUCCESS) {
+    if (vkCreateRenderPass(renderer.Device, &renderPassInfo, nullptr, &RenderPass) != VK_SUCCESS) {
         throw std::runtime_error("failed to create render pass!");
     }
 }
 
-void ForwardRenderer::CreateDescriptorSets(VkDevice Device)
+void ForwardRenderer::CreateDescriptorSets(VulkanRenderer& renderer)
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -102,18 +102,18 @@ void ForwardRenderer::CreateDescriptorSets(VkDevice Device)
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, &DescriptorSetLayout) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(renderer.Device, &layoutInfo, nullptr, &DescriptorSetLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 }
 
-void ForwardRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapChainExtent)
+void ForwardRenderer::CreateRenderingPipeline(VulkanRenderer& renderer)
 {
     auto vertShaderCode = ReadFile("shaders/ForwardRendererVert.spv");
     auto fragShaderCode = ReadFile("shaders/ForwardRendererFrag.spv");
 
-    VkShaderModule vertShaderModule = CreateShaderModule(Device, vertShaderCode);
-    VkShaderModule fragShaderModule = CreateShaderModule(Device, fragShaderCode);
+    VkShaderModule vertShaderModule = CreateShaderModule(renderer.Device, vertShaderCode);
+    VkShaderModule fragShaderModule = CreateShaderModule(renderer.Device, fragShaderCode);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -148,14 +148,14 @@ void ForwardRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapCh
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float)swapChainExtent.width;
-    viewport.height = (float)swapChainExtent.height;
+    viewport.width = (float)renderer.SwapChain.GetSwapChainResolution().width;
+    viewport.height = (float)renderer.SwapChain.GetSwapChainResolution().height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = { 0, 0 };
-    scissor.extent = swapChainExtent;
+    scissor.extent = renderer.SwapChain.GetSwapChainResolution();
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -207,7 +207,7 @@ void ForwardRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapCh
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &DescriptorSetLayout;
 
-    if (vkCreatePipelineLayout(Device, &pipelineLayoutInfo, nullptr, &RendererLayout) != VK_SUCCESS) {
+    if (vkCreatePipelineLayout(renderer.Device, &pipelineLayoutInfo, nullptr, &RendererLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
@@ -227,20 +227,20 @@ void ForwardRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapCh
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &RendererPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(renderer.Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &RendererPipeline) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 
-    vkDestroyShaderModule(Device, fragShaderModule, nullptr);
-    vkDestroyShaderModule(Device, vertShaderModule, nullptr);
+    vkDestroyShaderModule(renderer.Device, fragShaderModule, nullptr);
+    vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void ForwardRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swapChainExtent, std::vector<VkImageView> swapChainImageViews)
+void ForwardRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 {
-    SwapChainFramebuffers.resize(swapChainImageViews.size());
-    for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+    SwapChainFramebuffers.resize(renderer.SwapChain.GetSwapChainImageViews().size());
+    for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageViews().size(); i++) {
         std::array<VkImageView, 2> attachments = {
-            swapChainImageViews[i],
+            renderer.SwapChain.GetSwapChainImageViews()[i],
             DepthTexture.View
         };
 
@@ -249,25 +249,25 @@ void ForwardRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swa
         framebufferInfo.renderPass = RenderPass;
         framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferInfo.pAttachments = attachments.data();
-        framebufferInfo.width = swapChainExtent.width;
-        framebufferInfo.height = swapChainExtent.height;
+        framebufferInfo.width = renderer.SwapChain.GetSwapChainResolution().width;
+        framebufferInfo.height = renderer.SwapChain.GetSwapChainResolution().height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &SwapChainFramebuffers[i]) != VK_SUCCESS) {
+        if (vkCreateFramebuffer(renderer.Device, &framebufferInfo, nullptr, &SwapChainFramebuffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
 }
 
-void ForwardRenderer::UpdateSwapChain(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews)
+void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
-   DepthTexture = RendererDepthTexture(Device, PhysicalDevice, extent);
-   CreateRenderingPipeline(Device, extent);
-   CreateRendererFramebuffers(Device, extent, swapChainImageViews);
+   DepthTexture = RendererDepthTexture(renderer);
+   CreateRenderingPipeline(renderer);
+   CreateRendererFramebuffers(renderer);
 }
 
-void ForwardRenderer::Destroy(VkDevice Device)
+void ForwardRenderer::Destroy(VulkanRenderer& renderer)
 {
-    DepthTexture.Delete(Device);
-    RendererBase::Destroy(Device);
+    DepthTexture.Delete(renderer);
+    RendererBase::Destroy(renderer.Device);
 }

@@ -28,7 +28,6 @@ private:
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
 
-	ForwardRenderingPipeline GraphicsPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
 	CollisionDebugPipeline DebugCollisionPipeline;
 	WireFramePipeline MeshviewPipeline;

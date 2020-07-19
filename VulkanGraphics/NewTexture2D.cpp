@@ -1,22 +1,23 @@
 #include "NewTexture2D.h"
 #include "VulkanBufferManager.h"
+#include "NewVulkanBufferManager.h"
 
 NewTexture2D::NewTexture2D() : Texture2()
 {
 }
 
-NewTexture2D::NewTexture2D(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, std::string TextureLocation) : Texture2(Device, PhysicalDevice, CommandPool, GraphicsQueue, TextureLocation)
+NewTexture2D::NewTexture2D(VulkanRenderer& renderer, std::string TextureLocation) : Texture2(renderer, TextureLocation)
 {
-	LoadTexture(Device, PhysicalDevice, CommandPool, GraphicsQueue, TextureLocation);
-	CreateTextureView(Device);
-	CreateTextureSampler(Device);
+	LoadTexture(renderer, TextureLocation);
+	CreateTextureView(renderer);
+	CreateTextureSampler(renderer);
 }
 
 NewTexture2D::~NewTexture2D()
 {
 }
 
-void NewTexture2D::LoadTexture(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, std::string TextureLocation)
+void NewTexture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation)
 {
 	int ColorChannels;
 	stbi_uc* pixels = stbi_load(TextureLocation.c_str(), &Width, &Height, &ColorChannels, STBI_rgb_alpha);
@@ -24,7 +25,7 @@ void NewTexture2D::LoadTexture(VkDevice Device, VkPhysicalDevice PhysicalDevice,
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(Device, PhysicalDevice, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	NewVulkanBufferManager::CreateBuffer(renderer, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	VkImageCreateInfo TextureInfo = {};
 	TextureInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -42,21 +43,21 @@ void NewTexture2D::LoadTexture(VkDevice Device, VkPhysicalDevice PhysicalDevice,
 	TextureInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 	void* data;
-	vkMapMemory(Device, stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(renderer.Device, stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, pixels, static_cast<size_t>(imageSize));
-	vkUnmapMemory(Device, stagingBufferMemory);
+	vkUnmapMemory(renderer.Device, stagingBufferMemory);
 
-	Texture2::CreateTextureImage(Device, PhysicalDevice, TextureInfo);
+	Texture2::CreateTextureImage(renderer, TextureInfo);
 
-	TransitionImageLayout(Device, CommandPool, GraphicsQueue, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	CopyBufferToImage(Device, CommandPool, GraphicsQueue, stagingBuffer);
-	TransitionImageLayout(Device, CommandPool, GraphicsQueue, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	CopyBufferToImage(renderer, stagingBuffer);
+	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	vkDestroyBuffer(Device, stagingBuffer, nullptr);
-	vkFreeMemory(Device, stagingBufferMemory, nullptr);
+	vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
+	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
-void NewTexture2D::CreateTextureView(VkDevice Device)
+void NewTexture2D::CreateTextureView(VulkanRenderer& renderer)
 {
 	VkImageViewCreateInfo TextureImageViewInfo = {};
 	TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -69,10 +70,10 @@ void NewTexture2D::CreateTextureView(VkDevice Device)
 	TextureImageViewInfo.subresourceRange.layerCount = 1;
 	TextureImageViewInfo.image = Image;
 
-	Texture2::CreateTextureView(Device, TextureImageViewInfo);
+	Texture2::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void NewTexture2D::CreateTextureSampler(VkDevice Device)
+void NewTexture2D::CreateTextureSampler(VulkanRenderer& renderer)
 {
 	VkSamplerCreateInfo TextureImageSamplerInfo = {};
 	TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -90,5 +91,5 @@ void NewTexture2D::CreateTextureSampler(VkDevice Device)
 	TextureImageSamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 	TextureImageSamplerInfo.anisotropyEnable = VK_TRUE;
 
-	Texture2::CreateTextureSampler(Device, TextureImageSamplerInfo);
+	Texture2::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }

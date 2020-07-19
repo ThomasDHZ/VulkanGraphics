@@ -7,8 +7,9 @@ Renderer::Renderer() : VulkanRenderer()
 
 Renderer::Renderer(GLFWwindow* window) : VulkanRenderer(window)
 {
-	forwardRenderer = ForwardRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
-	textureRenderer = TextureRenderer(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
+	auto vulkanRenderer = static_cast<VulkanRenderer>(*this);
+	forwardRenderer = ForwardRenderer(vulkanRenderer);
+	textureRenderer = TextureRenderer(vulkanRenderer);
 	InitializeGUIDebugger(window);
 
 	DebugLightPipeline = DebugLightRenderingPipeline(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
@@ -40,6 +41,8 @@ void Renderer::InitializeGUIDebugger(GLFWwindow* window)
 
 void Renderer::UpdateSwapChain(GLFWwindow* window)
 {
+	auto vulkanRenderer = static_cast<VulkanRenderer>(*this);
+
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
 	while (width == 0 || height == 0) {
@@ -70,7 +73,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	SkyboxPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
 	{
 
-		forwardRenderer.DepthTexture.Delete(Device);
+		forwardRenderer.DepthTexture.Delete(vulkanRenderer);
 
 		for (auto framebuffer : forwardRenderer.SwapChainFramebuffers)
 		{
@@ -83,12 +86,12 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 		forwardRenderer.RendererPipeline = VK_NULL_HANDLE;
 		forwardRenderer.RendererLayout = VK_NULL_HANDLE;
 
-		forwardRenderer.UpdateSwapChain(Device, PhysicalDevice, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
+		forwardRenderer.UpdateSwapChain(vulkanRenderer);
 	}
 	{
 
-		textureRenderer.DepthTexture.Delete(Device);
-		textureRenderer.ColorTexture.Delete(Device);
+		textureRenderer.DepthTexture.Delete(vulkanRenderer);
+		textureRenderer.ColorTexture.Delete(vulkanRenderer);
 		for (auto framebuffer : textureRenderer.SwapChainFramebuffers)
 		{
 			vkDestroyFramebuffer(Device, framebuffer, nullptr);
@@ -101,10 +104,10 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 		textureRenderer.RendererLayout = VK_NULL_HANDLE;
 
 
-		textureRenderer.DepthTexture = RendererDepthTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
-		textureRenderer.ColorTexture = RendererColorTexture(Device, PhysicalDevice, SwapChain.GetSwapChainResolution());
-		textureRenderer.CreateRenderingPipeline(Device, SwapChain.GetSwapChainResolution());
-		textureRenderer.CreateRendererFramebuffers(Device, SwapChain.GetSwapChainResolution(), SwapChain.GetSwapChainImageViews());
+		textureRenderer.DepthTexture = RendererDepthTexture(vulkanRenderer);
+		textureRenderer.ColorTexture = RendererColorTexture(vulkanRenderer);
+		textureRenderer.CreateRenderingPipeline(vulkanRenderer);
+		textureRenderer.CreateRendererFramebuffers(vulkanRenderer);
 	}
 
 	InitializeCommandBuffers();
@@ -190,10 +193,12 @@ uint32_t Renderer::Draw(GLFWwindow* window, std::vector<Mesh2>& MeshList)
 
 void Renderer::DestoryVulkan()
 {
+	auto vulkanRenderer = static_cast<VulkanRenderer>(*this);
+
 	guiDebugger.ShutDown(Device);
 
-	forwardRenderer.Destroy(Device);
-	textureRenderer.Destroy(Device);
+	forwardRenderer.Destroy(vulkanRenderer);
+	textureRenderer.Destroy(vulkanRenderer);
 
 	DebugLightPipeline.Destroy();
 	DebugCollisionPipeline.Destroy();

@@ -12,8 +12,11 @@
 
 VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
+
+
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = Renderer(Window.GetWindowPtr());
+	auto an = static_cast<VulkanRenderer>(renderer);
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
 	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
@@ -33,10 +36,9 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	maps.AlphaMap = Texture2D(renderer, "texture/Temp.bmp");
 	maps.CubeMap = CubeMapTexture(renderer, layout);
 
-	newtexture = NewTexture2D(renderer.Device, renderer.PhysicalDevice, renderer.RenderCommandPool, renderer.GraphicsQueue, "texture/zxc_diffuseOriginal.bmp");
+	newtexture = NewTexture2D(an, "texture/zxc_diffuseOriginal.bmp");
 	
 	Skybox = SkyBox(renderer, maps.CubeMap);
-	auto an = static_cast<VulkanRenderer>(renderer);
 	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, newtexture, renderer.forwardRenderer.DescriptorSetLayout));
 	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.DescriptorSetLayout));
 
@@ -47,6 +49,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 VulkanGraphics::~VulkanGraphics()
 {
+	auto an = static_cast<VulkanRenderer>(renderer);
+
 	vkDeviceWaitIdle(*GetDevice(renderer));
 
 	maps.DiffuseMap.Destroy(renderer);
@@ -58,7 +62,7 @@ VulkanGraphics::~VulkanGraphics()
 	maps.CubeMap.Destroy(renderer);
 
 
-	newtexture.Delete(renderer.Device);
+	newtexture.Delete(an);
 
 	for (auto mesh : MeshList)
 	{

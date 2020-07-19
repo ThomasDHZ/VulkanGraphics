@@ -7,21 +7,21 @@ TextureRenderer::TextureRenderer()
 {
 }
 
-TextureRenderer::TextureRenderer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews)
+TextureRenderer::TextureRenderer(VulkanRenderer& renderer)
 {
-    CreateRenderPass(Device);
-    CreateDescriptorSets(Device);
-    CreateRenderingPipeline(Device, extent);
-    DepthTexture = RendererDepthTexture(Device, PhysicalDevice, extent);
-    ColorTexture = RendererColorTexture(Device, PhysicalDevice, extent);
-    CreateRendererFramebuffers(Device, extent, swapChainImageViews);
+    CreateRenderPass(renderer);
+    CreateDescriptorSets(renderer);
+    CreateRenderingPipeline(renderer);
+    DepthTexture = RendererDepthTexture(renderer);
+    ColorTexture = RendererColorTexture(renderer);
+    CreateRendererFramebuffers(renderer);
 }
 
 TextureRenderer::~TextureRenderer()
 {
 }
 
-void TextureRenderer::CreateRenderPass(VkDevice Device)
+void TextureRenderer::CreateRenderPass(VulkanRenderer& renderer)
 {
     std::array<VkAttachmentDescription, 2> attchmentDescriptions = {};
 
@@ -79,13 +79,13 @@ void TextureRenderer::CreateRenderPass(VkDevice Device)
     renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();
 
-    if (vkCreateRenderPass(Device, &renderPassInfo, nullptr, &RenderPass))
+    if (vkCreateRenderPass(renderer.Device, &renderPassInfo, nullptr, &RenderPass))
     {
         throw std::runtime_error("failed to create vkCreateImageView!");
     }
 }
 
-void TextureRenderer::CreateDescriptorSets(VkDevice Device)
+void TextureRenderer::CreateDescriptorSets(VulkanRenderer& renderer)
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -107,18 +107,18 @@ void TextureRenderer::CreateDescriptorSets(VkDevice Device)
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, &DescriptorSetLayout) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(renderer.Device, &layoutInfo, nullptr, &DescriptorSetLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 }
 
-void TextureRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapChainExtent)
+void TextureRenderer::CreateRenderingPipeline(VulkanRenderer& renderer)
 {
     auto vertShaderCode = ReadFile("shaders/FrameBufferVert.spv");
     auto fragShaderCode = ReadFile("shaders/FrameBufferFrag.spv");
 
-    VkShaderModule vertShaderModule = CreateShaderModule(Device, vertShaderCode);
-    VkShaderModule fragShaderModule = CreateShaderModule(Device, fragShaderCode);
+    VkShaderModule vertShaderModule = CreateShaderModule(renderer.Device, vertShaderCode);
+    VkShaderModule fragShaderModule = CreateShaderModule(renderer.Device, fragShaderCode);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -153,14 +153,14 @@ void TextureRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapCh
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float)swapChainExtent.width;
-    viewport.height = (float)swapChainExtent.height;
+    viewport.width = (float)renderer.SwapChain.GetSwapChainResolution().width;
+    viewport.height = (float)renderer.SwapChain.GetSwapChainResolution().height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = { 0, 0 };
-    scissor.extent = swapChainExtent;
+    scissor.extent = renderer.SwapChain.GetSwapChainResolution();
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -212,7 +212,7 @@ void TextureRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapCh
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &DescriptorSetLayout;
 
-    if (vkCreatePipelineLayout(Device, &pipelineLayoutInfo, nullptr, &RendererLayout) != VK_SUCCESS) {
+    if (vkCreatePipelineLayout(renderer.Device, &pipelineLayoutInfo, nullptr, &RendererLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
@@ -232,18 +232,18 @@ void TextureRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapCh
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &RendererPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(renderer.Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &RendererPipeline) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 
-    vkDestroyShaderModule(Device, fragShaderModule, nullptr);
-    vkDestroyShaderModule(Device, vertShaderModule, nullptr);
+    vkDestroyShaderModule(renderer.Device, fragShaderModule, nullptr);
+    vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void TextureRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swapChainExtent, std::vector<VkImageView> swapChainImageViews)
+void TextureRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 {
     SwapChainFramebuffers.resize(3);
-    for (size_t i = 0; i < swapChainImageViews.size(); i++)
+    for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
         VkImageView attachments[2];
         attachments[0] = ColorTexture.View;
@@ -254,20 +254,20 @@ void TextureRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swa
         fbufCreateInfo.renderPass = RenderPass;
         fbufCreateInfo.attachmentCount = 2;
         fbufCreateInfo.pAttachments = attachments;
-        fbufCreateInfo.width = swapChainExtent.width;
-        fbufCreateInfo.height = swapChainExtent.height;
+        fbufCreateInfo.width = renderer.SwapChain.GetSwapChainResolution().width;
+        fbufCreateInfo.height = renderer.SwapChain.GetSwapChainResolution().height;
         fbufCreateInfo.layers = 1;
 
-        if (vkCreateFramebuffer(Device, &fbufCreateInfo, nullptr, &SwapChainFramebuffers[i]))
+        if (vkCreateFramebuffer(renderer.Device, &fbufCreateInfo, nullptr, &SwapChainFramebuffers[i]))
         {
             throw std::runtime_error("failed to create vkCreateImageView!");
         }
     }
 }
 
-void TextureRenderer::Destroy(VkDevice Device)
+void TextureRenderer::Destroy(VulkanRenderer& renderer)
 {
-    ColorTexture.Delete(Device);
-    DepthTexture.Delete(Device);
-    RendererBase::Destroy(Device);
+    ColorTexture.Delete(renderer);
+    DepthTexture.Delete(renderer);
+    RendererBase::Destroy(renderer.Device);
 }

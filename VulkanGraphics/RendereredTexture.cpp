@@ -4,11 +4,11 @@ RendereredTexture::RendereredTexture()
 {
 }
 
-RendereredTexture::RendereredTexture(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent)
+RendereredTexture::RendereredTexture(VulkanRenderer& renderer)
 {
-    CreateTextureImage(Device, PhysicalDevice, extent);
-    CreateTextureView(Device);
-    CreateTextureSampler(Device);
+    CreateTextureImage(renderer);
+    CreateTextureView(renderer);
+    CreateTextureSampler(renderer);
 }
 
 RendereredTexture::~RendereredTexture()
@@ -16,14 +16,14 @@ RendereredTexture::~RendereredTexture()
 }
 
 
-void RendereredTexture::CreateTextureImage(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent)
+void RendereredTexture::CreateTextureImage(VulkanRenderer& renderer)
 {
     VkImageCreateInfo TextureInfo = {};
     TextureInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     TextureInfo.imageType = VK_IMAGE_TYPE_2D;
     TextureInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-    TextureInfo.extent.width = extent.width;
-    TextureInfo.extent.height = extent.height;
+    TextureInfo.extent.width = renderer.SwapChain.GetSwapChainResolution().width;
+    TextureInfo.extent.height = renderer.SwapChain.GetSwapChainResolution().height;
     TextureInfo.extent.depth = 1;
     TextureInfo.mipLevels = 1;
     TextureInfo.arrayLayers = 1;
@@ -31,10 +31,10 @@ void RendereredTexture::CreateTextureImage(VkDevice Device, VkPhysicalDevice Phy
     TextureInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     TextureInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
-    Texture2::CreateTextureImage(Device, PhysicalDevice, TextureInfo);
+    Texture2::CreateTextureImage(renderer, TextureInfo);
 }
 
-void RendereredTexture::CreateTextureView(VkDevice Device)
+void RendereredTexture::CreateTextureView(VulkanRenderer& renderer)
 {
     VkImageViewCreateInfo TextureImageViewInfo = {};
     TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -47,10 +47,10 @@ void RendereredTexture::CreateTextureView(VkDevice Device)
     TextureImageViewInfo.subresourceRange.layerCount = 1;
     TextureImageViewInfo.image = Image;
 
-    Texture2::CreateTextureView(Device, TextureImageViewInfo);
+    Texture2::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void RendereredTexture::CreateTextureSampler(VkDevice Device)
+void RendereredTexture::CreateTextureSampler(VulkanRenderer& renderer)
 {
     VkSamplerCreateInfo TextureImageSamplerInfo = {};
     TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -66,5 +66,5 @@ void RendereredTexture::CreateTextureSampler(VkDevice Device)
     TextureImageSamplerInfo.maxLod = 1.0f;
     TextureImageSamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_WHITE;
 
-    Texture2::CreateTextureSampler(Device, TextureImageSamplerInfo);
+    Texture2::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }

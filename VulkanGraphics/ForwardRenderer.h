@@ -5,18 +5,18 @@
 class ForwardRenderer : public RendererBase
 {
 private:
-	void CreateRenderPass(VkDevice Device);
-	void CreateDescriptorSets(VkDevice Device);
-	void CreateRenderingPipeline(VkDevice Device, VkExtent2D swapChainExtent);
-	void CreateRendererFramebuffers(VkDevice Device, VkExtent2D swapChainExtent, std::vector<VkImageView> swapChainImageViews);
+	void CreateRenderPass(VulkanRenderer& renderer);
+	void CreateDescriptorSets(VulkanRenderer& renderer);
+	void CreateRenderingPipeline(VulkanRenderer& renderer);
+	void CreateRendererFramebuffers(VulkanRenderer& renderer);
 
 public:
 	ForwardRenderer();
-	ForwardRenderer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews);
+	ForwardRenderer(VulkanRenderer& renderer);
 	~ForwardRenderer();
 
-	void UpdateSwapChain(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews);
-	void Destroy(VkDevice Device);
+	void UpdateSwapChain(VulkanRenderer& renderer);
+	void Destroy(VulkanRenderer& renderer);
 
 	RendererDepthTexture DepthTexture;
 };
