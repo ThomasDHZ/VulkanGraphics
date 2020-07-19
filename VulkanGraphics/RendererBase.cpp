@@ -51,7 +51,7 @@ void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int fr
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = RenderPass;
-    renderPassInfo.framebuffer = swapChainFramebuffers[frame];
+    renderPassInfo.framebuffer = SwapChainFramebuffers[frame];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = extent;
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -79,7 +79,7 @@ void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int fr
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = RenderPass;
-    renderPassInfo.framebuffer = swapChainFramebuffers[frame];
+    renderPassInfo.framebuffer = SwapChainFramebuffers[frame];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = extent;
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -97,4 +97,23 @@ void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int fr
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
     }
     vkCmdEndRenderPass(commandBuffer);
+}
+
+void RendererBase::Destroy(VkDevice Device)
+{
+    vkDestroyPipeline(Device, RendererPipeline, nullptr);
+    vkDestroyPipelineLayout(Device, RendererLayout, nullptr);
+    vkDestroyDescriptorSetLayout(Device, DescriptorSetLayout, nullptr);
+    RendererPipeline = VK_NULL_HANDLE;
+    RendererLayout = VK_NULL_HANDLE;
+    DescriptorSetLayout = VK_NULL_HANDLE;
+
+    vkDestroyRenderPass(Device, RenderPass, nullptr);
+    RenderPass = VK_NULL_HANDLE;
+
+    for (auto& framebuffer : SwapChainFramebuffers)
+    {
+	    vkDestroyFramebuffer(Device, framebuffer, nullptr);
+	    framebuffer = VK_NULL_HANDLE;
+    }
 }

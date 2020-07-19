@@ -38,32 +38,32 @@ void DebugLightMesh::CreateDescriptorPool(Renderer& renderer)
 
 void DebugLightMesh::CreateDescriptorSets(Renderer& renderer)
 {
-	const auto pipeline = GetDebugLightPipeline(renderer);
-	BaseMesh::CreateDescriptorSets(renderer, pipeline.ShaderPipelineDescriptorLayout);
+	//const auto pipeline = GetDebugLightPipeline(renderer);
+	//BaseMesh::CreateDescriptorSets(renderer, pipeline.ShaderPipelineDescriptorLayout);
 
-	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
-	{
-		VkDescriptorBufferInfo PositionInfo = {};
-		PositionInfo.buffer = PositionMatrixBuffer.GetUniformBuffer(i);
-		PositionInfo.offset = 0;
-		PositionInfo.range = sizeof(PositionMatrix);
+	//for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
+	//{
+	//	VkDescriptorBufferInfo PositionInfo = {};
+	//	PositionInfo.buffer = PositionMatrixBuffer.GetUniformBuffer(i);
+	//	PositionInfo.offset = 0;
+	//	PositionInfo.range = sizeof(PositionMatrix);
 
-		std::array<WriteDescriptorSetInfo, 1>  WriteDescriptorInfo = {};
+	//	std::array<WriteDescriptorSetInfo, 1>  WriteDescriptorInfo = {};
 
-		WriteDescriptorInfo[0].DstBinding = 0;
-		WriteDescriptorInfo[0].DstSet = descriptorSets[i];
-		WriteDescriptorInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		WriteDescriptorInfo[0].DescriptorBufferInfo = PositionInfo;
+	//	WriteDescriptorInfo[0].DstBinding = 0;
+	//	WriteDescriptorInfo[0].DstSet = descriptorSets[i];
+	//	WriteDescriptorInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	//	WriteDescriptorInfo[0].DescriptorBufferInfo = PositionInfo;
 
-		CreateDescriptorSetsData(renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
-	}
+	//	CreateDescriptorSetsData(renderer, std::vector<WriteDescriptorSetInfo>(WriteDescriptorInfo.begin(), WriteDescriptorInfo.end()));
+	//}
 }
 
 void DebugLightMesh::Draw(Renderer& renderer, int currentFrame)
 {
-	const auto pipeline = GetDebugLightPipeline(renderer);
-	VkBuffer vertexBuffers[] = { vertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
+	//const auto pipeline = GetDebugLightPipeline(renderer);
+	//VkBuffer vertexBuffers[] = { vertexBuffer };
+	//VkDeviceSize offsets[] = { 0 };
 
 	//if (renderer.Settings.ShowMeshLines)
 	//{

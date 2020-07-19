@@ -72,7 +72,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 
 		forwardRenderer.DepthTexture.Delete(Device);
 
-		for (auto framebuffer : forwardRenderer.swapChainFramebuffers)
+		for (auto framebuffer : forwardRenderer.SwapChainFramebuffers)
 		{
 			vkDestroyFramebuffer(Device, framebuffer, nullptr);
 		}
@@ -89,7 +89,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 
 		textureRenderer.DepthTexture.Delete(Device);
 		textureRenderer.ColorTexture.Delete(Device);
-		for (auto framebuffer : textureRenderer.swapChainFramebuffers)
+		for (auto framebuffer : textureRenderer.SwapChainFramebuffers)
 		{
 			vkDestroyFramebuffer(Device, framebuffer, nullptr);
 		}
@@ -192,9 +192,9 @@ void Renderer::DestoryVulkan()
 {
 	guiDebugger.ShutDown(Device);
 
-	//DepthAttachment.DeleteInputAttachment(Device);
+	forwardRenderer.Destroy(Device);
+	textureRenderer.Destroy(Device);
 
-	//GraphicsPipeline.Destroy();
 	DebugLightPipeline.Destroy();
 	DebugCollisionPipeline.Destroy();
 	MeshviewPipeline.Destroy();
@@ -203,14 +203,6 @@ void Renderer::DestoryVulkan()
 	SwapChain.Destroy(Device);
 
 	vkDestroyCommandPool(Device, RenderCommandPool, nullptr);
-
-	//vkDestroyRenderPass(Device, RenderPass, nullptr);
-
-	//for (auto& framebuffer : SwapChainFramebuffers)
-	//{
-	//	vkDestroyFramebuffer(Device, framebuffer, nullptr);
-	//	framebuffer = VK_NULL_HANDLE;
-	//}
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
 	{
@@ -223,7 +215,6 @@ void Renderer::DestoryVulkan()
 	vkDestroyDevice(Device, nullptr);
 
 	RenderCommandPool = VK_NULL_HANDLE;
-	//RenderPass = VK_NULL_HANDLE;
 
 	VulkanRenderer::Destory();
 }

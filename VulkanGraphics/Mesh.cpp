@@ -130,7 +130,7 @@ void Mesh::CreateDescriptorPool(Renderer& renderer)
 
 void Mesh::CreateDescriptorSets(Renderer& renderer)
 {
-	BaseMesh::CreateDescriptorSets(renderer, *GetDescriptorSetLayout(renderer));
+	//BaseMesh::CreateDescriptorSets(renderer, *GetDescriptorSetLayout(renderer));
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -262,7 +262,7 @@ void Mesh::CreateDescriptorSets(Renderer& renderer)
 
 void Mesh::CreateDescriptorSets(Renderer& renderer, Texture2 texture)
 {
-	BaseMesh::CreateDescriptorSets(renderer, *GetDescriptorSetLayout(renderer));
+	///BaseMesh::CreateDescriptorSets(renderer, *GetDescriptorSetLayout(renderer));
 
 	VkDescriptorImageInfo DiffuseMap = {};
 	DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -490,7 +490,7 @@ void Mesh::UpdateGUI()
 
 void Mesh::Draw(Renderer& renderer, int currentFrame)
 {
-	VkBuffer vertexBuffers[] = { vertexBuffer };
+	/*VkBuffer vertexBuffers[] = { vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 
 	if(renderer.Settings.ShowMeshLines)
@@ -536,7 +536,7 @@ void Mesh::Draw(Renderer& renderer, int currentFrame)
 	{
 		vkCmdBindIndexBuffer(*GetRendererCommandBuffer(renderer, currentFrame), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(*GetRendererCommandBuffer(renderer, currentFrame), static_cast<uint32_t>(IndiceSize), 1, 0, 0, 0);
-	}
+	}*/
 }
 
 void Mesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix, Lights light)

@@ -142,8 +142,10 @@ void Texture2::Delete(VkDevice Device)
 	vkDestroyImageView(Device, View, nullptr);
 	vkDestroyImage(Device, Image, nullptr);
 	vkFreeMemory(Device, Memory, nullptr);
+	vkDestroySampler(Device, Sampler, nullptr);
 
 	View = VK_NULL_HANDLE;
 	Image = VK_NULL_HANDLE;
 	Memory = VK_NULL_HANDLE;
+	Sampler = VK_NULL_HANDLE;
 }

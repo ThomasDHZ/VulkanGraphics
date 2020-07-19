@@ -16,6 +16,7 @@ public:
 	~ForwardRenderer();
 
 	void UpdateSwapChain(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkExtent2D extent, std::vector<VkImageView> swapChainImageViews);
+	void Destroy(VkDevice Device);
 
 	RendererDepthTexture DepthTexture;
 };

@@ -69,47 +69,47 @@ BaseMesh::~BaseMesh()
 
 void BaseMesh::CreateVertexBuffer(Renderer& renderer)
 {
-	VkDeviceSize bufferSize = sizeof(VertexList[0]) * VertexList.size();
+	//VkDeviceSize bufferSize = sizeof(VertexList[0]) * VertexList.size();
 
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	//VkBuffer stagingBuffer;
+	//VkDeviceMemory stagingBufferMemory;
+	//VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-	void* data;
-	vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, VertexList.data(), (size_t)bufferSize);
-	vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
+	//void* data;
+	//vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
+	//memcpy(data, VertexList.data(), (size_t)bufferSize);
+	//vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
 
-	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+	//VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 
-	VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, vertexBuffer, bufferSize, *GetRendererCommandPool(renderer), *GetGraphicsQueue(renderer));
+	//VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, vertexBuffer, bufferSize, *GetRendererCommandPool(renderer), *GetGraphicsQueue(renderer));
 
-	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
-	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
+	//vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
+	//vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
 }
 
 void BaseMesh::CreateIndiceBuffer(Renderer& renderer)
 {
-	if (IndiceSize != 0)
-	{
-		VkDeviceSize bufferSize = sizeof(IndexList[0]) * IndexList.size();
+	//if (IndiceSize != 0)
+	//{
+	//	VkDeviceSize bufferSize = sizeof(IndexList[0]) * IndexList.size();
 
-		VkBuffer stagingBuffer;
-		VkDeviceMemory stagingBufferMemory;
-		VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	//	VkBuffer stagingBuffer;
+	//	VkDeviceMemory stagingBufferMemory;
+	//	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-		void* data;
-		vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, IndexList.data(), (size_t)bufferSize);
-		vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
+	//	void* data;
+	//	vkMapMemory(*GetDevice(renderer), stagingBufferMemory, 0, bufferSize, 0, &data);
+	//	memcpy(data, IndexList.data(), (size_t)bufferSize);
+	//	vkUnmapMemory(*GetDevice(renderer), stagingBufferMemory);
 
-		VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+	//	VulkanBufferManager::CreateBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-		VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, indexBuffer, bufferSize, *GetRendererCommandPool(renderer), *GetGraphicsQueue(renderer));
+	//	VulkanBufferManager::CopyBuffer(*GetDevice(renderer), *GetPhysicalDevice(renderer), stagingBuffer, indexBuffer, bufferSize, *GetRendererCommandPool(renderer), *GetGraphicsQueue(renderer));
 
-		vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
-		vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
-	}
+	//	vkDestroyBuffer(*GetDevice(renderer), stagingBuffer, nullptr);
+	//	vkFreeMemory(*GetDevice(renderer), stagingBufferMemory, nullptr);
+	//}
 }
 
 void BaseMesh::CreateDescriptorPool(Renderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)

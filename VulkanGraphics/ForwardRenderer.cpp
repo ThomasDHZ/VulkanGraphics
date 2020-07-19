@@ -237,7 +237,7 @@ void ForwardRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapCh
 
 void ForwardRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swapChainExtent, std::vector<VkImageView> swapChainImageViews)
 {
-    swapChainFramebuffers.resize(swapChainImageViews.size());
+    SwapChainFramebuffers.resize(swapChainImageViews.size());
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
         std::array<VkImageView, 2> attachments = {
             swapChainImageViews[i],
@@ -253,7 +253,7 @@ void ForwardRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swa
         framebufferInfo.height = swapChainExtent.height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+        if (vkCreateFramebuffer(Device, &framebufferInfo, nullptr, &SwapChainFramebuffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
@@ -264,4 +264,10 @@ void ForwardRenderer::UpdateSwapChain(VkDevice Device, VkPhysicalDevice Physical
    DepthTexture = RendererDepthTexture(Device, PhysicalDevice, extent);
    CreateRenderingPipeline(Device, extent);
    CreateRendererFramebuffers(Device, extent, swapChainImageViews);
+}
+
+void ForwardRenderer::Destroy(VkDevice Device)
+{
+    DepthTexture.Delete(Device);
+    RendererBase::Destroy(Device);
 }

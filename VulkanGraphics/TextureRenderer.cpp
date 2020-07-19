@@ -242,7 +242,7 @@ void TextureRenderer::CreateRenderingPipeline(VkDevice Device, VkExtent2D swapCh
 
 void TextureRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swapChainExtent, std::vector<VkImageView> swapChainImageViews)
 {
-    swapChainFramebuffers.resize(3);
+    SwapChainFramebuffers.resize(3);
     for (size_t i = 0; i < swapChainImageViews.size(); i++)
     {
         VkImageView attachments[2];
@@ -258,9 +258,16 @@ void TextureRenderer::CreateRendererFramebuffers(VkDevice Device, VkExtent2D swa
         fbufCreateInfo.height = swapChainExtent.height;
         fbufCreateInfo.layers = 1;
 
-        if (vkCreateFramebuffer(Device, &fbufCreateInfo, nullptr, &swapChainFramebuffers[i]))
+        if (vkCreateFramebuffer(Device, &fbufCreateInfo, nullptr, &SwapChainFramebuffers[i]))
         {
             throw std::runtime_error("failed to create vkCreateImageView!");
         }
     }
+}
+
+void TextureRenderer::Destroy(VkDevice Device)
+{
+    ColorTexture.Delete(Device);
+    DepthTexture.Delete(Device);
+    RendererBase::Destroy(Device);
 }

@@ -22,6 +22,7 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include <chrono>
+#include "NewTexture2D.h"
 
 const std::vector<Vertex> vertices =
 {
@@ -85,7 +86,7 @@ private:
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
 	Renderer renderer;
-	
+    NewTexture2D newtexture;
 	Keyboard keyboard;
 	Mouse mouse;
 

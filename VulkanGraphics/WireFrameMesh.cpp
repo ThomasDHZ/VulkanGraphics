@@ -31,26 +31,26 @@ void WireFrameMesh::CreateDescriptorPool(Renderer& renderer)
 
 void WireFrameMesh::CreateDescriptorSets(Renderer& renderer)
 {
-	BaseMesh::CreateDescriptorSets(renderer, *GetDescriptorSetLayout(renderer));
+	//BaseMesh::CreateDescriptorSets(renderer, *GetDescriptorSetLayout(renderer));
 
-	for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
-	{
-		VkDescriptorBufferInfo PositionInfo = {};
-		PositionInfo.buffer = PositionMatrixBuffer.GetUniformBuffer(i);
-		PositionInfo.offset = 0;
-		PositionInfo.range = sizeof(PositionMatrix);
+	//for (size_t i = 0; i < GetSwapChainImageCount(renderer); i++)
+	//{
+	//	VkDescriptorBufferInfo PositionInfo = {};
+	//	PositionInfo.buffer = PositionMatrixBuffer.GetUniformBuffer(i);
+	//	PositionInfo.offset = 0;
+	//	PositionInfo.range = sizeof(PositionMatrix);
 
-		std::vector<WriteDescriptorSetInfo> DescriptorList;
+	//	std::vector<WriteDescriptorSetInfo> DescriptorList;
 
-		WriteDescriptorSetInfo PositionDescriptor;
-		PositionDescriptor.DstBinding = 0;
-		PositionDescriptor.DstSet = descriptorSets[i];
-		PositionDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		PositionDescriptor.DescriptorBufferInfo = PositionInfo;
-		DescriptorList.emplace_back(PositionDescriptor);
+	//	WriteDescriptorSetInfo PositionDescriptor;
+	//	PositionDescriptor.DstBinding = 0;
+	//	PositionDescriptor.DstSet = descriptorSets[i];
+	//	PositionDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	//	PositionDescriptor.DescriptorBufferInfo = PositionInfo;
+	//	DescriptorList.emplace_back(PositionDescriptor);
 
-		BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
-	}
+	//	BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
+	//}
 }
 
 void WireFrameMesh::UpdateUniformBuffer(Renderer& renderer, PositionMatrix positionMatrix)

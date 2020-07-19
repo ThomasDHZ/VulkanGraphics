@@ -19,5 +19,6 @@ public:
 	void CreateDescriptorSets(VkDevice Device);
 	void CreateRenderingPipeline(VkDevice Device, VkExtent2D swapChainExtent);
 	void CreateRendererFramebuffers(VkDevice Device, VkExtent2D swapChainExtent, std::vector<VkImageView> swapChainImageViews);
+	void Destroy(VkDevice Device);
 };
 

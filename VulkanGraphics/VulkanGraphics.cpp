@@ -8,7 +8,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include "NewTexture2D.h"
+
 
 VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
@@ -33,14 +33,14 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	maps.AlphaMap = Texture2D(renderer, "texture/Temp.bmp");
 	maps.CubeMap = CubeMapTexture(renderer, layout);
 
-	auto a = NewTexture2D(renderer.Device, renderer.PhysicalDevice, renderer.RenderCommandPool, renderer.GraphicsQueue, "texture/zxc_diffuseOriginal.bmp");
-
+	newtexture = NewTexture2D(renderer.Device, renderer.PhysicalDevice, renderer.RenderCommandPool, renderer.GraphicsQueue, "texture/zxc_diffuseOriginal.bmp");
+	
 	Skybox = SkyBox(renderer, maps.CubeMap);
 	auto an = static_cast<VulkanRenderer>(renderer);
-	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, a, renderer.forwardRenderer.DescriptorSetLayout));
+	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, newtexture, renderer.forwardRenderer.DescriptorSetLayout));
 	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.DescriptorSetLayout));
 
-	//	ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
+		ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
 	LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 }
@@ -54,7 +54,11 @@ VulkanGraphics::~VulkanGraphics()
 	maps.DisplacementMap.Destroy(renderer);
 	maps.SpecularMap.Destroy(renderer);
 	maps.AlphaMap.Destroy(renderer);
+	maps.EmissionMap.Destroy(renderer);
 	maps.CubeMap.Destroy(renderer);
+
+
+	newtexture.Delete(renderer.Device);
 
 	for (auto mesh : MeshList)
 	{
@@ -122,11 +126,11 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	//{
 	//	mesh.Update(renderer, camera, light);
 	//}
-	for (auto model : ModelList)
-	{
-		model.UpdateUniformBuffer(renderer, camera, light);
-	}
-	Skybox.UpdateUniformBuffer(renderer, camera);
+	//for (auto model : ModelList)
+	//{
+	//	model.UpdateUniformBuffer(renderer, camera, light);
+	//}
+	//Skybox.UpdateUniformBuffer(renderer, camera);
 
 	auto an = static_cast<VulkanRenderer>(renderer);
 	{
@@ -167,10 +171,10 @@ void VulkanGraphics::MainLoop()
 		UpdateImGUI();
 		Update(renderer.DrawFrame);
 		renderer.Draw(Window.GetWindowPtr(), MeshList);
-		//{
+//		{
 //	VkBuffer vertexBuffers[] = { Skybox.vertexBuffer };
 //	VkDeviceSize offsets[] = { 0 };
-
+//
 //	vkCmdBindPipeline(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
 //	vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
 //	vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &Skybox.descriptorSets[DrawFrame], 0, nullptr);
