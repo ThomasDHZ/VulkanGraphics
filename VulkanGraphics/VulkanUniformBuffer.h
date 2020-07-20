@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan\vulkan_core.h>
 #include "VulkanRenderer.h"
-#include "NewVulkanBufferManager.h"
+#include "VulkanBufferManager.h"
 
 class VulkanUniformBuffer
 {

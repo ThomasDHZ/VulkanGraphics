@@ -4,7 +4,7 @@
 #include <string>
 #include <stb_image.h>
 #include "VulkanRenderer.h"
-#include "NewVulkanBufferManager.h"
+#include "VulkanBufferManager.h"
 
 enum TextureType
 {
@@ -12,7 +12,7 @@ enum TextureType
     Depth
 };
 
-class Texture2
+class Texture
 {
 protected:
     enum TextureType
@@ -40,10 +40,10 @@ public:
     VkImageView View;
     VkSampler Sampler;
 
-    Texture2();
-    Texture2(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType);
-    Texture2(VulkanRenderer& renderer, TextureType textureType);
-    ~Texture2();
+    Texture();
+    Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType);
+    Texture(VulkanRenderer& renderer, TextureType textureType);
+    ~Texture();
 
     void Delete(VulkanRenderer& renderer);
 };

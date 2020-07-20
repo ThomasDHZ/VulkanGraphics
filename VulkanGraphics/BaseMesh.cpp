@@ -13,16 +13,16 @@ void BaseMesh::CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex> 
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    NewVulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
     void* data;
     vkMapMemory(renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, vertexdata.data(), (size_t)bufferSize);
     vkUnmapMemory(renderer.Device, stagingBufferMemory);
 
-    NewVulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
+    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
 
-    NewVulkanBufferManager::CopyBuffer(renderer, stagingBuffer, VertexBuffer, bufferSize);
+    VulkanBufferManager::CopyBuffer(renderer, stagingBuffer, VertexBuffer, bufferSize);
 
     vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
     vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
@@ -33,16 +33,16 @@ void BaseMesh::CreateIndexBuffer(VulkanRenderer& renderer, std::vector<uint16_t>
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    NewVulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
     void* data;
     vkMapMemory(renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, indicesdata.data(), (size_t)bufferSize);
     vkUnmapMemory(renderer.Device, stagingBufferMemory);
 
-    NewVulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, IndexBuffer, IndexBufferMemory);
+    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, IndexBuffer, IndexBufferMemory);
 
-    NewVulkanBufferManager::CopyBuffer(renderer, stagingBuffer, IndexBuffer, bufferSize);
+    VulkanBufferManager::CopyBuffer(renderer, stagingBuffer, IndexBuffer, bufferSize);
 
     vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
     vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);

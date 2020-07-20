@@ -43,8 +43,8 @@ void SkyBoxMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetL
 
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = texture.View;
-    imageInfo.sampler = texture.Sampler;
+    imageInfo.imageView = texturebox.View;
+    imageInfo.sampler = texturebox.Sampler;
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {

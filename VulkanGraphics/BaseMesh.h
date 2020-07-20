@@ -1,5 +1,6 @@
-#include "Texture2.h"
-#include "NewVulkanBufferManager.h"
+#pragma once
+#include "Texture.h"
+#include "VulkanBufferManager.h"
 #include "VulkanUniformBuffer.h"
 #include "Structs.h"
 #include "Vertex.h"
@@ -24,7 +25,7 @@ public:
     VkDescriptorPool DescriptorPool;
     std::vector<VkDescriptorSet> DescriptorSets;
 
-    Texture2 texture;
+    Texture texture;
     int IndexSize;
     int VertexSize;
 

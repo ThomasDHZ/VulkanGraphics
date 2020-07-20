@@ -51,9 +51,6 @@
     <ClCompile Include="camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InputAttachment.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VulkanDebugger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -99,16 +96,10 @@
     <ClCompile Include="GUIDebugger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanResources.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sphere.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UniformBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DirectionalLight.cpp">
@@ -198,9 +189,6 @@
     <ClCompile Include="MMShot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MainRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TextureRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -219,9 +207,6 @@
     <ClCompile Include="VulkanUniformBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2.cpp">
-      <Filter>Source Files\Texture</Filter>
-    </ClCompile>
     <ClCompile Include="RendereredTexture.cpp">
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
@@ -229,9 +214,6 @@
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="RendererColorTexture.cpp">
-      <Filter>Source Files\Texture</Filter>
-    </ClCompile>
-    <ClCompile Include="NewTexture2D.cpp">
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
     <ClCompile Include="NewCubeMapTexture.cpp">
@@ -242,6 +224,12 @@
     </ClCompile>
     <ClCompile Include="Mesh2.cpp">
       <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Source Files\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -304,12 +292,6 @@
     <ClInclude Include="camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanBufferManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="InputAttachment.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VulkanDebugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -367,9 +349,6 @@
     <ClInclude Include="GUIDebugger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanResources.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -377,9 +356,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UniformBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DirectionalLight.h">
@@ -472,12 +448,6 @@
     <ClInclude Include="MMShot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MainRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TextureRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -492,12 +462,6 @@
     </ClInclude>
     <ClInclude Include="VulkanRenderer.h">
       <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="NewTexture2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NewVulkanBufferManager.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VulkanUniformBuffer.h">
       <Filter>Header Files</Filter>
@@ -519,6 +483,15 @@
     </ClInclude>
     <ClInclude Include="NewCubeMapTexture.h">
       <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanBufferManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

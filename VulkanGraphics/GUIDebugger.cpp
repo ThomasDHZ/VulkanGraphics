@@ -68,7 +68,7 @@ GUIDebugger::GUIDebugger(ImGui_ImplVulkan_InitInfo ImGUIStartUpInfo, GLFWwindow*
 
 	VkCommandBuffer command_buffer = VulkanBufferManager::beginSingleTimeCommands(ImGUIStartUpInfo.Device, ImGuiCommandPool);
 	ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
-	VulkanBufferManager::endSingleTimeCommands(ImGUIStartUpInfo.Device, command_buffer, ImGuiCommandPool, ImGUIStartUpInfo.Queue);
+	VulkanBufferManager::endSingleTimeCommands(ImGUIStartUpInfo.Device, command_buffer, ImGUIStartUpInfo.Queue, ImGuiCommandPool);
 }
 
 GUIDebugger::~GUIDebugger()

@@ -24,7 +24,7 @@ private:
 public:
 
     Mesh2();
-    Mesh2(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture2 tex, VkDescriptorSetLayout& descriptorSetLayout);
+    Mesh2(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, VkDescriptorSetLayout& descriptorSetLayout);
     ~Mesh2();
 
 

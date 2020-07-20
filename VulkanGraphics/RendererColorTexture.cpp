@@ -1,10 +1,10 @@
 #include "RendererColorTexture.h"
 
-RendererColorTexture::RendererColorTexture() : Texture2()
+RendererColorTexture::RendererColorTexture() : Texture()
 {
 }
 
-RendererColorTexture::RendererColorTexture(VulkanRenderer& renderer) : Texture2(renderer, TextureType::vkTexture2D)
+RendererColorTexture::RendererColorTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkTexture2D)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);
@@ -31,7 +31,7 @@ void RendererColorTexture::CreateTextureImage(VulkanRenderer& renderer)
     TextureInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     TextureInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
-    Texture2::CreateTextureImage(renderer, TextureInfo);
+    Texture::CreateTextureImage(renderer, TextureInfo);
 }
 
 void RendererColorTexture::CreateTextureView(VulkanRenderer& renderer)
@@ -48,7 +48,7 @@ void RendererColorTexture::CreateTextureView(VulkanRenderer& renderer)
     TextureImageViewInfo.subresourceRange.layerCount = 1;
     TextureImageViewInfo.image = Image;
 
-    Texture2::CreateTextureView(renderer, TextureImageViewInfo);
+    Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
 void RendererColorTexture::CreateTextureSampler(VulkanRenderer& renderer)
@@ -67,5 +67,5 @@ void RendererColorTexture::CreateTextureSampler(VulkanRenderer& renderer)
     TextureImageSamplerInfo.maxLod = 1.0f;
     TextureImageSamplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
-    Texture2::CreateTextureSampler(renderer, TextureImageSamplerInfo);
+    Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }

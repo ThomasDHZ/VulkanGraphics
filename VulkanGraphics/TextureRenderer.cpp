@@ -3,11 +3,11 @@
 #include <array>
 #include "Vertex.h"
 
-TextureRenderer::TextureRenderer()
+TextureRenderer::TextureRenderer() : RendererBase()
 {
 }
 
-TextureRenderer::TextureRenderer(VulkanRenderer& renderer)
+TextureRenderer::TextureRenderer(VulkanRenderer& renderer) : RendererBase(renderer)
 {
     CreateRenderPass(renderer);
     CreateDescriptorSets(renderer);
@@ -15,6 +15,11 @@ TextureRenderer::TextureRenderer(VulkanRenderer& renderer)
     DepthTexture = RendererDepthTexture(renderer);
     ColorTexture = RendererColorTexture(renderer);
     CreateRendererFramebuffers(renderer);
+
+    skyboxPipeline = SkyBoxPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    DebugLightPipeline = DebugLightRenderingPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    DebugCollisionPipeline = CollisionDebugPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    MeshviewPipeline = WireFramePipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
 }
 
 TextureRenderer::~TextureRenderer()

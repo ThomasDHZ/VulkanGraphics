@@ -1,10 +1,10 @@
 #include "RendererDepthTexture.h"
 
-RendererDepthTexture::RendererDepthTexture() : Texture2()
+RendererDepthTexture::RendererDepthTexture() : Texture()
 {
 }
 
-RendererDepthTexture::RendererDepthTexture(VulkanRenderer& renderer) : Texture2(renderer, TextureType::vkTexture2D)
+RendererDepthTexture::RendererDepthTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkTexture2D)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);
@@ -32,7 +32,7 @@ void RendererDepthTexture::CreateTextureImage(VulkanRenderer& renderer)
     TextureInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     TextureInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    Texture2::CreateTextureImage(renderer, TextureInfo);
+    Texture::CreateTextureImage(renderer, TextureInfo);
 }
 
 void RendererDepthTexture::CreateTextureView(VulkanRenderer& renderer)
@@ -48,7 +48,7 @@ void RendererDepthTexture::CreateTextureView(VulkanRenderer& renderer)
     TextureImageViewInfo.subresourceRange.baseArrayLayer = 0;
     TextureImageViewInfo.subresourceRange.layerCount = 1;
 
-    Texture2::CreateTextureView(renderer, TextureImageViewInfo);
+    Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
 void RendererDepthTexture::CreateTextureSampler(VulkanRenderer& renderer)
@@ -67,5 +67,5 @@ void RendererDepthTexture::CreateTextureSampler(VulkanRenderer& renderer)
     TextureImageSamplerInfo.maxLod = 1.0f;
     TextureImageSamplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
-    Texture2::CreateTextureSampler(renderer, TextureImageSamplerInfo);
+    Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }

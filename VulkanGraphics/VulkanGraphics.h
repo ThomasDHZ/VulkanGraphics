@@ -6,7 +6,6 @@
 #include "Renderer.h"
 #include "Mesh.h"
 #include "VulkanWindow.h"
-#include "VulkanResources.h"
 #include "GUIDebugger.h"
 #include "Camera.h"
 #include "ModelLoader.h"
@@ -21,7 +20,7 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include <chrono>
-#include "NewTexture2D.h"
+#include "Texture2D.h"
 
 const std::vector<Vertex> vertices =
 {
@@ -74,7 +73,7 @@ const std::vector<uint16_t> quadindices = {
         20,21,22, 20,22,23,
 };
 
-class VulkanGraphics : VulkanResources
+class VulkanGraphics
 {
 private:
 	//Lights light = {};
@@ -85,7 +84,7 @@ private:
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
 	Renderer renderer;
-    NewTexture2D newtexture;
+    Texture2D newtexture;
 	Keyboard keyboard;
 	Mouse mouse;
 
@@ -95,7 +94,8 @@ private:
 
 	//LightManager lightManager;
 
-	//SkyBox Skybox;
+    NewCubeMapTexture newtexturebox;
+	//SkyBoxMesh Skybox;
 
 	std::vector<Mesh2> MeshList;
 	//std::vector<Model> ModelList;

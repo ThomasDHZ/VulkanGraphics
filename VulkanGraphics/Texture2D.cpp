@@ -1,21 +1,21 @@
-#include "NewTexture2D.h"
+#include "Texture2D.h"
 
-NewTexture2D::NewTexture2D() : Texture2()
+Texture2D::Texture2D() : Texture()
 {
 }
 
-NewTexture2D::NewTexture2D(VulkanRenderer& renderer, std::string TextureLocation) : Texture2(renderer, TextureLocation, TextureType::vkTexture2D)
+Texture2D::Texture2D(VulkanRenderer& renderer, std::string TextureLocation) : Texture(renderer, TextureLocation, TextureType::vkTexture2D)
 {
 	LoadTexture(renderer, TextureLocation);
 	CreateTextureView(renderer);
 	CreateTextureSampler(renderer);
 }
 
-NewTexture2D::~NewTexture2D()
+Texture2D::~Texture2D()
 {
 }
 
-void NewTexture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation)
+void Texture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation)
 {
 	int ColorChannels;
 	stbi_uc* pixels = stbi_load(TextureLocation.c_str(), &Width, &Height, &ColorChannels, STBI_rgb_alpha);
@@ -23,7 +23,7 @@ void NewTexture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLoca
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	NewVulkanBufferManager::CreateBuffer(renderer, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(renderer, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	VkImageCreateInfo TextureInfo = {};
 	TextureInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -45,7 +45,7 @@ void NewTexture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLoca
 	memcpy(data, pixels, static_cast<size_t>(imageSize));
 	vkUnmapMemory(renderer.Device, stagingBufferMemory);
 
-	Texture2::CreateTextureImage(renderer, TextureInfo);
+	Texture::CreateTextureImage(renderer, TextureInfo);
 
 	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	CopyBufferToImage(renderer, stagingBuffer);
@@ -55,7 +55,7 @@ void NewTexture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLoca
 	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
-void NewTexture2D::CreateTextureView(VulkanRenderer& renderer)
+void Texture2D::CreateTextureView(VulkanRenderer& renderer)
 {
 	VkImageViewCreateInfo TextureImageViewInfo = {};
 	TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -68,10 +68,10 @@ void NewTexture2D::CreateTextureView(VulkanRenderer& renderer)
 	TextureImageViewInfo.subresourceRange.layerCount = 1;
 	TextureImageViewInfo.image = Image;
 
-	Texture2::CreateTextureView(renderer, TextureImageViewInfo);
+	Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void NewTexture2D::CreateTextureSampler(VulkanRenderer& renderer)
+void Texture2D::CreateTextureSampler(VulkanRenderer& renderer)
 {
 	VkSamplerCreateInfo TextureImageSamplerInfo = {};
 	TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -89,5 +89,5 @@ void NewTexture2D::CreateTextureSampler(VulkanRenderer& renderer)
 	TextureImageSamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 	TextureImageSamplerInfo.anisotropyEnable = VK_TRUE;
 
-	Texture2::CreateTextureSampler(renderer, TextureImageSamplerInfo);
+	Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }

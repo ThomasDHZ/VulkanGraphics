@@ -20,7 +20,7 @@ void VulkanUniformBuffer::CreateUniformBuffers(VulkanRenderer& renderer)
 	UniformBuffersMemory.resize(renderer.SwapChain.GetSwapChainImageCount());
 	for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
 	{
-		NewVulkanBufferManager::CreateBuffer(renderer, BufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, UniformBuffers[i], UniformBuffersMemory[i]);
+		VulkanBufferManager::CreateBuffer(renderer, BufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, UniformBuffers[i], UniformBuffersMemory[i]);
 	}
 }
 

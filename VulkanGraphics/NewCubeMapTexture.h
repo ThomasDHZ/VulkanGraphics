@@ -1,5 +1,5 @@
 #pragma once
-#include "Texture2.h"
+#include "Texture.h"
 
 struct CubeMapLayout
 {
@@ -11,7 +11,7 @@ struct CubeMapLayout
 	std::string Left;
 };
 
-class NewCubeMapTexture : public Texture2
+class NewCubeMapTexture : public Texture
 {
 private:
     void LoadTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles);

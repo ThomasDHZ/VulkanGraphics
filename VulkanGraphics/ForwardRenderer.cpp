@@ -8,13 +8,18 @@ ForwardRenderer::ForwardRenderer() : RendererBase()
 {
 }
 
-ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase()
+ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase(renderer)
 {
     CreateRenderPass(renderer);
     CreateDescriptorSets(renderer);
     CreateRenderingPipeline(renderer);
     DepthTexture = RendererDepthTexture(renderer);
     CreateRendererFramebuffers(renderer);
+
+    skyboxPipeline = SkyBoxPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    DebugLightPipeline = DebugLightRenderingPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    DebugCollisionPipeline = CollisionDebugPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    MeshviewPipeline = WireFramePipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
 }
 
 ForwardRenderer::~ForwardRenderer()

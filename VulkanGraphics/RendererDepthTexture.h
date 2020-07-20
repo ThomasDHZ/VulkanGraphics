@@ -1,7 +1,7 @@
 #pragma once
-#include "Texture2.h"
+#include "Texture.h"
 
-class RendererDepthTexture : public Texture2
+class RendererDepthTexture : public Texture
 {
 private:
     void CreateTextureImage(VulkanRenderer& renderer);

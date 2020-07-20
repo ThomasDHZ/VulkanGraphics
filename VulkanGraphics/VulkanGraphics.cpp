@@ -16,18 +16,17 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = Renderer(Window.GetWindowPtr());
-	auto an = static_cast<VulkanRenderer>(renderer);
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
 	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
 
-	//CubeMapLayout layout;
-	//layout.Left = "texture/skybox/left.jpg";
-	//layout.Right = "texture/skybox/right.jpg";
-	//layout.Top = "texture/skybox/top.jpg";
-	//layout.Bottom = "texture/skybox/bottom.jpg";
-	//layout.Back = "texture/skybox/back.jpg";
-	//layout.Front = "texture/skybox/front.jpg";
+	CubeMapLayout layout;
+	layout.Left = "texture/skybox/left.jpg";
+	layout.Right = "texture/skybox/right.jpg";
+	layout.Top = "texture/skybox/top.jpg";
+	layout.Bottom = "texture/skybox/bottom.jpg";
+	layout.Back = "texture/skybox/back.jpg";
+	layout.Front = "texture/skybox/front.jpg";
 
 	//maps.DiffuseMap = Texture2D(renderer, "texture/zxc_diffuseOriginal.bmp");
 	//maps.NormalMap = Texture2D(renderer, "texture/Temp.bmp");
@@ -36,11 +35,12 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//maps.AlphaMap = Texture2D(renderer, "texture/Temp.bmp");
 	//maps.CubeMap = CubeMapTexture(renderer, layout);
 
-	newtexture = NewTexture2D(an, "texture/zxc_diffuseOriginal.bmp");
+	newtexturebox = NewCubeMapTexture(*renderer.GetVulkanRendererBase(), layout);
+	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/zxc_diffuseOriginal.bmp");
 
-	//Skybox = SkyBox(renderer, maps.CubeMap);
-	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, newtexture, renderer.forwardRenderer.DescriptorSetLayout));
-	MeshList.emplace_back(Mesh2(an, quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.DescriptorSetLayout));
+	//Skybox = SkyBoxMesh(an, newtexturebox, renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout);
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture, renderer.forwardRenderer.DescriptorSetLayout));
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.DescriptorSetLayout));
 
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
@@ -49,9 +49,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 VulkanGraphics::~VulkanGraphics()
 {
-	auto an = static_cast<VulkanRenderer>(renderer);
-
-	vkDeviceWaitIdle(*GetDevice(renderer));
+	vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
 
 	//maps.DiffuseMap.Destroy(renderer);
 	//maps.NormalMap.Destroy(renderer);
@@ -62,12 +60,11 @@ VulkanGraphics::~VulkanGraphics()
 	//maps.CubeMap.Destroy(renderer);
 
 
-	newtexture.Delete(an);
+	newtexture.Delete(*renderer.GetVulkanRendererBase());
 
 	for (auto mesh : MeshList)
 	{
-		auto an = static_cast<VulkanRenderer>(renderer);
-		mesh.Destory(an);
+		mesh.Destory(*renderer.GetVulkanRendererBase());
 	}
 	//lightManager.Destroy(renderer);
 	//
@@ -136,15 +133,14 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	//}
 	//Skybox.UpdateUniformBuffer(renderer, camera);
 
-	auto an = static_cast<VulkanRenderer>(renderer);
 	{
 		UniformBufferObject ubo{};
 		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj = glm::perspective(glm::radians(45.0f), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10.0f);
+		ubo.proj = glm::perspective(glm::radians(45.0f), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10.0f);
 		ubo.proj[1][1] *= -1;
 
-		MeshList[0].UpdateUniformBuffer(an, ubo);
+		MeshList[0].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
 	}
 	{
 		UniformBufferObject ubo{};
@@ -152,10 +148,10 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 		ubo.model = glm::translate(ubo.model, glm::vec3(-2.5f, 0.0f, 0.0f));
 		// ubo.model = glm::rotate(ubo.model, time * glm::radians(90.0f), glm::vec3(-0.5f, 0.5f, 0.5f));
 		ubo.view = camera.GetViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(camera.Zoom), GetSwapChainResolution(renderer)->width / (float)GetSwapChainResolution(renderer)->height, 0.1f, 10000.0f);
+		ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
 		ubo.proj[1][1] *= -1;
 
-		MeshList[1].UpdateUniformBuffer(an, ubo);
+		MeshList[1].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
 	}
 }
 
@@ -175,14 +171,5 @@ void VulkanGraphics::MainLoop()
 		UpdateImGUI();
 		Update(renderer.DrawFrame);
 		renderer.Draw(Window.GetWindowPtr(), MeshList);
-//		{
-//	VkBuffer vertexBuffers[] = { Skybox.vertexBuffer };
-//	VkDeviceSize offsets[] = { 0 };
-//
-//	vkCmdBindPipeline(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipeline(renderer));
-//	vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[DrawFrame], 0, 1, vertexBuffers, offsets);
-//	vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, *GetSkyboxShaderPipelineLayout(renderer), 0, 1, &Skybox.descriptorSets[DrawFrame], 0, nullptr);
-//	vkCmdDraw(renderer.RenderCommandBuffer[DrawFrame], Skybox.VertexSize, 1, 0, 0);
-//}
 	}
 }

@@ -3,7 +3,6 @@
 #include "VulkanDebugger.h"
 #include "VulkanSwapChain.h"
 #include "ForwardRenderingPipeline.h"
-#include "InputAttachment.h"
 #include "SkyBoxPipeline.h"
 #include "WireFramePipeline.h"
 #include "FrameBufferMesh.h"
@@ -28,10 +27,6 @@ private:
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
 
-	DebugLightRenderingPipeline DebugLightPipeline;
-	CollisionDebugPipeline DebugCollisionPipeline;
-	WireFramePipeline MeshviewPipeline;
-	SkyBoxPipeline SkyboxPipeline;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 
@@ -56,5 +51,5 @@ public:
 	~Renderer();
 
 	VulkanRendererSettings Settings;
-
+	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
 };

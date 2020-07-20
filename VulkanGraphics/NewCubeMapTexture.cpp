@@ -1,10 +1,10 @@
 #include "NewCubeMapTexture.h"
 
-NewCubeMapTexture::NewCubeMapTexture() : Texture2()
+NewCubeMapTexture::NewCubeMapTexture() : Texture()
 {
 }
 
-NewCubeMapTexture::NewCubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles) : Texture2(renderer, TextureType::vkTextureCube)
+NewCubeMapTexture::NewCubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, TextureType::vkTextureCube)
 {
 	LoadTexture(renderer, CubeMapFiles);
 	CreateTextureView(renderer);
@@ -32,7 +32,7 @@ void NewCubeMapTexture::LoadTexture(VulkanRenderer& renderer, CubeMapLayout Cube
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
-	NewVulkanBufferManager::CreateBuffer(renderer, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	VulkanBufferManager::CreateBuffer(renderer, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	VkImageCreateInfo TextureInfo = {};
 	TextureInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -41,7 +41,8 @@ void NewCubeMapTexture::LoadTexture(VulkanRenderer& renderer, CubeMapLayout Cube
 	TextureInfo.extent.height = Height;
 	TextureInfo.extent.depth = 1;
 	TextureInfo.mipLevels = 1;
-	TextureInfo.arrayLayers = 1;
+	TextureInfo.arrayLayers = 6;
+	TextureInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 	TextureInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
 	TextureInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 	TextureInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -57,7 +58,7 @@ void NewCubeMapTexture::LoadTexture(VulkanRenderer& renderer, CubeMapLayout Cube
 	}
 	vkUnmapMemory(renderer.Device, stagingBufferMemory);
 
-	Texture2::CreateTextureImage(renderer, TextureInfo);
+	Texture::CreateTextureImage(renderer, TextureInfo);
 
 	TransitionImageLayout(renderer, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	CopyBufferToImage(renderer, stagingBuffer);
@@ -71,16 +72,16 @@ void NewCubeMapTexture::CreateTextureView(VulkanRenderer& renderer)
 {
 	VkImageViewCreateInfo TextureImageViewInfo = {};
 	TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	TextureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	TextureImageViewInfo.image = Image;
 	TextureImageViewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
 	TextureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	TextureImageViewInfo.subresourceRange.baseMipLevel = 0;
 	TextureImageViewInfo.subresourceRange.levelCount = 1;
 	TextureImageViewInfo.subresourceRange.baseArrayLayer = 0;
-	TextureImageViewInfo.subresourceRange.layerCount = 1;
-	TextureImageViewInfo.image = Image;
+	TextureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+	TextureImageViewInfo.subresourceRange.layerCount = 6;
 
-	Texture2::CreateTextureView(renderer, TextureImageViewInfo);
+	Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
 void NewCubeMapTexture::CreateTextureSampler(VulkanRenderer& renderer)
@@ -101,5 +102,5 @@ void NewCubeMapTexture::CreateTextureSampler(VulkanRenderer& renderer)
 	TextureImageSamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 	TextureImageSamplerInfo.anisotropyEnable = VK_TRUE;
 
-	Texture2::CreateTextureSampler(renderer, TextureImageSamplerInfo);
+	Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }
