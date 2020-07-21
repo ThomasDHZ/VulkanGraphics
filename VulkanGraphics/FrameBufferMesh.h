@@ -16,7 +16,7 @@ const std::vector<Vertex2D> FrameBufferVertices =
 };
 
 const std::vector<uint16_t> FrameBufferIndices = {
-    0, 1, 3, 1
+    0, 1, 3, 1, 2, 3
 };
 
 class FrameBufferMesh : public BaseMesh

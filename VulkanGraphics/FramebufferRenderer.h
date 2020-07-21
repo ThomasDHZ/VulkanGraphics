@@ -1,5 +1,25 @@
 #pragma once
-class FramebufferRenderer
+
+#include "RendererDepthTexture.h"
+#include "RendererHDRColorTexture.h"
+#include "RendererBase.h"
+
+class FramebufferRenderer : public RendererBase
 {
+private:
+	void CreateRenderPass(VulkanRenderer& renderer);
+	void CreateDescriptorSets(VulkanRenderer& renderer);
+	void CreateRenderingPipeline(VulkanRenderer& renderer);
+	void CreateRendererFramebuffers(VulkanRenderer& renderer);
+
+public:
+	FramebufferRenderer();
+	FramebufferRenderer(VulkanRenderer& renderer);
+	~FramebufferRenderer();
+
+	void UpdateSwapChain(VulkanRenderer& renderer);
+	void Destroy(VulkanRenderer& renderer);
+
+	RendererDepthTexture DepthTexture;
 };
 

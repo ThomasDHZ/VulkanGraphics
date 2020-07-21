@@ -9,6 +9,7 @@ Renderer::Renderer(GLFWwindow* window) : VulkanRenderer(window)
 {
 	forwardRenderer = ForwardRenderer(*GetVulkanRendererBase());
 	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
+	frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
 	InitializeGUIDebugger(window);
 }
 
@@ -135,6 +136,7 @@ uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh framebuffer, SkyBoxM
 
 	DrawToTextureRenderPass(skybox, MeshList);
 	MainRenderPass(framebuffer, skybox, MeshList);
+	FrameBufferRenderPass(framebuffer, skybox, MeshList);
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -254,8 +256,27 @@ void Renderer::MainRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, st
 
 	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList);
 	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, skybox);
+	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+}
+
+void Renderer::FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+{
+	std::array<VkClearValue, 2> clearValues{};
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//clearValues[1].color = { 0.1f, 0.1f, 0.1f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = forwardRenderer.RenderPass;
+	renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, framebuffer);
-	//vkCmdNextSubpass(RenderCommandBuffer[DrawFrame], VK_SUBPASS_CONTENTS_INLINE);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
