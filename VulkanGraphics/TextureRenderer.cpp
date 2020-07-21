@@ -119,8 +119,8 @@ void TextureRenderer::CreateDescriptorSets(VulkanRenderer& renderer)
 
 void TextureRenderer::CreateRenderingPipeline(VulkanRenderer& renderer)
 {
-    auto vertShaderCode = ReadFile("shaders/FrameBufferVert.spv");
-    auto fragShaderCode = ReadFile("shaders/FrameBufferFrag.spv");
+    auto vertShaderCode = ReadFile("shaders/ForwardRendererVert.spv");
+    auto fragShaderCode = ReadFile("shaders/ForwardRendererFrag.spv");
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer.Device, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(renderer.Device, fragShaderCode);

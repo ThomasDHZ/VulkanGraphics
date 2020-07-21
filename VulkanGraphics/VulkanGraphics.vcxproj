@@ -165,7 +165,8 @@
     <ClCompile Include="Mesh2.cpp" />
     <ClCompile Include="MMShot.cpp" />
     <ClCompile Include="Mouse.cpp" />
-    <ClCompile Include="NewCubeMapTexture.cpp" />
+    <ClCompile Include="CubeMapTexture.cpp" />
+    <ClCompile Include="RendererHDRColorTexture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Renderer2DPipeline.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
@@ -186,7 +187,6 @@
     <ClCompile Include="RendererDepthTexture.cpp" />
     <ClCompile Include="RendereredTexture.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="SkyBoxMesh.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="LevelMesh2D.cpp" />
@@ -201,7 +201,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="SkyBoxPipeline.cpp" />
-    <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="SkyBoxMesh.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="VulkanSwapChain.cpp" />
@@ -249,7 +249,8 @@
     <ClInclude Include="Mesh2.h" />
     <ClInclude Include="MMShot.h" />
     <ClInclude Include="Mouse.h" />
-    <ClInclude Include="NewCubeMapTexture.h" />
+    <ClInclude Include="CubeMapTexture.h" />
+    <ClInclude Include="RendererHDRColorTexture.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="VulkanBufferManager.h" />
     <ClInclude Include="Renderer2DPipeline.h" />
@@ -274,7 +275,6 @@
     <ClInclude Include="RendererDepthTexture.h" />
     <ClInclude Include="RendereredTexture.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="SkyBoxMesh.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="LevelMesh2D.h" />
@@ -291,7 +291,7 @@
     <ClInclude Include="SkyBoxPipeline.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Structs.h" />
-    <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="SkyBoxMesh.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="VulkanSwapChain.h" />
     <ClInclude Include="Vertex.h" />

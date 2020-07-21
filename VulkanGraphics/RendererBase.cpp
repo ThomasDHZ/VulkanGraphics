@@ -49,37 +49,9 @@ VkShaderModule RendererBase::CreateShaderModule(VkDevice Device, const std::vect
 
 void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, Mesh2& mesh)
 {
-    std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-    clearValues[1].depthStencil = { 1.0f, 0 };
 
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = RenderPass;
-    renderPassInfo.framebuffer = SwapChainFramebuffers[frame];
-    renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = extent;
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
-
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
     VkDeviceSize offsets[] = { 0 };
-
-    //{
-    //    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, MeshviewPipeline.ShaderPipeline);
-    //    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-    //    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, MeshviewPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
-    //    if (mesh.IndexSize == 0)
-    //    {
-    //        vkCmdDraw(commandBuffer, mesh.VertexSize, 1, 0, 0);
-    //    }
-    //    else
-    //    {
-    //        vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-    //        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
-    //    }
-    //}
     {
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, RendererPipeline);
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
@@ -87,34 +59,10 @@ void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int fr
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, RendererLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
     }
-    //{
-    //    VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
-    //    VkDeviceSize offsets[] = { 0 };
-
-    //    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, skyboxPipeline.ShaderPipeline);
-    //    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-    //    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, skyboxPipeline.ShaderPipelineLayout, 0, 1, &skymesh.DescriptorSets[frame], 0, nullptr);
-    //    vkCmdDraw(commandBuffer, skymesh.VertexSize, 1, 0, 0);
-    //}
-    vkCmdEndRenderPass(commandBuffer);
 }
 
 void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, std::vector<Mesh2>& MeshList)
 {
-    std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-    clearValues[1].depthStencil = { 1.0f, 0 };
-
-    VkRenderPassBeginInfo renderPassInfo{};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = RenderPass;
-    renderPassInfo.framebuffer = SwapChainFramebuffers[frame];
-    renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = extent;
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
-
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     for (auto mesh : MeshList)
     {
         VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
@@ -142,43 +90,17 @@ void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int fr
             vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
         }
     }
-    //{
-    //    VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
-    //    VkDeviceSize offsets[] = { 0 };
-
-    //    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, skyboxPipeline.ShaderPipeline);
-    //    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-    //    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, skyboxPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
-    //    vkCmdDraw(commandBuffer, mesh.VertexSize, 1, 0, 0);
-    //}
-    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
-    vkCmdEndRenderPass(commandBuffer);
 }
 
 void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, SkyBoxMesh mesh)
 {
- //   std::array<VkClearValue, 2> clearValues{};
- //   clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
- //   clearValues[1].depthStencil = { 1.0f, 0 };
+    VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
+    VkDeviceSize offsets[] = { 0 };
 
- //   VkRenderPassBeginInfo renderPassInfo{};
- //   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
- //   renderPassInfo.renderPass = RenderPass;
- //   renderPassInfo.framebuffer = SwapChainFramebuffers[frame];
- //   renderPassInfo.renderArea.offset = { 0, 0 };
- //   renderPassInfo.renderArea.extent = extent;
- //   renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
- //   renderPassInfo.pClearValues = clearValues.data();
-
- //   vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
- //   VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
-	//VkDeviceSize offsets[] = { 0 };
-
-	//vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, skyboxPipeline.ShaderPipeline);
-	//vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	//vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, skyboxPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
-	//vkCmdDraw(commandBuffer, mesh.VertexSize, 1, 0, 0);
- //   vkCmdEndRenderPass(commandBuffer);
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, skyboxPipeline.ShaderPipeline);
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, skyboxPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
+	vkCmdDraw(commandBuffer, mesh.VertexSize, 1, 0, 0);
 }
 
 void RendererBase::Destroy(VkDevice Device)

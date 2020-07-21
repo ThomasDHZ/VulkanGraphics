@@ -10,6 +10,7 @@
 #include "DebugLightRenderingPipeline.h"
 #include "CollisionDebugPipeline.h"
 #include "WireFramePipeline.h"
+#include "SkyBoxMesh.h"
 
 class RendererBase
 {

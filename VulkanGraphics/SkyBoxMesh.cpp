@@ -1,97 +1,114 @@
 #include "SkyBoxMesh.h"
+#include <stb_image.h>
+#include "VulkanBufferManager.h"
+#include <vector>
 
-
-SkyBoxMesh::SkyBoxMesh()
+SkyBoxMesh::SkyBoxMesh() : BaseMesh()
 {
 }
 
-SkyBoxMesh::SkyBoxMesh(VulkanRenderer& renderer, NewCubeMapTexture texture, VkDescriptorSetLayout& descriptorSetLayout)
+SkyBoxMesh::SkyBoxMesh(VulkanRenderer& renderer, VkDescriptorSetLayout layout, CubeMapTexture texture) : BaseMesh()
 {
-    texturebox = texture;
+	CubeMap = texture;
+	VertexSize = SkyBoxVertices.size();
+	IndexSize = 0;
 
-    VertexSize = SkyBoxVertices.size();
-    IndexSize = 0;
-
-    CreateVertexBuffer(renderer, SkyBoxVertices);
-    CreateUniformBuffers(renderer);
-    CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, descriptorSetLayout);
+	SetUpVertexBuffer(renderer);
+	SetUpUniformBuffers(renderer);
+	SetUpDescriptorPool(renderer);
+	SetUpDescriptorSets(renderer, layout);
 }
 
 SkyBoxMesh::~SkyBoxMesh()
 {
 }
 
-void SkyBoxMesh::CreateUniformBuffers(VulkanRenderer& renderer)
+void SkyBoxMesh::SetUpVertexBuffer(VulkanRenderer& renderer)
 {
-    PositionMatrixBuffer = VulkanUniformBuffer(renderer, sizeof(VulkanUniformBuffer));
+	VkDeviceSize bufferSize = sizeof(SkyBoxVertices[0]) * SkyBoxVertices.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, SkyBoxVertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(renderer.Device, stagingBufferMemory);
+
+	VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
+
+	VulkanBufferManager::CopyBuffer(renderer, stagingBuffer, VertexBuffer, bufferSize);
+
+	vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
+	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
-void SkyBoxMesh::CreateDescriptorPool(VulkanRenderer& renderer) {
+void SkyBoxMesh::SetUpDescriptorPool(VulkanRenderer& renderer)
+{
+	std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
 
-    std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
-    
-    	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-    BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+	BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void SkyBoxMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout)
+void SkyBoxMesh::SetUpUniformBuffers(VulkanRenderer& renderer)
 {
-    BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
+	PositionMatrixBuffer = VulkanUniformBuffer(renderer, sizeof(SkyBoxPositionMatrix));
+}
 
-    VkDescriptorImageInfo imageInfo{};
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = texturebox.View;
-    imageInfo.sampler = texturebox.Sampler;
+void SkyBoxMesh::SetUpDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout layout)
+{
+	BaseMesh::CreateDescriptorSets(renderer, layout);
 
-    for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
-    {
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = PositionMatrixBuffer.GetUniformBuffer(i);
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(VulkanUniformBuffer);
+	VkDescriptorImageInfo imageInfo = {};
+	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageInfo.imageView = CubeMap.View;
+	imageInfo.sampler = CubeMap.Sampler;
 
-        std::vector<WriteDescriptorSetInfo> DescriptorList;
+	for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
+	{
+		VkDescriptorBufferInfo bufferInfo = {};
+		bufferInfo.buffer = PositionMatrixBuffer.GetUniformBuffer(i);
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(SkyBoxPositionMatrix);
 
-        WriteDescriptorSetInfo PositionDescriptor;
-        PositionDescriptor.DstBinding = 0;
-        PositionDescriptor.DstSet = DescriptorSets[i];
-        PositionDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        PositionDescriptor.DescriptorBufferInfo = bufferInfo;
-        DescriptorList.emplace_back(PositionDescriptor);
+		std::array<VkWriteDescriptorSet, 2>  descriptorWrites = {};
 
-        WriteDescriptorSetInfo DiffuseMapDescriptor;
-        DiffuseMapDescriptor.DstBinding = 1;
-        DiffuseMapDescriptor.DstSet = DescriptorSets[i];
-        DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        DiffuseMapDescriptor.DescriptorImageInfo = imageInfo;
-        DescriptorList.emplace_back(DiffuseMapDescriptor);
+		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[0].dstSet = DescriptorSets[i];
+		descriptorWrites[0].dstBinding = 0;
+		descriptorWrites[0].dstArrayElement = 0;
+		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[0].descriptorCount = 1;
+		descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-        BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
-    }
+		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[1].dstSet = DescriptorSets[i];
+		descriptorWrites[1].dstBinding = 1;
+		descriptorWrites[1].dstArrayElement = 0;
+		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[1].descriptorCount = 1;
+		descriptorWrites[1].pImageInfo = &imageInfo;
+
+		vkUpdateDescriptorSets(renderer.Device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+	}
 }
 
 void SkyBoxMesh::UpdateUniformBuffer(VulkanRenderer& renderer, Camera& camera)
 {
-    SkyBoxPositionMatrix positionMatrix = {};
-    positionMatrix.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-    positionMatrix.projection = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 100.0f);
-    positionMatrix.projection[1][1] *= -1;
+	SkyBoxPositionMatrix positionMatrix = {};
+	positionMatrix.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+	positionMatrix.projection = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 100.0f);
+	positionMatrix.projection[1][1] *= -1;
 
-    PositionMatrixBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&positionMatrix));
-}
-
-void SkyBoxMesh::Update(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout)
-{
-    CreateUniformBuffers(renderer);
-    CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, descriptorSetLayout);
+	PositionMatrixBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&positionMatrix));
 }
 
 void SkyBoxMesh::Destory(VulkanRenderer& renderer)
 {
-    PositionMatrixBuffer.Destroy(renderer);
-    BaseMesh::Destory(renderer);
+	PositionMatrixBuffer.Destroy(renderer);
+	BaseMesh::Destory(renderer);
 }

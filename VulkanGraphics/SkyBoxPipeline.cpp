@@ -1,7 +1,7 @@
 #include "SkyBoxPipeline.h"
 #include <array>
 #include "Mesh.h"
-#include "Skybox.h"
+#include "SkyboxMesh.h"
 #include "Vertex.h"
 
 SkyBoxPipeline::SkyBoxPipeline() : GraphicsPipeline()

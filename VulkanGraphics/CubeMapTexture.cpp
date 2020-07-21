@@ -1,21 +1,21 @@
-#include "NewCubeMapTexture.h"
+#include "CubeMapTexture.h"
 
-NewCubeMapTexture::NewCubeMapTexture() : Texture()
+CubeMapTexture::CubeMapTexture() : Texture()
 {
 }
 
-NewCubeMapTexture::NewCubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, TextureType::vkTextureCube)
+CubeMapTexture::CubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, TextureType::vkTextureCube)
 {
 	LoadTexture(renderer, CubeMapFiles);
 	CreateTextureView(renderer);
 	CreateTextureSampler(renderer);
 }
 
-NewCubeMapTexture::~NewCubeMapTexture()
+CubeMapTexture::~CubeMapTexture()
 {
 }
 
-void NewCubeMapTexture::LoadTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles)
+void CubeMapTexture::LoadTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles)
 {
 	std::vector<unsigned char*> textureData;
 	int texChannels;
@@ -68,7 +68,7 @@ void NewCubeMapTexture::LoadTexture(VulkanRenderer& renderer, CubeMapLayout Cube
 	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
-void NewCubeMapTexture::CreateTextureView(VulkanRenderer& renderer)
+void CubeMapTexture::CreateTextureView(VulkanRenderer& renderer)
 {
 	VkImageViewCreateInfo TextureImageViewInfo = {};
 	TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -84,7 +84,7 @@ void NewCubeMapTexture::CreateTextureView(VulkanRenderer& renderer)
 	Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void NewCubeMapTexture::CreateTextureSampler(VulkanRenderer& renderer)
+void CubeMapTexture::CreateTextureSampler(VulkanRenderer& renderer)
 {
 	VkSamplerCreateInfo TextureImageSamplerInfo = {};
 	TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

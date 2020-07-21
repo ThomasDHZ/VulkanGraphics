@@ -11,14 +11,14 @@ struct CubeMapLayout
 	std::string Left;
 };
 
-class NewCubeMapTexture : public Texture
+class CubeMapTexture : public Texture
 {
 private:
     void LoadTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles);
     void CreateTextureView(VulkanRenderer& renderer);
     void CreateTextureSampler(VulkanRenderer& renderer);
 public:
-    NewCubeMapTexture();
-    NewCubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles);
-    ~NewCubeMapTexture();
+	CubeMapTexture();
+	CubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles);
+    ~CubeMapTexture();
 };

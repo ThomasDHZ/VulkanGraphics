@@ -18,7 +18,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	renderer = Renderer(Window.GetWindowPtr());
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
-	//modelLoader = ModelLoader(renderer, FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
+
 
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
@@ -35,11 +35,14 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//maps.AlphaMap = Texture2D(renderer, "texture/Temp.bmp");
 	//maps.CubeMap = CubeMapTexture(renderer, layout);
 
-	newtexturebox = NewCubeMapTexture(*renderer.GetVulkanRendererBase(), layout);
-	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/zxc_diffuseOriginal.bmp");
+	newtexturebox = CubeMapTexture(*renderer.GetVulkanRendererBase(), layout);
+	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/skybox/left.jpg");
 
-	//Skybox = SkyBoxMesh(an, newtexturebox, renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout);
-	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture, renderer.forwardRenderer.DescriptorSetLayout));
+	Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, newtexturebox);
+	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/gobber/GoblinX.obj"));
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture, renderer.forwardRenderer.DescriptorSetLayout));
+	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture, renderer.forwardRenderer.DescriptorSetLayout));
 	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.DescriptorSetLayout));
 
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
@@ -131,16 +134,25 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	//{
 	//	model.UpdateUniformBuffer(renderer, camera, light);
 	//}
-	//Skybox.UpdateUniformBuffer(renderer, camera);
+	Skybox.UpdateUniformBuffer(renderer, camera);
 
 	{
 		UniformBufferObject ubo{};
 		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj = glm::perspective(glm::radians(45.0f), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10.0f);
+		ubo.view = camera.GetViewMatrix();
+		ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
 		ubo.proj[1][1] *= -1;
 
 		MeshList[0].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
+	}
+	{
+		UniformBufferObject ubo{};
+		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(5.0f, 0.0f, 1.0f));
+		ubo.view = camera.GetViewMatrix();
+		ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
+		ubo.proj[1][1] *= -1;
+
+		MeshList[1].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
 	}
 	{
 		UniformBufferObject ubo{};
@@ -151,7 +163,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 		ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
 		ubo.proj[1][1] *= -1;
 
-		MeshList[1].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
+		MeshList[2].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
 	}
 }
 
@@ -170,6 +182,6 @@ void VulkanGraphics::MainLoop()
 		keyboard.Update(Window.GetWindowPtr(), camera, renderer.Settings);
 		UpdateImGUI();
 		Update(renderer.DrawFrame);
-		renderer.Draw(Window.GetWindowPtr(), MeshList);
+		renderer.Draw(Window.GetWindowPtr(), Skybox, MeshList);
 	}
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "RendererDepthTexture.h"
+#include "RendererHDRColorTexture.h"
 #include "RendererBase.h"
 
 class ForwardRenderer : public RendererBase
@@ -19,5 +20,6 @@ public:
 	void Destroy(VulkanRenderer& renderer);
 
 	RendererDepthTexture DepthTexture;
+	RendererHDRColorTexture HDRColorTexture;
 };
 

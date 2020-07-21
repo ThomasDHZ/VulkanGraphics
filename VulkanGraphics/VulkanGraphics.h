@@ -10,7 +10,7 @@
 #include "Camera.h"
 #include "ModelLoader.h"
 #include "Model.h"
-#include "Skybox.h"
+#include "SkyBoxMesh.h"
 #include "DebugLightMesh.h"
 #include "Light.h"
 #include "DirectionalLight.h"
@@ -78,7 +78,7 @@ class VulkanGraphics
 private:
 	//Lights light = {};
 
-	//ModelLoader modelLoader;
+	ModelLoader modelLoader;
 
 	//TextureMaps maps;
 	VulkanRendererSettings CompareVulkanSettings;
@@ -94,8 +94,9 @@ private:
 
 	//LightManager lightManager;
 
-    NewCubeMapTexture newtexturebox;
-	//SkyBoxMesh Skybox;
+    CubeMapTexture newtexturebox;
+    SkyBoxMesh Skybox;
+    //FrameBufferMesh frameBuffer;
 
 	std::vector<Mesh2> MeshList;
 	//std::vector<Model> ModelList;
