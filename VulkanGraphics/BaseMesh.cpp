@@ -28,6 +28,26 @@ void BaseMesh::CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex> 
     vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
+void BaseMesh::CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex2D> vertexdata) {
+    VkDeviceSize bufferSize = sizeof(vertexdata[0]) * vertexdata.size();
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, vertexdata.data(), (size_t)bufferSize);
+    vkUnmapMemory(renderer.Device, stagingBufferMemory);
+
+    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
+
+    VulkanBufferManager::CopyBuffer(renderer, stagingBuffer, VertexBuffer, bufferSize);
+
+    vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
+    vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
+}
+
 void BaseMesh::CreateIndexBuffer(VulkanRenderer& renderer, std::vector<uint16_t> indicesdata) {
     VkDeviceSize bufferSize = sizeof(indicesdata[0]) * indicesdata.size();
 

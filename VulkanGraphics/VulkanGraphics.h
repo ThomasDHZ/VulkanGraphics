@@ -21,20 +21,19 @@
 #include "Mouse.h"
 #include <chrono>
 #include "Texture2D.h"
+#include "FrameBufferMesh.h"
 
 const std::vector<Vertex> vertices =
 {
-		{ { 10.0f, -0.5f,  10.0f}, {0.0f, 1.0f, 0.0f}, {10.0f,  0.0f}},
-		{ {-10.0f, -0.5f,  10.0f}, {0.0f, 1.0f, 0.0f}, {0.0f,  0.0f}},
-	   { { -10.0f, -0.5f, -10.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 10.0f}},
-
-	   { {  10.0f, -0.5f,  10.0f}, {0.0f, 1.0f, 0.0f}, {10.0f,  0.0f}},
-	   { { -10.0f, -0.5f, -10.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 10.0f}},
-	  { {   10.0f, -0.5f, -10.0f}, {0.0f, 1.0f, 0.0f}, {10.0f, 10.0f}}
+      { {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {10.0f, 0.0f}},
+    		{{10.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
+    		{{10.0f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 10.0f}},
+    		{{0.0f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {10.0f, 10.0f}}
 };
 
 const std::vector<uint16_t> indices =
 {
+    0, 1, 2, 2, 3, 0
 };
 
 const std::vector<Vertex> quadvertices = {
@@ -85,6 +84,7 @@ private:
 	VulkanWindow Window;
 	Renderer renderer;
     Texture2D newtexture;
+    Texture2D newtexture2;
 	Keyboard keyboard;
 	Mouse mouse;
 
@@ -96,7 +96,7 @@ private:
 
     CubeMapTexture newtexturebox;
     SkyBoxMesh Skybox;
-    //FrameBufferMesh frameBuffer;
+    FrameBufferMesh frameBuffer;
 
 	std::vector<Mesh2> MeshList;
 	//std::vector<Model> ModelList;

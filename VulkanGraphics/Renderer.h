@@ -31,7 +31,7 @@ private:
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	void DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-	void MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	void MainRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 protected:
 
 	//Pretty much to section off for anything that needs to be used in VUlkanGraphics.
@@ -41,7 +41,7 @@ protected:
 	GUIDebugger guiDebugger;
 
 	void UpdateSwapChain(GLFWwindow* window);
-	uint32_t Draw(GLFWwindow* window, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	uint32_t Draw(GLFWwindow* window, FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 
 	void DestoryVulkan();
 

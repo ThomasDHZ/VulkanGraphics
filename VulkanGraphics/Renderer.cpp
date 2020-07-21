@@ -107,7 +107,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	UpdateCommandBuffers = true;
 }
 
-uint32_t Renderer::Draw(GLFWwindow* window, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -134,7 +134,7 @@ uint32_t Renderer::Draw(GLFWwindow* window, SkyBoxMesh skybox, std::vector<Mesh2
 	}
 
 	DrawToTextureRenderPass(skybox, MeshList);
-	MainRenderPass(skybox, MeshList);
+	MainRenderPass(framebuffer, skybox, MeshList);
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -202,11 +202,12 @@ void Renderer::DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& Me
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[0]);
 	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[1]);
+	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[2]);
 	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, skybox);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void Renderer::MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+void Renderer::MainRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
 {
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -223,8 +224,37 @@ void Renderer::MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+
+	//VkViewport viewports[2];
+	//// Left
+	//viewports[0] = { 0, 0, (float)SwapChain.GetSwapChainResolution().width / 2.0f, (float)SwapChain.GetSwapChainResolution().height, 0.0, 1.0f };
+	//// Right
+	//viewports[1] = { (float)SwapChain.GetSwapChainResolution().width / 2.0f, 0, (float)SwapChain.GetSwapChainResolution().width / 2.0f, (float)SwapChain.GetSwapChainResolution().height, 0.0, 1.0f };
+
+	//vkCmdSetViewport(RenderCommandBuffer[DrawFrame], 0, 2, viewports);
+
+	/*VkRect2D scissorRects[2]; 
+	scissorRects[0].extent.width = SwapChain.GetSwapChainResolution().width / 2;
+	scissorRects[0].extent.height = SwapChain.GetSwapChainResolution().height;
+	scissorRects[0].extent.width = 0;
+	scissorRects[0].extent.height = 0;
+
+	scissorRects[1].extent.width = SwapChain.GetSwapChainResolution().width / 2;
+	scissorRects[1].extent.height = SwapChain.GetSwapChainResolution().height;
+	scissorRects[1].extent.width = SwapChain.GetSwapChainResolution().width / 2;
+	scissorRects[1].extent.height = 0;
+
+
+	vkCmdSetScissor(RenderCommandBuffer[DrawFrame], 0, 2, scissorRects);
+
+	vkCmdSetLineWidth(RenderCommandBuffer[DrawFrame], 1.0f);
+
+	vkCmdSetViewport(RenderCommandBuffer[DrawFrame], 0, 1, viewports);*/
+
 	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList);
 	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, skybox);
+	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, framebuffer);
 	//vkCmdNextSubpass(RenderCommandBuffer[DrawFrame], VK_SUBPASS_CONTENTS_INLINE);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);

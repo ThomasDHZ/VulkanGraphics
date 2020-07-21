@@ -10,6 +10,7 @@ class BaseMesh
 private:
 protected:
     void CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex> vertexdata);
+    void CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex2D> vertexdata);
     void CreateIndexBuffer(VulkanRenderer& renderer, std::vector<uint16_t> indicesdata);
     void CreateDescriptorPool(VulkanRenderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
     void CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout layout);

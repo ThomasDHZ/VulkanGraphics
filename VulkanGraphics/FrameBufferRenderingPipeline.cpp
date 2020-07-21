@@ -17,15 +17,11 @@ FrameBufferRenderingPipeline::~FrameBufferRenderingPipeline()
 
 void FrameBufferRenderingPipeline::CreateDescriptorSetLayout()
 {
-	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 1> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
-	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	LayoutBindingInfo[0].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	LayoutBindingInfo[1].Binding = 1;
-	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
@@ -144,7 +140,7 @@ void FrameBufferRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExte
 	FrameBufferPipelineInfo.pColorBlendState = &colorBlending;
 	FrameBufferPipelineInfo.layout = ShaderPipelineLayout;
 	FrameBufferPipelineInfo.renderPass = renderPass;
-	FrameBufferPipelineInfo.subpass = 1;
+	FrameBufferPipelineInfo.subpass = 0;
 	FrameBufferPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
 	GraphicsPipeline::CreatePipeLine(FrameBufferPipelineInfo);

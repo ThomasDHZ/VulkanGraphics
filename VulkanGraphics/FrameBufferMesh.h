@@ -1,45 +1,41 @@
-//#pragma once
-//#include "FrameBufferRenderingPipeline.h"
-//#include "InputAttachment.h"
-//#include "VulkanBufferManager.h"
-//#include "Structs.h"
-//#include "Vertex.h"
-//
-//const std::vector<Vertex2D> FrameBufferVertices =
-//{
-//	{{-1.0f,  1.0f}, {0.0f, 1.0f}},
-//	{{-1.0f, -1.0f}, {0.0f, 0.0f}},
-//	{{ 1.0f, -1.0f}, {1.0f, 0.0f}},
-//
-//	{{-1.0f,  1.0f}, {0.0f, 1.0f}},
-//	{{ 1.0f, -1.0f}, {1.0f, 0.0f}},
-//	{{ 1.0f,  1.0f}, {1.0f, 1.0f}}
-//};
-//
-//class FrameBufferMesh
-//{
-//private:
-//
-//	VkDescriptorPool descriptorPool;
-//
-//	VkBuffer vertexBuffer;
-//	VkDeviceMemory vertexBufferMemory;
-//
-//	void CreateVertexBuffer(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue);
-//	void CreateDescriptorPool(VkDevice Device, int SwapChainSize);
-//	void CreateDescriptorSets(VkDevice Device, VkImageView ColorImageView, VkImageView DepthImageView, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize);
-//public:
-//	FrameBufferMesh();
-//	FrameBufferMesh(VkDevice Device, VkPhysicalDevice PhysicalDevice, VkCommandPool CommandPool, VkQueue GraphicsQueue, VkExtent2D swapChainExtent, VkRenderPass renderPass,
-//				InputAttachment ColorAttachment, InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize);
-//	~FrameBufferMesh();
-//
-//	std::vector<VkDescriptorSet> descriptorSets;
-//
-//
-//	void Draw(FrameBufferRenderingPipeline FrameBufferPipeline, VkCommandBuffer commandbuffer, int currentImage);
-//	void RecreateSwapChainStage(VkDevice Device, VkExtent2D swapChainExtent, VkRenderPass renderPass, InputAttachment ColorAttachment,
-//								InputAttachment DepthAttachment, VkDescriptorSetLayout descriptorSetLayout, int SwapChainSize);
-//	void Destory(VkDevice device);
-//};
-//
+#pragma once
+#include <vulkan/vulkan.h>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include "Vertex.h"
+#include "BaseMesh.h"
+
+
+const std::vector<Vertex2D> FrameBufferVertices =
+{
+    {{1.0f, 1.0f}, {1.0f, 1.0f}},
+    {{1.0f, -1.0f}, {1.0f, 0.0f}},
+    {{-1.0f, -1.0f}, {0.0f, 0.0f}},
+    {{-1.0f, 1.0f}, {0.0f, 1.0f}},
+};
+
+const std::vector<uint16_t> FrameBufferIndices = {
+    0, 1, 3, 1
+};
+
+class FrameBufferMesh : public BaseMesh
+{
+private:
+
+    void CreateUniformBuffers(VulkanRenderer& renderer);
+    void CreateDescriptorPool(VulkanRenderer& renderer);
+    void CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
+
+public:
+
+    FrameBufferMesh();
+    FrameBufferMesh(VulkanRenderer& renderer, Texture tex, VkDescriptorSetLayout& descriptorSetLayout);
+    ~FrameBufferMesh();
+
+
+    void UpdateUniformBuffer(VulkanRenderer& renderer);
+    void Update(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
+    void Destory(VulkanRenderer& renderer);
+};
+

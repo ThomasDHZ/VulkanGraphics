@@ -15,7 +15,6 @@ RendereredTexture::~RendereredTexture()
 {
 }
 
-
 void RendereredTexture::CreateTextureImage(VulkanRenderer& renderer)
 {
     VkImageCreateInfo TextureInfo = {};

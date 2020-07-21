@@ -47,9 +47,21 @@ VkShaderModule RendererBase::CreateShaderModule(VkDevice Device, const std::vect
     return shaderModule;
 }
 
+void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, FrameBufferMesh& mesh)
+{
+    VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
+    VkDeviceSize offsets[] = { 0 };
+    {
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBufferPipeline.ShaderPipeline);
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, frameBufferPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
+    }
+}
+
 void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, Mesh2& mesh)
 {
-
     VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
     VkDeviceSize offsets[] = { 0 };
     {
