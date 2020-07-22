@@ -93,7 +93,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
-		ImGui::Image(newtexture2.textureid, ImVec2(255.0f, 255.0f));
+		ImGui::Image(renderer.textureRenderer.ColorTexture.textureid, ImVec2(255.0f, 255.0f));
 		ImGui::End();
 	}
 

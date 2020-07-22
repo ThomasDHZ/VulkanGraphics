@@ -135,6 +135,7 @@ uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh framebuffer, SkyBoxM
 	}
 
 	DrawToTextureRenderPass(skybox, MeshList);
+	textureRenderer.ColorTexture.textureid = ImGui_ImplVulkan_AddTexture(textureRenderer.ColorTexture.Sampler, textureRenderer.ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	MainRenderPass(framebuffer, skybox, MeshList);
 	FrameBufferRenderPass(framebuffer, skybox, MeshList);
 
@@ -204,7 +205,7 @@ void Renderer::DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& Me
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[0]);
 	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[1]);
-	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[2]);
+	//textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[2]);
 	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, skybox);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
