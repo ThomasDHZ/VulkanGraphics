@@ -45,7 +45,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.DescriptorSetLayout));
 	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), vertices, indices, newtexture2, renderer.forwardRenderer.DescriptorSetLayout));
 	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.DescriptorSetLayout));
-	frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), newtexture2, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
+	frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
 
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
@@ -88,6 +88,8 @@ void VulkanGraphics::UpdateImGUI()
 
 		ImGui::Begin("Settings");
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::SliderFloat("Gamma", &frameBuffer.settings.Gamma, 0.0f, 10.0f);
+		ImGui::SliderFloat("HDR Value", &frameBuffer.settings.HDRValue, 0.0f, 10.0f);
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
@@ -179,6 +181,9 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 		ubo.proj[1][1] *= -1;
 
 		MeshList[3].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
+	}
+	{
+		frameBuffer.UpdateUniformBuffer(*renderer.GetVulkanRendererBase());
 	}
 }
 

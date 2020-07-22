@@ -23,12 +23,15 @@ FrameBufferMesh::~FrameBufferMesh()
 
 void FrameBufferMesh::CreateUniformBuffers(VulkanRenderer& renderer)
 {
+    frameBufferSettings = VulkanUniformBuffer(renderer, sizeof(FrameBufferSettings));
 }
 
 void FrameBufferMesh::CreateDescriptorPool(VulkanRenderer& renderer) {
 
-    std::array<DescriptorPoolSizeInfo, 1>  DescriptorPoolInfo = {};
+    std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
@@ -45,6 +48,11 @@ void FrameBufferMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescripto
     {
         std::vector<WriteDescriptorSetInfo> DescriptorList;
 
+        VkDescriptorBufferInfo frameBufferSettingsInfo{};
+        frameBufferSettingsInfo.buffer = frameBufferSettings.GetUniformBuffer(i);
+        frameBufferSettingsInfo.offset = 0;
+        frameBufferSettingsInfo.range = sizeof(FrameBufferSettings);
+
         WriteDescriptorSetInfo DiffuseMapDescriptor;
         DiffuseMapDescriptor.DstBinding = 0;
         DiffuseMapDescriptor.DstSet = DescriptorSets[i];
@@ -52,12 +60,20 @@ void FrameBufferMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescripto
         DiffuseMapDescriptor.DescriptorImageInfo = imageInfo;
         DescriptorList.emplace_back(DiffuseMapDescriptor);
 
+        WriteDescriptorSetInfo FrameBufferSettingsDescriptor;
+        FrameBufferSettingsDescriptor.DstBinding = 1;
+        FrameBufferSettingsDescriptor.DstSet = DescriptorSets[i];
+        FrameBufferSettingsDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        FrameBufferSettingsDescriptor.DescriptorBufferInfo = frameBufferSettingsInfo;
+        DescriptorList.emplace_back(FrameBufferSettingsDescriptor);
+
         BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
 }
 
 void FrameBufferMesh::UpdateUniformBuffer(VulkanRenderer& renderer)
 {
+    frameBufferSettings.UpdateUniformBuffer(renderer, static_cast<void*>(&settings));
 }
 
 void FrameBufferMesh::Update(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout)
@@ -69,5 +85,6 @@ void FrameBufferMesh::Update(VulkanRenderer& renderer, VkDescriptorSetLayout& de
 
 void FrameBufferMesh::Destory(VulkanRenderer& renderer)
 {
+    frameBufferSettings.Destroy(renderer);
     BaseMesh::Destory(renderer);
 }

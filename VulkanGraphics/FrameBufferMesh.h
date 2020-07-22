@@ -19,9 +19,17 @@ const std::vector<uint16_t> FrameBufferIndices = {
     0, 1, 3, 1, 2, 3
 };
 
+struct FrameBufferSettings
+{
+    alignas(4) float Gamma = 2.2f;
+    alignas(4) float HDRValue = 1.0f;
+};
+
 class FrameBufferMesh : public BaseMesh
 {
 private:
+
+    VulkanUniformBuffer frameBufferSettings;
 
     void CreateUniformBuffers(VulkanRenderer& renderer);
     void CreateDescriptorPool(VulkanRenderer& renderer);
@@ -33,6 +41,7 @@ public:
     FrameBufferMesh(VulkanRenderer& renderer, Texture tex, VkDescriptorSetLayout& descriptorSetLayout);
     ~FrameBufferMesh();
 
+    FrameBufferSettings settings;
 
     void UpdateUniformBuffer(VulkanRenderer& renderer);
     void Update(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
