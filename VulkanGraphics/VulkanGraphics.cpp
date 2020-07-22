@@ -8,7 +8,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
+#include "ImGui/imgui_impl_vulkan.h"
 
 VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
@@ -93,6 +93,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
+		ImGui::Image(newtexture2.textureid, ImVec2(255.0f, 255.0f));
 		ImGui::End();
 	}
 

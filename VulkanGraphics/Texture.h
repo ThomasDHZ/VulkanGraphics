@@ -5,6 +5,7 @@
 #include <stb_image.h>
 #include "VulkanRenderer.h"
 #include "VulkanBufferManager.h"
+#include "ImGui/imgui_impl_vulkan.h"
 
 enum TextureType
 {
@@ -39,6 +40,7 @@ public:
     VkImage Image;
     VkImageView View;
     VkSampler Sampler;
+    ImTextureID textureid = VK_NULL_HANDLE;
 
     Texture();
     Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType);
