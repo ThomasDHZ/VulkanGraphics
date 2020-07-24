@@ -65,10 +65,10 @@ void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int fr
     VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
     VkDeviceSize offsets[] = { 0 };
     {
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, RendererPipeline);
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRendereringPipeline.ShaderPipeline);
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, RendererLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRendereringPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
     }
 }
@@ -95,10 +95,10 @@ void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int fr
         //    }
         //}
         {
-            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, RendererPipeline);
+            vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRendereringPipeline.ShaderPipeline);
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
             vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, RendererLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRendereringPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[frame], 0, nullptr);
             vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
         }
     }
@@ -117,13 +117,6 @@ void RendererBase::Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int fr
 
 void RendererBase::Destroy(VkDevice Device)
 {
-    vkDestroyPipeline(Device, RendererPipeline, nullptr);
-    vkDestroyPipelineLayout(Device, RendererLayout, nullptr);
-    vkDestroyDescriptorSetLayout(Device, DescriptorSetLayout, nullptr);
-    RendererPipeline = VK_NULL_HANDLE;
-    RendererLayout = VK_NULL_HANDLE;
-    DescriptorSetLayout = VK_NULL_HANDLE;
-
     vkDestroyRenderPass(Device, RenderPass, nullptr);
     RenderPass = VK_NULL_HANDLE;
 

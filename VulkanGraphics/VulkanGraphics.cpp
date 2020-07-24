@@ -38,18 +38,24 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	newtexturebox = CubeMapTexture(*renderer.GetVulkanRendererBase(), layout);
 	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/skybox/left.jpg");
 	newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/wood.png");
+	MMtexture1 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/MegaManDiffuse.bmp");
+	MMtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/MegaManSpecular.bmp");
+	MMtexture3 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/MegaManAlpha.bmp");
 	Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, newtexturebox);
 	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/gobber/GoblinX.obj"));
-	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.DescriptorSetLayout));
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
-	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.DescriptorSetLayout));
-	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), vertices, indices, newtexture2, renderer.forwardRenderer.DescriptorSetLayout));
-	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.DescriptorSetLayout));
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), vertices, indices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 	frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
 
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
 	LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
+
+	ImGui_ImplVulkan_AddTexture(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, renderer.textureRenderer.ColorTexture.Sampler, renderer.textureRenderer.ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	//ImGui_ImplVulkan_AddTexture(renderer.textureRenderer.DepthTexture.ImGuiDescriptorSet, renderer.textureRenderer.DepthTexture.Sampler, renderer.textureRenderer.DepthTexture.View, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -93,7 +99,14 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
-		ImGui::Image(renderer.textureRenderer.ColorTexture.textureid, ImVec2(255.0f, 255.0f));
+		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		//ImGui::Image(renderer.textureRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::LabelText("Diffuse", "Diffuse");
+		ImGui::Image(MMtexture1.ImGuiDescriptorSet, ImVec2(480.0f, 32.0f));
+		ImGui::LabelText("Specular", "Specular");
+		ImGui::Image(MMtexture2.ImGuiDescriptorSet, ImVec2(480.0f, 32.0f));
+		ImGui::LabelText("Alpha", "Alpha");
+		ImGui::Image(MMtexture3.ImGuiDescriptorSet, ImVec2(480.0f, 32.0f));
 		ImGui::End();
 	}
 

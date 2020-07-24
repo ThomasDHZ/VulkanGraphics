@@ -168,6 +168,7 @@
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="RendererHDRColorTexture.cpp" />
+    <ClCompile Include="ShadowRenderer.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Renderer2DPipeline.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="RendererHDRColorTexture.h" />
+    <ClInclude Include="ShadowRenderer.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="VulkanBufferManager.h" />
     <ClInclude Include="Renderer2DPipeline.h" />

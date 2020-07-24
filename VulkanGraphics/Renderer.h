@@ -30,11 +30,11 @@ private:
 	TextureRenderer textureRenderer;
 	FramebufferRenderer frameBufferRenderer;
 
-
 	void InitializeGUIDebugger(GLFWwindow* window);
 	void DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	void MainRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	void FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+
 protected:
 
 	//Pretty much to section off for anything that needs to be used in VUlkanGraphics.

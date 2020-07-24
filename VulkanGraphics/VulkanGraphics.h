@@ -85,6 +85,11 @@ private:
 	Renderer renderer;
     Texture2D newtexture;
     Texture2D newtexture2;
+    Texture2D MMtexture1;
+    Texture2D MMtexture2;
+    Texture2D MMtexture3;
+    std::vector<Texture2D> TextureList;
+
 	Keyboard keyboard;
 	Mouse mouse;
 

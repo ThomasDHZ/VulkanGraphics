@@ -13,6 +13,7 @@
 #include "WireFramePipeline.h"
 #include "SkyBoxMesh.h"
 #include "FrameBufferMesh.h"
+#include "ForwardRenderingPipeline.h"
 
 class RendererBase
 {
@@ -22,11 +23,9 @@ protected:
 
 public:
 	VkRenderPass RenderPass;
-	VkDescriptorSetLayout DescriptorSetLayout;
-	VkPipelineLayout RendererLayout;
-	VkPipeline RendererPipeline;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 
+	ForwardRenderingPipeline forwardRendereringPipeline;
 	SkyBoxPipeline skyboxPipeline;
 	FrameBufferRenderingPipeline frameBufferPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;

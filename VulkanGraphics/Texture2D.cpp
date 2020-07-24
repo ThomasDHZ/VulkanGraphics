@@ -9,7 +9,7 @@ Texture2D::Texture2D(VulkanRenderer& renderer, std::string TextureLocation) : Te
 	LoadTexture(renderer, TextureLocation);
 	CreateTextureView(renderer);
 	CreateTextureSampler(renderer);
-	textureid = ImGui_ImplVulkan_AddTexture(Sampler, View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	ImGui_ImplVulkan_AddTexture(ImGuiDescriptorSet, Sampler, View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 Texture2D::~Texture2D()

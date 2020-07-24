@@ -16,8 +16,6 @@ public:
 	RendererDepthTexture DepthTexture;
 
 	void CreateRenderPass(VulkanRenderer& renderer);
-	void CreateDescriptorSets(VulkanRenderer& renderer);
-	void CreateRenderingPipeline(VulkanRenderer& renderer);
 	void CreateRendererFramebuffers(VulkanRenderer& renderer);
 	void Destroy(VulkanRenderer& renderer);
 };

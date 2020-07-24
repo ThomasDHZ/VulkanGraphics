@@ -7,8 +7,6 @@ class ForwardRenderer : public RendererBase
 {
 private:
 	void CreateRenderPass(VulkanRenderer& renderer);
-	void CreateDescriptorSets(VulkanRenderer& renderer);
-	void CreateRenderingPipeline(VulkanRenderer& renderer);
 	void CreateRendererFramebuffers(VulkanRenderer& renderer);
 
 public:

@@ -40,7 +40,7 @@ public:
     VkImage Image;
     VkImageView View;
     VkSampler Sampler;
-    ImTextureID textureid = VK_NULL_HANDLE;
+    VkDescriptorSet ImGuiDescriptorSet = VK_NULL_HANDLE;
 
     Texture();
     Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType);
