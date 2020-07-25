@@ -43,7 +43,7 @@ protected:
 
 	GUIDebugger guiDebugger;
 
-	void UpdateSwapChain(GLFWwindow* window);
+	void UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	uint32_t Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 
 	void DestoryVulkan();
@@ -56,6 +56,7 @@ public:
 	Renderer(GLFWwindow* window);
 	~Renderer();
 
+	void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	VulkanRendererSettings Settings;
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
 };

@@ -57,6 +57,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 	LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 
+	renderer.CMDBuffer(frameBuffer, Skybox, MeshList);
 //	ImGui_ImplVulkan_AddTexture(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, renderer.textureRenderer.ColorTexture.Sampler, renderer.textureRenderer.ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	//ImGui_ImplVulkan_AddTexture(renderer.textureRenderer.DepthTexture.ImGuiDescriptorSet, renderer.textureRenderer.DepthTexture.Sampler, renderer.textureRenderer.DepthTexture.View, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
@@ -215,7 +216,7 @@ void VulkanGraphics::MainLoop()
 		if (CompareVulkanSettings != renderer.Settings)
 		{
 			CompareVulkanSettings = renderer.Settings;
-			renderer.UpdateSwapChain(Window.GetWindowPtr());
+			renderer.UpdateSwapChain(Window.GetWindowPtr(), frameBuffer, Skybox, MeshList);
 		}
 
 		Window.Update();

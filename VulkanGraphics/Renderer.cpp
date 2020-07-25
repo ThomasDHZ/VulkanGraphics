@@ -17,6 +17,88 @@ Renderer::~Renderer()
 {
 }
 
+void Renderer::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+{
+	//VkCommandBufferAllocateInfo MainAllocInfo{};
+	//MainAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	//MainAllocInfo.commandPool = RenderCommandPool;
+	//MainAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	//MainAllocInfo.commandBufferCount = (uint32_t)RenderCommandBuffer.size();
+
+	//if (vkAllocateCommandBuffers(Device, &MainAllocInfo, RenderCommandBuffer.data()) != VK_SUCCESS) {
+	//	throw std::runtime_error("failed to allocate command buffers!");
+	//}
+
+	//for (int x = 0; x <= 3; x++)
+	//{
+	//	VkCommandBufferBeginInfo CommandBufferInfo = {};
+	//	CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+	//	if (vkBeginCommandBuffer(RenderCommandBuffer[x], &CommandBufferInfo) != VK_SUCCESS) {
+	//		throw std::runtime_error("failed to begin recording command buffer!");
+	//	}
+
+	//	//DrawToTextureRenderPass(skybox, MeshList);
+	//	MainRenderPass(skybox, MeshList);
+	//	//FrameBufferRenderPass(frameBuffer, skybox, MeshList);
+
+	//	if (vkEndCommandBuffer(RenderCommandBuffer[x]) != VK_SUCCESS) {
+	//		throw std::runtime_error("failed to record command buffer!");
+	//	}
+	//}
+
+
+
+
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = RenderCommandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = (uint32_t)RenderCommandBuffer.size();
+
+	if (vkAllocateCommandBuffers(Device, &allocInfo, RenderCommandBuffer.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate command buffers!");
+	}
+
+	for (size_t i = 0; i < RenderCommandBuffer.size(); i++) {
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		if (vkBeginCommandBuffer(RenderCommandBuffer[i], &beginInfo) != VK_SUCCESS) {
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
+
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = forwardRenderer.RenderPass;
+		renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[i];
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
+
+		vkCmdBeginRenderPass(RenderCommandBuffer[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		VkBuffer vertexBuffers[] = { MeshList[0].VertexBuffer };
+		VkDeviceSize offsets[] = { 0 };
+
+		vkCmdBindPipeline(RenderCommandBuffer[i], VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRenderer.forwardRendereringPipeline.ShaderPipeline);
+		vkCmdBindVertexBuffers(RenderCommandBuffer[i], 0, 1, vertexBuffers, offsets);
+		vkCmdBindIndexBuffer(RenderCommandBuffer[i], MeshList[0].IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindDescriptorSets(RenderCommandBuffer[i], VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRenderer.forwardRendereringPipeline.ShaderPipelineLayout, 0, 1, &MeshList[0].DescriptorSets[i], 0, nullptr);
+		vkCmdDrawIndexed(RenderCommandBuffer[i], static_cast<uint32_t>(MeshList[0].IndexSize), 1, 0, 0, 0);
+		vkCmdEndRenderPass(RenderCommandBuffer[i]);
+
+		if (vkEndCommandBuffer(RenderCommandBuffer[i]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
+		}
+	}
+}
+
 
 void Renderer::InitializeGUIDebugger(GLFWwindow* window)
 {
@@ -34,7 +116,7 @@ void Renderer::InitializeGUIDebugger(GLFWwindow* window)
 	guiDebugger = GUIDebugger(init_info, window, forwardRenderer.RenderPass);
 }
 
-void Renderer::UpdateSwapChain(GLFWwindow* window)
+void Renderer::UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
 {
 
 	int width = 0, height = 0;
@@ -61,6 +143,7 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 	frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 
 	InitializeCommandBuffers();
+	CMDBuffer(frameBuffer, skybox, MeshList);
 	UpdateCommandBuffers = true;
 }
 
@@ -72,7 +155,7 @@ uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxM
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR)
 	{
-		UpdateSwapChain(window);
+		UpdateSwapChain(window, frameBuffer, skybox, MeshList);
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		throw std::runtime_error("failed to acquire swap chain image!");
@@ -86,17 +169,44 @@ uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxM
 	VkCommandBufferBeginInfo CommandBufferInfo = {};
 	CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
+
 	if (vkBeginCommandBuffer(RenderCommandBuffer[DrawFrame], &CommandBufferInfo) != VK_SUCCESS) {
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
 	DrawToTextureRenderPass(skybox, MeshList);
 	MainRenderPass(skybox, MeshList);
-	//FrameBufferRenderPass(frameBuffer, skybox, MeshList);
+	FrameBufferRenderPass(frameBuffer, skybox, MeshList);
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
 	}
+
+	//if (vkBeginCommandBuffer(RenderCommandBuffer[DrawFrame], &CommandBufferInfo) != VK_SUCCESS) {
+	//	throw std::runtime_error("failed to begin recording command buffer!");
+	//}
+
+	//std::array<VkClearValue, 2> clearValues{};
+	//clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//clearValues[1].depthStencil = { 1.0f, 0 };
+
+	//VkRenderPassBeginInfo renderPassInfo{};
+	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	//renderPassInfo.renderPass = forwardRenderer2.RenderPass;
+	//renderPassInfo.framebuffer = forwardRenderer2.SwapChainFramebuffers[DrawFrame];
+	//renderPassInfo.renderArea.offset = { 0, 0 };
+	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	//renderPassInfo.pClearValues = clearValues.data();
+
+	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
+	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+
+	//if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
+	//	throw std::runtime_error("failed to record command buffer!");
+	//}
+
 
 	VkSemaphore waitSemaphores[] = { vulkanSemaphores[currentFrame].ImageAcquiredSemaphore };
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -133,7 +243,7 @@ uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxM
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
 	{
 		framebufferResized = false;
-		UpdateSwapChain(window);
+		UpdateSwapChain(window, frameBuffer, skybox, MeshList);
 	}
 	else if (result != VK_SUCCESS) {
 		throw std::runtime_error("failed to present swap chain image!");

@@ -283,16 +283,6 @@ void VulkanRenderer::InitializeCommandBuffers()
 	if (vkCreateCommandPool(Device, &poolInfo, nullptr, &RenderCommandPool) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create graphics command pool!");
 	}
-
-	VkCommandBufferAllocateInfo MainAllocInfo{};
-	MainAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	MainAllocInfo.commandPool = RenderCommandPool;
-	MainAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	MainAllocInfo.commandBufferCount = (uint32_t)RenderCommandBuffer.size();
-
-	if (vkAllocateCommandBuffers(Device, &MainAllocInfo, RenderCommandBuffer.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate command buffers!");
-	}
 }
 
 void VulkanRenderer::InitializeSyncObjects()
