@@ -123,9 +123,6 @@
     <ClCompile Include="FrameBufferRenderingPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer2DPipeline.cpp">
-      <Filter>Source Files\Pipelines</Filter>
-    </ClCompile>
     <ClCompile Include="SkyBoxPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
@@ -386,9 +383,6 @@
       <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
     <ClInclude Include="FrameBufferRenderingPipeline.h">
-      <Filter>Header Files\Pipelines</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer2DPipeline.h">
       <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
     <ClInclude Include="SkyBoxPipeline.h">

@@ -19,37 +19,6 @@ Renderer::~Renderer()
 
 void Renderer::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
 {
-	//VkCommandBufferAllocateInfo MainAllocInfo{};
-	//MainAllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	//MainAllocInfo.commandPool = RenderCommandPool;
-	//MainAllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	//MainAllocInfo.commandBufferCount = (uint32_t)RenderCommandBuffer.size();
-
-	//if (vkAllocateCommandBuffers(Device, &MainAllocInfo, RenderCommandBuffer.data()) != VK_SUCCESS) {
-	//	throw std::runtime_error("failed to allocate command buffers!");
-	//}
-
-	//for (int x = 0; x <= 3; x++)
-	//{
-	//	VkCommandBufferBeginInfo CommandBufferInfo = {};
-	//	CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-	//	if (vkBeginCommandBuffer(RenderCommandBuffer[x], &CommandBufferInfo) != VK_SUCCESS) {
-	//		throw std::runtime_error("failed to begin recording command buffer!");
-	//	}
-
-	//	//DrawToTextureRenderPass(skybox, MeshList);
-	//	MainRenderPass(skybox, MeshList);
-	//	//FrameBufferRenderPass(frameBuffer, skybox, MeshList);
-
-	//	if (vkEndCommandBuffer(RenderCommandBuffer[x]) != VK_SUCCESS) {
-	//		throw std::runtime_error("failed to record command buffer!");
-	//	}
-	//}
-
-
-
-
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = RenderCommandPool;
@@ -118,7 +87,6 @@ void Renderer::InitializeGUIDebugger(GLFWwindow* window)
 
 void Renderer::UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
 {
-
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
 	while (width == 0 || height == 0) {
@@ -144,7 +112,6 @@ void Renderer::UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, 
 
 	InitializeCommandBuffers();
 	CMDBuffer(frameBuffer, skybox, MeshList);
-	UpdateCommandBuffers = true;
 }
 
 uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)

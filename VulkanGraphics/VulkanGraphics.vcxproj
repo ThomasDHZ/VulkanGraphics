@@ -170,7 +170,6 @@
     <ClCompile Include="RendererHDRColorTexture.cpp" />
     <ClCompile Include="ShadowRenderer.cpp" />
     <ClCompile Include="Texture2D.cpp" />
-    <ClCompile Include="Renderer2DPipeline.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
     <ClCompile Include="ImGui\imgui_demo.cpp" />
@@ -257,7 +256,6 @@
     <ClInclude Include="ShadowRenderer.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="VulkanBufferManager.h" />
-    <ClInclude Include="Renderer2DPipeline.h" />
     <ClInclude Include="GUIDebugger.h" />
     <ClInclude Include="ImGui\imconfig.h" />
     <ClInclude Include="ImGui\imgui.h" />

@@ -23,9 +23,10 @@ class Renderer : public VulkanRenderer
 	friend class VulkanResources;
 private:
 
+	size_t currentFrame = 0;
 	bool framebufferResized = false;
 
-
+	GUIDebugger guiDebugger;
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
 	FramebufferRenderer frameBufferRenderer;
@@ -34,21 +35,13 @@ private:
 	void DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	void MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	void FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	void UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 
 protected:
 
-	//Pretty much to section off for anything that needs to be used in VUlkanGraphics.
-	size_t currentFrame = 0;
-	std::vector<VkCommandBuffer> RunCommandBuffers = {};
-
-	GUIDebugger guiDebugger;
-
-	void UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	uint32_t Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-
 	void DestoryVulkan();
-
-	bool UpdateCommandBuffers = true;
 
 public:
 
@@ -56,7 +49,5 @@ public:
 	Renderer(GLFWwindow* window);
 	~Renderer();
 
-	void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-	VulkanRendererSettings Settings;
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
 };
