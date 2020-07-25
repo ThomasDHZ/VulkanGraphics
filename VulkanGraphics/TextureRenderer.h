@@ -6,6 +6,8 @@
 class TextureRenderer : public RendererBase
 {
 private:
+	void CreateRenderPass(VulkanRenderer& renderer);
+	void CreateRendererFramebuffers(VulkanRenderer& renderer);
 
 public:
 	TextureRenderer();
@@ -15,8 +17,7 @@ public:
 	RendererColorTexture ColorTexture;
 	RendererDepthTexture DepthTexture;
 
-	void CreateRenderPass(VulkanRenderer& renderer);
-	void CreateRendererFramebuffers(VulkanRenderer& renderer);
+	void UpdateSwapChain(VulkanRenderer& renderer);
 	void Destroy(VulkanRenderer& renderer);
 };
 

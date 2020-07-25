@@ -69,3 +69,11 @@ void RendererDepthTexture::CreateTextureSampler(VulkanRenderer& renderer)
 
     Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }
+
+void RendererDepthTexture::RecreateRendererTexture(VulkanRenderer& renderer)
+{
+    Texture::Delete(renderer);
+    CreateTextureImage(renderer);
+    CreateTextureView(renderer);
+    CreateTextureSampler(renderer);
+}

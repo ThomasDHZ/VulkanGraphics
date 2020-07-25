@@ -16,6 +16,7 @@ TextureRenderer::TextureRenderer(VulkanRenderer& renderer) : RendererBase(render
 
     forwardRendereringPipeline = ForwardRenderingPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
     skyboxPipeline = SkyBoxPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    frameBufferPipeline = FrameBufferRenderingPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
     DebugLightPipeline = DebugLightRenderingPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
     DebugCollisionPipeline = CollisionDebugPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
     MeshviewPipeline = WireFramePipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
@@ -112,6 +113,26 @@ void TextureRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
             throw std::runtime_error("failed to create vkCreateImageView!");
         }
     }
+}
+
+void TextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
+{
+    ColorTexture.RecreateRendererTexture(renderer);
+    DepthTexture.RecreateRendererTexture(renderer);
+
+    forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    skyboxPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    frameBufferPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    DebugLightPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    DebugCollisionPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    MeshviewPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+
+    for (auto& framebuffer : SwapChainFramebuffers)
+    {
+        vkDestroyFramebuffer(renderer.Device, framebuffer, nullptr);
+        framebuffer = VK_NULL_HANDLE;
+    }
+    CreateRendererFramebuffers(renderer);
 }
 
 void TextureRenderer::Destroy(VulkanRenderer& renderer)

@@ -11,5 +11,7 @@ public:
     RendererHDRColorTexture();
     RendererHDRColorTexture(VulkanRenderer& renderer);
     ~RendererHDRColorTexture();
+
+    void RecreateRendererTexture(VulkanRenderer& renderer);
 };
 

@@ -56,59 +56,15 @@ void Renderer::UpdateSwapChain(GLFWwindow* window)
 
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 
-	//DebugLightPipeline.UpdateSwapChain();
-	//DebugCollisionPipeline.UpdateSwapChain();
-	//MeshviewPipeline.UpdateSwapChain();
-	//SkyboxPipeline.UpdateSwapChain();
-
-	//DebugLightPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
-	//DebugCollisionPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
-	//MeshviewPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
-	//SkyboxPipeline.UpdateGraphicsPipeLine(SwapChain.GetSwapChainResolution(), forwardRenderer.RenderPass, Device);
-	{
-
-		forwardRenderer.DepthTexture.Delete(*GetVulkanRendererBase());
-
-		for (auto framebuffer : forwardRenderer.SwapChainFramebuffers)
-		{
-			vkDestroyFramebuffer(Device, framebuffer, nullptr);
-		}
-
-		vkDestroyPipeline(Device, forwardRenderer.forwardRendereringPipeline.ShaderPipeline, nullptr);
-		vkDestroyPipelineLayout(Device, forwardRenderer.forwardRendereringPipeline.ShaderPipelineLayout, nullptr);
-
-		forwardRenderer.forwardRendereringPipeline.ShaderPipeline = VK_NULL_HANDLE;
-		forwardRenderer.forwardRendereringPipeline.ShaderPipelineLayout = VK_NULL_HANDLE;
-
-		forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	}
-	{
-
-		textureRenderer.DepthTexture.Delete(*GetVulkanRendererBase());
-		textureRenderer.ColorTexture.Delete(*GetVulkanRendererBase());
-		for (auto framebuffer : textureRenderer.SwapChainFramebuffers)
-		{
-			vkDestroyFramebuffer(Device, framebuffer, nullptr);
-		}
-
-		vkDestroyPipeline(Device, forwardRenderer.forwardRendereringPipeline.ShaderPipeline, nullptr);
-		vkDestroyPipelineLayout(Device, forwardRenderer.forwardRendereringPipeline.ShaderPipelineLayout, nullptr);
-
-		forwardRenderer.forwardRendereringPipeline.ShaderPipeline = VK_NULL_HANDLE;
-		forwardRenderer.forwardRendereringPipeline.ShaderPipelineLayout = VK_NULL_HANDLE;
-
-
-		textureRenderer.DepthTexture = RendererDepthTexture(*GetVulkanRendererBase());
-		textureRenderer.ColorTexture = RendererColorTexture(*GetVulkanRendererBase());
-		//textureRenderer.CreateRenderingPipeline(*GetVulkanRendererBase());
-		textureRenderer.CreateRendererFramebuffers(*GetVulkanRendererBase());
-	}
+	forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 
 	InitializeCommandBuffers();
 	UpdateCommandBuffers = true;
 }
 
-uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -135,8 +91,8 @@ uint32_t Renderer::Draw(GLFWwindow* window, FrameBufferMesh framebuffer, SkyBoxM
 	}
 
 	DrawToTextureRenderPass(skybox, MeshList);
-	MainRenderPass(framebuffer, skybox, MeshList);
-	FrameBufferRenderPass(framebuffer, skybox, MeshList);
+	MainRenderPass(skybox, MeshList);
+	//FrameBufferRenderPass(frameBuffer, skybox, MeshList);
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -203,17 +159,16 @@ void Renderer::DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& Me
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[0]);
-	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[1]);
-	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[2]);
+	//textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[1]);
+	//textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[2]);
 	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, skybox);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void Renderer::MainRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+void Renderer::MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
 {
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//clearValues[1].color = { 0.1f, 0.1f, 0.1f, 1.0f };
 	clearValues[1].depthStencil = { 1.0f, 0 };
 
 	VkRenderPassBeginInfo renderPassInfo{};
@@ -263,7 +218,6 @@ void Renderer::FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh sky
 {
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//clearValues[1].color = { 0.1f, 0.1f, 0.1f, 1.0f };
 	clearValues[1].depthStencil = { 1.0f, 0 };
 
 	VkRenderPassBeginInfo renderPassInfo{};
@@ -288,12 +242,8 @@ void Renderer::DestoryVulkan()
 	guiDebugger.ShutDown(Device);
 
 	forwardRenderer.Destroy(vulkanRenderer);
-	//textureRenderer.Destroy(vulkanRenderer);
-
-	//DebugLightPipeline.Destroy();
-	//DebugCollisionPipeline.Destroy();
-	//MeshviewPipeline.Destroy();
-	//SkyboxPipeline.Destroy();
+	textureRenderer.Destroy(vulkanRenderer);
+	frameBufferRenderer.Destroy(vulkanRenderer);
 
 	SwapChain.Destroy(Device);
 

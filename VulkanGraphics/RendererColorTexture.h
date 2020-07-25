@@ -11,5 +11,7 @@ public:
     RendererColorTexture();
     RendererColorTexture(VulkanRenderer& renderer);
     ~RendererColorTexture();
+
+    void RecreateRendererTexture(VulkanRenderer& renderer);
 };
 

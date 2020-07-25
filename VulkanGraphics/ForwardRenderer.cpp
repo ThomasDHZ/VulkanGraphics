@@ -113,8 +113,21 @@ void ForwardRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 
 void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
-   HDRColorTexture = RendererHDRColorTexture(renderer);
-   DepthTexture = RendererDepthTexture(renderer);
+   HDRColorTexture.RecreateRendererTexture(renderer);
+   DepthTexture.RecreateRendererTexture(renderer);
+
+   forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+   skyboxPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+   frameBufferPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+   DebugLightPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+   DebugCollisionPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+   MeshviewPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+
+   for (auto& framebuffer : SwapChainFramebuffers)
+   {
+       vkDestroyFramebuffer(renderer.Device, framebuffer, nullptr);
+       framebuffer = VK_NULL_HANDLE;
+   }
    CreateRendererFramebuffers(renderer);
 }
 

@@ -15,7 +15,6 @@ RendererColorTexture::~RendererColorTexture()
 {
 }
 
-
 void RendererColorTexture::CreateTextureImage(VulkanRenderer& renderer)
 {
     VkImageCreateInfo TextureInfo = {};
@@ -68,4 +67,12 @@ void RendererColorTexture::CreateTextureSampler(VulkanRenderer& renderer)
     TextureImageSamplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
     Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
+}
+
+void RendererColorTexture::RecreateRendererTexture(VulkanRenderer& renderer)
+{
+    Texture::Delete(renderer);
+    CreateTextureImage(renderer);
+    CreateTextureView(renderer);
+    CreateTextureSampler(renderer);
 }

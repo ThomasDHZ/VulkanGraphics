@@ -17,10 +17,6 @@
 
 class RendererBase
 {
-protected:
-	std::vector<char> ReadFile(const std::string& filename);
-	VkShaderModule CreateShaderModule(VkDevice Device, const std::vector<char>& code);
-
 public:
 	VkRenderPass RenderPass;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;

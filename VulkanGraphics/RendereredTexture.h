@@ -11,5 +11,7 @@ public:
     RendereredTexture();
     RendereredTexture(VulkanRenderer& renderer);
     ~RendereredTexture();
+
+    void RecreateRendererTexture(VulkanRenderer& renderer);
 };
 

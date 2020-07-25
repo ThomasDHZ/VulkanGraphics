@@ -32,7 +32,7 @@ private:
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	void DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-	void MainRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	void MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	void FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 
 protected:
@@ -44,7 +44,7 @@ protected:
 	GUIDebugger guiDebugger;
 
 	void UpdateSwapChain(GLFWwindow* window);
-	uint32_t Draw(GLFWwindow* window, FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	uint32_t Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 
 	void DestoryVulkan();
 

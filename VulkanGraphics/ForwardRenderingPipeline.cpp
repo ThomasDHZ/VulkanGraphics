@@ -180,5 +180,11 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, 
 
 void ForwardRenderingPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
 {
+    vkDestroyPipeline(device, ShaderPipeline, nullptr);
+    vkDestroyPipelineLayout(device, ShaderPipelineLayout, nullptr);
+
+    ShaderPipeline = VK_NULL_HANDLE;
+    ShaderPipelineLayout = VK_NULL_HANDLE;
+
 	CreateShaderPipeLine(swapChainExtent, renderPass, device);
 }

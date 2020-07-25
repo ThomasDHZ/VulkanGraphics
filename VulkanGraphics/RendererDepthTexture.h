@@ -11,5 +11,7 @@ public:
     RendererDepthTexture();
     RendererDepthTexture(VulkanRenderer& renderer);
     ~RendererDepthTexture();
+
+    void RecreateRendererTexture(VulkanRenderer& renderer);
 };
 

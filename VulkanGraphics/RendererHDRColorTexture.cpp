@@ -69,3 +69,11 @@ void RendererHDRColorTexture::CreateTextureSampler(VulkanRenderer& renderer)
 
     Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }
+
+void RendererHDRColorTexture::RecreateRendererTexture(VulkanRenderer& renderer)
+{
+    Texture::Delete(renderer);
+    CreateTextureImage(renderer);
+    CreateTextureView(renderer);
+    CreateTextureSampler(renderer);
+}
