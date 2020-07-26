@@ -8,17 +8,17 @@ SkyBoxPipeline::SkyBoxPipeline() : GraphicsPipeline()
 {
 }
 
-SkyBoxPipeline::SkyBoxPipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_SkyBox)
+SkyBoxPipeline::SkyBoxPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
-	CreateDescriptorSetLayout();
-	CreateShaderPipeLine(swapChainExtent, renderPass, device);
+	CreateDescriptorSetLayout(renderer);
+	CreateShaderPipeLine(renderer, renderPass);
 }
 
 SkyBoxPipeline::~SkyBoxPipeline()
 {
 }
 
-void SkyBoxPipeline::CreateDescriptorSetLayout()
+void SkyBoxPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
 	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
 
@@ -30,16 +30,16 @@ void SkyBoxPipeline::CreateDescriptorSetLayout()
 	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
+	GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDevice device)
+void SkyBoxPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
 	auto SkyBoxvertShaderCode = ReadShaderFile("Shaders/SkyBoxVert.spv");
 	auto SkyBoxfragShaderCode = ReadShaderFile("Shaders/SkyBoxFrag.spv");
 
-	VkShaderModule SkyBoxvertShaderModule = CreateShaderModule(SkyBoxvertShaderCode);
-	VkShaderModule SkyBoxfragShaderModule = CreateShaderModule(SkyBoxfragShaderCode);
+	VkShaderModule SkyBoxvertShaderModule = CreateShaderModule(renderer, SkyBoxvertShaderCode);
+	VkShaderModule SkyBoxfragShaderModule = CreateShaderModule(renderer, SkyBoxfragShaderCode);
 
 	VkPipelineShaderStageCreateInfo SkyBoxvertShaderStageInfo = {};
 	SkyBoxvertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -82,14 +82,14 @@ void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPa
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = (float)swapChainExtent.width;
-	viewport.height = (float)swapChainExtent.height;
+	viewport.width = (float)renderer.SwapChain.GetSwapChainResolution().width;
+	viewport.height = (float)renderer.SwapChain.GetSwapChainResolution().height;
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
 	VkRect2D scissor = {};
 	scissor.offset = { 0, 0 };
-	scissor.extent = swapChainExtent;
+	scissor.extent = renderer.SwapChain.GetSwapChainResolution();
 
 	VkPipelineViewportStateCreateInfo viewportState = {};
 	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -133,7 +133,7 @@ void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPa
 	SkyBoxpipelineLayoutInfo.setLayoutCount = 1;
 	SkyBoxpipelineLayoutInfo.pSetLayouts = &ShaderPipelineDescriptorLayout;
 
-	GraphicsPipeline::CreatePipeLineLayout(SkyBoxpipelineLayoutInfo);
+	GraphicsPipeline::CreatePipeLineLayout(renderer, SkyBoxpipelineLayoutInfo);
 
 	VkGraphicsPipelineCreateInfo SkyBoxpipelineInfo = {};
 	SkyBoxpipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -151,19 +151,19 @@ void SkyBoxPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPa
 	SkyBoxpipelineInfo.subpass = 0;
 	SkyBoxpipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	GraphicsPipeline::CreatePipeLine(SkyBoxpipelineInfo);
+	GraphicsPipeline::CreatePipeLine(renderer, SkyBoxpipelineInfo);
 
-	vkDestroyShaderModule(device, SkyBoxfragShaderModule, nullptr);
-	vkDestroyShaderModule(device, SkyBoxvertShaderModule, nullptr);
+	vkDestroyShaderModule(renderer.Device, SkyBoxfragShaderModule, nullptr);
+	vkDestroyShaderModule(renderer.Device, SkyBoxvertShaderModule, nullptr);
 }
 
-void SkyBoxPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDevice device)
+void SkyBoxPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-	vkDestroyPipeline(device, ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(device, ShaderPipelineLayout, nullptr);
+	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
 
 	ShaderPipeline = VK_NULL_HANDLE;
 	ShaderPipelineLayout = VK_NULL_HANDLE;
 
-	CreateShaderPipeLine(swapChainExtent, renderPass, device);
+	CreateShaderPipeLine(renderer, renderPass);
 }

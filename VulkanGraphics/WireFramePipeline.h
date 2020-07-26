@@ -4,13 +4,13 @@
 class WireFramePipeline : public GraphicsPipeline
 {
 private:
-	void CreateDescriptorSetLayout();
-	void CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	void CreateDescriptorSetLayout(VulkanRenderer& renderer);
+	void CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 public:
 	WireFramePipeline();
-	WireFramePipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	WireFramePipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 	~WireFramePipeline();
 
-	void UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	void UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 };
 

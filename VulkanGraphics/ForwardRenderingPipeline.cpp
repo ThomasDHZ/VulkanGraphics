@@ -6,17 +6,17 @@ ForwardRenderingPipeline::ForwardRenderingPipeline() : GraphicsPipeline()
 {
 }
 
-ForwardRenderingPipeline::ForwardRenderingPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_FowardRenderer)
+ForwardRenderingPipeline::ForwardRenderingPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
-	CreateDescriptorSetLayout();
-	CreateShaderPipeLine(swapChainExtent, renderPass, device);
+	CreateDescriptorSetLayout(renderer);
+	CreateShaderPipeLine(renderer, renderPass);
 }
 
 ForwardRenderingPipeline::~ForwardRenderingPipeline()
 {
 }
 
-void ForwardRenderingPipeline::CreateDescriptorSetLayout()
+void ForwardRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -38,18 +38,18 @@ void ForwardRenderingPipeline::CreateDescriptorSetLayout()
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, &ShaderPipelineDescriptorLayout) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(renderer.Device, &layoutInfo, nullptr, &ShaderPipelineDescriptorLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
 }
 
-void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void ForwardRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
     auto vertShaderCode = ReadShaderFile("shaders/ForwardRendererVert.spv");
     auto fragShaderCode = ReadShaderFile("shaders/ForwardRendererFrag.spv");
 
-    VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
-    VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+    VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
+    VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -84,14 +84,14 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, 
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float)swapChainExtent.width;
-    viewport.height = (float)swapChainExtent.height;
+    viewport.width = (float)renderer.SwapChain.GetSwapChainResolution().width;
+    viewport.height = (float)renderer.SwapChain.GetSwapChainResolution().height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = { 0, 0 };
-    scissor.extent = swapChainExtent;
+    scissor.extent = renderer.SwapChain.GetSwapChainResolution();
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -149,7 +149,7 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, 
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &ShaderPipelineDescriptorLayout;
 
-    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS) {
+    if (vkCreatePipelineLayout(renderer.Device, &pipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
@@ -170,21 +170,21 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, 
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &ShaderPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(renderer.Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &ShaderPipeline) != VK_SUCCESS) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 
-    vkDestroyShaderModule(device, fragShaderModule, nullptr);
-    vkDestroyShaderModule(device, vertShaderModule, nullptr);
+    vkDestroyShaderModule(renderer.Device, fragShaderModule, nullptr);
+    vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void ForwardRenderingPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void ForwardRenderingPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-    vkDestroyPipeline(device, ShaderPipeline, nullptr);
-    vkDestroyPipelineLayout(device, ShaderPipelineLayout, nullptr);
+    vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
+    vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
 
     ShaderPipeline = VK_NULL_HANDLE;
     ShaderPipelineLayout = VK_NULL_HANDLE;
 
-	CreateShaderPipeLine(swapChainExtent, renderPass, device);
+	CreateShaderPipeLine(renderer, renderPass);
 }

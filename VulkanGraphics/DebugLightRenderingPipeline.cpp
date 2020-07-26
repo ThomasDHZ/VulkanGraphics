@@ -5,17 +5,17 @@ DebugLightRenderingPipeline::DebugLightRenderingPipeline() : GraphicsPipeline()
 {
 }
 
-DebugLightRenderingPipeline::DebugLightRenderingPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_FowardRenderer)
+DebugLightRenderingPipeline::DebugLightRenderingPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
-	CreateDescriptorSetLayout();
-	CreateShaderPipeLine(swapChainExtent, renderPass, device);
+	CreateDescriptorSetLayout(renderer);
+	CreateShaderPipeLine(renderer, renderPass);
 }
 
 DebugLightRenderingPipeline::~DebugLightRenderingPipeline()
 {
 }
 
-void DebugLightRenderingPipeline::CreateDescriptorSetLayout()
+void DebugLightRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
 	std::array<DescriptorSetLayoutBindingInfo, 1> LayoutBindingInfo = {};
 
@@ -23,16 +23,16 @@ void DebugLightRenderingPipeline::CreateDescriptorSetLayout()
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	LayoutBindingInfo[0].StageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
+	GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void DebugLightRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void DebugLightRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
 	auto vertShaderCode = ReadShaderFile("shaders/DebugLightVert.spv");
 	auto fragShaderCode = ReadShaderFile("shaders/DebugLightFrag.spv");
 
-	VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
-	VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+	VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
+	VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);
 
 	VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
 	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -66,14 +66,14 @@ void DebugLightRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExten
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = (float)swapChainExtent.width;
-	viewport.height = (float)swapChainExtent.height;
+	viewport.width = (float)renderer.SwapChain.GetSwapChainResolution().width;
+	viewport.height = (float)renderer.SwapChain.GetSwapChainResolution().height;
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
 	VkRect2D scissor = {};
 	scissor.offset = { 0, 0 };
-	scissor.extent = swapChainExtent;
+	scissor.extent = renderer.SwapChain.GetSwapChainResolution();
 
 	VkPipelineViewportStateCreateInfo viewportState = {};
 	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -125,7 +125,7 @@ void DebugLightRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExten
 	pipelineLayoutInfo.setLayoutCount = 1;
 	pipelineLayoutInfo.pSetLayouts = &ShaderPipelineDescriptorLayout;
 
-	GraphicsPipeline::CreatePipeLineLayout(pipelineLayoutInfo);
+	GraphicsPipeline::CreatePipeLineLayout(renderer, pipelineLayoutInfo);
 
 	VkGraphicsPipelineCreateInfo pipelineInfo = {};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -143,19 +143,19 @@ void DebugLightRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExten
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	GraphicsPipeline::CreatePipeLine(pipelineInfo);
+	GraphicsPipeline::CreatePipeLine(renderer, pipelineInfo);
 
-	vkDestroyShaderModule(device, fragShaderModule, nullptr);
-	vkDestroyShaderModule(device, vertShaderModule, nullptr);
+	vkDestroyShaderModule(renderer.Device, fragShaderModule, nullptr);
+	vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void DebugLightRenderingPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void DebugLightRenderingPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-	vkDestroyPipeline(device, ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(device, ShaderPipelineLayout, nullptr);
+	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
 
 	ShaderPipeline = VK_NULL_HANDLE;
 	ShaderPipelineLayout = VK_NULL_HANDLE;
 
-	CreateShaderPipeLine(swapChainExtent, renderPass, device);
+	CreateShaderPipeLine(renderer, renderPass);
 }

@@ -235,10 +235,10 @@ void Renderer::DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& Me
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[0]);
-	//textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[1]);
-	//textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList[2]);
-	textureRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, skybox);
+	textureRenderer.Draw(*GetVulkanRendererBase(), DrawFrame, MeshList[0]);
+	//textureRenderer.Draw(*GetVulkanRendererBase(), DrawFrame, MeshList[1]);
+	//textureRenderer.Draw(*GetVulkanRendererBase(), DrawFrame, MeshList[2]);
+	textureRenderer.Draw(*GetVulkanRendererBase(), DrawFrame, skybox);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
@@ -286,8 +286,8 @@ void Renderer::MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
 
 	vkCmdSetViewport(RenderCommandBuffer[DrawFrame], 0, 1, viewports);*/
 
-	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, MeshList);
-	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, skybox);
+	forwardRenderer.Draw(*GetVulkanRendererBase(), DrawFrame, MeshList);
+	forwardRenderer.Draw(*GetVulkanRendererBase(), DrawFrame, skybox);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
@@ -307,7 +307,7 @@ void Renderer::FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh sky
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	forwardRenderer.Draw(SwapChain.GetSwapChainResolution(), RenderCommandBuffer[DrawFrame], DrawFrame, framebuffer);
+	forwardRenderer.Draw(*GetVulkanRendererBase(), DrawFrame, framebuffer);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }

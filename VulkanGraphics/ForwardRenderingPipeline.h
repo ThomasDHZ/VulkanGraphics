@@ -4,13 +4,13 @@
 class ForwardRenderingPipeline : public GraphicsPipeline
 {
 private:
-	void CreateDescriptorSetLayout();
-	void CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	void CreateDescriptorSetLayout(VulkanRenderer& renderer);
+	void CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 public:
 	ForwardRenderingPipeline();
-	ForwardRenderingPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	ForwardRenderingPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 	~ForwardRenderingPipeline();
 
-	void UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	void UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 };
 

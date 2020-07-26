@@ -3,12 +3,12 @@
 class DebugLightRenderingPipeline : public GraphicsPipeline
 {
 private:
-	void CreateDescriptorSetLayout();
-	void CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	void CreateDescriptorSetLayout(VulkanRenderer& renderer);
+	void CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 public:
 	DebugLightRenderingPipeline();
-	DebugLightRenderingPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	DebugLightRenderingPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 	~DebugLightRenderingPipeline();
 
-	void UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	void UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 };

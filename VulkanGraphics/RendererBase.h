@@ -32,10 +32,10 @@ public:
 	RendererBase(VulkanRenderer& renderer);
 	~RendererBase();
 
-	void Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, FrameBufferMesh& mesh);
-	void Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame,  Mesh2& mesh);
-	void Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, std::vector<Mesh2>& MeshList);
-	void Draw(VkExtent2D extent, VkCommandBuffer commandBuffer, int frame, SkyBoxMesh mesh);
-	void Destroy(VkDevice Device);
+	void Draw(VulkanRenderer& renderer, int frame, FrameBufferMesh& mesh);
+	void Draw(VulkanRenderer& renderer, int frame,  Mesh2& mesh);
+	void Draw(VulkanRenderer& renderer, int frame, std::vector<Mesh2>& MeshList);
+	void Draw(VulkanRenderer& renderer, int frame, SkyBoxMesh mesh);
+	void Destroy(VulkanRenderer& renderer);
 };
 

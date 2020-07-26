@@ -14,12 +14,12 @@ TextureRenderer::TextureRenderer(VulkanRenderer& renderer) : RendererBase(render
     ColorTexture = RendererColorTexture(renderer);
     CreateRendererFramebuffers(renderer);
 
-    forwardRendereringPipeline = ForwardRenderingPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    skyboxPipeline = SkyBoxPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    frameBufferPipeline = FrameBufferRenderingPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    DebugLightPipeline = DebugLightRenderingPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    DebugCollisionPipeline = CollisionDebugPipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    MeshviewPipeline = WireFramePipeline(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
+    skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
+    frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
+    DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
+    DebugCollisionPipeline = CollisionDebugPipeline(renderer, RenderPass);
+    MeshviewPipeline = WireFramePipeline(renderer, RenderPass);
 }
 
 TextureRenderer::~TextureRenderer()
@@ -120,12 +120,12 @@ void TextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
     ColorTexture.RecreateRendererTexture(renderer);
     DepthTexture.RecreateRendererTexture(renderer);
 
-    forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    skyboxPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    frameBufferPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    DebugLightPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    DebugCollisionPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
-    MeshviewPipeline.UpdateGraphicsPipeLine(renderer.SwapChain.GetSwapChainResolution(), RenderPass, renderer.Device);
+    forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    skyboxPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    frameBufferPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    DebugLightPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    DebugCollisionPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    MeshviewPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
 
     for (auto& framebuffer : SwapChainFramebuffers)
     {
@@ -139,5 +139,5 @@ void TextureRenderer::Destroy(VulkanRenderer& renderer)
 {
     ColorTexture.Delete(renderer);
     DepthTexture.Delete(renderer);
-    RendererBase::Destroy(renderer.Device);
+    RendererBase::Destroy(renderer);
 }

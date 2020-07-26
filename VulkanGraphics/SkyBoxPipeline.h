@@ -4,12 +4,12 @@
 class SkyBoxPipeline : public GraphicsPipeline
 {
 private:
-	void CreateDescriptorSetLayout();
-	void CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDevice device);
+	void CreateDescriptorSetLayout(VulkanRenderer& renderer);
+	void CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 public:
 	SkyBoxPipeline();
-	SkyBoxPipeline(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDevice device);
+	SkyBoxPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 	~SkyBoxPipeline();
 
-	void UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass renderPass, VkDevice device);
+	void UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 };

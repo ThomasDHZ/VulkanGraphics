@@ -18,10 +18,9 @@ GraphicsPipeline::GraphicsPipeline()
 
 }
 
-GraphicsPipeline::GraphicsPipeline(VkDevice device, PipeLineType Pipelinetype)
+GraphicsPipeline::GraphicsPipeline(VulkanRenderer& renderer)
 {
-	Device = device;
-	PipelineType = Pipelinetype;
+
 }
 
 GraphicsPipeline::~GraphicsPipeline()
@@ -47,7 +46,7 @@ std::vector<char> GraphicsPipeline::ReadShaderFile(const std::string& filename)
 	return buffer;
 }
 
-VkShaderModule GraphicsPipeline::CreateShaderModule(const std::vector<char>& code)
+VkShaderModule GraphicsPipeline::CreateShaderModule(VulkanRenderer& renderer, const std::vector<char>& code)
 {
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -55,14 +54,14 @@ VkShaderModule GraphicsPipeline::CreateShaderModule(const std::vector<char>& cod
 	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
 	VkShaderModule shaderModule;
-	if (vkCreateShaderModule(Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+	if (vkCreateShaderModule(renderer.Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create shader module!");
 	}
 
 	return shaderModule;
 }
 
-void GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo> LayoutBindingInfo)
+void GraphicsPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer, std::vector<DescriptorSetLayoutBindingInfo> LayoutBindingInfo)
 {
 
 	std::vector<VkDescriptorSetLayoutBinding> LayoutBindingList = {};
@@ -84,40 +83,40 @@ void GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayout
 	layoutInfo.bindingCount = static_cast<uint32_t>(LayoutBindingList.size());
 	layoutInfo.pBindings = LayoutBindingList.data();
 
-	if (vkCreateDescriptorSetLayout(Device, &layoutInfo, nullptr, &ShaderPipelineDescriptorLayout) != VK_SUCCESS) {
+	if (vkCreateDescriptorSetLayout(renderer.Device, &layoutInfo, nullptr, &ShaderPipelineDescriptorLayout) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor set layout!");
 	}
 }
 
-void GraphicsPipeline::CreatePipeLineLayout(VkPipelineLayoutCreateInfo PipelineLayoutInfo)
+void GraphicsPipeline::CreatePipeLineLayout(VulkanRenderer& renderer, VkPipelineLayoutCreateInfo PipelineLayoutInfo)
 {
-	if (vkCreatePipelineLayout(Device, &PipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS)
+	if (vkCreatePipelineLayout(renderer.Device, &PipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
 }
 
-void GraphicsPipeline::CreatePipeLine(VkGraphicsPipelineCreateInfo PipeLineInfo)
+void GraphicsPipeline::CreatePipeLine(VulkanRenderer& renderer, VkGraphicsPipelineCreateInfo PipeLineInfo)
 {
-	if (vkCreateGraphicsPipelines(Device, VK_NULL_HANDLE, 1, &PipeLineInfo, nullptr, &ShaderPipeline) != VK_SUCCESS) {
+	if (vkCreateGraphicsPipelines(renderer.Device, VK_NULL_HANDLE, 1, &PipeLineInfo, nullptr, &ShaderPipeline) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 }
 
-void GraphicsPipeline::UpdateSwapChain()
+void GraphicsPipeline::UpdateSwapChain(VulkanRenderer& renderer)
 {
-	vkDestroyPipeline(Device, ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(Device, ShaderPipelineLayout, nullptr);
+	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
 
 	ShaderPipeline = VK_NULL_HANDLE;
 	ShaderPipelineLayout = VK_NULL_HANDLE;
 }
 
-void GraphicsPipeline::Destroy()
+void GraphicsPipeline::Destroy(VulkanRenderer& renderer)
 {
-	vkDestroyPipeline(Device, ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(Device, ShaderPipelineLayout, nullptr);
-	vkDestroyDescriptorSetLayout(Device, ShaderPipelineDescriptorLayout, nullptr);
+	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
+	vkDestroyDescriptorSetLayout(renderer.Device, ShaderPipelineDescriptorLayout, nullptr);
 
 	ShaderPipeline = VK_NULL_HANDLE;
 	ShaderPipelineLayout = VK_NULL_HANDLE;

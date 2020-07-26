@@ -20,7 +20,7 @@ class Renderer : public VulkanRenderer
 {
 	friend class VulkanGraphics;
 	friend class VulkanGraphics2D;
-	friend class VulkanResources;
+
 private:
 
 	size_t currentFrame = 0;
@@ -32,11 +32,12 @@ private:
 	FramebufferRenderer frameBufferRenderer;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
+	void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	void UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+
 	void DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	void MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	void FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-	void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-	void UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 
 protected:
 

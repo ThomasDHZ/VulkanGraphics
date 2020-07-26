@@ -4,13 +4,13 @@
 class CollisionDebugPipeline : public GraphicsPipeline
 {
 private:
-	void CreateDescriptorSetLayout();
-	void CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	void CreateDescriptorSetLayout(VulkanRenderer& renderer);
+	void CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 public:
 	CollisionDebugPipeline();
-	CollisionDebugPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	CollisionDebugPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 	~CollisionDebugPipeline();
 
-	void UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device);
+	void UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
 };
 

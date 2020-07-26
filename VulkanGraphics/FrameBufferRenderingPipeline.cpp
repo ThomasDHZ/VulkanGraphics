@@ -5,17 +5,17 @@ FrameBufferRenderingPipeline::FrameBufferRenderingPipeline() : GraphicsPipeline(
 {
 }
 
-FrameBufferRenderingPipeline::FrameBufferRenderingPipeline(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device) : GraphicsPipeline(device, PipeLineType::Pipeline_FowardRenderer)
+FrameBufferRenderingPipeline::FrameBufferRenderingPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
-	CreateDescriptorSetLayout();
-	CreateShaderPipeLine(swapChainExtent, renderPass, device);
+	CreateDescriptorSetLayout(renderer);
+	CreateShaderPipeLine(renderer, renderPass);
 }
 
 FrameBufferRenderingPipeline::~FrameBufferRenderingPipeline()
 {
 }
 
-void FrameBufferRenderingPipeline::CreateDescriptorSetLayout()
+void FrameBufferRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
 	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
 
@@ -27,16 +27,16 @@ void FrameBufferRenderingPipeline::CreateDescriptorSetLayout()
 	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	GraphicsPipeline::CreateDescriptorSetLayout(std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
+	GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void FrameBufferRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void FrameBufferRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
 	auto FrameBufferVertShaderCode = ReadShaderFile("shaders/FrameBufferVert.spv");
 	auto FrameBufferFrageShaderCode = ReadShaderFile("shaders/FrameBufferFrag.spv");
 
-	VkShaderModule FrameBufferVertShaderModule = CreateShaderModule(FrameBufferVertShaderCode);
-	VkShaderModule FrameBufferFragShaderModule = CreateShaderModule(FrameBufferFrageShaderCode);
+	VkShaderModule FrameBufferVertShaderModule = CreateShaderModule(renderer, FrameBufferVertShaderCode);
+	VkShaderModule FrameBufferFragShaderModule = CreateShaderModule(renderer, FrameBufferFrageShaderCode);
 
 	VkPipelineShaderStageCreateInfo FrameBufferVertShaderStageInfo = {};
 	FrameBufferVertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -70,14 +70,14 @@ void FrameBufferRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExte
 	VkViewport viewport = {};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = (float)swapChainExtent.width;
-	viewport.height = (float)swapChainExtent.height;
+	viewport.width = (float)renderer.SwapChain.GetSwapChainResolution().width;
+	viewport.height = (float)renderer.SwapChain.GetSwapChainResolution().height;
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 
 	VkRect2D scissor = {};
 	scissor.offset = { 0, 0 };
-	scissor.extent = swapChainExtent;
+	scissor.extent = renderer.SwapChain.GetSwapChainResolution();
 
 	VkPipelineViewportStateCreateInfo viewportState = {};
 	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -129,7 +129,7 @@ void FrameBufferRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExte
 	FrameBufferPipelineLayoutInfo.setLayoutCount = 1;
 	FrameBufferPipelineLayoutInfo.pSetLayouts = &ShaderPipelineDescriptorLayout;
 
-	GraphicsPipeline::CreatePipeLineLayout(FrameBufferPipelineLayoutInfo);
+	GraphicsPipeline::CreatePipeLineLayout(renderer, FrameBufferPipelineLayoutInfo);
 
 	VkGraphicsPipelineCreateInfo FrameBufferPipelineInfo = {};
 	FrameBufferPipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -147,19 +147,19 @@ void FrameBufferRenderingPipeline::CreateShaderPipeLine(VkExtent2D swapChainExte
 	FrameBufferPipelineInfo.subpass = 0;
 	FrameBufferPipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	GraphicsPipeline::CreatePipeLine(FrameBufferPipelineInfo);
+	GraphicsPipeline::CreatePipeLine(renderer, FrameBufferPipelineInfo);
 
-	vkDestroyShaderModule(device, FrameBufferFragShaderModule, nullptr);
-	vkDestroyShaderModule(device, FrameBufferVertShaderModule, nullptr);
+	vkDestroyShaderModule(renderer.Device, FrameBufferFragShaderModule, nullptr);
+	vkDestroyShaderModule(renderer.Device, FrameBufferVertShaderModule, nullptr);
 }
 
-void FrameBufferRenderingPipeline::UpdateGraphicsPipeLine(VkExtent2D swapChainExtent, VkRenderPass& renderPass, VkDevice device)
+void FrameBufferRenderingPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-	vkDestroyPipeline(device, ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(device, ShaderPipelineLayout, nullptr);
+	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
+	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
 
 	ShaderPipeline = VK_NULL_HANDLE;
 	ShaderPipelineLayout = VK_NULL_HANDLE;
 
-	CreateShaderPipeLine(swapChainExtent, renderPass, device);
+	CreateShaderPipeLine(renderer, renderPass);
 }
