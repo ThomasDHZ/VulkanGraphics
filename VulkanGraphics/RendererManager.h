@@ -15,8 +15,9 @@
 #include "Mesh2.h"
 #include "SkyBoxMesh.h"
 #include "FramebufferRenderer.h"
+#include "ShadowRenderer.h"
 
-class Renderer : public VulkanRenderer
+class RendererManager : public VulkanRenderer
 {
 	friend class VulkanGraphics;
 	friend class VulkanGraphics2D;
@@ -30,6 +31,7 @@ private:
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
 	FramebufferRenderer frameBufferRenderer;
+	ShadowRenderer shadowRenderer;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
@@ -38,7 +40,7 @@ private:
 	void DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	void MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 	void FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-
+	void ShadowRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
 protected:
 
 	uint32_t Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
@@ -46,9 +48,9 @@ protected:
 
 public:
 
-	Renderer();
-	Renderer(GLFWwindow* window);
-	~Renderer();
+	RendererManager();
+	RendererManager(GLFWwindow* window);
+	~RendererManager();
 
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
 };

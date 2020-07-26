@@ -4,19 +4,17 @@
 
 class ShadowRenderer : public RendererBase
 {
-//private:
-//	void CreateRenderPass(VulkanRenderer& renderer);
-//	void CreateDescriptorSets(VulkanRenderer& renderer);
-//	void CreateRenderingPipeline(VulkanRenderer& renderer);
-//	void CreateRendererFramebuffers(VulkanRenderer& renderer);
-//
-//public:
-//	ShadowRenderer();
-//	ShadowRenderer(VulkanRenderer& renderer);
-//	~ShadowRenderer();
-//
-//	void UpdateSwapChain(VulkanRenderer& renderer);
-//	void Destroy(VulkanRenderer& renderer);
-//
-//	RendererDepthTexture DepthTexture;
+private:
+	void CreateRenderPass(VulkanRenderer& renderer);
+	void CreateRendererFramebuffers(VulkanRenderer& renderer);
+
+public:
+	ShadowRenderer();
+	ShadowRenderer(VulkanRenderer& renderer);
+	~ShadowRenderer();
+
+	void UpdateSwapChain(VulkanRenderer& renderer);
+	void Destroy(VulkanRenderer& renderer);
+
+	RendererDepthTexture DepthTexture;
 };

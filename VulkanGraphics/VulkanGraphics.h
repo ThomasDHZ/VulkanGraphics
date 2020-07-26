@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "Renderer.h"
+#include "RendererManager.h"
 #include "Mesh.h"
 #include "VulkanWindow.h"
 #include "GUIDebugger.h"
@@ -82,7 +82,7 @@ private:
 	//TextureMaps maps;
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
-	Renderer renderer;
+    RendererManager renderer;
     //Texture2D newtexture;
     Texture2D newtexture2;
     //Texture2D MMtexture1;

@@ -169,6 +169,7 @@
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="RendererHDRColorTexture.cpp" />
     <ClCompile Include="ShadowRenderer.cpp" />
+    <ClCompile Include="ShadowRenderingPipeline.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -204,7 +205,7 @@
     <ClCompile Include="SkyBoxPipeline.cpp" />
     <ClCompile Include="SkyBoxMesh.cpp" />
     <ClCompile Include="Sphere.cpp" />
-    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RendererManager.cpp" />
     <ClCompile Include="VulkanSwapChain.cpp" />
     <ClCompile Include="VulkanDebugger.cpp" />
     <ClCompile Include="VulkanGraphics.cpp" />
@@ -223,6 +224,8 @@
     <None Include="Shaders\DebugLightShader.vert" />
     <None Include="Shaders\NormalMapForwardRendererShader.frag" />
     <None Include="Shaders\NormalMapForwardRendererShader.vert" />
+    <None Include="Shaders\ShadowDebug.frag" />
+    <None Include="Shaders\ShadowDebug.vert" />
     <None Include="Shaders\WireFrameShader.frag" />
     <None Include="Shaders\WireFrameShader.vert" />
     <None Include="Shaders\Renderer2DShader.frag" />
@@ -254,6 +257,7 @@
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="RendererHDRColorTexture.h" />
     <ClInclude Include="ShadowRenderer.h" />
+    <ClInclude Include="ShadowRenderingPipeline.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="VulkanBufferManager.h" />
     <ClInclude Include="GUIDebugger.h" />
@@ -294,7 +298,7 @@
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="SkyBoxMesh.h" />
-    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RendererManager.h" />
     <ClInclude Include="VulkanSwapChain.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VulkanDebugger.h" />

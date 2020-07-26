@@ -9,7 +9,6 @@ layout(binding = 1) uniform FrameBufferSettings
 layout(location = 0) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 
-
 void main() 
 {
     vec3 color = texture(FrameBufferSampler, fragTexCoord).rgb;

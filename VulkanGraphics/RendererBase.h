@@ -14,6 +14,7 @@
 #include "SkyBoxMesh.h"
 #include "FrameBufferMesh.h"
 #include "ForwardRenderingPipeline.h"
+#include "ShadowRenderingPipeline.h"
 
 class RendererBase
 {
@@ -27,15 +28,15 @@ public:
 	DebugLightRenderingPipeline DebugLightPipeline;
 	CollisionDebugPipeline DebugCollisionPipeline;
 	WireFramePipeline MeshviewPipeline;
+	ShadowRenderingPipeline shadowPipeline;
 
 	RendererBase();
 	RendererBase(VulkanRenderer& renderer);
 	~RendererBase();
 
-	void Draw(VulkanRenderer& renderer, int frame, FrameBufferMesh& mesh);
-	void Draw(VulkanRenderer& renderer, int frame,  Mesh2& mesh);
-	void Draw(VulkanRenderer& renderer, int frame, std::vector<Mesh2>& MeshList);
-	void Draw(VulkanRenderer& renderer, int frame, SkyBoxMesh mesh);
+	void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, BaseMesh& mesh);
+	void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, std::vector<Mesh2>& MeshList);
+	void ShadowDraw(VulkanRenderer& renderer, Mesh2& mesh);
 	void Destroy(VulkanRenderer& renderer);
 };
 

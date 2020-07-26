@@ -192,9 +192,6 @@
     <ClCompile Include="RendererBase.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="VulkanRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -233,6 +230,12 @@
     </ClCompile>
     <ClCompile Include="ShadowRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererManager.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowRenderingPipeline.cpp">
+      <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -288,6 +291,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\ForwardRendererShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\ShadowDebug.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\ShadowDebug.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -454,9 +463,6 @@
     <ClInclude Include="RendererBase.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="VulkanRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -496,8 +502,14 @@
     <ClInclude Include="FramebufferRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="RendererManager.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowRenderingPipeline.h">
+      <Filter>Header Files\Pipelines</Filter>
+    </ClInclude>
     <ClInclude Include="ShadowRenderer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

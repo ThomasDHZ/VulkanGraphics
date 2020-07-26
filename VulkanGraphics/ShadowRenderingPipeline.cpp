@@ -1,22 +1,23 @@
-#include "WireFramePipeline.h"
+#include "ShadowRenderingPipeline.h"
+
 #include "Vertex.h"
 #include <stdexcept>
 
-WireFramePipeline::WireFramePipeline() : GraphicsPipeline()
+ShadowRenderingPipeline::ShadowRenderingPipeline() : GraphicsPipeline()
 {
 }
 
-WireFramePipeline::WireFramePipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+ShadowRenderingPipeline::ShadowRenderingPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
     CreateShaderPipeLine(renderer, renderPass);
 }
 
-WireFramePipeline::~WireFramePipeline()
+ShadowRenderingPipeline::~ShadowRenderingPipeline()
 {
 }
 
-void WireFramePipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void ShadowRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -43,10 +44,10 @@ void WireFramePipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     }
 }
 
-void WireFramePipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void ShadowRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-    auto vertShaderCode = ReadShaderFile("shaders/WireFrameShaderVert.spv");
-    auto fragShaderCode = ReadShaderFile("shaders/WireFrameShaderFrag.spv");
+    auto vertShaderCode = ReadShaderFile("shaders/ShadowShaderVert.spv");
+    auto fragShaderCode = ReadShaderFile("shaders/ShadowShaderFrag.spv");
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);
@@ -110,9 +111,9 @@ void WireFramePipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkR
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_NONE;
+    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
 
@@ -178,7 +179,7 @@ void WireFramePipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkR
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void WireFramePipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void ShadowRenderingPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

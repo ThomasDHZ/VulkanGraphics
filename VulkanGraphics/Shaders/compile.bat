@@ -14,4 +14,6 @@ C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe Renderer2DShader.vert -o Renderer2DVert.s
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe Renderer2DShader.frag -o Renderer2DFrag.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe CollisionShader.vert -o CollisionShaderVert.spv
 C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe CollisionShader.frag -o CollisionShaderFrag.spv
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe ShadowDebug.vert -o ShadowShaderVert.spv
+C:/VulkanSDK/1.2.131.2/Bin32/glslc.exe ShadowDebug.frag -o ShadowShaderFrag.spv
 pause
