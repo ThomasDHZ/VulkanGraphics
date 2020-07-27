@@ -165,9 +165,6 @@
     <ClCompile Include="BaseMesh.cpp">
       <Filter>Source Files\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="WireFrameMesh.cpp">
-      <Filter>Source Files\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="CollisionDebugPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
@@ -434,9 +431,6 @@
       <Filter>Header Files\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="WireFrameMesh.h">
       <Filter>Header Files\Mesh</Filter>
     </ClInclude>
     <ClInclude Include="CollisionDebugPipeline.h">

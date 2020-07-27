@@ -198,7 +198,6 @@
     <ClCompile Include="VulkanGraphics2D.cpp" />
     <ClCompile Include="VulkanRenderer.cpp" />
     <ClCompile Include="VulkanUniformBuffer.cpp" />
-    <ClCompile Include="WireFrameMesh.cpp" />
     <ClCompile Include="WireFramePipeline.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
@@ -290,7 +289,6 @@
     <ClInclude Include="VulkanGraphics2D.h" />
     <ClInclude Include="VulkanRenderer.h" />
     <ClInclude Include="VulkanUniformBuffer.h" />
-    <ClInclude Include="WireFrameMesh.h" />
     <ClInclude Include="WireFramePipeline.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoader.h" />

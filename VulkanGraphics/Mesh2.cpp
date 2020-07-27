@@ -1,9 +1,10 @@
 #include "Mesh2.h"
 
-Mesh2::Mesh2()
-{}
+Mesh2::Mesh2() : BaseMesh()
+{
+}
 
-Mesh2::Mesh2(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, VkDescriptorSetLayout& descriptorSetLayout)
+Mesh2::Mesh2(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
 {
     texture = tex;
 

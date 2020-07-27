@@ -23,6 +23,7 @@
 #include "Texture2D.h"
 #include "FrameBufferMesh.h"
 
+
 const std::vector<Vertex> vertices =
 {
       { {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {10.0f, 0.0f}},

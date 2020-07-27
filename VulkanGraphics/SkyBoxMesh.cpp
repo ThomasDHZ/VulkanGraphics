@@ -7,7 +7,7 @@ SkyBoxMesh::SkyBoxMesh() : BaseMesh()
 {
 }
 
-SkyBoxMesh::SkyBoxMesh(VulkanRenderer& renderer, VkDescriptorSetLayout layout, CubeMapTexture texture) : BaseMesh()
+SkyBoxMesh::SkyBoxMesh(VulkanRenderer& renderer, VkDescriptorSetLayout layout, CubeMapTexture texture) : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass | RendererBitFlag::RenderOnMainPass)
 {
 	CubeMap = texture;
 	VertexSize = SkyBoxVertices.size();

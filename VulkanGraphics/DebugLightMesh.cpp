@@ -1,10 +1,10 @@
 //#include "DebugLightMesh.h"
 //
-//DebugLightMesh::DebugLightMesh() : BaseMesh()
+//DebugLightMesh::DebugLightMesh() : BaseMesh() : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass | RendererBitFlag::RenderOnMainPass)
 //{
 //}
 //
-//DebugLightMesh::DebugLightMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices) : BaseMesh(renderer, vertices, indices)
+//DebugLightMesh::DebugLightMesh(Renderer& renderer, const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices) : BaseMesh(renderer, vertices, indices) : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass | RendererBitFlag::RenderOnMainPass)
 //{
 //	CreateUniformBuffers(renderer);
 //	CreateDescriptorPool(renderer);

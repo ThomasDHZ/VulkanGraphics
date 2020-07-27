@@ -3,7 +3,10 @@
 BaseMesh::BaseMesh()
 {
 }
-
+BaseMesh::BaseMesh(int renderBitFlags)
+{
+    RenderBitFlags = renderBitFlags;
+}
 BaseMesh::~BaseMesh()
 {
 }

@@ -47,16 +47,17 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), vertices, indices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
-	frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
 
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
 	newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/wood.png");
-	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass));
+	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass));
+	frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
 	LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 
 	renderer.CMDBuffer(frameBuffer, Skybox, MeshList);
-//	ImGui_ImplVulkan_AddTexture(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, renderer.textureRenderer.ColorTexture.Sampler, renderer.textureRenderer.ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	ImGui_ImplVulkan_AddTexture(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, renderer.textureRenderer.ColorTexture.Sampler, renderer.textureRenderer.ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 //	ImGui_ImplVulkan_AddTexture(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, renderer.shadowRenderer.DepthTexture.Sampler, renderer.shadowRenderer.DepthTexture.View, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
 
@@ -105,7 +106,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
-		//ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		//ImGui::Image(renderer.textureRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		//ImGui::LabelText("Diffuse", "Diffuse");
 		//ImGui::Image(MMtexture1.ImGuiDescriptorSet, ImVec2(480.0f, 32.0f));
@@ -167,19 +168,19 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 		ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
 		ubo.proj[1][1] *= -1;
 
-		MeshList[0].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
+		static_cast<Mesh2*>(&MeshList[0])->UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
 	}
-	//{
-	//	UniformBufferObject ubo{};
-	//	ubo.model = glm::mat4(1.0f);
-	//	ubo.model = glm::translate(ubo.model, glm::vec3(5.0f, 0.0f, 0.0f));
-	//	ubo.model = glm::rotate(ubo.model, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	//	ubo.view = camera.GetViewMatrix();
-	//	ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
-	//	ubo.proj[1][1] *= -1;
+	{
+		UniformBufferObject ubo{};
+		ubo.model = glm::mat4(1.0f);
+		ubo.model = glm::translate(ubo.model, glm::vec3(5.0f, 0.0f, 0.0f));
+		ubo.model = glm::rotate(ubo.model, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.view = camera.GetViewMatrix();
+		ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
+		ubo.proj[1][1] *= -1;
 
-	//	MeshList[1].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
-	//}
+		MeshList[1].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
+	}
 	//{
 	//	UniformBufferObject ubo{};
 	//	ubo.model = glm::mat4(1.0f);

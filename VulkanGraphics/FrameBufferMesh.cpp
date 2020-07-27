@@ -1,9 +1,9 @@
 #include "FrameBufferMesh.h"
 
-FrameBufferMesh::FrameBufferMesh()
+FrameBufferMesh::FrameBufferMesh() : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass | RendererBitFlag::RenderOnMainPass)
 {}
 
-FrameBufferMesh::FrameBufferMesh(VulkanRenderer& renderer, Texture tex, VkDescriptorSetLayout& descriptorSetLayout)
+FrameBufferMesh::FrameBufferMesh(VulkanRenderer& renderer, Texture tex, VkDescriptorSetLayout& descriptorSetLayout) : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass)
 {
     texture = tex;
 

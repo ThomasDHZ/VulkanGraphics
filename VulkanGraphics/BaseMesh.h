@@ -5,6 +5,14 @@
 #include "Structs.h"
 #include "Vertex.h"
 
+enum RendererBitFlag
+{
+    Nonw = 0,
+    RenderOnMainPass =  1 << 0,
+    RenderOnTexturePass = 1 << 1,
+    RenderOnFrameBufferPass = 1 << 2
+};
+
 class BaseMesh
 {
 private:
@@ -29,8 +37,10 @@ public:
     Texture texture;
     int IndexSize;
     int VertexSize;
+    int RenderBitFlags;
 
     BaseMesh();
+    BaseMesh(int renderBitFlags);
     ~BaseMesh();
 
     void Destory(VulkanRenderer& renderer);
