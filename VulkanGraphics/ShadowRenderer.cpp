@@ -9,7 +9,7 @@ ShadowRenderer::ShadowRenderer(VulkanRenderer& renderer) : RendererBase(renderer
     DepthTexture = RendererDepthTexture(renderer);
     CreateRendererFramebuffers(renderer);
 
-    shadowPipeline = ShadowRenderingPipeline(renderer, RenderPass);
+    forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
 }
 
 ShadowRenderer::~ShadowRenderer()
@@ -94,9 +94,6 @@ void ShadowRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 void ShadowRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
     DepthTexture.RecreateRendererTexture(renderer);
-
-    shadowPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-
     for (auto& framebuffer : SwapChainFramebuffers)
     {
         vkDestroyFramebuffer(renderer.Device, framebuffer, nullptr);

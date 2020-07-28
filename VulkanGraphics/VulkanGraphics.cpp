@@ -58,7 +58,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	renderer.CMDBuffer(frameBuffer, Skybox, MeshList);
 	ImGui_ImplVulkan_AddTexture(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, renderer.textureRenderer.ColorTexture.Sampler, renderer.textureRenderer.ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-//	ImGui_ImplVulkan_AddTexture(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, renderer.shadowRenderer.DepthTexture.Sampler, renderer.shadowRenderer.DepthTexture.View, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+	ImGui_ImplVulkan_AddTexture(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, renderer.shadowRenderer.DepthTexture.Sampler, renderer.shadowRenderer.DepthTexture.View, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -107,7 +107,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
-		//ImGui::Image(renderer.textureRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		//ImGui::LabelText("Diffuse", "Diffuse");
 		//ImGui::Image(MMtexture1.ImGuiDescriptorSet, ImVec2(480.0f, 32.0f));
 		//ImGui::LabelText("Specular", "Specular");

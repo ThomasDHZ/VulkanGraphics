@@ -61,30 +61,16 @@ void RendererBase::Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, std
 
 void RendererBase::ShadowDraw(VulkanRenderer& renderer, Mesh2& mesh)
 {
-    VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
-    VkDeviceSize offsets[] = { 0 };
+    //VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
+    //VkDeviceSize offsets[] = { 0 };
 
     //{
-    //    vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, MeshviewPipeline.ShaderPipeline);
+    //    vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline.ShaderPipeline);
     //    vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[renderer.DrawFrame], 0, 1, vertexBuffers, offsets);
-    //    vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, MeshviewPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[renderer.DrawFrame], 0, nullptr);
-    //    if (mesh.IndexSize == 0)
-    //    {
-    //        vkCmdDraw(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh.VertexSize, 1, 0, 0);
-    //    }
-    //    else
-    //    {
-    //        vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-    //        vkCmdDrawIndexed(renderer.RenderCommandBuffer[renderer.DrawFrame], static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
-    //    }
+    //    vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+    //    vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[renderer.DrawFrame], 0, nullptr);
+    //    vkCmdDrawIndexed(renderer.RenderCommandBuffer[renderer.DrawFrame], static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
     //}
-    {
-        vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline.ShaderPipeline);
-        vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[renderer.DrawFrame], 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-        vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, shadowPipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[renderer.DrawFrame], 0, nullptr);
-        vkCmdDrawIndexed(renderer.RenderCommandBuffer[renderer.DrawFrame], static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
-    }
 }
 
 void RendererBase::Destroy(VulkanRenderer& renderer)
