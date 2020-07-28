@@ -47,6 +47,11 @@ void RendererDepthTexture::CreateTextureView(VulkanRenderer& renderer)
     TextureImageViewInfo.subresourceRange.levelCount = 1;
     TextureImageViewInfo.subresourceRange.baseArrayLayer = 0;
     TextureImageViewInfo.subresourceRange.layerCount = 1;
+    TextureImageViewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+    TextureImageViewInfo.components.g = VK_COMPONENT_SWIZZLE_R;
+    TextureImageViewInfo.components.b = VK_COMPONENT_SWIZZLE_R;
+    TextureImageViewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    TextureImageViewInfo.flags = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT;
 
     Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }

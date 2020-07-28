@@ -1,6 +1,6 @@
 #include "SkyBoxPipeline.h"
 #include <array>
-#include "Mesh.h"
+#include "Mesh2.h"
 #include "SkyboxMesh.h"
 #include "Vertex.h"
 

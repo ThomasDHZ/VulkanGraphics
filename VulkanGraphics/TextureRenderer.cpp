@@ -15,6 +15,7 @@ TextureRenderer::TextureRenderer(VulkanRenderer& renderer) : RendererBase(render
     CreateRendererFramebuffers(renderer);
 
     forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
+    shadowPipeline = ShadowRenderingPipeline(renderer, RenderPass);
     skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
     frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
     DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);

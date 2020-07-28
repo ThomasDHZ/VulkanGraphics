@@ -16,7 +16,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	renderer = RendererManager(Window.GetWindowPtr());
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
-
+	camera2 = Camera(glm::vec3(0.5f, 1.0f, 0.3f));
+	ActiveCamera = &camera;
 
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
@@ -43,7 +44,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, newtexturebox);
 	//modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/gobber/GoblinX.obj"));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
-	//modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
+	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), vertices, indices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
@@ -51,9 +52,10 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
 	newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/wood.png");
-	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass));
-	MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass));
-	frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass));
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
+	//frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
 	LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 
 	renderer.CMDBuffer(frameBuffer, Skybox, MeshList);
@@ -106,6 +108,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
+		ImGui::Checkbox("Switch Camara", &SwatchCamara);
 		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		//ImGui::LabelText("Diffuse", "Diffuse");
@@ -127,6 +130,15 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+
+	if (SwatchCamara)
+	{
+		ActiveCamera = &camera;
+	}
+	else
+	{
+		ActiveCamera = &camera2;
+	}
 	//light.directionalLight.Direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 	//light.directionalLight.Ambient = glm::vec3(0.005f, 0.005f, 0.005f);
 	//light.directionalLight.Diffuse = glm::vec3(0.04f, 0.04f, 0.04f);
@@ -150,62 +162,19 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	//light.spotLight.OuterCutOff = glm::cos(glm::radians(15.0f));
 	//light.viewPos = camera.Position;
 
-	//MeshList[1].MeshPosition = glm::vec3(5.0f, 0.0f, 0.0f);
-	//for (auto mesh : MeshList)
-	//{
-	//	mesh.Update(renderer, camera, light);
-	//}
+
+	MeshList[1].MeshPosition = glm::vec3(5.0f, 0.0f, 0.0f);
+	for (auto mesh : MeshList)
+	{
+		mesh.Update(renderer, *ActiveCamera);
+	}
 	//for (auto model : ModelList)
 	//{
 	//	model.UpdateUniformBuffer(renderer, camera, light);
 	//}
-	Skybox.UpdateUniformBuffer(renderer, camera);
+	Skybox.UpdateUniformBuffer(renderer, *ActiveCamera);
+	///frameBuffer.UpdateUniformBuffer(*renderer.GetVulkanRendererBase());
 
-	{
-		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = camera.GetViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
-		ubo.proj[1][1] *= -1;
-
-		static_cast<Mesh2*>(&MeshList[0])->UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
-	}
-	{
-		UniformBufferObject ubo{};
-		ubo.model = glm::mat4(1.0f);
-		ubo.model = glm::translate(ubo.model, glm::vec3(5.0f, 0.0f, 0.0f));
-		ubo.model = glm::rotate(ubo.model, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = camera.GetViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
-		ubo.proj[1][1] *= -1;
-
-		MeshList[1].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
-	}
-	//{
-	//	UniformBufferObject ubo{};
-	//	ubo.model = glm::mat4(1.0f);
-	//	ubo.model = glm::translate(ubo.model, glm::vec3(0.0f, 0.0f, 0.0f));
-	//	ubo.model = glm::rotate(ubo.model, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	//	ubo.view = camera.GetViewMatrix();
-	//	ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
-	//	ubo.proj[1][1] *= -1;
-
-	//	MeshList[2].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
-	//}
-	//{
-	//	UniformBufferObject ubo{};
-	//	ubo.model = glm::mat4(1.0f);
-	//	ubo.model = glm::translate(ubo.model, glm::vec3(-2.5f, 0.0f, 0.0f));
-	//	// ubo.model = glm::rotate(ubo.model, time * glm::radians(90.0f), glm::vec3(-0.5f, 0.5f, 0.5f));
-	//	ubo.view = camera.GetViewMatrix();
-	//	ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
-	//	ubo.proj[1][1] *= -1;
-
-	//	MeshList[3].UpdateUniformBuffer(*renderer.GetVulkanRendererBase(), ubo);
-	//}
-	{
-		frameBuffer.UpdateUniformBuffer(*renderer.GetVulkanRendererBase());
-	}
 }
 
 void VulkanGraphics::MainLoop()

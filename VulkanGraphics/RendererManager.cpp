@@ -9,7 +9,7 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 {
 	forwardRenderer = ForwardRenderer(*GetVulkanRendererBase());
 	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
-	frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
+	//frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
 	shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
 	InitializeGUIDebugger(window);
 }
@@ -18,7 +18,7 @@ RendererManager::~RendererManager()
 {
 }
 
-void RendererManager::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+void RendererManager::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
 {
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -86,7 +86,7 @@ void RendererManager::InitializeGUIDebugger(GLFWwindow* window)
 	guiDebugger = GUIDebugger(init_info, window, forwardRenderer.RenderPass);
 }
 
-void RendererManager::UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+void RendererManager::UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
 {
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
@@ -109,14 +109,14 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameB
 
 	forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	//frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 
 	InitializeCommandBuffers();
 	CMDBuffer(frameBuffer, skybox, MeshList);
 }
 
-uint32_t RendererManager::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+uint32_t RendererManager::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -146,7 +146,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, 
 	ShadowRenderPass(frameBuffer, skybox, MeshList);
 	DrawToTextureRenderPass(skybox, MeshList);
 	MainRenderPass(skybox, MeshList);
-	FrameBufferRenderPass(frameBuffer, skybox, MeshList);
+	//FrameBufferRenderPass(frameBuffer, skybox, MeshList);
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -222,7 +222,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, 
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void RendererManager::DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+void RendererManager::DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
 {
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -249,7 +249,7 @@ void RendererManager::DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mes
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+void RendererManager::MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
 {
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -277,10 +277,10 @@ void RendererManager::MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& Mesh
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+void RendererManager::FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
 {
 	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
 	clearValues[1].depthStencil = { 1.0f, 0 };
 
 	VkRenderPassBeginInfo renderPassInfo{};
@@ -293,12 +293,12 @@ void RendererManager::FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxM
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	forwardRenderer.Draw(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline, framebuffer);
+	//forwardRenderer.Draw(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline, framebuffer);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::ShadowRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList)
+void RendererManager::ShadowRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
 {
 	std::array<VkClearValue, 1> clearValues{};
 	clearValues[0].depthStencil = { 1.0f, 0 };
@@ -313,7 +313,13 @@ void RendererManager::ShadowRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh s
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	shadowRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, MeshList[0]);
+	for (auto mesh : MeshList)
+	{
+		if (mesh.RenderBitFlags & RendererBitFlag::RenderShadow)
+		{
+			shadowRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
+		}
+	}
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
@@ -323,7 +329,7 @@ void RendererManager::DestoryVulkan()
 
 	forwardRenderer.Destroy(*GetVulkanRendererBase());
 	textureRenderer.Destroy(*GetVulkanRendererBase());
-	frameBufferRenderer.Destroy(*GetVulkanRendererBase());
+	//frameBufferRenderer.Destroy(*GetVulkanRendererBase());
 	shadowRenderer.Destroy(*GetVulkanRendererBase());
 
 	VulkanRenderer::Destory();

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include "VulkanRenderer.h"
-#include "Mesh2.h"
+#include "Mesh.h"
 #include "SkyBoxMesh.h"
 #include "SkyBoxPipeline.h"
 #include "DebugLightRenderingPipeline.h"
@@ -35,8 +35,7 @@ public:
 	~RendererBase();
 
 	void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, BaseMesh& mesh);
-	void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, std::vector<Mesh2>& MeshList);
-	void ShadowDraw(VulkanRenderer& renderer, Mesh2& mesh);
+	void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, std::vector<Mesh>& MeshList);
 	void Destroy(VulkanRenderer& renderer);
 };
 

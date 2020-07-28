@@ -7,10 +7,11 @@
 
 enum RendererBitFlag
 {
-    Nonw = 0,
+    None = 0,
     RenderOnMainPass =  1 << 0,
     RenderOnTexturePass = 1 << 1,
-    RenderOnFrameBufferPass = 1 << 2
+    RenderOnFrameBufferPass = 1 << 2,
+    RenderShadow = 1 << 3
 };
 
 class BaseMesh

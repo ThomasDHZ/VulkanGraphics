@@ -94,8 +94,10 @@ private:
 	Keyboard keyboard;
 	Mouse mouse;
 
+    Camera* ActiveCamera;
 	Camera camera;
-
+    Camera camera2;
+    bool SwatchCamara;
 	glm::vec3 LightPos;
 
 	//LightManager lightManager;
@@ -104,7 +106,7 @@ private:
     SkyBoxMesh Skybox;
     FrameBufferMesh frameBuffer;
 
-	std::vector<Mesh2> MeshList;
+	std::vector<Mesh> MeshList;
 	//std::vector<Model> ModelList;
 
     void UpdateImGUI();

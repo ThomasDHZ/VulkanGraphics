@@ -12,10 +12,11 @@
 #include "GUIDebugger.h"
 #include "ForwardRenderer.h"
 #include "TextureRenderer.h"
-#include "Mesh2.h"
+#include "Mesh.h"
 #include "SkyBoxMesh.h"
 #include "FramebufferRenderer.h"
 #include "ShadowRenderer.h"
+#include <chrono>
 
 class RendererManager : public VulkanRenderer
 {
@@ -30,20 +31,20 @@ private:
 	GUIDebugger guiDebugger;
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
-	FramebufferRenderer frameBufferRenderer;
+	//FramebufferRenderer frameBufferRenderer;
 	ShadowRenderer shadowRenderer;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
-	void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-	void UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	void UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
 
-	void DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-	void MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-	void FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
-	void ShadowRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	void DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	void MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	void FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	void ShadowRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
 protected:
 
-	uint32_t Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh2>& MeshList);
+	uint32_t Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
 	void DestoryVulkan();
 
 public:
@@ -52,5 +53,6 @@ public:
 	RendererManager(GLFWwindow* window);
 	~RendererManager();
 
+	void Update(uint32_t DrawFrame, Camera camera, FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
 };
