@@ -118,17 +118,19 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout&
     SpecularMap.imageView = texture.View;
     SpecularMap.sampler = texture.Sampler;
 
-    Texture2D normal = Texture2D(renderer, "texture/brickwall_normal.jpg");
+    Texture2D normal = Texture2D(renderer, "texture/bricks2_normal.jpg");
 
     VkDescriptorImageInfo NormalMap = {};
     NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     NormalMap.imageView = normal.View;
     NormalMap.sampler = normal.Sampler;
 
+    Texture2D Depth = Texture2D(renderer, "texture/bricks2_disp.jpg");
+
     VkDescriptorImageInfo DisplacementMap = {};
     DisplacementMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DisplacementMap.imageView = texture.View;
-    DisplacementMap.sampler = texture.Sampler;
+    DisplacementMap.imageView = Depth.View;
+    DisplacementMap.sampler = Depth.Sampler;
 
     VkDescriptorImageInfo AlphaMap = {};
     AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

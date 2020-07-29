@@ -113,7 +113,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 		{{pos4.x, pos4.y, pos4.z}, {nm.x, nm.y, nm.z}, {uv4.x, uv4.y}, {tangent2.x, tangent2.y, tangent2.z}, {bitangent2.x, bitangent2.y, bitangent2.z}}
 	};
 
-	newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/brickwall.jpg");
+	newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/bricks2.jpg");
 	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), quadVertices, indices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass));
 	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
@@ -172,6 +172,9 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 		ImGui::Checkbox("Switch Camara", &SwatchCamara);
 		ImGui::SliderFloat3("Light", &light.LightPos.x, -10.0f, 10.0f);
+		ImGui::SliderFloat("heightScale", &light.heightScale, -10.0f, 10.0f);
+		ImGui::SliderFloat("Layers", &light.minLayers, -10.0f, 10.0f);
+		ImGui::SliderFloat("maxLayers", &light.maxLayers, -10.0f, 10.0f);
 		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		//ImGui::LabelText("Diffuse", "Diffuse");
@@ -180,6 +183,44 @@ void VulkanGraphics::UpdateImGUI()
 		//ImGui::Image(MMtexture2.ImGuiDescriptorSet, ImVec2(480.0f, 32.0f));
 		//ImGui::LabelText("Alpha", "Alpha");
 		//ImGui::Image(MMtexture3.ImGuiDescriptorSet, ImVec2(480.0f, 32.0f));
+		ImGui::End();
+
+		ImGui::Begin("MeshSettings");
+		if (ImGui::TreeNode("Tree"))
+		{
+			ImGui::Columns(2, "tree", true);
+			for (int x = 0; x < 3; x++)
+			{
+				bool open1 = ImGui::TreeNode((void*)(intptr_t)x, "Node%d", x);
+				ImGui::NextColumn();
+				ImGui::Text("Node contents");
+				ImGui::NextColumn();
+				if (open1)
+				{
+					for (int y = 0; y < 3; y++)
+					{
+						bool open2 = ImGui::TreeNode((void*)(intptr_t)y, "Node%d.%d", x, y);
+						ImGui::NextColumn();
+						ImGui::Text("Node contents");
+						if (open2)
+						{
+							ImGui::Text("Even more contents");
+							if (ImGui::TreeNode("Tree in column"))
+							{
+								ImGui::Text("The quick brown fox jumps over the lazy dog");
+								ImGui::TreePop();
+							}
+						}
+						ImGui::NextColumn();
+						if (open2)
+							ImGui::TreePop();
+					}
+					ImGui::TreePop();
+				}
+			}
+			ImGui::Columns(1);
+			ImGui::TreePop();
+		}
 		ImGui::End();
 	}
 

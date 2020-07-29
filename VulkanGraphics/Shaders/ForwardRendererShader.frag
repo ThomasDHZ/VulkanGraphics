@@ -11,6 +11,9 @@ layout(binding = 7) uniform Light
 {
     vec3 LightPos;
     vec3 ViewPos;
+    float heightScale;
+    float minLayers;
+    float maxLayers;
 } light;
 
 layout(location = 0) in vec3 FragPos;
@@ -20,11 +23,59 @@ layout(location = 3) in mat3 TBN;
 
 layout(location = 0) out vec4 outColor;
 
+vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
+{ 
+    // number of depth layers
+    float numLayers = mix(light.maxLayers, light.minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
+    // calculate the size of each layer
+    float layerDepth = 1.0 / numLayers;
+    // depth of current layer
+    float currentLayerDepth = 0.0;
+    // the amount to shift the texture coordinates per layer (from vector P)
+    vec2 P = viewDir.xy / viewDir.z * light.heightScale; 
+    vec2 deltaTexCoords = P / numLayers;
+  
+    // get initial values
+    vec2  currentTexCoords     = texCoords;
+    float currentDepthMapValue = texture(DisplacementMap, currentTexCoords).r;
+      
+    while(currentLayerDepth < currentDepthMapValue)
+    {
+        // shift texture coordinates along direction of P
+        currentTexCoords -= deltaTexCoords;
+        // get depthmap value at current texture coordinates
+        currentDepthMapValue = texture(DisplacementMap, currentTexCoords).r;  
+        // get depth of next layer
+        currentLayerDepth += layerDepth;  
+    }
+    
+    // get texture coordinates before collision (reverse operations)
+    vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+    // get depth after and before collision for linear interpolation
+    float afterDepth  = currentDepthMapValue - currentLayerDepth;
+    float beforeDepth = texture(DisplacementMap, prevTexCoords).r - currentLayerDepth + layerDepth;
+ 
+    // interpolation of texture coordinates
+    float weight = afterDepth / (afterDepth - beforeDepth);
+    vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+
+    return finalTexCoords;
+}
+
 void main() 
 {
     vec3 TangentLight = TBN * light.LightPos;
     vec3 TangentView = TBN * light.ViewPos;
     vec3 TangentFrag = TBN * FragPos;
+
+    // offset texture coordinates with Parallax Mapping
+    vec3 viewDir = normalize(TangentView - TangentLight);
+    vec2 texCoords = TexCoords;
+    
+    texCoords = ParallaxMapping(TexCoords,  viewDir);       
+    if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
+        discard;
 
     vec3 normal = texture(NormalMap, TexCoords).rgb;
     // transform normal vector to range [-1,1]
@@ -39,7 +90,7 @@ void main()
     float diff = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = diff * color;
     // specular
-    vec3 viewDir = normalize(TangentView - TangentFrag);
+    viewDir = normalize(TangentView - TangentFrag);
     vec3 reflectDir = reflect(lightDir, normal);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);

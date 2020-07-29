@@ -37,12 +37,15 @@ struct LightBufferObject
 {
     alignas(16) glm::vec3 LightPos;
     alignas(16) glm::vec3 ViewPos;
+    alignas(4) float heightScale = 0.1f;
+    alignas(4) float minLayers = 8;
+    alignas(4) float maxLayers = 32;
 };
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
+    alignas(16) glm::mat4 proj;;
 };
 
 class Mesh : public BaseMesh
