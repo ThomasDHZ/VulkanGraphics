@@ -33,6 +33,12 @@
 //	alignas(16) glm::vec3 viewPos;
 //};
 
+struct LightBufferObject
+{
+    alignas(16) glm::vec3 LightPos;
+    alignas(16) glm::vec3 ViewPos;
+};
+
 struct UniformBufferObject {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
@@ -43,11 +49,12 @@ class Mesh : public BaseMesh
 {
 private:
     VulkanUniformBuffer uniformBuffer;
+    VulkanUniformBuffer lightBuffer;
 
     void CreateUniformBuffers(VulkanRenderer& renderer);
     void CreateDescriptorPool(VulkanRenderer& renderer);
     void CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
-    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo);
+    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer);
 
 public:
 
@@ -64,7 +71,7 @@ public:
     Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
     ~Mesh();
 
-    void Update(VulkanRenderer& renderer, Camera& camera);
+    void Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Lightbuffer);
     void Destory(VulkanRenderer& renderer);
 };
 

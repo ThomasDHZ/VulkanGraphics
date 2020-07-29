@@ -56,11 +56,11 @@ void RendererManager::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, 
 		VkBuffer vertexBuffers[] = { MeshList[0].VertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 
-		vkCmdBindPipeline(RenderCommandBuffer[i], VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRenderer.forwardRendereringPipeline.ShaderPipeline);
+	/*	vkCmdBindPipeline(RenderCommandBuffer[i], VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRenderer.forwardRendereringPipeline.ShaderPipeline);
 		vkCmdBindVertexBuffers(RenderCommandBuffer[i], 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(RenderCommandBuffer[i], MeshList[0].IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 		vkCmdBindDescriptorSets(RenderCommandBuffer[i], VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRenderer.forwardRendereringPipeline.ShaderPipelineLayout, 0, 1, &MeshList[0].DescriptorSets[i], 0, nullptr);
-		vkCmdDrawIndexed(RenderCommandBuffer[i], static_cast<uint32_t>(MeshList[0].IndexSize), 1, 0, 0, 0);
+		vkCmdDrawIndexed(RenderCommandBuffer[i], static_cast<uint32_t>(MeshList[0].IndexSize), 1, 0, 0, 0);*/
 		vkCmdEndRenderPass(RenderCommandBuffer[i]);
 
 		if (vkEndCommandBuffer(RenderCommandBuffer[i]) != VK_SUCCESS) {

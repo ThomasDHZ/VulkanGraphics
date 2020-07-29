@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Texture2D.h"
 
 Mesh::Mesh() : BaseMesh()
 {
@@ -12,7 +13,12 @@ Mesh::Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector
     IndexSize = indicesdata.size();
 
     CreateVertexBuffer(renderer, vertexdata);
-    CreateIndexBuffer(renderer, indicesdata);
+
+    if (IndexSize != 0)
+    {
+        CreateIndexBuffer(renderer, indicesdata);
+    }
+
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, descriptorSetLayout);
@@ -79,11 +85,12 @@ Mesh::~Mesh()
 void Mesh::CreateUniformBuffers(VulkanRenderer& renderer)
 {
     uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
+    lightBuffer = VulkanUniformBuffer(renderer, sizeof(LightBufferObject));
 }
 
 void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
 
-    std::array<DescriptorPoolSizeInfo, 7>  DescriptorPoolInfo = {};
+    std::array<DescriptorPoolSizeInfo, 8>  DescriptorPoolInfo = {};
 
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -92,6 +99,7 @@ void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
     DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -110,10 +118,12 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout&
     SpecularMap.imageView = texture.View;
     SpecularMap.sampler = texture.Sampler;
 
+    Texture2D normal = Texture2D(renderer, "texture/brickwall_normal.jpg");
+
     VkDescriptorImageInfo NormalMap = {};
     NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    NormalMap.imageView = texture.View;
-    NormalMap.sampler = texture.Sampler;
+    NormalMap.imageView = normal.View;
+    NormalMap.sampler = normal.Sampler;
 
     VkDescriptorImageInfo DisplacementMap = {};
     DisplacementMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -137,6 +147,11 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout&
 		PositionInfo.offset = 0;
 		PositionInfo.range = sizeof(UniformBufferObject);
 
+        VkDescriptorBufferInfo LightInfo = {};
+        LightInfo.buffer = lightBuffer.GetUniformBuffer(i);
+        LightInfo.offset = 0;
+        LightInfo.range = sizeof(LightBufferObject);
+
         std::vector<WriteDescriptorSetInfo> DescriptorList;
 
         WriteDescriptorSetInfo PositionDescriptor;
@@ -153,46 +168,53 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout&
         DiffuseMapDescriptor.DescriptorImageInfo = DiffuseMap;
         DescriptorList.emplace_back(DiffuseMapDescriptor);
 
-        //WriteDescriptorSetInfo SpecularMapDescriptor;
-        //SpecularMapDescriptor.DstBinding = 2;
-        //SpecularMapDescriptor.DstSet = DescriptorSets[i];
-        //SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        //SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
-        //DescriptorList.emplace_back(SpecularMapDescriptor);
+        WriteDescriptorSetInfo SpecularMapDescriptor;
+        SpecularMapDescriptor.DstBinding = 2;
+        SpecularMapDescriptor.DstSet = DescriptorSets[i];
+        SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
+        DescriptorList.emplace_back(SpecularMapDescriptor);
 
-        //WriteDescriptorSetInfo NormalMapDescriptor;
-        //NormalMapDescriptor.DstBinding = 3;
-        //NormalMapDescriptor.DstSet = DescriptorSets[i];
-        //NormalMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        //NormalMapDescriptor.DescriptorImageInfo = NormalMap;
-        //DescriptorList.emplace_back(NormalMapDescriptor);
+        WriteDescriptorSetInfo NormalMapDescriptor;
+        NormalMapDescriptor.DstBinding = 3;
+        NormalMapDescriptor.DstSet = DescriptorSets[i];
+        NormalMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        NormalMapDescriptor.DescriptorImageInfo = NormalMap;
+        DescriptorList.emplace_back(NormalMapDescriptor);
 
-        //WriteDescriptorSetInfo DisplacementMapDescriptor;
-        //DisplacementMapDescriptor.DstBinding = 4;
-        //DisplacementMapDescriptor.DstSet = DescriptorSets[i];
-        //DisplacementMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        //DisplacementMapDescriptor.DescriptorImageInfo = DisplacementMap;
-        //DescriptorList.emplace_back(DisplacementMapDescriptor);
+        WriteDescriptorSetInfo DisplacementMapDescriptor;
+        DisplacementMapDescriptor.DstBinding = 4;
+        DisplacementMapDescriptor.DstSet = DescriptorSets[i];
+        DisplacementMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        DisplacementMapDescriptor.DescriptorImageInfo = DisplacementMap;
+        DescriptorList.emplace_back(DisplacementMapDescriptor);
 
-        //WriteDescriptorSetInfo AlphaMapDescriptor;
-        //AlphaMapDescriptor.DstBinding = 5;
-        //AlphaMapDescriptor.DstSet = DescriptorSets[i];
-        //AlphaMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        //AlphaMapDescriptor.DescriptorImageInfo = AlphaMap;
-        //DescriptorList.emplace_back(AlphaMapDescriptor);
+        WriteDescriptorSetInfo AlphaMapDescriptor;
+        AlphaMapDescriptor.DstBinding = 5;
+        AlphaMapDescriptor.DstSet = DescriptorSets[i];
+        AlphaMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        AlphaMapDescriptor.DescriptorImageInfo = AlphaMap;
+        DescriptorList.emplace_back(AlphaMapDescriptor);
 
-        //WriteDescriptorSetInfo EmissionMapDescriptor;
-        //EmissionMapDescriptor.DstBinding = 6;
-        //EmissionMapDescriptor.DstSet = DescriptorSets[i];
-        //EmissionMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        //EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
-        //DescriptorList.emplace_back(EmissionMapDescriptor);
+        WriteDescriptorSetInfo EmissionMapDescriptor;
+        EmissionMapDescriptor.DstBinding = 6;
+        EmissionMapDescriptor.DstSet = DescriptorSets[i];
+        EmissionMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
+        DescriptorList.emplace_back(EmissionMapDescriptor);
+
+        WriteDescriptorSetInfo LightDescriptor;
+        LightDescriptor.DstBinding = 7;
+        LightDescriptor.DstSet = DescriptorSets[i];
+        LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        LightDescriptor.DescriptorBufferInfo = LightInfo;
+        DescriptorList.emplace_back(LightDescriptor);
 
         BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
 }
 
-void Mesh::Update(VulkanRenderer& renderer, Camera& camera)
+void Mesh::Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Lightbuffer)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
@@ -210,16 +232,18 @@ void Mesh::Update(VulkanRenderer& renderer, Camera& camera)
         ubo.model = glm::rotate(ubo.model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
     }
 
-    UpdateUniformBuffer(renderer, ubo);
+    UpdateUniformBuffer(renderer, ubo, Lightbuffer);
 }
 
-void Mesh::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo)
+void Mesh::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
 {
     uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
+    lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
 }
 
 void Mesh::Destory(VulkanRenderer& renderer)
 {
     uniformBuffer.Destroy(renderer);
+    lightBuffer.Destroy(renderer);
     BaseMesh::Destory(renderer);
 }
