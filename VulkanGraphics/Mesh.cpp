@@ -225,7 +225,8 @@ void Mesh::Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Li
     ubo.view = camera.GetViewMatrix();
     ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
     ubo.proj[1][1] *= -1;
-
+    ubo.LightPos = glm::vec3(-0.5f, 1.0f, 0.3f);
+    ubo.ViewPos = camera.Position;
     if (RotationAmount != 0 &&
         (MeshRotate.x != 0 ||
             MeshRotate.y != 0 ||
