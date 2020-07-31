@@ -9,23 +9,27 @@ layout(binding = 5) uniform sampler2D AlphaMap;
 layout(binding = 6) uniform sampler2D EmissionMap;
 layout(binding = 7) uniform Light
 {
+    vec3 lightPos;
+    vec3 viewPos;
+    float minLayers;
+    float maxLayers;
     float heightScale;
 } light;
 
 layout(location = 0) in vec3 FragPos;
-layout(location = 1) in vec2 TexCoords;
-layout(location = 2) in vec3 TangentLightPos;
-layout(location = 3) in vec3 TangentViewPos;
-layout(location = 4) in vec3 TangentFragPos;
+layout(location = 1) in vec3 Normal;
+layout(location = 2) in vec2 TexCoords;
+layout(location = 3) in vec3 Tangent;
+layout(location = 4) in vec3 Bitangent;
+layout(location = 5) in mat4 Model;
+
 
 layout(location = 0) out vec4 FragColor;
 
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
     // number of depth layers
-    const float minLayers = 8;
-    const float maxLayers = 32;
-    float numLayers = mix(maxLayers, minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
+    float numLayers = mix(light.maxLayers, light.minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
     // calculate the size of each layer
     float layerDepth = 1.0 / numLayers;
     // depth of current layer
@@ -64,6 +68,15 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
 void main()
 {           
+    vec3 T = normalize(mat3(Model) * Tangent);
+    vec3 B = normalize(mat3(Model) * Bitangent);
+    vec3 N = normalize(mat3(Model) * Normal);
+    mat3 TBN = transpose(mat3(T, B, N));
+
+    vec3 TangentLightPos = TBN * light.lightPos;
+    vec3 TangentViewPos  = TBN * light.viewPos;
+    vec3 TangentFragPos  = TBN * FragPos;
+
     // offset texture coordinates with Parallax Mapping
     vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
     vec2 texCoords = TexCoords;

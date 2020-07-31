@@ -56,7 +56,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass));
 	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
 	//frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
-	//light.LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
+	light.LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 
 	renderer.CMDBuffer(frameBuffer, Skybox, MeshList);
 	ImGui_ImplVulkan_AddTexture(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, renderer.textureRenderer.ColorTexture.Sampler, renderer.textureRenderer.ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -109,7 +109,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 		ImGui::Checkbox("Switch Camara", &SwatchCamara);
-		//ImGui::SliderFloat3("Light", &light.LightPos.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("Light", &light.LightPos.x, -10.0f, 10.0f);
 		ImGui::SliderFloat("heightScale", &light.heightScale, 0.0, 50.0f);
 		//ImGui::SliderFloat("Layers", &light.minLayers, 0.0, 50.0f);
 		//ImGui::SliderFloat("maxLayers", &light.maxLayers, 0.0, 50.0f);
@@ -183,7 +183,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 		ActiveCamera = &camera2;
 	}
 
-	//light.ViewPos = ActiveCamera->Position;
+	light.ViewPos = ActiveCamera->Position;
 	MeshList[1].MeshPosition = glm::vec3(5.0f, 0.0f, 0.0f);
 	for (auto mesh : MeshList)
 	{

@@ -8,10 +8,11 @@ layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitangent;
 
 layout(location = 0) out vec3 FragPos;
-layout(location = 1) out vec2 TexCoords;
-layout(location = 2) out vec3 TangentLightPos;
-layout(location = 3) out vec3 TangentViewPos;
-layout(location = 4) out vec3 TangentFragPos;
+layout(location = 1) out vec3 Normal;
+layout(location = 2) out vec2 TexCoords;
+layout(location = 3) out vec3 Tangent;
+layout(location = 4) out vec3 Bitangent;
+layout(location = 5) out mat4 Model;
 
 layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
@@ -25,15 +26,10 @@ void main()
 {
     FragPos = vec3(ubo.model * vec4(aPos, 1.0));   
     TexCoords = aTexCoords;   
-    
-    vec3 T = normalize(mat3(ubo.model) * aTangent);
-    vec3 B = normalize(mat3(ubo.model) * aBitangent);
-    vec3 N = normalize(mat3(ubo.model) * aNormal);
-    mat3 TBN = transpose(mat3(T, B, N));
-
-    TangentLightPos = TBN * ubo.lightPos;
-    TangentViewPos  = TBN * ubo.viewPos;
-    TangentFragPos  = TBN * FragPos;
-    
+    Normal = aNormal;
+    TexCoords = aTexCoords;
+    Tangent = aTangent;
+    Bitangent = aBitangent;
+    Model = ubo.model;
     gl_Position = ubo.projection * ubo.view * ubo.model * vec4(aPos, 1.0);
 }

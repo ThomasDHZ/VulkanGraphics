@@ -35,6 +35,10 @@
 
 struct LightBufferObject
 {
+    alignas(16) glm::vec3 LightPos;
+    alignas(16) glm::vec3 ViewPos;
+    alignas(4) float minLayers = 32.0f;
+    alignas(4) float maxLayers = 8.0f;
     alignas(4) float heightScale = 0.1f;
 };
 
