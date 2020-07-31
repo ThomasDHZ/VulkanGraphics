@@ -7,15 +7,12 @@
     <Blur1Weight>0.4</Blur1Weight>
     <Blur4Weight>0.8</Blur4Weight>
     <Blur6Weight>0.7</Blur6Weight>
-    <Blur4Contrast>-0.2</Blur4Contrast>
-    <Blur5Contrast>5</Blur5Contrast>
-    <Blur6Contrast>-4</Blur6Contrast>
-    <FinalContrast>-3.74999976</FinalContrast>
-    <FinalContrastText>-3.75</FinalContrastText>
-    <FinalBias>0.1826923</FinalBias>
-    <FinalBiasText>0.1826</FinalBiasText>
-    <FinalGain>-0.5</FinalGain>
-    <FinalGainText>-0.5</FinalGainText>
+    <FinalContrast>5</FinalContrast>
+    <FinalContrastText>5</FinalContrastText>
+    <FinalBias>-0.144076928</FinalBias>
+    <FinalBiasText>-0.144</FinalBiasText>
+    <FinalGain>-0.432</FinalGain>
+    <FinalGainText>-0.432</FinalGainText>
     <SampleColor1>
       <r>0</r>
       <g>0</g>
@@ -26,6 +23,8 @@
       <x>0</x>
       <y>0</y>
     </SampleUV1>
+    <UseSample1>true</UseSample1>
+    <HueWeight1>0.551724136</HueWeight1>
     <SampleColor2>
       <r>0</r>
       <g>0</g>
@@ -37,6 +36,10 @@
       <y>0</y>
     </SampleUV2>
     <Sample2Height>0.3</Sample2Height>
+    <SampleBlend>0.8317</SampleBlend>
+    <SampleBlendText>0.8317</SampleBlendText>
+    <Spread>34.4711533</Spread>
+    <SpreadText>34.471</SpreadText>
   </HFDS>
   <heightMapPath>brick_height.bmp</heightMapPath>
   <EDS>
@@ -45,15 +48,15 @@
   <diffuseMapPath>null</diffuseMapPath>
   <diffuseMapOriginalPath>brick_diffuseOriginal.bmp</diffuseMapOriginalPath>
   <NFHS>
-    <Blur0Weight>0.15</Blur0Weight>
-    <Blur1Weight>0.5</Blur1Weight>
-    <Blur2Weight>0.85</Blur2Weight>
-    <Blur3Weight>1</Blur3Weight>
-    <Blur4Weight>0.85</Blur4Weight>
-    <Blur5Weight>0.5</Blur5Weight>
-    <Blur6Weight>0.15</Blur6Weight>
-    <AngularIntensity>0.5144231</AngularIntensity>
-    <AngularIntensityText>0.5144</AngularIntensityText>
+    <Blur0Weight>1</Blur0Weight>
+    <Blur1Weight>0.9</Blur1Weight>
+    <Blur2Weight>0.6</Blur2Weight>
+    <Blur3Weight>0.4</Blur3Weight>
+    <Blur4Weight>0.25</Blur4Weight>
+    <Blur5Weight>0.15</Blur5Weight>
+    <Blur6Weight>0.1</Blur6Weight>
+    <AngularIntensity>0.389423072</AngularIntensity>
+    <AngularIntensityText>0.3894</AngularIntensityText>
     <SlopeBlur>50</SlopeBlur>
   </NFHS>
   <normalMapPath>brick_normal.bmp</normalMapPath>
@@ -113,9 +116,14 @@
   </AOS>
   <aoMapPath>null</aoMapPath>
   <MatS>
-    <Parallax>0.3942</Parallax>
-    <AOPower>1.048</AOPower>
-    <ParallaxText>0.3942</ParallaxText>
-    <AOPowerText>1.048</AOPowerText>
+    <Metallic>0.653846145</Metallic>
+    <Smoothness>0.932692349</Smoothness>
+    <Parallax>0.567307651</Parallax>
+    <AOPower>2</AOPower>
+    <MetallicText>0.6538</MetallicText>
+    <SmoothnessText>0.9326</SmoothnessText>
+    <ParallaxText>0.5673</ParallaxText>
+    <AOPowerText>2</AOPowerText>
+    <LightIntensity>2.215909</LightIntensity>
   </MatS>
 </ProjectObject>

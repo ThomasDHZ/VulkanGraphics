@@ -33,21 +33,25 @@
 //	alignas(16) glm::vec3 viewPos;
 //};
 
+struct MeshProperties
+{
+    alignas(4) float specular = 32;
+    alignas(4) float minLayers = 32.0f;
+    alignas(4) float maxLayers = 8.0f;
+    alignas(4) float heightScale = -0.1f;
+};
+
+
 struct LightBufferObject
 {
     alignas(16) glm::vec3 LightPos;
     alignas(16) glm::vec3 ViewPos;
-    alignas(4) float minLayers = 32.0f;
-    alignas(4) float maxLayers = 8.0f;
-    alignas(4) float heightScale = 0.1f;
 };
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
-    alignas(16) glm::vec3 LightPos;
-    alignas(16) glm::vec3 ViewPos;
 };
 
 class Mesh : public BaseMesh
@@ -55,11 +59,12 @@ class Mesh : public BaseMesh
 private:
     VulkanUniformBuffer uniformBuffer;
     VulkanUniformBuffer lightBuffer;
+    VulkanUniformBuffer meshPropertiesBuffer;
 
     void CreateUniformBuffers(VulkanRenderer& renderer);
     void CreateDescriptorPool(VulkanRenderer& renderer);
     void CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
-    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer);
+    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshProperties meshProp, LightBufferObject Lightbuffer);
 
 public:
 
@@ -76,7 +81,7 @@ public:
     Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
     ~Mesh();
 
-    void Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Lightbuffer);
+    void Update(VulkanRenderer& renderer, Camera& camera, MeshProperties meshProp, LightBufferObject Lightbuffer);
     void Destory(VulkanRenderer& renderer);
 };
 

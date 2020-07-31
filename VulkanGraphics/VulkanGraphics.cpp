@@ -44,20 +44,22 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, newtexturebox);
 	//modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/gobber/GoblinX.obj"));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
-	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/suzanne.obj"));
+	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/Sphere.obj"));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), vertices, indices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout));
 
 	//ModelList.emplace_back(Model(renderer, modelLoader.GetModelMeshs()));
 
-	newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/bricks2.jpg");
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), CalcVertex(), indices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	//MeshList.emplace_back(Mesh2(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass));
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
-	//frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
+	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/toy_box_diffuse.png");
+	newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/brick_diffuseOriginal.bmp");
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), modelLoader.GetModelMeshs()[0].VertexList, modelLoader.GetModelMeshs()[0].IndexList, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	//MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), vertices, indices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	//MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, newtexture2, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass));
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), vertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
+	frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
 	light.LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
-
+	//MeshList[1].MeshPosition = glm::vec3(5.0f, 0.0f, 0.0f);
 	renderer.CMDBuffer(frameBuffer, Skybox, MeshList);
 	ImGui_ImplVulkan_AddTexture(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, renderer.textureRenderer.ColorTexture.Sampler, renderer.textureRenderer.ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	ImGui_ImplVulkan_AddTexture(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, renderer.shadowRenderer.DepthTexture.Sampler, renderer.shadowRenderer.DepthTexture.View, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
@@ -110,9 +112,11 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 		ImGui::Checkbox("Switch Camara", &SwatchCamara);
 		ImGui::SliderFloat3("Light", &light.LightPos.x, -10.0f, 10.0f);
-		ImGui::SliderFloat("heightScale", &light.heightScale, 0.0, 50.0f);
-		//ImGui::SliderFloat("Layers", &light.minLayers, 0.0, 50.0f);
-		//ImGui::SliderFloat("maxLayers", &light.maxLayers, 0.0, 50.0f);
+		ImGui::SliderFloat3("Mesh", &MeshList[1].MeshPosition.x, -10.0f, 10.0f);
+		ImGui::SliderFloat("specular", &meshProp.specular, 0.0, 255.0f);
+		ImGui::SliderFloat("heightScale", &meshProp.heightScale, -1.0, 1.0f);
+		ImGui::SliderFloat("Layers", &meshProp.minLayers, 0.0, 50.0f);
+		ImGui::SliderFloat("maxLayers", &meshProp.maxLayers, 0.0, 50.0f);
 		//ImGui::SliderFloat("parallax", &light.parallax, 0.0, 1.0f);
 		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
@@ -184,10 +188,9 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	}
 
 	light.ViewPos = ActiveCamera->Position;
-	MeshList[1].MeshPosition = glm::vec3(5.0f, 0.0f, 0.0f);
 	for (auto mesh : MeshList)
 	{
-		mesh.Update(renderer, *ActiveCamera, light);
+		mesh.Update(renderer, *ActiveCamera, meshProp, light);
 	}
 	//for (auto model : ModelList)
 	//{

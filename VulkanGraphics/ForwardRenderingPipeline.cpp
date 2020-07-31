@@ -74,9 +74,16 @@ void ForwardRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& rendere
     LightLayoutBinding7.pImmutableSamplers = nullptr;
     LightLayoutBinding7.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    std::array<VkDescriptorSetLayoutBinding, 8> bindings = { uboLayoutBinding, samplerLayoutBinding, samplerLayoutBinding2,
+    VkDescriptorSetLayoutBinding meshLayoutBinding7{};
+    meshLayoutBinding7.binding = 8;
+    meshLayoutBinding7.descriptorCount = 1;
+    meshLayoutBinding7.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    meshLayoutBinding7.pImmutableSamplers = nullptr;
+    meshLayoutBinding7.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    std::array<VkDescriptorSetLayoutBinding, 9> bindings = { uboLayoutBinding, samplerLayoutBinding, samplerLayoutBinding2,
                                                              samplerLayoutBinding3, samplerLayoutBinding4, samplerLayoutBinding5,
-                                                             samplerLayoutBinding6, LightLayoutBinding7 };
+                                                             samplerLayoutBinding6, LightLayoutBinding7, meshLayoutBinding7 };
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());

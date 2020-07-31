@@ -7,21 +7,22 @@ layout(binding = 3) uniform sampler2D normalMap;
 layout(binding = 4) uniform sampler2D depthMap;
 layout(binding = 5) uniform sampler2D AlphaMap;
 layout(binding = 6) uniform sampler2D EmissionMap;
-layout(binding = 7) uniform Light
+layout(binding = 7) uniform MeshProperties
 {
-    vec3 lightPos;
-    vec3 viewPos;
+    float specular;
     float minLayers;
     float maxLayers;
     float heightScale;
+} meshProperties;
+layout(binding = 8) uniform Light
+{
+    vec3 lightPos;
+    vec3 viewPos;
 } light;
 
 layout(location = 0) in vec3 FragPos;
-layout(location = 1) in vec3 Normal;
-layout(location = 2) in vec2 TexCoords;
-layout(location = 3) in vec3 Tangent;
-layout(location = 4) in vec3 Bitangent;
-layout(location = 5) in mat4 Model;
+layout(location = 1) in vec2 TexCoords;
+layout(location = 2) in mat3 TBN;
 
 
 layout(location = 0) out vec4 FragColor;
@@ -29,13 +30,13 @@ layout(location = 0) out vec4 FragColor;
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
     // number of depth layers
-    float numLayers = mix(light.maxLayers, light.minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
+    float numLayers = mix(meshProperties.maxLayers, meshProperties.minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
     // calculate the size of each layer
     float layerDepth = 1.0 / numLayers;
     // depth of current layer
     float currentLayerDepth = 0.0;
     // the amount to shift the texture coordinates per layer (from vector P)
-    vec2 P = viewDir.xy / viewDir.z * light.heightScale; 
+    vec2 P = viewDir.xy / viewDir.z * meshProperties.heightScale; 
     vec2 deltaTexCoords = P / numLayers;
   
     // get initial values
@@ -68,11 +69,6 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
 void main()
 {           
-    vec3 T = normalize(mat3(Model) * Tangent);
-    vec3 B = normalize(mat3(Model) * Bitangent);
-    vec3 N = normalize(mat3(Model) * Normal);
-    mat3 TBN = transpose(mat3(T, B, N));
-
     vec3 TangentLightPos = TBN * light.lightPos;
     vec3 TangentViewPos  = TBN * light.viewPos;
     vec3 TangentFragPos  = TBN * FragPos;
@@ -100,8 +96,8 @@ void main()
     // specular    
     vec3 reflectDir = reflect(-lightDir, normal);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.specular);
 
     vec3 specular = vec3(0.2) * spec;
-    FragColor = vec4(ambient + diffuse + specular, 1.0);
+    FragColor = vec4(ambient + diffuse + specular, 0.5);
 }

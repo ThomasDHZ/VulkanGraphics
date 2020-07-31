@@ -86,11 +86,12 @@ void Mesh::CreateUniformBuffers(VulkanRenderer& renderer)
 {
     uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
     lightBuffer = VulkanUniformBuffer(renderer, sizeof(LightBufferObject));
+    meshPropertiesBuffer = VulkanUniformBuffer(renderer, sizeof(MeshProperties));
 }
 
 void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
 
-    std::array<DescriptorPoolSizeInfo, 8>  DescriptorPoolInfo = {};
+    std::array<DescriptorPoolSizeInfo, 9>  DescriptorPoolInfo = {};
 
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -100,6 +101,7 @@ void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
     DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -118,14 +120,14 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout&
     SpecularMap.imageView = texture.View;
     SpecularMap.sampler = texture.Sampler;
 
-    Texture2D normal = Texture2D(renderer, "texture/bricks2_normal.jpg");
+    Texture2D normal = Texture2D(renderer, "texture/brick_normal.bmp");
 
     VkDescriptorImageInfo NormalMap = {};
     NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     NormalMap.imageView = normal.View;
     NormalMap.sampler = normal.Sampler;
 
-    Texture2D Depth = Texture2D(renderer, "texture/bricks2_disp.jpg");
+    Texture2D Depth = Texture2D(renderer, "texture/brick_height.bmp");
 
     VkDescriptorImageInfo DisplacementMap = {};
     DisplacementMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -153,6 +155,11 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout&
         LightInfo.buffer = lightBuffer.GetUniformBuffer(i);
         LightInfo.offset = 0;
         LightInfo.range = sizeof(LightBufferObject);
+
+        VkDescriptorBufferInfo meshPropertiesInfo = {};
+        meshPropertiesInfo.buffer = meshPropertiesBuffer.GetUniformBuffer(i);
+        meshPropertiesInfo.offset = 0;
+        meshPropertiesInfo.range = sizeof(MeshProperties);
 
         std::vector<WriteDescriptorSetInfo> DescriptorList;
 
@@ -205,8 +212,15 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout&
         EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
         DescriptorList.emplace_back(EmissionMapDescriptor);
 
+        WriteDescriptorSetInfo  MeshPropertiesDescriptor;
+        MeshPropertiesDescriptor.DstBinding = 7;
+        MeshPropertiesDescriptor.DstSet = DescriptorSets[i];
+        MeshPropertiesDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        MeshPropertiesDescriptor.DescriptorBufferInfo = meshPropertiesInfo;
+        DescriptorList.emplace_back(MeshPropertiesDescriptor);
+
         WriteDescriptorSetInfo LightDescriptor;
-        LightDescriptor.DstBinding = 7;
+        LightDescriptor.DstBinding = 8;
         LightDescriptor.DstSet = DescriptorSets[i];
         LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         LightDescriptor.DescriptorBufferInfo = LightInfo;
@@ -216,7 +230,7 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout&
     }
 }
 
-void Mesh::Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Lightbuffer)
+void Mesh::Update(VulkanRenderer& renderer, Camera& camera, MeshProperties meshProp, LightBufferObject Lightbuffer)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
@@ -225,28 +239,29 @@ void Mesh::Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Li
     ubo.view = camera.GetViewMatrix();
     ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
     ubo.proj[1][1] *= -1;
-    ubo.LightPos = glm::vec3(-0.5f, 1.0f, 0.3f);
-    ubo.ViewPos = camera.Position;
+
     if (RotationAmount != 0 &&
         (MeshRotate.x != 0 ||
-            MeshRotate.y != 0 ||
-            MeshRotate.z != 0))
+         MeshRotate.y != 0 ||
+         MeshRotate.z != 0))
     {
         ubo.model = glm::rotate(ubo.model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
     }
 
-    UpdateUniformBuffer(renderer, ubo, Lightbuffer);
+    UpdateUniformBuffer(renderer, ubo, meshProp, Lightbuffer);
 }
 
-void Mesh::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
+void Mesh::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshProperties meshProp, LightBufferObject Lightbuffer)
 {
     uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
     lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
+    meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&meshProp));
 }
 
 void Mesh::Destory(VulkanRenderer& renderer)
 {
     uniformBuffer.Destroy(renderer);
     lightBuffer.Destroy(renderer);
+    meshPropertiesBuffer.Destroy(renderer);
     BaseMesh::Destory(renderer);
 }
