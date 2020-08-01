@@ -99,5 +99,5 @@ void main()
     float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.specular);
 
     vec3 specular = vec3(0.2) * spec;
-    FragColor = vec4(ambient + diffuse + specular, 0.5);
+    FragColor = vec4(ambient + diffuse + specular, 1.0);
 }

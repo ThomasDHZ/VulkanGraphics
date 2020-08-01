@@ -17,6 +17,7 @@
 #include "FramebufferRenderer.h"
 #include "ShadowRenderer.h"
 #include <chrono>
+#include "DebugLightMesh.h"
 
 class RendererManager : public VulkanRenderer
 {
@@ -30,21 +31,21 @@ private:
 
 	GUIDebugger guiDebugger;
 	ForwardRenderer forwardRenderer;
-	TextureRenderer textureRenderer;
+	//TextureRenderer textureRenderer;
 	//FramebufferRenderer frameBufferRenderer;
-	ShadowRenderer shadowRenderer;
+	//ShadowRenderer shadowRenderer;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
-	void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
-	void UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	void UpdateSwapChain(GLFWwindow* window);
 
-	void DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
-	void MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
-	void FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
-	void ShadowRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	void DrawToTextureRenderPass(std::vector<Mesh>& MeshList);
+	void MainRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight);
+	void FrameBufferRenderPass(std::vector<Mesh>& MeshList);
+	void ShadowRenderPass(std::vector<Mesh>& MeshList);
 protected:
 
-	uint32_t Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	uint32_t Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight);
 	void DestoryVulkan();
 
 public:
@@ -53,6 +54,6 @@ public:
 	RendererManager(GLFWwindow* window);
 	~RendererManager();
 
-	void Update(uint32_t DrawFrame, Camera camera, FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	void Update(uint32_t DrawFrame, Camera camera, std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight);
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
 };

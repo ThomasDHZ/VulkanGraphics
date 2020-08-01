@@ -239,46 +239,16 @@
     <None Include="Shaders\SkyboxShader.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shaders\Renderer2DShader.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\Renderer2DShader.vert">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="Shaders\DifferedRenderingShader.frag">
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\DifferedRenderingShader.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shaders\WireFrameShader.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\WireFrameShader.vert">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="Shaders\FrameBufferShader.frag">
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\FrameBufferShader.vert">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\DebugLightShader.vert">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\DebugLightShader.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\CollisionShader.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\CollisionShader.vert">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\NormalMapForwardRendererShader.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\NormalMapForwardRendererShader.vert">
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\ForwardRendererShader.vert">
@@ -291,6 +261,18 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\ShadowDebug.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\FlatShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\FlatShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\WireFrameShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\WireFrameShader.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>

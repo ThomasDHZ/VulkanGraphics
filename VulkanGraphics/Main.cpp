@@ -2,7 +2,7 @@
 #include "VulkanGraphics.h"
 
 int main() {
-	VulkanGraphics app = VulkanGraphics(2280, 1720, "VulkanGraphics");
+	VulkanGraphics app = VulkanGraphics(1920, 1080, "VulkanGraphics");
 
 	try {
 		app.MainLoop();

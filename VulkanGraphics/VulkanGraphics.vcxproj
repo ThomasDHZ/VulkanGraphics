@@ -210,26 +210,20 @@
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\CollisionShader.frag" />
-    <None Include="Shaders\CollisionShader.vert" />
     <None Include="Shaders\DifferedRenderingShader.frag" />
     <None Include="Shaders\DifferedRenderingShader.vert" />
+    <None Include="Shaders\FlatShader.frag" />
+    <None Include="Shaders\FlatShader.vert" />
     <None Include="Shaders\ForwardRendererShader.frag" />
     <None Include="Shaders\ForwardRendererShader.vert" />
     <None Include="Shaders\FrameBufferShader.frag" />
     <None Include="Shaders\FrameBufferShader.vert" />
-    <None Include="Shaders\DebugLightShader.frag" />
-    <None Include="Shaders\DebugLightShader.vert" />
-    <None Include="Shaders\NormalMapForwardRendererShader.frag" />
-    <None Include="Shaders\NormalMapForwardRendererShader.vert" />
     <None Include="Shaders\ShadowDebug.frag" />
     <None Include="Shaders\ShadowDebug.vert" />
-    <None Include="Shaders\WireFrameShader.frag" />
-    <None Include="Shaders\WireFrameShader.vert" />
-    <None Include="Shaders\Renderer2DShader.frag" />
-    <None Include="Shaders\Renderer2DShader.vert" />
     <None Include="Shaders\SkyboxShader.frag" />
     <None Include="Shaders\SkyboxShader.vert" />
+    <None Include="Shaders\WireFrameShader.frag" />
+    <None Include="Shaders\WireFrameShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation2D.h" />

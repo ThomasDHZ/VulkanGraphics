@@ -8,9 +8,9 @@ RendererManager::RendererManager() : VulkanRenderer()
 RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 {
 	forwardRenderer = ForwardRenderer(*GetVulkanRendererBase());
-	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
+	//textureRenderer = TextureRenderer(*GetVulkanRendererBase());
 	//frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
-	shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
+	//shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
 	InitializeGUIDebugger(window);
 }
 
@@ -18,56 +18,56 @@ RendererManager::~RendererManager()
 {
 }
 
-void RendererManager::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
-{
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.commandPool = RenderCommandPool;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = (uint32_t)RenderCommandBuffer.size();
-
-	if (vkAllocateCommandBuffers(Device, &allocInfo, RenderCommandBuffer.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate command buffers!");
-	}
-
-	for (size_t i = 0; i < RenderCommandBuffer.size(); i++) {
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-		if (vkBeginCommandBuffer(RenderCommandBuffer[i], &beginInfo) != VK_SUCCESS) {
-			throw std::runtime_error("failed to begin recording command buffer!");
-		}
-
-		VkRenderPassBeginInfo renderPassInfo{};
-		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = forwardRenderer.RenderPass;
-		renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[i];
-		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-
-		std::array<VkClearValue, 2> clearValues{};
-		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-		clearValues[1].depthStencil = { 1.0f, 0 };
-
-		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-		renderPassInfo.pClearValues = clearValues.data();
-
-		vkCmdBeginRenderPass(RenderCommandBuffer[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		VkBuffer vertexBuffers[] = { MeshList[0].VertexBuffer };
-		VkDeviceSize offsets[] = { 0 };
-
-	/*	vkCmdBindPipeline(RenderCommandBuffer[i], VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRenderer.forwardRendereringPipeline.ShaderPipeline);
-		vkCmdBindVertexBuffers(RenderCommandBuffer[i], 0, 1, vertexBuffers, offsets);
-		vkCmdBindIndexBuffer(RenderCommandBuffer[i], MeshList[0].IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-		vkCmdBindDescriptorSets(RenderCommandBuffer[i], VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRenderer.forwardRendereringPipeline.ShaderPipelineLayout, 0, 1, &MeshList[0].DescriptorSets[i], 0, nullptr);
-		vkCmdDrawIndexed(RenderCommandBuffer[i], static_cast<uint32_t>(MeshList[0].IndexSize), 1, 0, 0, 0);*/
-		vkCmdEndRenderPass(RenderCommandBuffer[i]);
-
-		if (vkEndCommandBuffer(RenderCommandBuffer[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to record command buffer!");
-		}
-	}
-}
+//void RendererManager::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
+//{
+//	VkCommandBufferAllocateInfo allocInfo{};
+//	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+//	allocInfo.commandPool = RenderCommandPool;
+//	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+//	allocInfo.commandBufferCount = (uint32_t)RenderCommandBuffer.size();
+//
+//	if (vkAllocateCommandBuffers(Device, &allocInfo, RenderCommandBuffer.data()) != VK_SUCCESS) {
+//		throw std::runtime_error("failed to allocate command buffers!");
+//	}
+//
+//	for (size_t i = 0; i < RenderCommandBuffer.size(); i++) {
+//		VkCommandBufferBeginInfo beginInfo{};
+//		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+//
+//		if (vkBeginCommandBuffer(RenderCommandBuffer[i], &beginInfo) != VK_SUCCESS) {
+//			throw std::runtime_error("failed to begin recording command buffer!");
+//		}
+//
+//		VkRenderPassBeginInfo renderPassInfo{};
+//		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+//		renderPassInfo.renderPass = forwardRenderer.RenderPass;
+//		renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[i];
+//		renderPassInfo.renderArea.offset = { 0, 0 };
+//		renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+//
+//		std::array<VkClearValue, 2> clearValues{};
+//		clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+//		clearValues[1].depthStencil = { 1.0f, 0 };
+//
+//		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+//		renderPassInfo.pClearValues = clearValues.data();
+//
+//		vkCmdBeginRenderPass(RenderCommandBuffer[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+//		VkBuffer vertexBuffers[] = { MeshList[0].VertexBuffer };
+//		VkDeviceSize offsets[] = { 0 };
+//
+//	/*	vkCmdBindPipeline(RenderCommandBuffer[i], VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRenderer.forwardRendereringPipeline.ShaderPipeline);
+//		vkCmdBindVertexBuffers(RenderCommandBuffer[i], 0, 1, vertexBuffers, offsets);
+//		vkCmdBindIndexBuffer(RenderCommandBuffer[i], MeshList[0].IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+//		vkCmdBindDescriptorSets(RenderCommandBuffer[i], VK_PIPELINE_BIND_POINT_GRAPHICS, forwardRenderer.forwardRendereringPipeline.ShaderPipelineLayout, 0, 1, &MeshList[0].DescriptorSets[i], 0, nullptr);
+//		vkCmdDrawIndexed(RenderCommandBuffer[i], static_cast<uint32_t>(MeshList[0].IndexSize), 1, 0, 0, 0);*/
+//		vkCmdEndRenderPass(RenderCommandBuffer[i]);
+//
+//		if (vkEndCommandBuffer(RenderCommandBuffer[i]) != VK_SUCCESS) {
+//			throw std::runtime_error("failed to record command buffer!");
+//		}
+//	}
+//}
 
 
 void RendererManager::InitializeGUIDebugger(GLFWwindow* window)
@@ -86,7 +86,7 @@ void RendererManager::InitializeGUIDebugger(GLFWwindow* window)
 	guiDebugger = GUIDebugger(init_info, window, forwardRenderer.RenderPass);
 }
 
-void RendererManager::UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
+void RendererManager::UpdateSwapChain(GLFWwindow* window)
 {
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
@@ -108,15 +108,14 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window, FrameBufferMesh frameB
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 
 	forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	//textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	//frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	//shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 
 	InitializeCommandBuffers();
-	CMDBuffer(frameBuffer, skybox, MeshList);
 }
 
-uint32_t RendererManager::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
+uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -124,7 +123,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, 
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR)
 	{
-		UpdateSwapChain(window, frameBuffer, skybox, MeshList);
+		UpdateSwapChain(window);
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		throw std::runtime_error("failed to acquire swap chain image!");
@@ -143,9 +142,9 @@ uint32_t RendererManager::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, 
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
-	ShadowRenderPass(frameBuffer, skybox, MeshList);
-	DrawToTextureRenderPass(skybox, MeshList);
-	MainRenderPass(skybox, MeshList);
+	//ShadowRenderPass(kybox, MeshList);
+	//DrawToTextureRenderPass(skybox, MeshList);
+	MainRenderPass(MeshList, skybox, debugLight);
 	//FrameBufferRenderPass(frameBuffer, skybox, MeshList);
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
@@ -213,7 +212,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
 	{
 		framebufferResized = false;
-		UpdateSwapChain(window, frameBuffer, skybox, MeshList);
+		UpdateSwapChain(window);
 	}
 	else if (result != VK_SUCCESS) {
 		throw std::runtime_error("failed to present swap chain image!");
@@ -222,34 +221,34 @@ uint32_t RendererManager::Draw(GLFWwindow* window, FrameBufferMesh frameBuffer, 
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void RendererManager::DrawToTextureRenderPass(SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
+void RendererManager::DrawToTextureRenderPass(std::vector<Mesh>& MeshList)
 {
-	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	clearValues[1].depthStencil = { 1.0f, 0 };
+	//std::array<VkClearValue, 2> clearValues{};
+	//clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//clearValues[1].depthStencil = { 1.0f, 0 };
 
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = textureRenderer.RenderPass;
-	renderPassInfo.framebuffer = textureRenderer.SwapChainFramebuffers[DrawFrame];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
+	//VkRenderPassBeginInfo renderPassInfo{};
+	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	//renderPassInfo.renderPass = textureRenderer.RenderPass;
+	//renderPassInfo.framebuffer = textureRenderer.SwapChainFramebuffers[DrawFrame];
+	//renderPassInfo.renderArea.offset = { 0, 0 };
+	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	//renderPassInfo.pClearValues = clearValues.data();
 
-	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : MeshList)
-	{
-		if (mesh.RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
-		{
-			textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
-		}
-	}
-	textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, skybox);
-	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	//for (auto mesh : MeshList)
+	//{
+	//	if (mesh.RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
+	//	{
+	//		textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
+	//	}
+	//}
+	//textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, skybox);
+	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
+void RendererManager::MainRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight)
 {
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -269,58 +268,66 @@ void RendererManager::MainRenderPass(SkyBoxMesh skybox, std::vector<Mesh>& MeshL
 	{
 		if (mesh.RenderBitFlags & RendererBitFlag::RenderOnMainPass)
 		{
-			forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.forwardRendereringPipeline, mesh);
+			if (Settings.ShowMeshLines)
+			{
+				forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.wireFramePipeline, mesh);
+			}
+			else
+			{
+				forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.forwardRendereringPipeline, mesh);
+			}
 		}
 	}
 	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, skybox);
+	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.DebugLightPipeline, debugLight);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::FrameBufferRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
+void RendererManager::FrameBufferRenderPass(std::vector<Mesh>& MeshList)
 {
-	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
-	clearValues[1].depthStencil = { 1.0f, 0 };
+	//std::array<VkClearValue, 2> clearValues{};
+	//clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
+	//clearValues[1].depthStencil = { 1.0f, 0 };
 
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = forwardRenderer.RenderPass;
-	renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[DrawFrame];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
+	//VkRenderPassBeginInfo renderPassInfo{};
+	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	//renderPassInfo.renderPass = forwardRenderer.RenderPass;
+	//renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[DrawFrame];
+	//renderPassInfo.renderArea.offset = { 0, 0 };
+	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	//renderPassInfo.pClearValues = clearValues.data();
 
-	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	//forwardRenderer.Draw(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline, framebuffer);
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
-	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	////forwardRenderer.Draw(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline, framebuffer);
+	//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
+	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::ShadowRenderPass(FrameBufferMesh framebuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
+void RendererManager::ShadowRenderPass(std::vector<Mesh>& MeshList)
 {
-	std::array<VkClearValue, 1> clearValues{};
-	clearValues[0].depthStencil = { 1.0f, 0 };
+	//std::array<VkClearValue, 1> clearValues{};
+	//clearValues[0].depthStencil = { 1.0f, 0 };
 
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = shadowRenderer.RenderPass;
-	renderPassInfo.framebuffer = shadowRenderer.SwapChainFramebuffers[DrawFrame];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
+	//VkRenderPassBeginInfo renderPassInfo{};
+	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	//renderPassInfo.renderPass = shadowRenderer.RenderPass;
+	//renderPassInfo.framebuffer = shadowRenderer.SwapChainFramebuffers[DrawFrame];
+	//renderPassInfo.renderArea.offset = { 0, 0 };
+	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	//renderPassInfo.pClearValues = clearValues.data();
 
-	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : MeshList)
-	{
-		if (mesh.RenderBitFlags & RendererBitFlag::RenderShadow)
-		{
-			shadowRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
-		}
-	}
-	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	//for (auto mesh : MeshList)
+	//{
+	//	if (mesh.RenderBitFlags & RendererBitFlag::RenderShadow)
+	//	{
+	//		shadowRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
+	//	}
+	//}
+	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
 void RendererManager::DestoryVulkan()
@@ -328,9 +335,9 @@ void RendererManager::DestoryVulkan()
 	guiDebugger.ShutDown(Device);
 
 	forwardRenderer.Destroy(*GetVulkanRendererBase());
-	textureRenderer.Destroy(*GetVulkanRendererBase());
+	//textureRenderer.Destroy(*GetVulkanRendererBase());
 	//frameBufferRenderer.Destroy(*GetVulkanRendererBase());
-	shadowRenderer.Destroy(*GetVulkanRendererBase());
+	//shadowRenderer.Destroy(*GetVulkanRendererBase());
 
 	VulkanRenderer::Destory();
 }

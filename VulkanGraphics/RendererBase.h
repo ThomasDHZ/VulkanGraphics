@@ -24,11 +24,11 @@ public:
 
 	ForwardRenderingPipeline forwardRendereringPipeline;
 	SkyBoxPipeline skyboxPipeline;
-	FrameBufferRenderingPipeline frameBufferPipeline;
+	//FrameBufferRenderingPipeline frameBufferPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
-	CollisionDebugPipeline DebugCollisionPipeline;
-	WireFramePipeline MeshviewPipeline;
-	ShadowRenderingPipeline shadowPipeline;
+	//CollisionDebugPipeline DebugCollisionPipeline;
+	WireFramePipeline wireFramePipeline;
+	//ShadowRenderingPipeline shadowPipeline;
 
 	RendererBase();
 	RendererBase(VulkanRenderer& renderer);

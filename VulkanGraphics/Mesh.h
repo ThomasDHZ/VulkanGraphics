@@ -63,7 +63,7 @@ private:
 
     void CreateUniformBuffers(VulkanRenderer& renderer);
     void CreateDescriptorPool(VulkanRenderer& renderer);
-    void CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
+    void CreateDescriptorSets(VulkanRenderer& renderer, Texture tex2, Texture tex3, VkDescriptorSetLayout& descriptorSetLayout);
     void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshProperties meshProp, LightBufferObject Lightbuffer);
 
 public:
@@ -78,7 +78,7 @@ public:
 	float RotationAmount = 0.0f;
 
     Mesh();
-    Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+    Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, Texture tex2, Texture tex3, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
     ~Mesh();
 
     void Update(VulkanRenderer& renderer, Camera& camera, MeshProperties meshProp, LightBufferObject Lightbuffer);

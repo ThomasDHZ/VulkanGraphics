@@ -17,9 +17,13 @@ CollisionDebugPipeline::~CollisionDebugPipeline()
 
 void CollisionDebugPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
-	std::array<DescriptorSetLayoutBindingInfo, 1> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
+	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LayoutBindingInfo[0].StageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+	LayoutBindingInfo[0].Binding = 1;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	LayoutBindingInfo[0].StageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
@@ -28,8 +32,8 @@ void CollisionDebugPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 
 void CollisionDebugPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-	auto vertShaderCode = ReadShaderFile("shaders/CollisionShaderVert.spv");
-	auto fragShaderCode = ReadShaderFile("shaders/CollisionShaderFrag.spv");
+	auto vertShaderCode = ReadShaderFile("shaders/FlatShaderVert.spv");
+	auto fragShaderCode = ReadShaderFile("shaders/FlatShaderFrag.spv");
 
 	VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
 	VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);

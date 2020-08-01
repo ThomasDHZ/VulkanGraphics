@@ -15,12 +15,12 @@ FramebufferRenderer::FramebufferRenderer(VulkanRenderer& renderer) : RendererBas
     CreateRendererFramebuffers(renderer);
 
     forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
-    shadowPipeline = ShadowRenderingPipeline(renderer, RenderPass);
-    skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
-    frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
-    DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
-    DebugCollisionPipeline = CollisionDebugPipeline(renderer, RenderPass);
-    MeshviewPipeline = WireFramePipeline(renderer, RenderPass);
+  //  shadowPipeline = ShadowRenderingPipeline(renderer, RenderPass);
+   // skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
+   // frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
+    //DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
+    //DebugCollisionPipeline = CollisionDebugPipeline(renderer, RenderPass);
+    //MeshviewPipeline = WireFramePipeline(renderer, RenderPass);
 }
 
 FramebufferRenderer::~FramebufferRenderer()
@@ -116,11 +116,11 @@ void FramebufferRenderer::UpdateSwapChain(VulkanRenderer& renderer)
     DepthTexture.RecreateRendererTexture(renderer);
 
     forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    skyboxPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    frameBufferPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    DebugLightPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    DebugCollisionPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    MeshviewPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+   // skyboxPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    //frameBufferPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    //DebugLightPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    //DebugCollisionPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    //MeshviewPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
 
     for (auto& framebuffer : SwapChainFramebuffers)
     {

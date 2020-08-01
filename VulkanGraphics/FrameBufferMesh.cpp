@@ -53,19 +53,19 @@ void FrameBufferMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescripto
         frameBufferSettingsInfo.offset = 0;
         frameBufferSettingsInfo.range = sizeof(FrameBufferSettings);
 
-        WriteDescriptorSetInfo DiffuseMapDescriptor;
-        DiffuseMapDescriptor.DstBinding = 0;
-        DiffuseMapDescriptor.DstSet = DescriptorSets[i];
-        DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        DiffuseMapDescriptor.DescriptorImageInfo = imageInfo;
-        DescriptorList.emplace_back(DiffuseMapDescriptor);
-
         WriteDescriptorSetInfo FrameBufferSettingsDescriptor;
-        FrameBufferSettingsDescriptor.DstBinding = 1;
+        FrameBufferSettingsDescriptor.DstBinding = 0;
         FrameBufferSettingsDescriptor.DstSet = DescriptorSets[i];
         FrameBufferSettingsDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         FrameBufferSettingsDescriptor.DescriptorBufferInfo = frameBufferSettingsInfo;
         DescriptorList.emplace_back(FrameBufferSettingsDescriptor);
+
+        WriteDescriptorSetInfo DiffuseMapDescriptor;
+        DiffuseMapDescriptor.DstBinding = 1;
+        DiffuseMapDescriptor.DstSet = DescriptorSets[i];
+        DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        DiffuseMapDescriptor.DescriptorImageInfo = imageInfo;
+        DescriptorList.emplace_back(DiffuseMapDescriptor);
 
         BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }

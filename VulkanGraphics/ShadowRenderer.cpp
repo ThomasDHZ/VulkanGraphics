@@ -10,12 +10,12 @@ ShadowRenderer::ShadowRenderer(VulkanRenderer& renderer) : RendererBase(renderer
     CreateRendererFramebuffers(renderer);
 
     forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
-    shadowPipeline = ShadowRenderingPipeline(renderer, RenderPass);
-    skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
-    frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
-    DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
-    DebugCollisionPipeline = CollisionDebugPipeline(renderer, RenderPass);
-    MeshviewPipeline = WireFramePipeline(renderer, RenderPass);
+  //  shadowPipeline = ShadowRenderingPipeline(renderer, RenderPass);
+   // skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
+   // frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
+    //DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
+    //DebugCollisionPipeline = CollisionDebugPipeline(renderer, RenderPass);
+    //MeshviewPipeline = WireFramePipeline(renderer, RenderPass);
 }
 
 ShadowRenderer::~ShadowRenderer()

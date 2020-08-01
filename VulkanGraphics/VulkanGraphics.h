@@ -77,36 +77,29 @@ const std::vector<uint16_t> quadindices = {
 class VulkanGraphics
 {
 private:
-	//Lights light = {};
+	//ModelLoader modelLoader;
 
-	ModelLoader modelLoader;
-
-	//TextureMaps maps;
 	VulkanRendererSettings CompareVulkanSettings;
 	VulkanWindow Window;
     RendererManager renderer;
     Texture2D newtexture;
-    Texture2D newtexture2;
-    //Texture2D MMtexture1;
-    //Texture2D MMtexture2;
-    //Texture2D MMtexture3;
-   // std::vector<Texture2D> TextureList;
+    Texture2D normal;
+    Texture2D Depth;
+    //Texture2D newtexture2;
 
 	Keyboard keyboard;
 	Mouse mouse;
 
     Camera* ActiveCamera;
 	Camera camera;
-    Camera camera2;
-    bool SwatchCamara;
     MeshProperties meshProp;
     LightBufferObject light;
 
-	//LightManager lightManager;
+    DebugLightMesh debugLightMesh;
 
     CubeMapTexture newtexturebox;
     SkyBoxMesh Skybox;
-    FrameBufferMesh frameBuffer;
+   // FrameBufferMesh frameBuffer;
 
 	std::vector<Mesh> MeshList;
 	//std::vector<Model> ModelList;

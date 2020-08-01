@@ -18,80 +18,45 @@ ForwardRenderingPipeline::~ForwardRenderingPipeline()
 
 void ForwardRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    LayoutBindingInfo[0].Binding = 0;
+    LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    LayoutBindingInfo[0].StageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding2{};
-    samplerLayoutBinding2.binding = 2;
-    samplerLayoutBinding2.descriptorCount = 1;
-    samplerLayoutBinding2.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding2.pImmutableSamplers = nullptr;
-    samplerLayoutBinding2.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    LayoutBindingInfo[1].Binding = 1;
+    LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding3{};
-    samplerLayoutBinding3.binding = 3;
-    samplerLayoutBinding3.descriptorCount = 1;
-    samplerLayoutBinding3.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding3.pImmutableSamplers = nullptr;
-    samplerLayoutBinding3.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    LayoutBindingInfo[2].Binding = 2;
+    LayoutBindingInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    LayoutBindingInfo[2].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding4{};
-    samplerLayoutBinding4.binding = 4;
-    samplerLayoutBinding4.descriptorCount = 1;
-    samplerLayoutBinding4.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding4.pImmutableSamplers = nullptr;
-    samplerLayoutBinding4.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    LayoutBindingInfo[3].Binding = 3;
+    LayoutBindingInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding5{};
-    samplerLayoutBinding5.binding = 5;
-    samplerLayoutBinding5.descriptorCount = 1;
-    samplerLayoutBinding5.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding5.pImmutableSamplers = nullptr;
-    samplerLayoutBinding5.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    LayoutBindingInfo[4].Binding = 4;
+    LayoutBindingInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    LayoutBindingInfo[4].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding6{};
-    samplerLayoutBinding6.binding = 6;
-    samplerLayoutBinding6.descriptorCount = 1;
-    samplerLayoutBinding6.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding6.pImmutableSamplers = nullptr;
-    samplerLayoutBinding6.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    LayoutBindingInfo[5].Binding = 5;
+    LayoutBindingInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    LayoutBindingInfo[5].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    VkDescriptorSetLayoutBinding LightLayoutBinding7{};
-    LightLayoutBinding7.binding = 7;
-    LightLayoutBinding7.descriptorCount = 1;
-    LightLayoutBinding7.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    LightLayoutBinding7.pImmutableSamplers = nullptr;
-    LightLayoutBinding7.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    LayoutBindingInfo[6].Binding = 6;
+    LayoutBindingInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    LayoutBindingInfo[6].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    VkDescriptorSetLayoutBinding meshLayoutBinding7{};
-    meshLayoutBinding7.binding = 8;
-    meshLayoutBinding7.descriptorCount = 1;
-    meshLayoutBinding7.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    meshLayoutBinding7.pImmutableSamplers = nullptr;
-    meshLayoutBinding7.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    LayoutBindingInfo[7].Binding = 7;
+    LayoutBindingInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    LayoutBindingInfo[7].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    std::array<VkDescriptorSetLayoutBinding, 9> bindings = { uboLayoutBinding, samplerLayoutBinding, samplerLayoutBinding2,
-                                                             samplerLayoutBinding3, samplerLayoutBinding4, samplerLayoutBinding5,
-                                                             samplerLayoutBinding6, LightLayoutBinding7, meshLayoutBinding7 };
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutInfo.pBindings = bindings.data();
+    LayoutBindingInfo[8].Binding = 8;
+    LayoutBindingInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    LayoutBindingInfo[8].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    if (vkCreateDescriptorSetLayout(renderer.Device, &layoutInfo, nullptr, &ShaderPipelineDescriptorLayout) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor set layout!");
-    }
+    GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
 void ForwardRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
