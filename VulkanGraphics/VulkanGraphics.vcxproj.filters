@@ -278,6 +278,12 @@
     <None Include="Shaders\EmptyShader.frag">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Shaders\DepthShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\DepthShader.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">

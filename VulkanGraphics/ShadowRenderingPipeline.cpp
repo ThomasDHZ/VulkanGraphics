@@ -62,8 +62,8 @@ void ShadowRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer
 
 void ShadowRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-    auto vertShaderCode = ReadShaderFile("shaders/ForwardRendererVert.spv");
-    auto fragShaderCode = ReadShaderFile("shaders/EmptyFrag.spv");
+    auto vertShaderCode = ReadShaderFile("shaders/DepthShaderVert.spv");
+    auto fragShaderCode = ReadShaderFile("shaders/DepthShaderFrag.spv");
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);

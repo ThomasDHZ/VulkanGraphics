@@ -22,14 +22,6 @@ public:
 	VkRenderPass RenderPass;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 
-	ForwardRenderingPipeline forwardRendereringPipeline;
-	SkyBoxPipeline skyboxPipeline;
-	//FrameBufferRenderingPipeline frameBufferPipeline;
-	DebugLightRenderingPipeline DebugLightPipeline;
-	//CollisionDebugPipeline DebugCollisionPipeline;
-	WireFramePipeline wireFramePipeline;
-	ShadowRenderingPipeline shadowPipeline;
-
 	RendererBase();
 	RendererBase(VulkanRenderer& renderer);
 	~RendererBase();

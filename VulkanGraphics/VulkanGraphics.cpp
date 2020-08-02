@@ -89,7 +89,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::SliderFloat("Layers", &meshProp.minLayers, 0.0, 50.0f);
 		ImGui::SliderFloat("maxLayers", &meshProp.maxLayers, 0.0, 50.0f);
 		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
-		//ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
 
 		ImGui::Begin("MeshSettings");

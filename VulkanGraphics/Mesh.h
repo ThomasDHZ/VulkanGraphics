@@ -36,9 +36,9 @@
 struct MeshProperties
 {
     alignas(4) float specular = 32;
-    alignas(4) float minLayers = 32.0f;
-    alignas(4) float maxLayers = 8.0f;
-    alignas(4) float heightScale = -0.1f;
+    alignas(4) float minLayers = 8.0f;
+    alignas(4) float maxLayers = 32.0f;
+    alignas(4) float heightScale = 0.1f;
 };
 
 

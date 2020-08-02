@@ -17,6 +17,13 @@ public:
 	void UpdateSwapChain(VulkanRenderer& renderer);
 	void Destroy(VulkanRenderer& renderer);
 
+	ForwardRenderingPipeline forwardRendereringPipeline;
+	SkyBoxPipeline skyboxPipeline;
+	//FrameBufferRenderingPipeline frameBufferPipeline;
+	DebugLightRenderingPipeline DebugLightPipeline;
+	//CollisionDebugPipeline DebugCollisionPipeline;
+	WireFramePipeline wireFramePipeline;
+
 	RendererDepthTexture DepthTexture;
 	RendererHDRColorTexture HDRColorTexture;
 };

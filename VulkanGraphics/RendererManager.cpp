@@ -10,10 +10,9 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 	forwardRenderer = ForwardRenderer(*GetVulkanRendererBase());
 	InitializeGUIDebugger(window);
 
-
 	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
 	//frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
-	//shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
+	shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
 }
 
 RendererManager::~RendererManager()
@@ -112,7 +111,7 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window)
 	forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	//frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	//shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 
 	InitializeCommandBuffers();
 }
@@ -144,7 +143,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, 
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
-	//ShadowRenderPass(MeshList);
+	ShadowRenderPass(MeshList);
 	DrawToTextureRenderPass(MeshList);
 	MainRenderPass(MeshList, skybox, debugLight);
 	//FrameBufferRenderPass(frameBuffer, skybox, MeshList);
@@ -309,27 +308,27 @@ void RendererManager::FrameBufferRenderPass(std::vector<Mesh>& MeshList)
 
 void RendererManager::ShadowRenderPass(std::vector<Mesh>& MeshList)
 {
-	//std::array<VkClearValue, 1> clearValues{};
-	//clearValues[0].depthStencil = { 1.0f, 0 };
+	std::array<VkClearValue, 1> clearValues{};
+	clearValues[0].depthStencil = { 1.0f, 0 };
 
-	//VkRenderPassBeginInfo renderPassInfo{};
-	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	//renderPassInfo.renderPass = shadowRenderer.RenderPass;
-	//renderPassInfo.framebuffer = shadowRenderer.SwapChainFramebuffers[DrawFrame];
-	//renderPassInfo.renderArea.offset = { 0, 0 };
-	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	//renderPassInfo.pClearValues = clearValues.data();
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = shadowRenderer.RenderPass;
+	renderPassInfo.framebuffer = shadowRenderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
 
-	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	//for (auto mesh : MeshList)
-	//{
-	//	if (mesh.RenderBitFlags & RendererBitFlag::RenderShadow)
-	//	{
-	//		shadowRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
-	//	}
-	//}
-	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	for (auto mesh : MeshList)
+	{
+		if (mesh.RenderBitFlags & RendererBitFlag::RenderShadow)
+		{
+			shadowRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
+		}
+	}
+	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
 void RendererManager::DestoryVulkan()
@@ -339,7 +338,7 @@ void RendererManager::DestoryVulkan()
 	forwardRenderer.Destroy(*GetVulkanRendererBase());
 	textureRenderer.Destroy(*GetVulkanRendererBase());
 	//frameBufferRenderer.Destroy(*GetVulkanRendererBase());
-	//shadowRenderer.Destroy(*GetVulkanRendererBase());
+	shadowRenderer.Destroy(*GetVulkanRendererBase());
 
 	VulkanRenderer::Destory();
 }

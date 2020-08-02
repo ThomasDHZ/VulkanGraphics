@@ -14,7 +14,7 @@ FramebufferRenderer::FramebufferRenderer(VulkanRenderer& renderer) : RendererBas
     DepthTexture = RendererDepthTexture(renderer);
     CreateRendererFramebuffers(renderer);
 
-    forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
+   // forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
   //  shadowPipeline = ShadowRenderingPipeline(renderer, RenderPass);
    // skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
    // frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
@@ -115,7 +115,7 @@ void FramebufferRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
     DepthTexture.RecreateRendererTexture(renderer);
 
-    forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    //forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
    // skyboxPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
     //frameBufferPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
     //DebugLightPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);

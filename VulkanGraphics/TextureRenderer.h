@@ -14,6 +14,13 @@ public:
 	TextureRenderer(VulkanRenderer& renderer);
 	~TextureRenderer();
 
+	ForwardRenderingPipeline forwardRendereringPipeline;
+	SkyBoxPipeline skyboxPipeline;
+	//FrameBufferRenderingPipeline frameBufferPipeline;
+	DebugLightRenderingPipeline DebugLightPipeline;
+	//CollisionDebugPipeline DebugCollisionPipeline;
+	WireFramePipeline wireFramePipeline;
+
 	RendererColorTexture ColorTexture;
 	RendererDepthTexture DepthTexture;
 

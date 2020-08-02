@@ -210,6 +210,8 @@
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\DepthShader.frag" />
+    <None Include="Shaders\DepthShader.vert" />
     <None Include="Shaders\DifferedRenderingShader.frag" />
     <None Include="Shaders\DifferedRenderingShader.vert" />
     <None Include="Shaders\EmptyShader.frag" />

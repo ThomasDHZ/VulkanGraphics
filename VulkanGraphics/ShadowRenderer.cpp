@@ -10,12 +10,6 @@ ShadowRenderer::ShadowRenderer(VulkanRenderer& renderer) : RendererBase(renderer
     CreateRendererFramebuffers(renderer);
 
     forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
-    shadowPipeline = ShadowRenderingPipeline(renderer, RenderPass);
-    skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
-    // frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
-    DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
-    //DebugCollisionPipeline = CollisionDebugPipeline(renderer, RenderPass);
-    wireFramePipeline = WireFramePipeline(renderer, RenderPass);
 
     ImGui_ImplVulkan_AddTexture(DepthTexture.ImGuiDescriptorSet, DepthTexture.Sampler, DepthTexture.View, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
@@ -102,16 +96,20 @@ void ShadowRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 void ShadowRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
     DepthTexture.RecreateRendererTexture(renderer);
+    forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
     for (auto& framebuffer : SwapChainFramebuffers)
     {
         vkDestroyFramebuffer(renderer.Device, framebuffer, nullptr);
         framebuffer = VK_NULL_HANDLE;
     }
     CreateRendererFramebuffers(renderer);
+
+    ImGui_ImplVulkan_AddTexture(DepthTexture.ImGuiDescriptorSet, DepthTexture.Sampler, DepthTexture.View, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
 
 void ShadowRenderer::Destroy(VulkanRenderer& renderer)
 {
     DepthTexture.Delete(renderer);
+    forwardRendereringPipeline.Destroy(renderer);
     RendererBase::Destroy(renderer);
 }

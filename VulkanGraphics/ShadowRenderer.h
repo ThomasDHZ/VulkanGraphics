@@ -16,5 +16,6 @@ public:
 	void UpdateSwapChain(VulkanRenderer& renderer);
 	void Destroy(VulkanRenderer& renderer);
 
+	ForwardRenderingPipeline forwardRendereringPipeline;
 	RendererDepthTexture DepthTexture;
 };

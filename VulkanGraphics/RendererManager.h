@@ -33,7 +33,7 @@ private:
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
 	//FramebufferRenderer frameBufferRenderer;
-	//ShadowRenderer shadowRenderer;
+	ShadowRenderer shadowRenderer;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
