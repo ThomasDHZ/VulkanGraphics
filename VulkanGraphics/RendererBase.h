@@ -28,7 +28,7 @@ public:
 	DebugLightRenderingPipeline DebugLightPipeline;
 	//CollisionDebugPipeline DebugCollisionPipeline;
 	WireFramePipeline wireFramePipeline;
-	//ShadowRenderingPipeline shadowPipeline;
+	ShadowRenderingPipeline shadowPipeline;
 
 	RendererBase();
 	RendererBase(VulkanRenderer& renderer);

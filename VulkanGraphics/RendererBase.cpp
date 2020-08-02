@@ -67,6 +67,7 @@ void RendererBase::Destroy(VulkanRenderer& renderer)
     DebugLightPipeline.Destroy(renderer);
     //DebugCollisionPipeline.Destroy(renderer);
     wireFramePipeline.Destroy(renderer);
+    shadowPipeline.Destroy(renderer);
 
     vkDestroyRenderPass(renderer.Device, RenderPass, nullptr);
     RenderPass = VK_NULL_HANDLE;

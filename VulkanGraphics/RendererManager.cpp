@@ -8,10 +8,12 @@ RendererManager::RendererManager() : VulkanRenderer()
 RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 {
 	forwardRenderer = ForwardRenderer(*GetVulkanRendererBase());
-	//textureRenderer = TextureRenderer(*GetVulkanRendererBase());
+	InitializeGUIDebugger(window);
+
+
+	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
 	//frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
 	//shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
-	InitializeGUIDebugger(window);
 }
 
 RendererManager::~RendererManager()
@@ -108,7 +110,7 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window)
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 
 	forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	//textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	//frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	//shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 
@@ -142,8 +144,8 @@ uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, 
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
-	//ShadowRenderPass(kybox, MeshList);
-	//DrawToTextureRenderPass(skybox, MeshList);
+	//ShadowRenderPass(MeshList);
+	DrawToTextureRenderPass(MeshList);
 	MainRenderPass(MeshList, skybox, debugLight);
 	//FrameBufferRenderPass(frameBuffer, skybox, MeshList);
 
@@ -223,29 +225,29 @@ uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, 
 
 void RendererManager::DrawToTextureRenderPass(std::vector<Mesh>& MeshList)
 {
-	//std::array<VkClearValue, 2> clearValues{};
-	//clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//clearValues[1].depthStencil = { 1.0f, 0 };
+	std::array<VkClearValue, 2> clearValues{};
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
 
-	//VkRenderPassBeginInfo renderPassInfo{};
-	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	//renderPassInfo.renderPass = textureRenderer.RenderPass;
-	//renderPassInfo.framebuffer = textureRenderer.SwapChainFramebuffers[DrawFrame];
-	//renderPassInfo.renderArea.offset = { 0, 0 };
-	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	//renderPassInfo.pClearValues = clearValues.data();
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = textureRenderer.RenderPass;
+	renderPassInfo.framebuffer = textureRenderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
 
-	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	//for (auto mesh : MeshList)
-	//{
-	//	if (mesh.RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
-	//	{
-	//		textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
-	//	}
-	//}
+	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	for (auto mesh : MeshList)
+	{
+		if (mesh.RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
+		{
+			textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
+		}
+	}
 	//textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, skybox);
-	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
 void RendererManager::MainRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight)
@@ -335,7 +337,7 @@ void RendererManager::DestoryVulkan()
 	guiDebugger.ShutDown(Device);
 
 	forwardRenderer.Destroy(*GetVulkanRendererBase());
-	//textureRenderer.Destroy(*GetVulkanRendererBase());
+	textureRenderer.Destroy(*GetVulkanRendererBase());
 	//frameBufferRenderer.Destroy(*GetVulkanRendererBase());
 	//shadowRenderer.Destroy(*GetVulkanRendererBase());
 

@@ -275,6 +275,9 @@
     <None Include="Shaders\WireFrameShader.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Shaders\EmptyShader.frag">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">

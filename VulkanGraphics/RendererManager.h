@@ -31,7 +31,7 @@ private:
 
 	GUIDebugger guiDebugger;
 	ForwardRenderer forwardRenderer;
-	//TextureRenderer textureRenderer;
+	TextureRenderer textureRenderer;
 	//FramebufferRenderer frameBufferRenderer;
 	//ShadowRenderer shadowRenderer;
 

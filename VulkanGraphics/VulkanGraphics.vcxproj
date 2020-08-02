@@ -212,6 +212,7 @@
   <ItemGroup>
     <None Include="Shaders\DifferedRenderingShader.frag" />
     <None Include="Shaders\DifferedRenderingShader.vert" />
+    <None Include="Shaders\EmptyShader.frag" />
     <None Include="Shaders\FlatShader.frag" />
     <None Include="Shaders\FlatShader.vert" />
     <None Include="Shaders\ForwardRendererShader.frag" />
