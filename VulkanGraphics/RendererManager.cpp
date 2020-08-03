@@ -11,8 +11,10 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 	InitializeGUIDebugger(window);
 
 	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
-	//frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
+	frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
 	shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
+
+	frameBuffer = FrameBufferMesh(*GetVulkanRendererBase(), textureRenderer.ColorTexture, frameBufferRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
 }
 
 RendererManager::~RendererManager()
@@ -110,10 +112,12 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window)
 
 	forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	//frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 
 	InitializeCommandBuffers();
+
+	frameBuffer.UpdateSwapChain(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout, textureRenderer.ColorTexture);
 }
 
 uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight)
@@ -144,9 +148,9 @@ uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, 
 	}
 
 	ShadowRenderPass(MeshList);
-	DrawToTextureRenderPass(MeshList);
+	DrawToTextureRenderPass(MeshList, skybox);
 	MainRenderPass(MeshList, skybox, debugLight);
-	//FrameBufferRenderPass(frameBuffer, skybox, MeshList);
+	FrameBufferRenderPass();
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -222,7 +226,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, 
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void RendererManager::DrawToTextureRenderPass(std::vector<Mesh>& MeshList)
+void RendererManager::DrawToTextureRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh skybox)
 {
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -245,7 +249,8 @@ void RendererManager::DrawToTextureRenderPass(std::vector<Mesh>& MeshList)
 			textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
 		}
 	}
-	//textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, skybox);
+	textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, skybox);
+
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
@@ -281,29 +286,28 @@ void RendererManager::MainRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh sky
 	}
 	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, skybox);
 	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.DebugLightPipeline, debugLight);
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::FrameBufferRenderPass(std::vector<Mesh>& MeshList)
+void RendererManager::FrameBufferRenderPass()
 {
-	//std::array<VkClearValue, 2> clearValues{};
-	//clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
-	//clearValues[1].depthStencil = { 1.0f, 0 };
+	std::array<VkClearValue, 2> clearValues{};
+	clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
 
-	//VkRenderPassBeginInfo renderPassInfo{};
-	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	//renderPassInfo.renderPass = forwardRenderer.RenderPass;
-	//renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[DrawFrame];
-	//renderPassInfo.renderArea.offset = { 0, 0 };
-	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	//renderPassInfo.pClearValues = clearValues.data();
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = forwardRenderer.RenderPass;
+	renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
 
-	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	////forwardRenderer.Draw(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline, framebuffer);
-	//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
-	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	forwardRenderer.Draw(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline, frameBuffer);
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
+	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
 void RendererManager::ShadowRenderPass(std::vector<Mesh>& MeshList)
@@ -337,8 +341,10 @@ void RendererManager::DestoryVulkan()
 
 	forwardRenderer.Destroy(*GetVulkanRendererBase());
 	textureRenderer.Destroy(*GetVulkanRendererBase());
-	//frameBufferRenderer.Destroy(*GetVulkanRendererBase());
+	frameBufferRenderer.Destroy(*GetVulkanRendererBase());
 	shadowRenderer.Destroy(*GetVulkanRendererBase());
+
+	frameBuffer.Destory(*GetVulkanRendererBase());
 
 	VulkanRenderer::Destory();
 }

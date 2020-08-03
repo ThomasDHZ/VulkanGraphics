@@ -38,12 +38,13 @@ private:
 public:
 
     FrameBufferMesh();
-    FrameBufferMesh(VulkanRenderer& renderer, Texture tex, VkDescriptorSetLayout& descriptorSetLayout);
+    FrameBufferMesh(VulkanRenderer& renderer, Texture FrameBufferImage, VkDescriptorSetLayout& descriptorSetLayout);
     ~FrameBufferMesh();
 
     FrameBufferSettings settings;
 
     void UpdateUniformBuffer(VulkanRenderer& renderer);
+    void UpdateSwapChain(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout, Texture FrameBufferImage);
     void Update(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
     void Destory(VulkanRenderer& renderer);
 };

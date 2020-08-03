@@ -33,13 +33,12 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/Sphere.obj"));
 
 	//newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/toy_box_diffuse.png");
-	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/bricks2.jpg");
-	 normal = Texture2D(renderer, "texture/bricks2_normal.jpg");
-	 Depth = Texture2D(renderer, "texture/bricks2_disp.jpg");
+	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/brick_diffuseOriginal.bmp");
+	 normal = Texture2D(renderer, "texture/brick_normal.bmp");
+	 Depth = Texture2D(renderer, "texture/brick_height.bmp");
 	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), CalcVertex(), indices, newtexture, normal, Depth, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
 	//MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), vertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
-	//frameBuffer = FrameBufferMesh(*renderer.GetVulkanRendererBase(), renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
 	light.LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 
 	//renderer.CMDBuffer(frameBuffer, Skybox, MeshList);
@@ -61,7 +60,6 @@ VulkanGraphics::~VulkanGraphics()
 	}
 	debugLightMesh.Destory(renderer);
 	Skybox.Destory(renderer);
-	//frameBuffer.Destory(renderer);
 
 	renderer.DestoryVulkan();
 	Window.CleanUp();

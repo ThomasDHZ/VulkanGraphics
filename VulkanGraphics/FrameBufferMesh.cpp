@@ -1,11 +1,12 @@
 #include "FrameBufferMesh.h"
+#include "Texture2D.h"
 
 FrameBufferMesh::FrameBufferMesh() : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass | RendererBitFlag::RenderOnMainPass)
 {}
 
-FrameBufferMesh::FrameBufferMesh(VulkanRenderer& renderer, Texture tex, VkDescriptorSetLayout& descriptorSetLayout) : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass)
+FrameBufferMesh::FrameBufferMesh(VulkanRenderer& renderer, Texture FrameBufferImage, VkDescriptorSetLayout& descriptorSetLayout) : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass)
 {
-    texture = tex;
+    texture = FrameBufferImage;
 
     VertexSize = FrameBufferVertices.size();
     IndexSize = FrameBufferIndices.size();
@@ -74,6 +75,17 @@ void FrameBufferMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescripto
 void FrameBufferMesh::UpdateUniformBuffer(VulkanRenderer& renderer)
 {
     frameBufferSettings.UpdateUniformBuffer(renderer, static_cast<void*>(&settings));
+}
+
+void FrameBufferMesh::UpdateSwapChain(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout, Texture FrameBufferImage)
+{
+    texture = FrameBufferImage;
+
+    vkDestroyDescriptorPool(renderer.Device, DescriptorPool, nullptr);
+    DescriptorPool = VK_NULL_HANDLE;
+
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, descriptorSetLayout);
 }
 
 void FrameBufferMesh::Update(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout)

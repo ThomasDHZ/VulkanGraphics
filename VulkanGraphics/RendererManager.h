@@ -32,16 +32,16 @@ private:
 	GUIDebugger guiDebugger;
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
-	//FramebufferRenderer frameBufferRenderer;
+	FramebufferRenderer frameBufferRenderer;
 	ShadowRenderer shadowRenderer;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
 	void UpdateSwapChain(GLFWwindow* window);
 
-	void DrawToTextureRenderPass(std::vector<Mesh>& MeshList);
+	void DrawToTextureRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh skybox);
 	void MainRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight);
-	void FrameBufferRenderPass(std::vector<Mesh>& MeshList);
+	void FrameBufferRenderPass();
 	void ShadowRenderPass(std::vector<Mesh>& MeshList);
 protected:
 
@@ -53,6 +53,8 @@ public:
 	RendererManager();
 	RendererManager(GLFWwindow* window);
 	~RendererManager();
+
+	FrameBufferMesh frameBuffer;
 
 	void Update(uint32_t DrawFrame, Camera camera, std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight);
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }

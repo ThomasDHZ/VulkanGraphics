@@ -14,13 +14,7 @@ FramebufferRenderer::FramebufferRenderer(VulkanRenderer& renderer) : RendererBas
     DepthTexture = RendererDepthTexture(renderer);
     CreateRendererFramebuffers(renderer);
 
-   // forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
-  //  shadowPipeline = ShadowRenderingPipeline(renderer, RenderPass);
-   // skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
-   // frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
-    //DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
-    //DebugCollisionPipeline = CollisionDebugPipeline(renderer, RenderPass);
-    //MeshviewPipeline = WireFramePipeline(renderer, RenderPass);
+    frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
 }
 
 FramebufferRenderer::~FramebufferRenderer()
@@ -114,13 +108,7 @@ void FramebufferRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 void FramebufferRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
     DepthTexture.RecreateRendererTexture(renderer);
-
-    //forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-   // skyboxPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    //frameBufferPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    //DebugLightPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    //DebugCollisionPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    //MeshviewPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    frameBufferPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
 
     for (auto& framebuffer : SwapChainFramebuffers)
     {
@@ -132,6 +120,7 @@ void FramebufferRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 
 void FramebufferRenderer::Destroy(VulkanRenderer& renderer)
 {
+    frameBufferPipeline.Destroy(renderer);
     DepthTexture.Delete(renderer);
     RendererBase::Destroy(renderer);
 }

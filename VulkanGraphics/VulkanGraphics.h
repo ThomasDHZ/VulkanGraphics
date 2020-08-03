@@ -99,7 +99,6 @@ private:
 
     CubeMapTexture newtexturebox;
     SkyBoxMesh Skybox;
-   // FrameBufferMesh frameBuffer;
 
 	std::vector<Mesh> MeshList;
 	//std::vector<Model> ModelList;

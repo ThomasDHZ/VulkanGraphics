@@ -16,7 +16,6 @@ public:
 
 	ForwardRenderingPipeline forwardRendereringPipeline;
 	SkyBoxPipeline skyboxPipeline;
-	//FrameBufferRenderingPipeline frameBufferPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
 	//CollisionDebugPipeline DebugCollisionPipeline;
 	WireFramePipeline wireFramePipeline;
