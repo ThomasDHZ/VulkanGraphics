@@ -91,7 +91,8 @@ private:
 	Mouse mouse;
 
     Camera* ActiveCamera;
-	Camera camera;
+
+
     MeshProperties meshProp;
     LightBufferObject light;
 

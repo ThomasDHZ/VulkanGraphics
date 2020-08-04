@@ -6,6 +6,7 @@
 #include "Vertex.h"
 #include "BaseMesh.h"
 #include "Camera.h"
+#include "CubeMapTexture.h"
 
 //struct Material
 //{
@@ -33,14 +34,33 @@
 //	alignas(16) glm::vec3 viewPos;
 //};
 
+enum MappingBitFlags
+{
+    UseDiffuseMapBit = 0x00000001,
+    UseSpecularMapBit = 0x00000002,
+    UseNormalMapBit = 0x00000004,
+    UseDepthMapBit = 0x00000008,
+    UseAlphaMapBit = 0x00000016,
+    UseEmissionMapBit = 0x00000032,
+    UseSkyBoxBit = 0x00000064
+};
+
+struct Material 
+{
+    alignas(16) glm::vec3 ambient;
+    alignas(16) glm::vec3 diffuse;
+    alignas(16) glm::vec3 specular;
+    alignas(4) float shininess = 32;
+};
+
 struct MeshProperties
 {
-    alignas(4) float specular = 32;
+    Material material;
     alignas(4) float minLayers = 8.0f;
     alignas(4) float maxLayers = 32.0f;
     alignas(4) float heightScale = 0.1f;
+    alignas(4) int   MappingBitFlags = UseDiffuseMapBit;
 };
-
 
 struct LightBufferObject
 {
@@ -63,7 +83,7 @@ private:
 
     void CreateUniformBuffers(VulkanRenderer& renderer);
     void CreateDescriptorPool(VulkanRenderer& renderer);
-    void CreateDescriptorSets(VulkanRenderer& renderer, Texture tex2, Texture tex3, VkDescriptorSetLayout& descriptorSetLayout);
+    void CreateDescriptorSets(VulkanRenderer& renderer, Texture tex2, Texture tex3, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout);
     void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshProperties meshProp, LightBufferObject Lightbuffer);
 
 public:
@@ -78,7 +98,7 @@ public:
 	float RotationAmount = 0.0f;
 
     Mesh();
-    Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, Texture tex2, Texture tex3, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+    Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, Texture tex2, Texture tex3, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
     ~Mesh();
 
     void Update(VulkanRenderer& renderer, Camera& camera, MeshProperties meshProp, LightBufferObject Lightbuffer);

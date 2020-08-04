@@ -15,8 +15,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = RendererManager(Window.GetWindowPtr());
 
-	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
-	ActiveCamera = &camera;
+
+	ActiveCamera = &renderer.camera;
 
 
 	CubeMapLayout layout;
@@ -33,10 +33,10 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/Sphere.obj"));
 
 	//newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/toy_box_diffuse.png");
-	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/brick_diffuseOriginal.bmp");
-	 normal = Texture2D(renderer, "texture/brick_normal.bmp");
-	 Depth = Texture2D(renderer, "texture/brick_height.bmp");
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), CalcVertex(), indices, newtexture, normal, Depth, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/bricks2.jpg");
+	 normal = Texture2D(renderer, "texture/bricks2_normal.jpg");
+	 Depth = Texture2D(renderer, "texture/bricks2_disp.jpg");
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), CalcVertex(), indices, newtexture, normal, Depth, newtexturebox, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
 	//MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), vertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
 	light.LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
@@ -82,7 +82,7 @@ void VulkanGraphics::UpdateImGUI()
 		//ImGui::Checkbox("Switch Camara", &SwatchCamara);
 		ImGui::SliderFloat3("Light", &light.LightPos.x, -10.0f, 10.0f);
 		//ImGui::SliderFloat3("Mesh", &MeshList[1].MeshPosition.x, -10.0f, 10.0f);
-		ImGui::SliderFloat("specular", &meshProp.specular, 0.0, 255.0f);
+		ImGui::SliderFloat("specular", &meshProp.material.shininess, 0.0, 255.0f);
 		ImGui::SliderFloat("heightScale", &meshProp.heightScale, -1.0, 1.0f);
 		ImGui::SliderFloat("Layers", &meshProp.minLayers, 0.0, 50.0f);
 		ImGui::SliderFloat("maxLayers", &meshProp.maxLayers, 0.0, 50.0f);
@@ -148,7 +148,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	//{
 	//	model.UpdateUniformBuffer(renderer, camera, light);
 	//}
-	Skybox.UpdateUniformBuffer(renderer, camera);
+	Skybox.UpdateUniformBuffer(renderer, renderer.camera);
 
 	MeshColor color = {};
 	color.Color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -238,8 +238,8 @@ void VulkanGraphics::MainLoop()
 		}
 
 		Window.Update();
-		mouse.Update(Window.GetWindowPtr(), camera, renderer.Settings);
-		keyboard.Update(Window.GetWindowPtr(), camera, renderer.Settings);
+		mouse.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
+		keyboard.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
 		UpdateImGUI();
 		Update(renderer.DrawFrame);
 		renderer.Draw(Window.GetWindowPtr(), MeshList, Skybox, debugLightMesh);

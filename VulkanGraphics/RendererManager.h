@@ -34,6 +34,11 @@ private:
 	TextureRenderer textureRenderer;
 	FramebufferRenderer frameBufferRenderer;
 	ShadowRenderer shadowRenderer;
+	Camera lightCamera;
+	Camera camera;
+
+	LightBufferObject light;
+	MeshProperties meshProp;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);

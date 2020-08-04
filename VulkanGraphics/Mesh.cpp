@@ -5,7 +5,7 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, Texture tex2, Texture tex3, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
+Mesh::Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, Texture tex2, Texture tex3, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
 {
     texture = tex;
 
@@ -21,7 +21,7 @@ Mesh::Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector
 
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, tex2, tex3, descriptorSetLayout);
+    CreateDescriptorSets(renderer, tex2, tex3, cubemap, descriptorSetLayout);
 }
 
 Mesh::~Mesh()
@@ -91,7 +91,7 @@ void Mesh::CreateUniformBuffers(VulkanRenderer& renderer)
 
 void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
 
-    std::array<DescriptorPoolSizeInfo, 9>  DescriptorPoolInfo = {};
+    std::array<DescriptorPoolSizeInfo, 10>  DescriptorPoolInfo = {};
 
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -100,13 +100,14 @@ void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
     DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[9].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, Texture tex2, Texture tex3, VkDescriptorSetLayout& descriptorSetLayout)
+void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, Texture tex2, Texture tex3, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout)
 {
     BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
 
@@ -139,6 +140,11 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, Texture tex2, Texture 
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     EmissionMap.imageView = texture.View;
     EmissionMap.sampler = texture.Sampler;
+
+    VkDescriptorImageInfo SkyBoxMap = {};
+    SkyBoxMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    SkyBoxMap.imageView = cubemap.View;
+    SkyBoxMap.sampler = cubemap.Sampler;
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -208,15 +214,22 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, Texture tex2, Texture 
         EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
         DescriptorList.emplace_back(EmissionMapDescriptor);
 
+        WriteDescriptorSetInfo SkyBoxDescriptor;
+        SkyBoxDescriptor.DstBinding = 7;
+        SkyBoxDescriptor.DstSet = DescriptorSets[i];
+        SkyBoxDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        SkyBoxDescriptor.DescriptorImageInfo = SkyBoxMap;
+        DescriptorList.emplace_back(SkyBoxDescriptor);
+
         WriteDescriptorSetInfo  MeshPropertiesDescriptor;
-        MeshPropertiesDescriptor.DstBinding = 7;
+        MeshPropertiesDescriptor.DstBinding = 8;
         MeshPropertiesDescriptor.DstSet = DescriptorSets[i];
         MeshPropertiesDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         MeshPropertiesDescriptor.DescriptorBufferInfo = meshPropertiesInfo;
         DescriptorList.emplace_back(MeshPropertiesDescriptor);
 
         WriteDescriptorSetInfo LightDescriptor;
-        LightDescriptor.DstBinding = 8;
+        LightDescriptor.DstBinding = 9;
         LightDescriptor.DstSet = DescriptorSets[i];
         LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         LightDescriptor.DescriptorBufferInfo = LightInfo;

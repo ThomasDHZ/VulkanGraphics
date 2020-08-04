@@ -1,20 +1,39 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 1) uniform sampler2D diffuseMap;
+
+const int UseDiffuseMapBit    = 0x00000001;
+const int UseSpecularMapBit   = 0x00000002;
+const int UseNormalMapBit     = 0x00000004;
+const int UseDepthMapBit      = 0x00000008;
+const int UseAlphaMapBit      = 0x00000016;
+const int UseEmissionMapBit   = 0x00000032;
+const int UseSkyBoxBit        = 0x00000064;
+
+
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;    
+    float shininess;
+}; 
+
+layout(binding = 1) uniform sampler2D DiffuseMap;
 layout(binding = 2) uniform sampler2D SpecularMap;
 layout(binding = 3) uniform sampler2D normalMap;
 layout(binding = 4) uniform sampler2D depthMap;
 layout(binding = 5) uniform sampler2D AlphaMap;
 layout(binding = 6) uniform sampler2D EmissionMap;
-layout(binding = 7) uniform MeshProperties
+layout(binding = 7) uniform samplerCube SkyBox;
+layout(binding = 8) uniform MeshProperties
 {
-    float specular;
+    Material material;
     float minLayers;
     float maxLayers;
     float heightScale;
+    int MappingBitFlags;
 } meshProperties;
-layout(binding = 8) uniform Light
+layout(binding = 9) uniform Light
 {
     vec3 lightPos;
     vec3 viewPos;
@@ -86,7 +105,7 @@ void main()
     normal = normalize(normal * 2.0 - 1.0);   
    
     // get diffuse color
-    vec3 color = texture(diffuseMap, texCoords).rgb;
+    vec3 color = texture(DiffuseMap, texCoords).rgb;
     // ambient
     vec3 ambient = 0.1 * color;
     // diffuse
@@ -96,8 +115,22 @@ void main()
     // specular    
     vec3 reflectDir = reflect(-lightDir, normal);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.specular);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.shininess);
 
     vec3 specular = vec3(0.2) * spec;
-    FragColor = vec4(ambient + diffuse + specular, 1.0);
+    
+    
+    vec3 I = normalize(FragPos - light.viewPos);
+    vec3 R = reflect(I, normalize(normal));
+
+    if(meshProperties.MappingBitFlags == UseSpecularMapBit)
+    {
+     FragColor = vec4(texture(SkyBox, R).rgb, 1.0);
+    }
+    else
+    {
+     FragColor = vec4(ambient + diffuse + specular, 1.0);
+    }
+
+    //FragColor = vec4(ambient + diffuse + specular, 1.0);
 }
