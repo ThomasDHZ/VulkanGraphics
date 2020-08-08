@@ -5,9 +5,9 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, Texture tex2, Texture tex3, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
+Mesh::Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture Diffuse, Texture Specular, Texture Normal, Texture Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
 {
-    texture = tex;
+    texture = Diffuse;
 
     VertexSize = vertexdata.size();
     IndexSize = indicesdata.size();
@@ -21,7 +21,7 @@ Mesh::Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector
 
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, tex2, tex3, cubemap, descriptorSetLayout);
+    CreateDescriptorSets(renderer, Diffuse, Specular, Normal, Depth, cubemap, descriptorSetLayout);
 }
 
 Mesh::~Mesh()
@@ -107,29 +107,29 @@ void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, Texture tex2, Texture tex3, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout)
+void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, Texture Diffuse, Texture Specular, Texture Normal, Texture Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout)
 {
     BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DiffuseMap.imageView = texture.View;
-    DiffuseMap.sampler = texture.Sampler;
+    DiffuseMap.imageView = Diffuse.View;
+    DiffuseMap.sampler = Diffuse.Sampler;
 
     VkDescriptorImageInfo SpecularMap = {};
     SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    SpecularMap.imageView = texture.View;
-    SpecularMap.sampler = texture.Sampler;
+    SpecularMap.imageView = Specular.View;
+    SpecularMap.sampler = Specular.Sampler;
 
     VkDescriptorImageInfo NormalMap = {};
     NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    NormalMap.imageView = tex2.View;
-    NormalMap.sampler = tex2.Sampler;
+    NormalMap.imageView = Normal.View;
+    NormalMap.sampler = Normal.Sampler;
 
     VkDescriptorImageInfo DisplacementMap = {};
     DisplacementMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DisplacementMap.imageView = tex3.View;
-    DisplacementMap.sampler = tex3.Sampler;
+    DisplacementMap.imageView = Depth.View;
+    DisplacementMap.sampler = Depth.Sampler;
 
     VkDescriptorImageInfo AlphaMap = {};
     AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

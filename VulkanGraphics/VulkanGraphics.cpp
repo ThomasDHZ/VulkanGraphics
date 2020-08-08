@@ -33,10 +33,11 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	//modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/Sphere.obj"));
 
 	//newtexture2 = Texture2D(*renderer.GetVulkanRendererBase(), "texture/toy_box_diffuse.png");
-	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/bricks2.jpg");
-	 normal = Texture2D(renderer, "texture/bricks2_normal.jpg");
-	 Depth = Texture2D(renderer, "texture/bricks2_disp.jpg");
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), CalcVertex(), indices, newtexture, normal, Depth, newtexturebox, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	newtexture = Texture2D(*renderer.GetVulkanRendererBase(), "texture/container2.png");
+	specular = Texture2D(*renderer.GetVulkanRendererBase(), "texture/container2_specular.png");
+	 normal = Texture2D(renderer, "texture/brick_normal.bmp");
+	 Depth = Texture2D(renderer, "texture/brick_height.bmp");
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), CalcVertex(), indices, newtexture, specular, normal, Depth, newtexturebox, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
 	//MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), vertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
 	light.position = glm::vec3(0.5f, 1.0f, 0.3f);
@@ -74,17 +75,16 @@ void VulkanGraphics::UpdateImGUI()
 
 		ImGui::Begin("Settings");
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-//		ImGui::SliderFloat("Gamma", &frameBuffer.settings.Gamma, 0.0f, 10.0f);
-	//	ImGui::SliderFloat("HDR Value", &frameBuffer.settings.HDRValue, 0.0f, 10.0f);
+		ImGui::SliderFloat("Gamma", &renderer.frameBuffer.settings.Gamma, 0.0f, 10.0f);
+		ImGui::SliderFloat("HDR Value", &renderer.frameBuffer.settings.HDRValue, 0.0f, 10.0f);
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 		//ImGui::Checkbox("Switch Camara", &SwatchCamara);
 		ImGui::SliderFloat3("Light", &light.position.x, -10.0f, 10.0f);
-		//ImGui::SliderFloat3("Color", &light.lightColor.x, 0.0f, 1.0f);
-		//ImGui::SliderFloat3("Object", &light.objectColor.x, 0.0f, 1.0f);
-		//ImGui::SliderFloat3("Mesh", &MeshList[1].MeshPosition.x, -10.0f, 10.0f);
-		ImGui::SliderFloat("specular", &meshProp.material.shininess, 0.0, 255.0f);
+		ImGui::SliderFloat3("diffuse", &light.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("specular", &light.specular.x, 0.0f, 1.0f);
+		ImGui::SliderFloat("shininess", &meshProp.material.shininess, 0.0, 255.0f);
 		ImGui::SliderFloat("heightScale", &meshProp.heightScale, -1.0, 1.0f);
 		ImGui::SliderFloat("Layers", &meshProp.minLayers, 0.0, 50.0f);
 		ImGui::SliderFloat("maxLayers", &meshProp.maxLayers, 0.0, 50.0f);
@@ -146,15 +146,6 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-	glm::vec3 lightColor;
-	lightColor.x = sin(glfwGetTime() * 2.0f);
-	lightColor.y = sin(glfwGetTime() * 0.7f);
-	lightColor.z = sin(glfwGetTime() * 1.3f);
-	glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
-	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
-	light.ambient = ambientColor;
-	light.diffuse = diffuseColor;
 
 	light.viewPos = ActiveCamera->Position;
 	for (auto mesh : MeshList)

@@ -83,6 +83,7 @@ private:
 	VulkanWindow Window;
     RendererManager renderer;
     Texture2D newtexture;
+    Texture2D specular;
     Texture2D normal;
     Texture2D Depth;
     //Texture2D newtexture2;

@@ -57,7 +57,7 @@ struct MeshProperties
 {
     Material material;
   //  MapBits mapBits;
-    alignas(4) int UseDiffuseMapBit = 0;
+    alignas(4) int UseDiffuseMapBit = 1;
     alignas(4) int UseSpecularMapBit = 0;
     alignas(4) int UseNormalMapBit = 1;
     alignas(4) int UseDepthMapBit = 1;
@@ -72,8 +72,8 @@ struct MeshProperties
 struct LightBufferObject
 {
     alignas(16) glm::vec3 position;
-    alignas(16) glm::vec3 ambient;
-    alignas(16) glm::vec3 diffuse;
+    alignas(16) glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+    alignas(16) glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     alignas(16) glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
     alignas(16) glm::vec3 viewPos;
 };
@@ -93,7 +93,7 @@ private:
 
     void CreateUniformBuffers(VulkanRenderer& renderer);
     void CreateDescriptorPool(VulkanRenderer& renderer);
-    void CreateDescriptorSets(VulkanRenderer& renderer, Texture tex2, Texture tex3, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout);
+    void CreateDescriptorSets(VulkanRenderer& renderer, Texture Diffuse, Texture Specular, Texture Normal, Texture Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout);
     void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshProperties meshProp, LightBufferObject Lightbuffer);
 
 public:
@@ -108,7 +108,7 @@ public:
 	float RotationAmount = 0.0f;
 
     Mesh();
-    Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture tex, Texture tex2, Texture tex3, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+    Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture Diffuse, Texture Specular, Texture Normal, Texture Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
     ~Mesh();
 
     void Update(VulkanRenderer& renderer, Camera& camera, MeshProperties meshProp, LightBufferObject Lightbuffer);

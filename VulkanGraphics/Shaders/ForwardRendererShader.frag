@@ -144,17 +144,24 @@ void main()
         // get diffuse color
         vec3 color = texture(DiffuseMap, texCoords).rgb;
         // ambient
-          ambient = 0.1 * color;
+          ambient = light.ambient * color;
         // diffuse
         vec3 lightDir = normalize(TangentLightPos - TangentFragPos);
         float diff = max(dot(lightDir, normal), 0.0);
-         diffuse = diff * color;
+         diffuse = light.diffuse * (diff * color);
         // specular    
         vec3 reflectDir = reflect(-lightDir, normal);
         vec3 halfwayDir = normalize(lightDir + viewDir);  
         float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.shininess);
 
-         specular = vec3(0.2) * spec;
+        if(meshProperties.UseDiffuseMapBit  == 1)
+        {
+             specular = light.specular * spec * texture(SpecularMap, texCoords).rgb;
+        }
+        else
+        {
+            specular = light.specular * spec * meshProperties.material.specular;  
+        }
      }
      else
      {
@@ -170,8 +177,16 @@ void main()
         viewDir = normalize(light.viewPos - FragPos);
         vec3 reflectDir = reflect(-lightDir, norm);  
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), meshProperties.material.shininess);
-         specular = light.specular * (spec * meshProperties.material.specular);  
-      }
+        
+        if(meshProperties.UseDiffuseMapBit  == 1)
+        {
+            specular = light.specular * spec * texture(SpecularMap, texCoords).rgb;
+        }
+        else
+        {
+            specular = light.specular * spec * meshProperties.material.specular;  
+        }
+     }
     vec3 result = ambient + diffuse + specular;
     FragColor = vec4(result, 1.0);
 }
