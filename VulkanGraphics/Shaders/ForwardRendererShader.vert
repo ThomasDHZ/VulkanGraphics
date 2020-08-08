@@ -9,7 +9,8 @@ layout (location = 4) in vec3 aBitangent;
 
 layout(location = 0) out vec3 FragPos;
 layout(location = 1) out vec2 TexCoords;
-layout(location = 2) out mat3 TBN;
+layout(location = 2) out vec3 Normal;
+layout(location = 3) out mat3 TBN;
 
 layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
@@ -21,6 +22,7 @@ void main()
 {
     FragPos = vec3(ubo.model * vec4(aPos, 1.0));    
     TexCoords = aTexCoords;
+    Normal = aNormal;
 
     vec3 T = normalize(mat3(ubo.model) * aTangent);
     vec3 B = normalize(mat3(ubo.model) * aBitangent);

@@ -34,38 +34,48 @@
 //	alignas(16) glm::vec3 viewPos;
 //};
 
-enum MappingBitFlags
+struct MapBits
 {
-    UseDiffuseMapBit = 0x00000001,
-    UseSpecularMapBit = 0x00000002,
-    UseNormalMapBit = 0x00000004,
-    UseDepthMapBit = 0x00000008,
-    UseAlphaMapBit = 0x00000016,
-    UseEmissionMapBit = 0x00000032,
-    UseSkyBoxBit = 0x00000064
+    alignas(4) int UseDiffuseMapBit = 0;
+    alignas(4) int UseSpecularMapBit = 0;
+    alignas(4) int UseNormalMapBit = 0;
+    alignas(4) int UseDepthMapBit = 1;
+    alignas(4) int UseAlphaMapBit = 0;
+    alignas(4) int UseEmissionMapBit = 0;
+    alignas(4) int UseSkyBoxBit = 0;
 };
 
 struct Material 
 {
-    alignas(16) glm::vec3 ambient;
-    alignas(16) glm::vec3 diffuse;
-    alignas(16) glm::vec3 specular;
+    alignas(16) glm::vec3 ambient = glm::vec3(1.0f, 0.5f, 0.31f);
+    alignas(16) glm::vec3 diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+    alignas(16) glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
     alignas(4) float shininess = 32;
 };
 
 struct MeshProperties
 {
     Material material;
+  //  MapBits mapBits;
+    alignas(4) int UseDiffuseMapBit = 0;
+    alignas(4) int UseSpecularMapBit = 0;
+    alignas(4) int UseNormalMapBit = 1;
+    alignas(4) int UseDepthMapBit = 1;
+    alignas(4) int UseAlphaMapBit = 0;
+    alignas(4) int UseEmissionMapBit = 0;
+    alignas(4) int UseSkyBoxBit = 0;
     alignas(4) float minLayers = 8.0f;
     alignas(4) float maxLayers = 32.0f;
     alignas(4) float heightScale = 0.1f;
-    alignas(4) int   MappingBitFlags = UseDiffuseMapBit;
 };
 
 struct LightBufferObject
 {
-    alignas(16) glm::vec3 LightPos;
-    alignas(16) glm::vec3 ViewPos;
+    alignas(16) glm::vec3 position;
+    alignas(16) glm::vec3 ambient;
+    alignas(16) glm::vec3 diffuse;
+    alignas(16) glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    alignas(16) glm::vec3 viewPos;
 };
 
 struct UniformBufferObject {

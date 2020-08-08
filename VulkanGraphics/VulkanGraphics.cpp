@@ -39,7 +39,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), CalcVertex(), indices, newtexture, normal, Depth, newtexturebox, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
 	//MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), vertices, quadindices, renderer.textureRenderer.ColorTexture, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
-	light.LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
+	light.position = glm::vec3(0.5f, 1.0f, 0.3f);
 
 	//renderer.CMDBuffer(frameBuffer, Skybox, MeshList);
 }
@@ -80,12 +80,20 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 		//ImGui::Checkbox("Switch Camara", &SwatchCamara);
-		ImGui::SliderFloat3("Light", &light.LightPos.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("Light", &light.position.x, -10.0f, 10.0f);
+		//ImGui::SliderFloat3("Color", &light.lightColor.x, 0.0f, 1.0f);
+		//ImGui::SliderFloat3("Object", &light.objectColor.x, 0.0f, 1.0f);
 		//ImGui::SliderFloat3("Mesh", &MeshList[1].MeshPosition.x, -10.0f, 10.0f);
 		ImGui::SliderFloat("specular", &meshProp.material.shininess, 0.0, 255.0f);
 		ImGui::SliderFloat("heightScale", &meshProp.heightScale, -1.0, 1.0f);
 		ImGui::SliderFloat("Layers", &meshProp.minLayers, 0.0, 50.0f);
 		ImGui::SliderFloat("maxLayers", &meshProp.maxLayers, 0.0, 50.0f);
+		ImGui::SliderInt("Diffuse", &meshProp.UseDiffuseMapBit, 0.0, 1.0f);
+		ImGui::SliderInt("Specular", &meshProp.UseSpecularMapBit, 0.0, 1.0f);
+		ImGui::SliderInt("Normal", &meshProp.UseNormalMapBit, 0.0, 1.0f);
+		ImGui::SliderInt("Depth", &meshProp.UseDepthMapBit, 0.0, 1.0f);
+		ImGui::SliderInt("Alpha", &meshProp.UseAlphaMapBit, 0.0, 1.0f);
+		ImGui::SliderInt("Emission", &meshProp.UseEmissionMapBit, 0.0, 1.0f);
 		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
@@ -139,7 +147,16 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	light.ViewPos = ActiveCamera->Position;
+	glm::vec3 lightColor;
+	lightColor.x = sin(glfwGetTime() * 2.0f);
+	lightColor.y = sin(glfwGetTime() * 0.7f);
+	lightColor.z = sin(glfwGetTime() * 1.3f);
+	glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
+	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
+	light.ambient = ambientColor;
+	light.diffuse = diffuseColor;
+
+	light.viewPos = ActiveCamera->Position;
 	for (auto mesh : MeshList)
 	{
 		mesh.Update(renderer, *ActiveCamera, meshProp, light);
@@ -153,7 +170,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	MeshColor color = {};
 	color.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	debugLightMesh.MeshPosition = light.LightPos;
+	//debugLightMesh.MeshPosition = light.lightPos;
 	debugLightMesh.MeshScale = glm::vec3(.1f, .1f, .1f);
 	debugLightMesh.Update(renderer, *ActiveCamera, color);
 }

@@ -10,10 +10,20 @@ const int UseAlphaMapBit      = 0x00000016;
 const int UseEmissionMapBit   = 0x00000032;
 const int UseSkyBoxBit        = 0x00000064;
 
+struct MapBits
+{
+     int UseDiffuseMapBit;
+     int UseSpecularMapBit;
+     int UseNormalMapBit;
+     int UseDepthMapBit;
+     int UseAlphaMapBit;
+     int UseEmissionMapBit;
+     int UseSkyBoxBit;
+};
 
 struct Material {
     vec3 ambient;
-    vec3 diffuse;
+    vec3 Diffuse;
     vec3 specular;    
     float shininess;
 }; 
@@ -28,20 +38,32 @@ layout(binding = 7) uniform samplerCube SkyBox;
 layout(binding = 8) uniform MeshProperties
 {
     Material material;
+   // MapBits mapBitsFlags;
+
+        int UseDiffuseMapBit;
+     int UseSpecularMapBit;
+     int UseNormalMapBit;
+     int UseDepthMapBit;
+     int UseAlphaMapBit;
+     int UseEmissionMapBit;
+     int UseSkyBoxBit;
     float minLayers;
     float maxLayers;
     float heightScale;
-    int MappingBitFlags;
 } meshProperties;
 layout(binding = 9) uniform Light
 {
-    vec3 lightPos;
+    vec3 position;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
     vec3 viewPos;
 } light;
 
 layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec2 TexCoords;
-layout(location = 2) in mat3 TBN;
+layout(location = 2) in vec3 Normal;
+layout(location = 3) in mat3 TBN;
 
 
 layout(location = 0) out vec4 FragColor;
@@ -88,49 +110,68 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
 void main()
 {           
-    vec3 TangentLightPos = TBN * light.lightPos;
+    vec3 viewDir = light.viewPos;
+    vec3 normal = Normal;
+    vec2 texCoords = TexCoords;
+
+
+    vec3 TangentLightPos = TBN * light.position;
     vec3 TangentViewPos  = TBN * light.viewPos;
     vec3 TangentFragPos  = TBN * FragPos;
-
-    // offset texture coordinates with Parallax Mapping
-    vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
-    vec2 texCoords = TexCoords;
     
-    texCoords = ParallaxMapping(TexCoords,  viewDir);       
-    if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
-        discard;
+     if (meshProperties.UseDepthMapBit  == 1)
+        {
+        viewDir = normalize(TangentViewPos - TangentFragPos);
 
-    // obtain normal from normal map
-    vec3 normal = texture(normalMap, texCoords).rgb;
-    normal = normalize(normal * 2.0 - 1.0);   
-   
-    // get diffuse color
-    vec3 color = texture(DiffuseMap, texCoords).rgb;
-    // ambient
-    vec3 ambient = 0.1 * color;
-    // diffuse
-    vec3 lightDir = normalize(TangentLightPos - TangentFragPos);
-    float diff = max(dot(lightDir, normal), 0.0);
-    vec3 diffuse = diff * color;
-    // specular    
-    vec3 reflectDir = reflect(-lightDir, normal);
-    vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.shininess);
+            texCoords = ParallaxMapping(TexCoords,  viewDir);       
+            if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
+            {
+                discard;
+            }
+       }
+        if (meshProperties.UseNormalMapBit  == 1)
+        {
+            normal =texture(normalMap, texCoords).rgb;
+            normal = normalize(normal * 2.0 - 1.0);   
+        }
 
-    vec3 specular = vec3(0.2) * spec;
+ 
+     vec3 ambient = vec3(1.0f, 0.0f, 0.0f);
+     vec3 diffuse = vec3(1.0f, 0.0f, 0.0f);
+     vec3 specular = vec3(1.0f, 0.0f, 0.0f);
+     if(meshProperties.UseDiffuseMapBit  == 1)
+     {
+        // get diffuse color
+        vec3 color = texture(DiffuseMap, texCoords).rgb;
+        // ambient
+          ambient = 0.1 * color;
+        // diffuse
+        vec3 lightDir = normalize(TangentLightPos - TangentFragPos);
+        float diff = max(dot(lightDir, normal), 0.0);
+         diffuse = diff * color;
+        // specular    
+        vec3 reflectDir = reflect(-lightDir, normal);
+        vec3 halfwayDir = normalize(lightDir + viewDir);  
+        float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.shininess);
+
+         specular = vec3(0.2) * spec;
+     }
+     else
+     {
+         ambient = light.ambient * meshProperties.material.ambient;
+  	
+        // diffuse 
+        vec3 norm = normalize(Normal);
+        vec3 lightDir = normalize(light.position - FragPos);
+        float diff = max(dot(norm, lightDir), 0.0);
+         diffuse = light.diffuse * (diff * meshProperties.material.Diffuse);
     
-    
-    vec3 I = normalize(FragPos - light.viewPos);
-    vec3 R = reflect(I, normalize(normal));
-
-    if(meshProperties.MappingBitFlags == UseSpecularMapBit)
-    {
-     FragColor = vec4(texture(SkyBox, R).rgb, 1.0);
-    }
-    else
-    {
-     FragColor = vec4(ambient + diffuse + specular, 1.0);
-    }
-
-    //FragColor = vec4(ambient + diffuse + specular, 1.0);
+        // specular
+        viewDir = normalize(light.viewPos - FragPos);
+        vec3 reflectDir = reflect(-lightDir, norm);  
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), meshProperties.material.shininess);
+         specular = light.specular * (spec * meshProperties.material.specular);  
+      }
+    vec3 result = ambient + diffuse + specular;
+    FragColor = vec4(result, 1.0);
 }
