@@ -4,7 +4,7 @@ RendererColorTexture::RendererColorTexture() : Texture()
 {
 }
 
-RendererColorTexture::RendererColorTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkTexture2D)
+RendererColorTexture::RendererColorTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkRenderedTexture)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);

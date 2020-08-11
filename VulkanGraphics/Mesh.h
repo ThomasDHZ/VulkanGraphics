@@ -51,6 +51,7 @@ struct Material
     alignas(16) glm::vec3 diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
     alignas(16) glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
     alignas(4) float shininess = 32;
+    alignas(4) float reflectivness = 0;
 };
 
 struct MeshProperties
@@ -93,14 +94,13 @@ private:
 
     void CreateUniformBuffers(VulkanRenderer& renderer);
     void CreateDescriptorPool(VulkanRenderer& renderer);
-    void CreateDescriptorSets(VulkanRenderer& renderer, Texture Diffuse, Texture Specular, Texture Normal, Texture Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout);
-    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshProperties meshProp, LightBufferObject Lightbuffer);
+    void CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, int Diffuse, int Specular, int Normal, int Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout);
+    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer);
 
 public:
 
     std::string MeshName;
-
-	//MeshProperties properites;
+    MeshProperties properites;
 
 	glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -108,10 +108,10 @@ public:
 	float RotationAmount = 0.0f;
 
     Mesh();
-    Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture Diffuse, Texture Specular, Texture Normal, Texture Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+    Mesh(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, int Diffuse, int Specular, int Normal, int Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
     ~Mesh();
 
-    void Update(VulkanRenderer& renderer, Camera& camera, MeshProperties meshProp, LightBufferObject Lightbuffer);
+    void Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Lightbuffer);
     void Destory(VulkanRenderer& renderer);
 };
 

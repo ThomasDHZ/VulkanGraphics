@@ -5,10 +5,8 @@ Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, Texture Diffuse, Texture Specular, Texture Normal, Texture Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
+Mesh::Mesh(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, int Diffuse, int Specular, int Normal, int Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
 {
-    texture = Diffuse;
-
     VertexSize = vertexdata.size();
     IndexSize = indicesdata.size();
 
@@ -21,7 +19,7 @@ Mesh::Mesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector
 
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, Diffuse, Specular, Normal, Depth, cubemap, descriptorSetLayout);
+    CreateDescriptorSets(renderer, textureManager, Diffuse, Specular, Normal, Depth, cubemap, descriptorSetLayout);
 }
 
 Mesh::~Mesh()
@@ -107,39 +105,39 @@ void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, Texture Diffuse, Texture Specular, Texture Normal, Texture Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout)
+void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, int Diffuse, int Specular, int Normal, int Depth, CubeMapTexture cubemap, VkDescriptorSetLayout& descriptorSetLayout)
 {
     BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DiffuseMap.imageView = Diffuse.View;
-    DiffuseMap.sampler = Diffuse.Sampler;
+    DiffuseMap.imageView = textureManager->GetTexture(Diffuse).View;
+    DiffuseMap.sampler = textureManager->GetTexture(Diffuse).Sampler;
 
     VkDescriptorImageInfo SpecularMap = {};
     SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    SpecularMap.imageView = Specular.View;
-    SpecularMap.sampler = Specular.Sampler;
+    SpecularMap.imageView = textureManager->GetTexture(Specular).View;
+    SpecularMap.sampler = textureManager->GetTexture(Specular).Sampler;
 
     VkDescriptorImageInfo NormalMap = {};
     NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    NormalMap.imageView = Normal.View;
-    NormalMap.sampler = Normal.Sampler;
+    NormalMap.imageView = textureManager->GetTexture(Normal).View;
+    NormalMap.sampler = textureManager->GetTexture(Normal).Sampler;
 
     VkDescriptorImageInfo DisplacementMap = {};
     DisplacementMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DisplacementMap.imageView = Depth.View;
-    DisplacementMap.sampler = Depth.Sampler;
+    DisplacementMap.imageView = textureManager->GetTexture(Depth).View;
+    DisplacementMap.sampler = textureManager->GetTexture(Depth).Sampler;
 
     VkDescriptorImageInfo AlphaMap = {};
     AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    AlphaMap.imageView = texture.View;
-    AlphaMap.sampler = texture.Sampler;
+    AlphaMap.imageView = textureManager->GetTexture(Diffuse).View;
+    AlphaMap.sampler = textureManager->GetTexture(Diffuse).Sampler;
 
     VkDescriptorImageInfo EmissionMap = {};
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    EmissionMap.imageView = texture.View;
-    EmissionMap.sampler = texture.Sampler;
+    EmissionMap.imageView = textureManager->GetTexture(Diffuse).View;
+    EmissionMap.sampler = textureManager->GetTexture(Diffuse).Sampler;
 
     VkDescriptorImageInfo SkyBoxMap = {};
     SkyBoxMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -239,7 +237,7 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, Texture Diffuse, Textu
     }
 }
 
-void Mesh::Update(VulkanRenderer& renderer, Camera& camera, MeshProperties meshProp, LightBufferObject Lightbuffer)
+void Mesh::Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Lightbuffer)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
@@ -257,14 +255,14 @@ void Mesh::Update(VulkanRenderer& renderer, Camera& camera, MeshProperties meshP
         ubo.model = glm::rotate(ubo.model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
     }
 
-    UpdateUniformBuffer(renderer, ubo, meshProp, Lightbuffer);
+    UpdateUniformBuffer(renderer, ubo, Lightbuffer);
 }
 
-void Mesh::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshProperties meshProp, LightBufferObject Lightbuffer)
+void Mesh::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
 {
     uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
     lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
-    meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&meshProp));
+    meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
 }
 
 void Mesh::Destory(VulkanRenderer& renderer)

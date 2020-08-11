@@ -17,7 +17,6 @@ TextureRenderer::TextureRenderer(VulkanRenderer& renderer) : RendererBase(render
     forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
     skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
     DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
-    //DebugCollisionPipeline = CollisionDebugPipeline(renderer, RenderPass);
     wireFramePipeline = WireFramePipeline(renderer, RenderPass);
 
     ImGui_ImplVulkan_AddTexture(ColorTexture.ImGuiDescriptorSet, ColorTexture.Sampler, ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -124,7 +123,6 @@ void TextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
     forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
     skyboxPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
     DebugLightPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    //DebugCollisionPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
     wireFramePipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
 
     for (auto& framebuffer : SwapChainFramebuffers)
@@ -145,9 +143,7 @@ void TextureRenderer::Destroy(VulkanRenderer& renderer)
     forwardRendereringPipeline.Destroy(renderer);
     skyboxPipeline.Destroy(renderer);
     DebugLightPipeline.Destroy(renderer);
-    //DebugCollisionPipeline.Destroy(renderer);
     wireFramePipeline.Destroy(renderer);
-
 
     RendererBase::Destroy(renderer);
 }

@@ -4,7 +4,7 @@ RendererHDRColorTexture::RendererHDRColorTexture() : Texture()
 {
 }
 
-RendererHDRColorTexture::RendererHDRColorTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkTexture2D)
+RendererHDRColorTexture::RendererHDRColorTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkRenderedTexture)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);

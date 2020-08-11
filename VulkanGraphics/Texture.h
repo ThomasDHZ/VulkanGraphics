@@ -9,21 +9,15 @@
 
 enum TextureType
 {
-    Color,
-    Depth
+    vkTexture2D,
+    vkTextureCube,
+    vkRenderedTexture
 };
 
 class Texture
 {
 protected:
-    enum TextureType
-    {
-        vkTexture2D,
-        vkTextureCube
-    };
-
     std::string FileName;
-    TextureType TypeOfTexture;
 
     int Width;
     int Height;
@@ -36,6 +30,7 @@ protected:
     virtual void CreateTextureSampler(VulkanRenderer& renderer, VkSamplerCreateInfo TextureImageSamplerInfo);
 
 public:
+    TextureType TypeOfTexture;
     VkDeviceMemory Memory;
     VkImage Image;
     VkImageView View;

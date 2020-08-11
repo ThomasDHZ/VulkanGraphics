@@ -4,7 +4,7 @@ RendererDepthTexture::RendererDepthTexture() : Texture()
 {
 }
 
-RendererDepthTexture::RendererDepthTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkTexture2D)
+RendererDepthTexture::RendererDepthTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkRenderedTexture)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);

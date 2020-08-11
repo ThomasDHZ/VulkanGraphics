@@ -4,6 +4,7 @@
 #include "VulkanUniformBuffer.h"
 #include "Structs.h"
 #include "Vertex.h"
+#include "TextureManager.h"
 
 enum RendererBitFlag
 {
@@ -33,6 +34,8 @@ public:
 
     VkDescriptorPool DescriptorPool;
     std::vector<VkDescriptorSet> DescriptorSets;
+
+    std::shared_ptr<TextureManager> textureManager;
 
     Texture texture;
     int IndexSize;

@@ -160,6 +160,7 @@
     <ClCompile Include="DifferedRenderingPipeline.cpp" />
     <ClCompile Include="FramebufferRenderer.cpp" />
     <ClCompile Include="FrameBufferRenderingPipeline.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Level2D.cpp" />
     <ClCompile Include="MegaMan.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="DifferedRenderingPipeline.h" />
     <ClInclude Include="FramebufferRenderer.h" />
     <ClInclude Include="FrameBufferRenderingPipeline.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Level2D.h" />
     <ClInclude Include="MegaMan.h" />

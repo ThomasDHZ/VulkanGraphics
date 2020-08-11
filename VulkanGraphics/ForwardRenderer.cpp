@@ -18,7 +18,6 @@ ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase(render
     forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
     skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
     DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
-    //DebugCollisionPipeline = CollisionDebugPipeline(renderer, RenderPass);
     wireFramePipeline = WireFramePipeline(renderer, RenderPass);
 }
 
@@ -118,7 +117,6 @@ void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
    forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
    skyboxPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
    DebugLightPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-   //DebugCollisionPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
    wireFramePipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
 
    for (auto& framebuffer : SwapChainFramebuffers)
@@ -137,7 +135,6 @@ void ForwardRenderer::Destroy(VulkanRenderer& renderer)
     forwardRendereringPipeline.Destroy(renderer);
     skyboxPipeline.Destroy(renderer);
     DebugLightPipeline.Destroy(renderer);
-    //DebugCollisionPipeline.Destroy(renderer);
     wireFramePipeline.Destroy(renderer);
 
 

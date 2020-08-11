@@ -26,6 +26,7 @@ struct Material {
     vec3 Diffuse;
     vec3 specular;    
     float shininess;
+    float reflectivness;
 }; 
 
 layout(binding = 1) uniform sampler2D DiffuseMap;
@@ -67,6 +68,16 @@ layout(location = 3) in mat3 TBN;
 
 
 layout(location = 0) out vec4 FragColor;
+
+void RemoveAlphaPixels()
+{
+    if((textureSize(AlphaMap, 0).x > 1 &&
+        texture(AlphaMap, TexCoords).r == 0) ||
+        texture(DiffuseMap, TexCoords).a == 0)
+   {
+        discard;
+   }
+}
 
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
@@ -110,10 +121,11 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
 void main()
 {           
+     RemoveAlphaPixels();
+
     vec3 viewDir = light.viewPos;
     vec3 normal = Normal;
     vec2 texCoords = TexCoords;
-
 
     vec3 TangentLightPos = TBN * light.position;
     vec3 TangentViewPos  = TBN * light.viewPos;
@@ -150,11 +162,10 @@ void main()
         float diff = max(dot(lightDir, normal), 0.0);
          diffuse = light.diffuse * (diff * color);
         // specular    
-        vec3 reflectDir = reflect(-lightDir, normal);
         vec3 halfwayDir = normalize(lightDir + viewDir);  
         float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.shininess);
 
-        if(meshProperties.UseDiffuseMapBit  == 1)
+        if(meshProperties.UseSpecularMapBit  == 1)
         {
              specular = light.specular * spec * texture(SpecularMap, texCoords).rgb;
         }
@@ -175,10 +186,10 @@ void main()
     
         // specular
         viewDir = normalize(light.viewPos - FragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);  
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), meshProperties.material.shininess);
+        vec3 halfwayDir = normalize(lightDir + viewDir);  
+        float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.shininess);
         
-        if(meshProperties.UseDiffuseMapBit  == 1)
+        if(meshProperties.UseSpecularMapBit  == 1)
         {
             specular = light.specular * spec * texture(SpecularMap, texCoords).rgb;
         }
@@ -187,6 +198,11 @@ void main()
             specular = light.specular * spec * meshProperties.material.specular;  
         }
      }
-    vec3 result = ambient + diffuse + specular;
+
+    vec3 I = normalize(FragPos - light.viewPos);
+    vec3 R = reflect(I, normalize(normal));
+    vec3 Relected = texture(SkyBox, R).rgb * meshProperties.material.reflectivness;
+
+    vec3 result = ambient + diffuse + specular + Relected;
     FragColor = vec4(result, 1.0);
 }

@@ -154,7 +154,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, 
 	ShadowRenderPass(MeshList);
 	DrawToTextureRenderPass(MeshList, skybox);
 	MainRenderPass(MeshList, skybox, debugLight);
-	FrameBufferRenderPass();
+	//FrameBufferRenderPass();
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -232,14 +232,6 @@ uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, 
 
 void RendererManager::DrawToTextureRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh skybox)
 {
-	//light.LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
-	//light.ViewPos = lightCamera.Position;
-
-	//for (auto mesh : MeshList)
-	//{
-	//	mesh.Update(*GetVulkanRendererBase(), camera, meshProp, light);
-	//}
-
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 	clearValues[1].depthStencil = { 1.0f, 0 };
@@ -298,6 +290,7 @@ void RendererManager::MainRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh sky
 	}
 	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, skybox);
 	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.DebugLightPipeline, debugLight);
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
@@ -324,15 +317,6 @@ void RendererManager::FrameBufferRenderPass()
 
 void RendererManager::ShadowRenderPass(std::vector<Mesh>& MeshList)
 {
-	//light.LightPos = glm::vec3(0.5f, 1.0f, 0.3f);
-	//light.ViewPos = lightCamera.Position;
-
-	//for (auto mesh : MeshList)
-	//{
-	//	mesh.Update(*GetVulkanRendererBase(),lightCamera, meshProp, light);
-	//}
-
-
 	std::array<VkClearValue, 1> clearValues{};
 	clearValues[0].depthStencil = { 1.0f, 0 };
 

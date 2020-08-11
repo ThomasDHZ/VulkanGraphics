@@ -7,15 +7,15 @@
 //	renderer = Renderer(Window.GetWindowPtr());
 //	//renderer.Settings.TwoDMode = true;
 //
-//	MapTile[Level::SparkMan].DiffuseMap = "texture/SparkManDiffuse.bmp";
-//	MapTile[Level::SparkMan].SpecularMap = "texture/SparkManSpecular.bmp";
-//	MapTile[Level::SparkMan].NormalMap = "texture/SparkManSpecular.bmp";
-//	MapTile[Level::SparkMan].DisplacementMap = "texture/SparkManSpecular.bmp";
-//	MapTile[Level::SparkMan].EmissionMap = "texture/temp.bmp";
-//	MapTile[Level::SparkMan].AlphaMap = "texture/SparkManSpecular.bmp";
-//	MapTile[Level::Test].DiffuseMap = "texture/container2.png";
-//	MapTile[Level::Test].SpecularMap = "texture/container2.png";
-//
+	//MapTile[Level::SparkMan].DiffuseMap = "texture/SparkManDiffuse.bmp";
+	//MapTile[Level::SparkMan].SpecularMap = "texture/SparkManSpecular.bmp";
+	//MapTile[Level::SparkMan].NormalMap = "texture/SparkManSpecular.bmp";
+	//MapTile[Level::SparkMan].DisplacementMap = "texture/SparkManSpecular.bmp";
+	//MapTile[Level::SparkMan].EmissionMap = "texture/temp.bmp";
+	//MapTile[Level::SparkMan].AlphaMap = "texture/SparkManSpecular.bmp";
+	//MapTile[Level::Test].DiffuseMap = "texture/container2.png";
+	//MapTile[Level::Test].SpecularMap = "texture/container2.png";
+
 //	level = Level2D(renderer, MapTile[Level::SparkMan]);
 //}
 //
