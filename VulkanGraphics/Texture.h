@@ -38,7 +38,9 @@ public:
     int Height;
 
     Texture();
+    Texture(VulkanRenderer& renderer, std::string TextureLocation, unsigned int textureID, TextureType textureType);
     Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType);
+    Texture(VulkanRenderer& renderer, unsigned int textureID, TextureType textureType);
     Texture(VulkanRenderer& renderer, TextureType textureType);
     ~Texture();
 

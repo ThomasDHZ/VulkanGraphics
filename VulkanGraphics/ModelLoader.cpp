@@ -116,7 +116,7 @@ std::vector<Texture2D> ModelLoader::LoadTextures(VulkanRenderer& renderer, std::
 			material->GetTexture(aiTextureType_NORMALS, y, &TextureLocation);
 			if(!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
 			{
-				textureManager->LoadTexture(Texture2D(renderer, directory + TextureLocation.C_Str()));
+				textureManager->LoadTexture(renderer, directory + TextureLocation.C_Str());
 			}
 		}
 	}

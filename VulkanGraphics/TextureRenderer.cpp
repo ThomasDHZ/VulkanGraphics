@@ -131,8 +131,6 @@ void TextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
         framebuffer = VK_NULL_HANDLE;
     }
     CreateRendererFramebuffers(renderer);
-
-    ImGui_ImplVulkan_AddTexture(ColorTexture.ImGuiDescriptorSet, ColorTexture.Sampler, ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 void TextureRenderer::Destroy(VulkanRenderer& renderer)

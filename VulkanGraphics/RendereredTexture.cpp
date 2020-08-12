@@ -4,7 +4,7 @@ RendereredTexture::RendereredTexture() : Texture()
 {
 }
 
-RendereredTexture::RendereredTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkTexture2D)
+RendereredTexture::RendereredTexture(VulkanRenderer& renderer, unsigned int textureID) : Texture(renderer, textureID, TextureType::vkTexture2D)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);

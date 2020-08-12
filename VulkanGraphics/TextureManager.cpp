@@ -12,22 +12,24 @@ TextureManager::~TextureManager()
 {
 }
 
-void TextureManager::CreateNewTextureID()
+unsigned int TextureManager::CreateNewTextureID()
 {
+	return IDNum++;
 }
 
 void TextureManager::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation)
 {
-	TextureList.emplace_back(Texture2D(renderer, TextureLocation));
+	TextureList.emplace_back(Texture2D(renderer, TextureLocation, CreateNewTextureID()));
 }
 
 void TextureManager::LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList)
 {
-	TextureList.emplace_back(CubeMapTexture(renderer, cubeMapList));
+	TextureList.emplace_back(CubeMapTexture(renderer, cubeMapList, CreateNewTextureID()));
 }
 
 void TextureManager::LoadTexture(Texture texture)
 {
+	texture.TextureID = CreateNewTextureID();
 	TextureList.emplace_back(texture);
 }
 
@@ -56,8 +58,10 @@ void TextureManager::UpdateIMGUIVRAM()
 	ImGui::Begin("VRAM");
 	for (int x = 0; x < GetTextureList().size(); x++)
 	{
-		if(TextureList[x].TypeOfTexture != TextureType::vkTextureCube)
-		ImGui::Image(TextureList[x].ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+		if (TextureList[x].TypeOfTexture != TextureType::vkTextureCube)
+		{
+			ImGui::Image(TextureList[x].ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+		}
 	}
 	ImGui::End();
 }

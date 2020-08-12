@@ -9,7 +9,7 @@ private:
     void CreateTextureSampler(VulkanRenderer& renderer);
 public:
     RendereredTexture();
-    RendereredTexture(VulkanRenderer& renderer);
+    RendereredTexture(VulkanRenderer& renderer, unsigned int textureID);
     ~RendereredTexture();
 
     void RecreateRendererTexture(VulkanRenderer& renderer);

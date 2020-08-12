@@ -8,10 +8,23 @@ Texture::Texture()
 	Height = 0;
 }
 
+Texture::Texture(VulkanRenderer& renderer, std::string TextureLocation, unsigned int textureID, TextureType textureType)
+{
+	TextureID = textureID;
+	TypeOfTexture = textureType;
+	FileName = TextureLocation;
+}
+
 Texture::Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType)
 {
 	TypeOfTexture = textureType;
 	FileName = TextureLocation;
+}
+
+Texture::Texture(VulkanRenderer& renderer, unsigned int textureID, TextureType textureType)
+{
+	TextureID = textureID;
+	TypeOfTexture = textureType;
 }
 
 Texture::Texture(VulkanRenderer& renderer, TextureType textureType)

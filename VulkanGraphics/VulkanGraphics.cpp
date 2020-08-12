@@ -31,27 +31,22 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	gameManager.textureManager->LoadTexture(*renderer.GetVulkanRendererBase(), "texture/brick_normal.bmp");
 	gameManager.textureManager->LoadTexture(*renderer.GetVulkanRendererBase(), "texture/brick_height.bmp");
 	gameManager.textureManager->LoadTexture(*renderer.GetVulkanRendererBase(), layout);
-	gameManager.textureManager->LoadTexture(renderer.textureRenderer.ColorTexture);
+	//gameManager.textureManager->LoadTexture(renderer.textureRenderer.ColorTexture);
+	//gameManager.textureManager->LoadTexture(renderer.textureRenderer.DepthTexture);
 
 	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), gameManager.textureManager, FileSystem::getPath("VulkanGraphics/Models/nano_textured/nanosuit.obj"));
 //
-
 	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 0, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 0, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 0, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 0, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	//MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, quadvertices, quadindices, 5, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
 
 	Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, 4);
 
-
-
 	debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
-	//MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.textureRenderer.ColorTexture, specular, normal, Depth, newtexturebox, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
 	light.position = glm::vec3(0.5f, 1.0f, 0.3f);
 
-
-	//textureManager.LoadTexture(renderer.textureRenderer.DepthTexture);
-	//renderer.CMDBuffer(frameBuffer, Skybox, MeshList);
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -131,47 +126,6 @@ void VulkanGraphics::UpdateImGUI()
 			ImGui::TreePop();
 		}
 		ImGui::End();
-
-		//ImGui::Begin("MeshSettings");
-		//if (ImGui::TreeNode("Tree"))
-		//{
-		//	ImGui::Image(textureManager.GetTexture(0).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-		//	ImGui::Image(textureManager.GetTexture(1).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-		//	ImGui::Columns(2, "tree", true);
-		//	for (int x = 0; x < 3; x++)
-		//	{
-		//		bool open1 = ImGui::TreeNode((void*)(intptr_t)x, "Node%d", x);
-		//		ImGui::NextColumn();
-		//		ImGui::Text("Node contents");
-		//		ImGui::NextColumn();
-		//		if (open1)
-		//		{
-		//			for (int y = 0; y < 3; y++)
-		//			{
-		//				bool open2 = ImGui::TreeNode((void*)(intptr_t)y, "Node%d.%d", x, y);
-		//				ImGui::NextColumn();
-		//				ImGui::Text("Node contents");
-		//				if (open2)
-		//				{
-		//					ImGui::Text("Even more contents");
-		//					if (ImGui::TreeNode("Tree in column"))
-		//					{
-		//						ImGui::Text("The quick brown fox jumps over the lazy dog");
-		//						ImGui::TreePop();
-		//					}
-		//				}
-		//				ImGui::NextColumn();
-		//				if (open2)
-		//					ImGui::TreePop();
-		//			}
-		//			ImGui::TreePop();
-		//		}
-		//	}
-		//	ImGui::Columns(1);
-		//	ImGui::TreePop();
-		//}
-		//ImGui::End();
-
 		gameManager.textureManager->UpdateIMGUIVRAM();
 	}
 
@@ -190,6 +144,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	MeshList[1].MeshPosition = glm::vec3(2.0f, 0.0f, 0.0f);
 	MeshList[2].MeshPosition = glm::vec3(4.0f, 0.0f, 0.0f);
 	MeshList[3].MeshPosition = glm::vec3(6.0f, 0.0f, 0.0f);
+	//MeshList[4].MeshPosition = glm::vec3(8.0f, 0.0f, 0.0f);
 	for (auto mesh : MeshList)
 	{
 		mesh.Update(renderer, *ActiveCamera, light);

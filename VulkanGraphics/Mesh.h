@@ -8,31 +8,15 @@
 #include "Camera.h"
 #include "CubeMapTexture.h"
 
-//struct Material
-//{
-//	alignas(16) glm::vec3 Diffuse;
-//	alignas(16) glm::vec3 Specular;
-//	alignas(4)  float Shininess;
-//	alignas(4)  float Alpha;
-//	alignas(4)  float reflection;
-//};
-//
-//struct MeshProperties
-//{
-//	TextureFlags MapFlags;
-//	Material material;
-//	alignas(8) glm::vec2 SpriteUV;
-//	alignas(4) float Height;
-//	alignas(4) int FlipTexture;
-//};
-//
-//struct Lights
-//{
-//	DirectionalLightBuffer directionalLight;
-//	PointLightBuffer pointLight;
-//	SpotLightBuffer spotLight;
-//	alignas(16) glm::vec3 viewPos;
-//};
+struct MeshTextures
+{
+    std::string DiffuseMap;
+    std::string SpecularMap;
+    std::string NormalMap;
+    std::string DepthMap;
+    std::string AlphaMap;
+    std::string EmissionMap;
+};
 
 struct MapBits
 {

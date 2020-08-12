@@ -4,7 +4,7 @@ CubeMapTexture::CubeMapTexture() : Texture()
 {
 }
 
-CubeMapTexture::CubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, TextureType::vkTextureCube)
+CubeMapTexture::CubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles, unsigned int textureID) : Texture(renderer, textureID, TextureType::vkTextureCube)
 {
 	LoadTexture(renderer, CubeMapFiles);
 	CreateTextureView(renderer);

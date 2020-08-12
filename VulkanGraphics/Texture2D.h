@@ -9,6 +9,6 @@ private:
     void CreateTextureSampler(VulkanRenderer& renderer);
 public:
     Texture2D();
-    Texture2D(VulkanRenderer& renderer, std::string TextureLocation);
+    Texture2D(VulkanRenderer& renderer, std::string TextureLocation, unsigned int textureID);
     ~Texture2D();
 };

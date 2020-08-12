@@ -7,7 +7,8 @@ class TextureManager
 private:
 	std::vector<Texture> TextureList;
 
-	void CreateNewTextureID();
+	unsigned int IDNum = 0;
+	unsigned int CreateNewTextureID();
 
 public:
 	TextureManager();
