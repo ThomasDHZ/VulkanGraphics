@@ -26,22 +26,23 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	layout.Back = "texture/skybox/back.jpg";
 	layout.Front = "texture/skybox/front.jpg";
 
-	newtexturebox = CubeMapTexture(*renderer.GetVulkanRendererBase(), layout);
-	Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, newtexturebox);
-
-	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), FileSystem::getPath("VulkanGraphics/Models/Sphere.obj"));
-
-
 	gameManager.textureManager->LoadTexture(*renderer.GetVulkanRendererBase(), "texture/brick_diffuseOriginal.bmp");
 	gameManager.textureManager->LoadTexture(*renderer.GetVulkanRendererBase(), "texture/container2_specular.png");
 	gameManager.textureManager->LoadTexture(*renderer.GetVulkanRendererBase(), "texture/brick_normal.bmp");
 	gameManager.textureManager->LoadTexture(*renderer.GetVulkanRendererBase(), "texture/brick_height.bmp");
+	gameManager.textureManager->LoadTexture(*renderer.GetVulkanRendererBase(), layout);
 	gameManager.textureManager->LoadTexture(renderer.textureRenderer.ColorTexture);
+
+	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), gameManager.textureManager, FileSystem::getPath("VulkanGraphics/Models/nano_textured/nanosuit.obj"));
 //
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 0, 1, 2, 3, newtexturebox, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 1, 1, 2, 3, newtexturebox, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 2, 1, 2, 3, newtexturebox, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 3, 1, 2, 3, newtexturebox, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 0, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 0, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 0, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, 0, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+
+	Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, 4);
+
 
 
 	debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
@@ -58,7 +59,6 @@ VulkanGraphics::~VulkanGraphics()
 	vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
 
 	gameManager.textureManager->UnloadAllTextures(*renderer.GetVulkanRendererBase());
-	newtexturebox.Delete(renderer);
 	for (auto mesh : MeshList)
 	{
 		mesh.Destory(*renderer.GetVulkanRendererBase());
@@ -94,29 +94,11 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::End();
 
 		ImGui::Begin("MeshSettings");
-		ImGui::NextColumn();
-		ImGui::SliderFloat("shininess", &MeshList[0].properites.material.shininess, 0.0, 255.0f);
-		ImGui::SliderFloat("reflectivness", &MeshList[0].properites.material.reflectivness, 0.0f, 1.0f);
-		ImGui::SliderFloat("heightScale", &MeshList[0].properites.heightScale, -1.0, 1.0f);
-		ImGui::SliderFloat("Layers", &MeshList[0].properites.minLayers, 0.0, 50.0f);
-		ImGui::SliderFloat("maxLayers", &MeshList[0].properites.maxLayers, 0.0, 5000.0f);
-		ImGui::SliderInt("Diffuse", &MeshList[0].properites.UseDiffuseMapBit, 0.0, 1.0f);
-		ImGui::SliderInt("Specular", &MeshList[0].properites.UseSpecularMapBit, 0.0, 1.0f);
-		ImGui::SliderInt("Normal", &MeshList[0].properites.UseNormalMapBit, 0.0, 1.0f);
-		ImGui::SliderInt("Depth", &MeshList[0].properites.UseDepthMapBit, 0.0, 1.0f);
-		ImGui::SliderInt("Alpha", &MeshList[0].properites.UseAlphaMapBit, 0.0, 1.0f);
-		ImGui::SliderInt("Emission", &MeshList[0].properites.UseEmissionMapBit, 0.0, 1.0f);
-		ImGui::Image(gameManager.textureManager->GetTexture(0).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-		ImGui::Image(gameManager.textureManager->GetTexture(1).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-		ImGui::Image(gameManager.textureManager->GetTexture(2).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-		ImGui::Image(gameManager.textureManager->GetTexture(3).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-
 		if (ImGui::TreeNode("MeshList"))
 		{
 			ImGui::Columns(2, "tree", true);
-			
-			int x = 0;
-			for (auto mesh : MeshList)
+
+			for (int x = 0; x < MeshList.size(); x++)
 			{
 				bool open1 = ImGui::TreeNode((void*)(intptr_t)x, "Mesh%d", x);
 				ImGui::NextColumn();
@@ -125,17 +107,17 @@ void VulkanGraphics::UpdateImGUI()
 				if (open1)
 				{
 					ImGui::NextColumn();
-					ImGui::SliderFloat("shininess", &mesh.properites.material.shininess, 0.0, 255.0f);
-					ImGui::SliderFloat("reflectivness", &mesh.properites.material.reflectivness, 0.0f, 1.0f);
-					ImGui::SliderFloat("heightScale", &mesh.properites.heightScale, -1.0, 1.0f);
-					ImGui::SliderFloat("Layers", &mesh.properites.minLayers, 0.0, 50.0f);
-					ImGui::SliderFloat("maxLayers", &mesh.properites.maxLayers, 0.0, 5000.0f);
-					ImGui::SliderInt("Diffuse", &mesh.properites.UseDiffuseMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Specular", &mesh.properites.UseSpecularMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Normal", &mesh.properites.UseNormalMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Depth", &mesh.properites.UseDepthMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Alpha", &mesh.properites.UseAlphaMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Emission", &mesh.properites.UseEmissionMapBit, 0.0, 1.0f);
+					ImGui::SliderFloat("shininess", &MeshList[x].properites.material.shininess, 0.0, 255.0f);
+					ImGui::SliderFloat("reflectivness", &MeshList[x].properites.material.reflectivness, 0.0f, 1.0f);
+					ImGui::SliderFloat("heightScale", &MeshList[x].properites.heightScale, -1.0, 1.0f);
+					ImGui::SliderFloat("Layers", &MeshList[x].properites.minLayers, 0.0, 50.0f);
+					ImGui::SliderFloat("maxLayers", &MeshList[x].properites.maxLayers, 0.0, 5000.0f);
+					ImGui::SliderInt("Diffuse", &MeshList[x].properites.UseDiffuseMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Specular", &MeshList[x].properites.UseSpecularMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Normal", &MeshList[x].properites.UseNormalMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Depth", &MeshList[x].properites.UseDepthMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Alpha", &MeshList[x].properites.UseAlphaMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Emission", &MeshList[x].properites.UseEmissionMapBit, 0.0, 1.0f);
 					ImGui::Image(gameManager.textureManager->GetTexture(0).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
 					ImGui::Image(gameManager.textureManager->GetTexture(1).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
 					ImGui::Image(gameManager.textureManager->GetTexture(2).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
@@ -143,7 +125,6 @@ void VulkanGraphics::UpdateImGUI()
 					ImGui::NextColumn();
 					ImGui::TreePop();
 				}
-				x++;
 			}
 
 			ImGui::Columns(1);

@@ -6,7 +6,9 @@ class TextureManager
 {
 private:
 	std::vector<Texture> TextureList;
-	std::vector<CubeMapTexture> CubeMapTextureList;
+
+	void CreateNewTextureID();
+
 public:
 	TextureManager();
 	TextureManager(VulkanRenderer& renderer);
@@ -15,13 +17,14 @@ public:
 	void LoadTexture(VulkanRenderer& renderer, std::string TextureLocation);
 	void LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
 	void LoadTexture(Texture texture);
-	void UnloadTexture(VulkanRenderer& renderer);
+	void UnloadTexture(VulkanRenderer& renderer, unsigned int ID);
 	void UnloadAllTextures(VulkanRenderer& renderer);
 	void UpdateIMGUIVRAM();
 
+	bool GetTextureByName(std::string name);
+	Texture GetTextureByID(unsigned int ID);
+
 	Texture GetTexture(int index) { return TextureList[index]; }
-	CubeMapTexture GetCubeMapTexture(int index) { return CubeMapTextureList[index]; }
 	std::vector<Texture> GetTextureList() {  return TextureList; }
-	std::vector<CubeMapTexture> GetCubeMapTextureList() { return CubeMapTextureList; }
 };
 

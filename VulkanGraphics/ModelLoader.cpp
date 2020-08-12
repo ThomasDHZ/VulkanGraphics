@@ -4,16 +4,16 @@ ModelLoader::ModelLoader()
 {
 }
 
-ModelLoader::ModelLoader(VulkanRenderer& renderer, const std::string& FilePath)
+ModelLoader::ModelLoader(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath)
 {
-	LoadModel(renderer, FilePath);
+	LoadModel(renderer, textureManager, FilePath);
 }
 
 ModelLoader::~ModelLoader()
 {
 }
 
-void ModelLoader::LoadModel(VulkanRenderer& renderer, const std::string& FilePath)
+void ModelLoader::LoadModel(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath)
 {
 	Assimp::Importer ModelImporter;
 
@@ -24,10 +24,10 @@ void ModelLoader::LoadModel(VulkanRenderer& renderer, const std::string& FilePat
 		return;
 	}
 
-	ProcessNode(renderer, FilePath, Scene->mRootNode, Scene);
+	ProcessNode(renderer, textureManager, FilePath, Scene->mRootNode, Scene);
 }
 
-void ModelLoader::ProcessNode(VulkanRenderer& renderer, const std::string& FilePath, aiNode* node, const aiScene* scene)
+void ModelLoader::ProcessNode(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiNode* node, const aiScene* scene)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -36,14 +36,14 @@ void ModelLoader::ProcessNode(VulkanRenderer& renderer, const std::string& FileP
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		NewMesh.VertexList = LoadVertices(mesh);
 		NewMesh.IndexList = LoadIndices(mesh);
-		NewMesh.TextureList = LoadTextures(renderer, FilePath, mesh, scene);
+		NewMesh.TextureList = LoadTextures(renderer, textureManager, FilePath, mesh, scene);
 		
 		ModelMeshList.emplace_back(NewMesh);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		ProcessNode(renderer, FilePath, node->mChildren[i], scene);
+		ProcessNode(renderer, textureManager, FilePath, node->mChildren[i], scene);
 	}
 }
 
@@ -94,78 +94,31 @@ std::vector<uint16_t> ModelLoader::LoadIndices(aiMesh* mesh)
 	return IndexList;
 }
 
-Texture2D ModelLoader::LoadTextures(VulkanRenderer& renderer, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
+std::vector<Texture2D> ModelLoader::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
 {
-	Texture2D TextureList;
+	std::vector<Texture2D> TextureList;
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto directory = FilePath.substr(0, FilePath.find_last_of('/')) + '/';
 
+	auto a = material->GetTextureCount(aiTextureType_DIFFUSE);
+	auto b = material->GetTextureCount(aiTextureType_SPECULAR);
+	auto c = material->GetTextureCount(aiTextureType_HEIGHT);
+	auto d = material->GetTextureCount(aiTextureType_AMBIENT);
+	auto e = material->GetTextureCount(aiTextureType_OPACITY);
+
 	for (int x = 0; x <= aiTextureType_UNKNOWN; x++)
 	{
-		for (int y = 0; y <= material->GetTextureCount(static_cast<aiTextureType>(x)); y++)
+		for (unsigned int y = 0; y < material->GetTextureCount(static_cast<aiTextureType>(x)); y++)
 		{
 			aiString TextureLocation;
-			auto getTextureStatus = material->GetTexture(static_cast<aiTextureType>(x), y, &TextureLocation);
-			if(getTextureStatus == aiTextureType_DIFFUSE)
+			material->GetTexture(static_cast<aiTextureType>(x), y, &TextureLocation);
+			material->GetTexture(aiTextureType_NORMALS, y, &TextureLocation);
+			if(!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
 			{
-				TextureList = Texture2D(renderer, directory + TextureLocation.C_Str());
-				/*switch (x)
-				{
-					case aiTextureType_DIFFUSE: TextureList.DiffuseMap = Texture2D(renderer, directory + TextureLocation.C_Str()); break;
-					case aiTextureType_SPECULAR: TextureList.SpecularMap = Texture2D(renderer, directory + TextureLocation.C_Str()); break;
-					case aiTextureType_HEIGHT: TextureList.NormalMap = Texture2D(renderer, directory + TextureLocation.C_Str()); break;
-					case aiTextureType_OPACITY: TextureList.AlphaMap = Texture2D(renderer, directory + TextureLocation.C_Str()); break;
-				}*/
-			}
-			else
-			{
-				std::cout << "Unable to load: " << TextureLocation.C_Str() << std::endl;
+				textureManager->LoadTexture(Texture2D(renderer, directory + TextureLocation.C_Str()));
 			}
 		}
 	}
-
-	//if (TextureList.DiffuseMap.textureImage == VK_NULL_HANDLE)
-	//{
-	//	TextureList.DiffuseMap = Texture2D(renderer, "texture/Temp.bmp");
-	//}
-	//if (TextureList.SpecularMap.textureImage == VK_NULL_HANDLE)
-	//{
-	//	TextureList.SpecularMap = Texture2D(renderer, "texture/Temp.bmp");
-	//}
-	//if (TextureList.NormalMap.textureImage == VK_NULL_HANDLE)
-	//{
-	//	TextureList.NormalMap = Texture2D(renderer, "texture/Temp.bmp");
-	//}
-	//if (TextureList.DisplacementMap.textureImage == VK_NULL_HANDLE)
-	//{
-	//	TextureList.DisplacementMap = Texture2D(renderer, "texture/Temp.bmp");
-	//}
-	//if (TextureList.AlphaMap.textureImage == VK_NULL_HANDLE)
-	//{
-	//	TextureList.AlphaMap = Texture2D(renderer, "texture/Temp.bmp");
-	//}
-	//if (TextureList.CubeMap.textureImage == VK_NULL_HANDLE)
-	//{
-	//	CubeMapLayout layout;
-	//	layout.Left = "texture/skybox/left.jpg";
-	//	layout.Right = "texture/skybox/right.jpg";
-	//	layout.Top = "texture/skybox/top.jpg";
-	//	layout.Bottom = "texture/skybox/bottom.jpg";
-	//	layout.Back = "texture/skybox/back.jpg";
-	//	layout.Front = "texture/skybox/front.jpg";
-	//	TextureList.CubeMap = CubeMapTexture(renderer, layout);
-	//}
 	return TextureList;
-}
-
-void ModelLoader::CleanTextureMemory(VulkanRenderer& renderer)
-{
-	//for (auto subMesh : ModelMeshList)
-	//{
-	//	for (auto texture : subMesh.TextureList)
-	//	{
-	//		texture.Destroy(renderer);
-	//	}
-	//}
 }

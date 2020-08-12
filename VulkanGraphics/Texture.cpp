@@ -11,6 +11,7 @@ Texture::Texture()
 Texture::Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType)
 {
 	TypeOfTexture = textureType;
+	FileName = TextureLocation;
 }
 
 Texture::Texture(VulkanRenderer& renderer, TextureType textureType)

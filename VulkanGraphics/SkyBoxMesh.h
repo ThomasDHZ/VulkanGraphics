@@ -66,17 +66,16 @@ const std::vector<SkyBoxVertex> SkyBoxVertices =
 class SkyBoxMesh : public BaseMesh
 {
 private:
-	CubeMapTexture CubeMap;
 	VulkanUniformBuffer PositionMatrixBuffer;
 
 	void SetUpVertexBuffer(VulkanRenderer& renderer);
 	void SetUpUniformBuffers(VulkanRenderer& renderer);
 	void SetUpDescriptorPool(VulkanRenderer& renderer);
-	void SetUpDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout layout);
+	void SetUpDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, int skyboxtexture, VkDescriptorSetLayout layout);
 
 public:
 	SkyBoxMesh();
-	SkyBoxMesh(VulkanRenderer& renderer, VkDescriptorSetLayout layout, CubeMapTexture texture);
+	SkyBoxMesh(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout layout, int skyboxtexture);
 	~SkyBoxMesh();
 
 	void UpdateUniformBuffer(VulkanRenderer& renderer, Camera& camera);

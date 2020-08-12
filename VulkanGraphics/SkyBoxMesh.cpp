@@ -7,16 +7,15 @@ SkyBoxMesh::SkyBoxMesh() : BaseMesh()
 {
 }
 
-SkyBoxMesh::SkyBoxMesh(VulkanRenderer& renderer, VkDescriptorSetLayout layout, CubeMapTexture texture) : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass | RendererBitFlag::RenderOnMainPass)
+SkyBoxMesh::SkyBoxMesh(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout layout, int skyboxtexture) : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass | RendererBitFlag::RenderOnMainPass)
 {
-	CubeMap = texture;
 	VertexSize = SkyBoxVertices.size();
 	IndexSize = 0;
 
 	SetUpVertexBuffer(renderer);
 	SetUpUniformBuffers(renderer);
 	SetUpDescriptorPool(renderer);
-	SetUpDescriptorSets(renderer, layout);
+	SetUpDescriptorSets(renderer, textureManager, skyboxtexture, layout);
 }
 
 SkyBoxMesh::~SkyBoxMesh()
@@ -59,14 +58,14 @@ void SkyBoxMesh::SetUpUniformBuffers(VulkanRenderer& renderer)
 	PositionMatrixBuffer = VulkanUniformBuffer(renderer, sizeof(SkyBoxPositionMatrix));
 }
 
-void SkyBoxMesh::SetUpDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout layout)
+void SkyBoxMesh::SetUpDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, int skyboxtexture, VkDescriptorSetLayout layout)
 {
 	BaseMesh::CreateDescriptorSets(renderer, layout);
 
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	imageInfo.imageView = CubeMap.View;
-	imageInfo.sampler = CubeMap.Sampler;
+	imageInfo.imageView = textureManager->GetTexture(skyboxtexture).View;
+	imageInfo.sampler = textureManager->GetTexture(skyboxtexture).Sampler;
 
 	for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
 	{

@@ -97,7 +97,6 @@ private:
 
     DebugLightMesh debugLightMesh;
 
-    CubeMapTexture newtexturebox;
     SkyBoxMesh Skybox;
 
 	std::vector<Mesh> MeshList;

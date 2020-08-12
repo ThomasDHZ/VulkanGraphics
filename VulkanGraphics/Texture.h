@@ -17,11 +17,6 @@ enum TextureType
 class Texture
 {
 protected:
-    std::string FileName;
-
-    int Width;
-    int Height;
-
     void TransitionImageLayout(VulkanRenderer& renderer, VkImageLayout oldLayout, VkImageLayout newLayout);
     void CopyBufferToImage(VulkanRenderer& renderer, VkBuffer buffer);
 
@@ -30,12 +25,17 @@ protected:
     virtual void CreateTextureSampler(VulkanRenderer& renderer, VkSamplerCreateInfo TextureImageSamplerInfo);
 
 public:
+    unsigned int TextureID = 0;
+    std::string FileName;
     TextureType TypeOfTexture;
-    VkDeviceMemory Memory;
-    VkImage Image;
-    VkImageView View;
-    VkSampler Sampler;
+    VkDeviceMemory Memory = VK_NULL_HANDLE;
+    VkImage Image = VK_NULL_HANDLE;
+    VkImageView View = VK_NULL_HANDLE;
+    VkSampler Sampler = VK_NULL_HANDLE;
     VkDescriptorSet ImGuiDescriptorSet = VK_NULL_HANDLE;
+
+    int Width;
+    int Height;
 
     Texture();
     Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType);
