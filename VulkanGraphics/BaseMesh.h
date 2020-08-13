@@ -26,6 +26,13 @@ protected:
     void CreateDescriptorSetsData(VulkanRenderer& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 public:
 
+    unsigned int DiffuseMapID;
+    unsigned int SpecularMapID;
+    unsigned int NormalMapID;
+    unsigned int DepthMapID;
+    unsigned int AlphaMapID;
+    unsigned int EmissionMapID;
+
     VkBuffer VertexBuffer;
     VkDeviceMemory VertexBufferMemory;
 

@@ -15,14 +15,15 @@ public:
 	TextureManager(VulkanRenderer& renderer);
 	~TextureManager();
 
-	void LoadTexture(VulkanRenderer& renderer, std::string TextureLocation);
-	void LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
-	void LoadTexture(Texture texture);
+	unsigned int LoadTexture(VulkanRenderer& renderer, std::string TextureLocation);
+	unsigned int LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
+	unsigned int LoadTexture(Texture texture);
 	void UnloadTexture(VulkanRenderer& renderer, unsigned int ID);
 	void UnloadAllTextures(VulkanRenderer& renderer);
 	void UpdateIMGUIVRAM();
 
 	bool GetTextureByName(std::string name);
+	bool GetTextureByName(std::string name, unsigned int& textureID);
 	Texture GetTextureByID(unsigned int ID);
 
 	Texture GetTexture(int index) { return TextureList[index]; }

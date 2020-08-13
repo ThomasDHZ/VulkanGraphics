@@ -17,20 +17,31 @@ unsigned int TextureManager::CreateNewTextureID()
 	return IDNum++;
 }
 
-void TextureManager::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation)
+unsigned int TextureManager::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation)
 {
-	TextureList.emplace_back(Texture2D(renderer, TextureLocation, CreateNewTextureID()));
+	unsigned int TextureID;
+	if (!GetTextureByName(TextureLocation, TextureID))
+	{
+		TextureID = CreateNewTextureID();
+		TextureList.emplace_back(Texture2D(renderer, TextureLocation, TextureID));
+	}
+
+	return TextureID;
 }
 
-void TextureManager::LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList)
+unsigned int TextureManager::LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList)
 {
-	TextureList.emplace_back(CubeMapTexture(renderer, cubeMapList, CreateNewTextureID()));
+	unsigned int TextureID = CreateNewTextureID();
+	TextureList.emplace_back(CubeMapTexture(renderer, cubeMapList, TextureID));
+	return TextureID;
 }
 
-void TextureManager::LoadTexture(Texture texture)
+unsigned int TextureManager::LoadTexture(Texture texture)
 {
-	texture.TextureID = CreateNewTextureID();
+	unsigned int TextureID = CreateNewTextureID();
+	texture.TextureID = TextureID;
 	TextureList.emplace_back(texture);
+	return TextureID;
 }
 
 void TextureManager::UnloadTexture(VulkanRenderer& renderer, unsigned int ID)
@@ -76,6 +87,20 @@ bool TextureManager::GetTextureByName(std::string name)
 		}
 	}
 	
+	return false;
+}
+
+bool TextureManager::GetTextureByName(std::string name, unsigned int& textureID)
+{
+	for (auto texture : TextureList)
+	{
+		if (texture.FileName == name)
+		{
+			textureID = texture.TextureID;
+			return true;
+		}
+	}
+
 	return false;
 }
 
