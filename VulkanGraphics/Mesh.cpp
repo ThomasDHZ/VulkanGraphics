@@ -46,32 +46,32 @@ void Mesh::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager
 {
     if (!textures.DiffuseMap.empty())
     {
-        DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap);
+        DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseDiffuseMapBit = 1;
     }
     if (!textures.SpecularMap.empty())
     {
-        SpecularMapID = textureManager->LoadTexture(renderer, textures.SpecularMap);
+        SpecularMapID = textureManager->LoadTexture(renderer, textures.SpecularMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseSpecularMapBit = 1;
     }
     if (!textures.NormalMap.empty())
     {
-        NormalMapID = textureManager->LoadTexture(renderer, textures.NormalMap);
+        NormalMapID = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseNormalMapBit = 1;
     }
     if (!textures.DepthMap.empty())
     {
-        DepthMapID = textureManager->LoadTexture(renderer, textures.DepthMap);
+        DepthMapID = textureManager->LoadTexture(renderer, textures.DepthMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseDepthMapBit = 1;
     }
     if (!textures.AlphaMap.empty())
     {
-        AlphaMapID = textureManager->LoadTexture(renderer, textures.AlphaMap);
+        AlphaMapID = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseAlphaMapBit = 0;
     }
     if (!textures.EmissionMap.empty())
     {
-        EmissionMapID = textureManager->LoadTexture(renderer, textures.EmissionMap);
+        EmissionMapID = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseEmissionMapBit = 0;
     }
 }

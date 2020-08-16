@@ -4,10 +4,10 @@ Texture2D::Texture2D() : Texture()
 {
 }
 
-Texture2D::Texture2D(VulkanRenderer& renderer, std::string TextureLocation, unsigned int textureID) : Texture(renderer, TextureLocation, textureID, TextureType::vkTexture2D)
+Texture2D::Texture2D(VulkanRenderer& renderer, VkFormat format, std::string TextureLocation, unsigned int textureID) : Texture(renderer, TextureLocation, textureID, TextureType::vkTexture2D)
 {
-	LoadTexture(renderer, TextureLocation);
-	CreateTextureView(renderer);
+	LoadTexture(renderer, TextureLocation, format);
+	CreateTextureView(renderer, format);
 	CreateTextureSampler(renderer);
 	ImGui_ImplVulkan_AddTexture(ImGuiDescriptorSet, Sampler, View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
@@ -16,7 +16,7 @@ Texture2D::~Texture2D()
 {
 }
 
-void Texture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation)
+void Texture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format)
 {
 	int ColorChannels;
 	stbi_uc* pixels = stbi_load(TextureLocation.c_str(), &Width, &Height, &ColorChannels, STBI_rgb_alpha);
@@ -34,7 +34,7 @@ void Texture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLocatio
 	TextureInfo.extent.depth = 1;
 	TextureInfo.mipLevels = 1;
 	TextureInfo.arrayLayers = 1;
-	TextureInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+	TextureInfo.format = format;
 	TextureInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 	TextureInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	TextureInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -56,12 +56,12 @@ void Texture2D::LoadTexture(VulkanRenderer& renderer, std::string TextureLocatio
 	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
-void Texture2D::CreateTextureView(VulkanRenderer& renderer)
+void Texture2D::CreateTextureView(VulkanRenderer& renderer, VkFormat format)
 {
 	VkImageViewCreateInfo TextureImageViewInfo = {};
 	TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	TextureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	TextureImageViewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+	TextureImageViewInfo.format = format;
 	TextureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	TextureImageViewInfo.subresourceRange.baseMipLevel = 0;
 	TextureImageViewInfo.subresourceRange.levelCount = 1;

@@ -30,7 +30,7 @@ void TextureRenderer::CreateRenderPass(VulkanRenderer& renderer)
 {
     std::array<VkAttachmentDescription, 2> attchmentDescriptions = {};
 
-    attchmentDescriptions[0].format = VK_FORMAT_R8G8B8A8_SRGB;
+    attchmentDescriptions[0].format = VK_FORMAT_R8G8B8A8_UNORM;
     attchmentDescriptions[0].samples = VK_SAMPLE_COUNT_1_BIT;
     attchmentDescriptions[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attchmentDescriptions[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;

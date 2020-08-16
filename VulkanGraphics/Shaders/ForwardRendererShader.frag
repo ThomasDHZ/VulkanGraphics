@@ -123,9 +123,9 @@ void main()
 {           
      RemoveAlphaPixels();
 
-    vec3 viewDir = light.viewPos;
-    vec3 normal = Normal;
-    vec2 texCoords = TexCoords;
+    vec3 V = light.viewPos;
+    vec3 N = Normal;
+    vec2 UV = TexCoords;
 
     vec3 TangentLightPos = TBN * light.position;
     vec3 TangentViewPos  = TBN * light.viewPos;
@@ -133,74 +133,61 @@ void main()
     
      if (meshProperties.UseDepthMapBit  == 1)
         {
-        viewDir = normalize(TangentViewPos - TangentFragPos);
+        V = normalize(TangentViewPos - TangentFragPos);
 
-            texCoords = ParallaxMapping(TexCoords,  viewDir);       
-            if(texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
+            UV = ParallaxMapping(UV,  V);       
+            if(UV.x > 1.0 || UV.y > 1.0 || UV.x < 0.0 || UV.y < 0.0)
             {
                 discard;
             }
        }
         if (meshProperties.UseNormalMapBit  == 1)
         {
-            normal =texture(normalMap, texCoords).rgb;
-            normal = normalize(normal * 2.0 - 1.0);   
+            N = texture(normalMap, UV).rgb;
+            N = normalize(N * 2.0 - 1.0);   
         }
 
- 
      vec3 ambient = vec3(1.0f, 0.0f, 0.0f);
      vec3 diffuse = vec3(1.0f, 0.0f, 0.0f);
      vec3 specular = vec3(1.0f, 0.0f, 0.0f);
-     if(meshProperties.UseDiffuseMapBit  == 1)
+     if(meshProperties.UseDiffuseMapBit == 1)
      {
-        // get diffuse color
-        vec3 color = texture(DiffuseMap, texCoords).rgb;
-        // ambient
-          ambient = light.ambient * color;
-        // diffuse
-        vec3 lightDir = normalize(TangentLightPos - TangentFragPos);
-        float diff = max(dot(lightDir, normal), 0.0);
-         diffuse = light.diffuse * (diff * color);
-        // specular    
-        vec3 halfwayDir = normalize(lightDir + viewDir);  
-        float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.shininess);
+		vec3 L = normalize(TangentLightPos - TangentFragPos);
+		vec3 R = reflect(-L, N);
+		vec3 H = normalize(L + V);  
 
+        vec3 color = texture(DiffuseMap, UV).rgb;
+   		ambient = light.ambient * color;
+		diffuse = light.diffuse * (max(dot(L, N), 0.0) * color);
         if(meshProperties.UseSpecularMapBit  == 1)
         {
-             specular = light.specular * spec * texture(SpecularMap, texCoords).rgb;
+            specular = light.specular * pow(max(dot(N, H), 0.0), meshProperties.material.shininess) * texture(SpecularMap, UV).rgb;
         }
         else
         {
-            specular = light.specular * spec * meshProperties.material.specular;  
+            specular = light.specular * pow(max(dot(N, H), 0.0), meshProperties.material.shininess) * meshProperties.material.specular;  
         }
      }
      else
      {
-         ambient = light.ambient * meshProperties.material.ambient;
-  	
-        // diffuse 
-        vec3 norm = normalize(Normal);
-        vec3 lightDir = normalize(light.position - FragPos);
-        float diff = max(dot(norm, lightDir), 0.0);
-         diffuse = light.diffuse * (diff * meshProperties.material.Diffuse);
-    
-        // specular
-        viewDir = normalize(light.viewPos - FragPos);
-        vec3 halfwayDir = normalize(lightDir + viewDir);  
-        float spec = pow(max(dot(normal, halfwayDir), 0.0), meshProperties.material.shininess);
-        
+        vec3 L = normalize(light.position - FragPos);
+		vec3 R = reflect(-L, N);
+		vec3 H = normalize(L + V);  
+
+        ambient = light.ambient * meshProperties.material.ambient;
+		diffuse = light.diffuse * (max(dot(L, N), 0.0) * meshProperties.material.Diffuse);
         if(meshProperties.UseSpecularMapBit  == 1)
         {
-            specular = light.specular * spec * texture(SpecularMap, texCoords).rgb;
+            specular = light.specular * pow(max(dot(N, H), 0.0), meshProperties.material.shininess) * texture(SpecularMap, UV).rgb;
         }
         else
         {
-            specular = light.specular * spec * meshProperties.material.specular;  
+            specular = light.specular * pow(max(dot(N, H), 0.0), meshProperties.material.shininess) * meshProperties.material.specular;  
         }
      }
 
     vec3 I = normalize(FragPos - light.viewPos);
-    vec3 R = reflect(I, normalize(normal));
+    vec3 R = reflect(I, normalize(N));
     vec3 Relected = texture(SkyBox, R).rgb * meshProperties.material.reflectivness;
 
     vec3 result = ambient + diffuse + specular + Relected;

@@ -12,11 +12,6 @@
 #include "Model.h"
 #include "SkyBoxMesh.h"
 #include "DebugLightMesh.h"
-#include "Light.h"
-#include "DirectionalLight.h"
-#include "PointLight.h"
-#include "SpotLight.h"
-#include "LightManager.h"
 #include "Keyboard.h"
 #include "Mouse.h"
 #include <chrono>
@@ -78,12 +73,13 @@ const std::vector<uint16_t> quadindices = {
 class VulkanGraphics
 {
 private:
+    VulkanWindow Window;
+    RendererManager renderer;
+    GameManager gameManager;
+
 	ModelLoader modelLoader;
 
 	VulkanRendererSettings CompareVulkanSettings;
-	VulkanWindow Window;
-    RendererManager renderer;
-    GameManager gameManager;
 
     std::vector<Texture> TextureList;
 

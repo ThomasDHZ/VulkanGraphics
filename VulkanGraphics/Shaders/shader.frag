@@ -16,7 +16,7 @@ layout(location = 0) out vec4 FragColor;
 
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
-    float heightScale = 0.1;
+    float heightScale = 5.1;
     // number of depth layers
     const float minLayers = 8;
     const float maxLayers = 32;

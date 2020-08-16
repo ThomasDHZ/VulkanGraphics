@@ -15,7 +15,7 @@ public:
 	TextureManager(VulkanRenderer& renderer);
 	~TextureManager();
 
-	unsigned int LoadTexture(VulkanRenderer& renderer, std::string TextureLocation);
+	unsigned int LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format);
 	unsigned int LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
 	unsigned int LoadTexture(Texture texture);
 	void UnloadTexture(VulkanRenderer& renderer, unsigned int ID);

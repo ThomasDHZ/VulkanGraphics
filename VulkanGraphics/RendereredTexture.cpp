@@ -20,7 +20,7 @@ void RendereredTexture::CreateTextureImage(VulkanRenderer& renderer)
     VkImageCreateInfo TextureInfo = {};
     TextureInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     TextureInfo.imageType = VK_IMAGE_TYPE_2D;
-    TextureInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+    TextureInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
     TextureInfo.extent.width = renderer.SwapChain.GetSwapChainResolution().width;
     TextureInfo.extent.height = renderer.SwapChain.GetSwapChainResolution().height;
     TextureInfo.extent.depth = 1;
@@ -38,7 +38,7 @@ void RendereredTexture::CreateTextureView(VulkanRenderer& renderer)
     VkImageViewCreateInfo TextureImageViewInfo = {};
     TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     TextureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    TextureImageViewInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+    TextureImageViewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
     TextureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     TextureImageViewInfo.subresourceRange.baseMipLevel = 0;
     TextureImageViewInfo.subresourceRange.levelCount = 1;

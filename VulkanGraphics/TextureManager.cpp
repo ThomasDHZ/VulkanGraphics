@@ -17,13 +17,13 @@ unsigned int TextureManager::CreateNewTextureID()
 	return IDNum++;
 }
 
-unsigned int TextureManager::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation)
+unsigned int TextureManager::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format)
 {
 	unsigned int TextureID;
 	if (!GetTextureByName(TextureLocation, TextureID))
 	{
 		TextureID = CreateNewTextureID();
-		TextureList.emplace_back(Texture2D(renderer, TextureLocation, TextureID));
+		TextureList.emplace_back(Texture2D(renderer, format, TextureLocation, TextureID));
 	}
 
 	return TextureID;
