@@ -41,6 +41,7 @@ struct Material
 struct MeshProperties
 {
     Material material;
+    alignas(8) glm::vec2 UVOffset;
     alignas(4) int UseDiffuseMapBit = 0;
     alignas(4) int UseSpecularMapBit = 0;
     alignas(4) int UseNormalMapBit = 0;
@@ -55,7 +56,7 @@ struct MeshProperties
 
 struct LightBufferObject
 {
-    alignas(16) glm::vec3 position;
+    alignas(16) glm::vec3 direction;
     alignas(16) glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);
     alignas(16) glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     alignas(16) glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);

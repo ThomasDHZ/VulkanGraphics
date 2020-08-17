@@ -77,14 +77,14 @@ private:
     RendererManager renderer;
     GameManager gameManager;
 
+    Keyboard keyboard;
+    Mouse mouse;
+
 	ModelLoader modelLoader;
 
 	VulkanRendererSettings CompareVulkanSettings;
 
     std::vector<Texture> TextureList;
-
-	Keyboard keyboard;
-	Mouse mouse;
 
     Camera* ActiveCamera;
 
@@ -92,9 +92,7 @@ private:
     LightBufferObject light;
 
     DebugLightMesh debugLightMesh;
-
     SkyBoxMesh Skybox;
-
 	std::vector<Mesh> MeshList;
 	//std::vector<Model> ModelList;
 

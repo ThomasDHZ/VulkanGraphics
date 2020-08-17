@@ -53,7 +53,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, 0);
 
 	debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
-	light.position = glm::vec3(0.5f, 1.0f, 0.3f);
+	//light.position = glm::vec3(0.5f, 1.0f, 0.3f);
 
 }
 
@@ -88,7 +88,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 		//ImGui::Checkbox("Switch Camara", &SwatchCamara);
-		ImGui::SliderFloat3("Light", &light.position.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("direction", &light.direction.x, -1000.0f, 1000.0f);
 		ImGui::SliderFloat3("ambient", &light.ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("diffuse", &light.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("specular", &light.specular.x, 0.0f, 1.0f);
@@ -110,6 +110,7 @@ void VulkanGraphics::UpdateImGUI()
 				if (open1)
 				{
 					ImGui::NextColumn();
+					ImGui::SliderFloat2("UV", &MeshList[x].properites.UVOffset.x, -1.0, 1.0f);
 					ImGui::SliderFloat("shininess", &MeshList[x].properites.material.shininess, 0.0, 255.0f);
 					ImGui::SliderFloat("reflectivness", &MeshList[x].properites.material.reflectivness, 0.0f, 1.0f);
 					ImGui::SliderFloat("heightScale", &MeshList[x].properites.heightScale, -1.0, 1.0f);
@@ -152,6 +153,8 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	MeshList[1].MeshPosition = glm::vec3(2.0f, 0.0f, 0.0f);
 	MeshList[2].MeshPosition = glm::vec3(4.0f, 0.0f, 0.0f);
 	MeshList[3].MeshPosition = glm::vec3(6.0f, 0.0f, 0.0f);
+
+	
 	//MeshList[4].MeshPosition = glm::vec3(8.0f, 0.0f, 0.0f);
 	for (auto mesh : MeshList)
 	{
@@ -166,7 +169,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	MeshColor color = {};
 	color.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	debugLightMesh.MeshPosition = light.position;
+	//debugLightMesh.MeshPosition = light.position;
 	debugLightMesh.MeshScale = glm::vec3(.1f, .1f, .1f);
 	debugLightMesh.Update(renderer, *ActiveCamera, color);
 	renderer.frameBuffer.UpdateUniformBuffer(renderer);

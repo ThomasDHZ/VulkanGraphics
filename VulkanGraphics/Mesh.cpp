@@ -35,6 +35,7 @@ void Mesh::CreateMaterialProperties()
     properites.material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
     properites.material.shininess = 32;
     properites.material.reflectivness = 0;
+    properites.UVOffset = glm::vec2(0.0f, 0.0f);
     properites.minLayers = 8.0f;
     properites.maxLayers = 32.0f;
     properites.heightScale = 0.1f;
@@ -242,6 +243,8 @@ void Mesh::Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Li
     ubo.view = camera.GetViewMatrix();
     ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
     ubo.proj[1][1] *= -1;
+
+    //properites.UVOffset.y += glfwGetTime() / 10;
 
     if (RotationAmount != 0 &&
         (MeshRotate.x != 0 ||
