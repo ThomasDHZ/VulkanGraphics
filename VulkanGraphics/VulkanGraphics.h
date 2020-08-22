@@ -18,6 +18,7 @@
 #include "Texture2D.h"
 #include "FrameBufferMesh.h"
 #include "GameManager.h"
+#include "LevelMesh2D.h"
 
 
 const std::vector<Vertex> vertices =
@@ -80,6 +81,7 @@ private:
     Keyboard keyboard;
     Mouse mouse;
 
+
 	ModelLoader modelLoader;
 
 	VulkanRendererSettings CompareVulkanSettings;
@@ -88,16 +90,27 @@ private:
 
     Camera* ActiveCamera;
 
-
     LightBufferObject light;
 
-    DebugLightMesh debugLightMesh;
-    SkyBoxMesh Skybox;
-	std::vector<Mesh> MeshList;
 	//std::vector<Model> ModelList;
+
+
+    CubeMapLayout layout;
+
+    unsigned int LevelBoundsX = 16;
+    unsigned int LevelBoundsY = 8;
+
+    std::map<int, glm::ivec2> TileMap;
+    std::vector<int> MapLocs;
+
+    std::vector<Vertex> VertexList;
+    std::vector<uint16_t> IndexList;
+
 
     void UpdateImGUI();
 	void Update(uint32_t DrawFrame);
+    void LoadTiles(std::shared_ptr<TextureManager> textureManager);
+    void CreateLevelGeometry(std::shared_ptr<TextureManager> textureManager);
     std::vector<Vertex> CalcVertex();
 public:
 	VulkanGraphics(int Width, int Height, const char* AppName);

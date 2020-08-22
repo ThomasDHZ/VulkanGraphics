@@ -13,9 +13,10 @@ struct MeshTextures
     std::string DiffuseMap;
     std::string SpecularMap;
     std::string NormalMap;
-    std::string DepthMap;
+    std::string DisplacementMap;
     std::string AlphaMap;
     std::string EmissionMap;
+    std::string ReflectionMap;
 };
 
 struct MapBits
@@ -48,6 +49,7 @@ struct MeshProperties
     alignas(4) int UseDepthMapBit = 0;
     alignas(4) int UseAlphaMapBit = 0;
     alignas(4) int UseEmissionMapBit = 0;
+    alignas(4) int UseReflectionMapBit = 0;
     alignas(4) int UseSkyBoxBit;
     alignas(4) float minLayers;
     alignas(4) float maxLayers;
@@ -56,11 +58,15 @@ struct MeshProperties
 
 struct LightBufferObject
 {
-    alignas(16) glm::vec3 direction;
+    alignas(16) glm::vec3 position;
     alignas(16) glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);
     alignas(16) glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     alignas(16) glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    alignas(4) float constant = 1.0f;
+    alignas(4) float  linear = 0.09f;
+    alignas(4) float  quadratic = 0.032f;
     alignas(16) glm::vec3 viewPos;
+
 };
 
 struct UniformBufferObject {

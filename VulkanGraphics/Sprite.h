@@ -29,7 +29,7 @@
 //class Sprite
 //{
 //private:
-//	TextureMaps SpriteMaps;
+//	MeshTextures SpriteMaps;
 //
 //public:
 //
@@ -42,13 +42,12 @@
 //	ColisionGeo CollisionVertexs;
 //
 //	Sprite();
-//	Sprite(Renderer& renderer, float Width, float Height, TextureMaps spriteMaps, glm::vec2 StartPos, SpriteType type);
-//	Sprite(Renderer& renderer, float Width, float Height, TextureMaps spriteMaps, glm::vec3 StartPos, SpriteType type);
+//	Sprite(VulkanRenderer& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type);
+//	Sprite(VulkanRenderer& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type);
 //	~Sprite();
 //
-//	virtual void Update(Renderer& renderer, Camera& camera, Lights light);
-//	void Draw(Renderer& renderer, int currentFrame);
-//	void Destory(Renderer& renderer);
+//	virtual void Update(VulkanRenderer& renderer, Camera& camera);
+//	void Destory(VulkanRenderer& renderer);
 //
 //	void SetPosition2D(glm::vec2 Pos);
 //	void SetPosition2D(float x, float y);

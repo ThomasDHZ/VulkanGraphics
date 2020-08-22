@@ -9,17 +9,7 @@
 #include <map>
 #include "Mesh.h"
 
-struct TileSet
-{
-	std::string DiffuseMap;
-	std::string SpecularMap;
-	std::string NormalMap;
-	std::string DisplacementMap;
-	std::string EmissionMap;
-	std::string AlphaMap;
-};
-
-class LevelMesh2D
+class LevelMesh2D 
 {
 private:
 	CubeMapLayout layout;
@@ -30,23 +20,23 @@ private:
 	std::map<int, glm::ivec2> TileMap;
 	std::vector<int> MapLocs;
 
-	std::vector<Vertex> VertexList;
-	std::vector<uint16_t> IndexList;
-
 	MeshTextures TextureList;
-	Mesh LevelMesh;
 
 
-	void LoadTiles(VulkanRenderer& renderer, const TileSet& tileSet);
-	void CreateLevelGeometry();
+	void LoadTiles(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager);
+	void CreateLevelGeometry(std::shared_ptr<TextureManager>textureManager);
 
 public:
 
+
+	std::vector<Vertex> VertexList;
+	std::vector<uint16_t> IndexList;
+	Mesh LevelMesh;
+
 	LevelMesh2D();
-	LevelMesh2D(VulkanRenderer& renderer, const TileSet& tileSet);
+	LevelMesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, MeshTextures TileSet, int cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
 	~LevelMesh2D();
 
-	void Update(VulkanRenderer& renderer, Camera& camera);
-	void Draw(VulkanRenderer& renderer, int currentFrame);
+	void Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject light);
 	void Destory(VulkanRenderer& renderer);
 };

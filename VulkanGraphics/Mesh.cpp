@@ -47,7 +47,7 @@ void Mesh::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager
 {
     if (!textures.DiffuseMap.empty())
     {
-        DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_UNORM);
+        DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
         properites.UseDiffuseMapBit = 1;
     }
     if (!textures.SpecularMap.empty())
@@ -60,20 +60,25 @@ void Mesh::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager
         NormalMapID = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseNormalMapBit = 1;
     }
-    if (!textures.DepthMap.empty())
+    if (!textures.DisplacementMap.empty())
     {
-        DepthMapID = textureManager->LoadTexture(renderer, textures.DepthMap, VK_FORMAT_R8G8B8A8_UNORM);
+        DepthMapID = textureManager->LoadTexture(renderer, textures.DisplacementMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseDepthMapBit = 1;
     }
     if (!textures.AlphaMap.empty())
     {
         AlphaMapID = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
-        properites.UseAlphaMapBit = 0;
+        properites.UseAlphaMapBit = 1;
     }
     if (!textures.EmissionMap.empty())
     {
         EmissionMapID = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
-        properites.UseEmissionMapBit = 0;
+        properites.UseEmissionMapBit = 1;
+    }
+    if (!textures.ReflectionMap.empty())
+    {
+        ReflectionMapID = textureManager->LoadTexture(renderer, textures.ReflectionMap, VK_FORMAT_R8G8B8A8_UNORM);
+        properites.UseEmissionMapBit = 1;
     }
 }
 
@@ -86,7 +91,7 @@ void Mesh::CreateUniformBuffers(VulkanRenderer& renderer)
 
 void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
 
-    std::array<DescriptorPoolSizeInfo, 10>  DescriptorPoolInfo = {};
+    std::array<DescriptorPoolSizeInfo, 11>  DescriptorPoolInfo = {};
 
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -96,8 +101,9 @@ void Mesh::CreateDescriptorPool(VulkanRenderer& renderer) {
     DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    DescriptorPoolInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[9].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[10].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -135,6 +141,11 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Textur
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     EmissionMap.imageView = textureManager->GetTextureByID(DiffuseMapID).View;
     EmissionMap.sampler = textureManager->GetTextureByID(DiffuseMapID).Sampler;
+
+    VkDescriptorImageInfo ReflectionMap = {};
+    ReflectionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    ReflectionMap.imageView = textureManager->GetTextureByID(ReflectionMapID).View;
+    ReflectionMap.sampler = textureManager->GetTextureByID(ReflectionMapID).Sampler;
 
     VkDescriptorImageInfo SkyBoxMap = {};
     SkyBoxMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -209,22 +220,29 @@ void Mesh::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Textur
         EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
         DescriptorList.emplace_back(EmissionMapDescriptor);
 
+        WriteDescriptorSetInfo ReflectionMapDescriptor;
+        ReflectionMapDescriptor.DstBinding = 7;
+        ReflectionMapDescriptor.DstSet = DescriptorSets[i];
+        ReflectionMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        ReflectionMapDescriptor.DescriptorImageInfo = ReflectionMap;
+        DescriptorList.emplace_back(ReflectionMapDescriptor);
+
         WriteDescriptorSetInfo SkyBoxDescriptor;
-        SkyBoxDescriptor.DstBinding = 7;
+        SkyBoxDescriptor.DstBinding = 8;
         SkyBoxDescriptor.DstSet = DescriptorSets[i];
         SkyBoxDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         SkyBoxDescriptor.DescriptorImageInfo = SkyBoxMap;
         DescriptorList.emplace_back(SkyBoxDescriptor);
 
         WriteDescriptorSetInfo  MeshPropertiesDescriptor;
-        MeshPropertiesDescriptor.DstBinding = 8;
+        MeshPropertiesDescriptor.DstBinding = 9;
         MeshPropertiesDescriptor.DstSet = DescriptorSets[i];
         MeshPropertiesDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         MeshPropertiesDescriptor.DescriptorBufferInfo = meshPropertiesInfo;
         DescriptorList.emplace_back(MeshPropertiesDescriptor);
 
         WriteDescriptorSetInfo LightDescriptor;
-        LightDescriptor.DstBinding = 9;
+        LightDescriptor.DstBinding = 10;
         LightDescriptor.DstSet = DescriptorSets[i];
         LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         LightDescriptor.DescriptorBufferInfo = LightInfo;

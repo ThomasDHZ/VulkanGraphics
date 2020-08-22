@@ -70,8 +70,9 @@ layout(binding = 3) uniform sampler2D normalMap;
 layout(binding = 4) uniform sampler2D depthMap;
 layout(binding = 5) uniform sampler2D AlphaMap;
 layout(binding = 6) uniform sampler2D EmissionMap;
-layout(binding = 7) uniform samplerCube SkyBox;
-layout(binding = 8) uniform MeshProperties
+layout(binding = 7) uniform sampler2D ReflectionMap;
+layout(binding = 8) uniform samplerCube SkyBox;
+layout(binding = 9) uniform MeshProperties
 {
     Material material;
     vec2 UVOffset;
@@ -81,17 +82,23 @@ layout(binding = 8) uniform MeshProperties
     int UseDepthMapBit;
     int UseAlphaMapBit;
     int UseEmissionMapBit;
+    int UseReflectionMapBit;
     int UseSkyBoxBit;
     float minLayers;
     float maxLayers;
     float heightScale;
 } meshProperties;
-layout(binding = 9) uniform Light
+layout(binding = 10) uniform Light
 {
-    vec3 direction;
+    vec3 position;
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+        float constant;
+    float linear;
+    float quadratic;
+
     vec3 viewPos;
 } light;
 
@@ -197,7 +204,6 @@ vec3 SpotLight(vec3 TangentLightPos, vec3 TangentFragPos, vec3 V, vec3 N, vec2 U
         return (ambient + diffuse + specular);
 }
 
-
 vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
     // number of depth layers
@@ -266,16 +272,19 @@ void main()
         }
 
 
-     vec3 result = DirectionalLight( V,  N,  UV);
-     if(meshProperties.UseDiffuseMapBit == 1)
-     {
-        result = DirectionalLight( V,  N,  UV);
-     }
+     vec3 result =  PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV);
 
     vec3 I = normalize(FragPos - light.viewPos);
     vec3 R = reflect(I, normalize(N));
-    vec3 Reflected = texture(SkyBox, R).rgb * meshProperties.material.reflectivness;
-    result += Reflected;
+    vec3 Reflected = texture(SkyBox, R).rgb;
+    if (meshProperties.UseReflectionMapBit  == 1)
+    {
+        result = mix(result, Reflected, texture(ReflectionMap, UV).r);
+    }
+    else
+    {
+        result = mix(result, Reflected, meshProperties.material.reflectivness);
+    }
 
     FragColor = vec4(result, 1.0);
 }

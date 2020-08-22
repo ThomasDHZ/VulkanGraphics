@@ -124,7 +124,7 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window)
 	frameBuffer.UpdateSwapChain(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout, textureRenderer.ColorTexture);
 }
 
-uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight)
+uint32_t RendererManager::Draw(GLFWwindow* window)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -151,10 +151,10 @@ uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, 
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
-	ShadowRenderPass(MeshList);
-	DrawToTextureRenderPass(MeshList, skybox);
-	MainRenderPass(MeshList, skybox, debugLight);
-	//FrameBufferRenderPass();
+	ShadowRenderPass();
+	DrawToTextureRenderPass();
+	MainRenderPass();
+	FrameBufferRenderPass();
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -230,7 +230,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window, std::vector<Mesh>& MeshList, 
 	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void RendererManager::DrawToTextureRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh skybox)
+void RendererManager::DrawToTextureRenderPass()
 {
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -253,12 +253,12 @@ void RendererManager::DrawToTextureRenderPass(std::vector<Mesh>& MeshList, SkyBo
 			textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
 		}
 	}
-	textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, skybox);
+	textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, Skybox);
 
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::MainRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh skybox, DebugLightMesh debugLight)
+void RendererManager::MainRenderPass()
 {
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -288,8 +288,8 @@ void RendererManager::MainRenderPass(std::vector<Mesh>& MeshList, SkyBoxMesh sky
 			}
 		}
 	}
-	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, skybox);
-	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.DebugLightPipeline, debugLight);
+	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, Skybox);
+	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.DebugLightPipeline, debugLightMesh);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
@@ -315,7 +315,7 @@ void RendererManager::FrameBufferRenderPass()
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::ShadowRenderPass(std::vector<Mesh>& MeshList)
+void RendererManager::ShadowRenderPass()
 {
 	std::array<VkClearValue, 1> clearValues{};
 	clearValues[0].depthStencil = { 1.0f, 0 };

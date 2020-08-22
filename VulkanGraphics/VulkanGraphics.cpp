@@ -18,6 +18,9 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	ActiveCamera = &renderer.camera;
 
+
+	stbi_set_flip_vertically_on_load(true);
+
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
 	layout.Right = "texture/skybox/right.jpg";
@@ -33,26 +36,41 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), gameManager.textureManager, FileSystem::getPath("VulkanGraphics/Models/nano_textured/nanosuit.obj"));
 
 	MeshTextures meshTextures = {};
-	meshTextures.DiffuseMap = "texture/brick_diffuseOriginal.bmp";
-	meshTextures.SpecularMap = "texture/container2_specular.png";
-	meshTextures.NormalMap = "texture/brick_normal.bmp";
-	meshTextures.DepthMap = "texture/brick_height.bmp";
+	meshTextures.DiffuseMap = "texture/zxc_diffuseOriginal.bmp";
+	meshTextures.SpecularMap = "texture/zxc_Spec.bmp";
+	meshTextures.NormalMap = "texture/zxc_normal.bmp";
+	meshTextures.DisplacementMap = "texture/zxc_height.bmp";
+	meshTextures.ReflectionMap = "texture/container2_specular.png";
 
 	MeshTextures meshTextures2 = {};
 	meshTextures2.DiffuseMap = "texture/bricks2.jpg";
 	meshTextures2.SpecularMap = "texture/container2_specular.png";
 	meshTextures2.NormalMap = "texture/bricks2_normal.jpg";
-	meshTextures2.DepthMap = "texture/bricks2_disp.jpg";
+	meshTextures2.DisplacementMap = "texture/bricks2_disp.jpg";
+	meshTextures2.ReflectionMap = "texture/container2_specular.png";
 
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, meshTextures2, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, meshTextures2, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	MeshTextures SparkManTiles = {};
+	SparkManTiles.DiffuseMap = "texture/SparkManDiffuse.bmp";
+	SparkManTiles.SpecularMap = "texture/SparkManSpecular.bmp";
+	SparkManTiles.NormalMap = "texture/SparkMan_normal.bmp";
+	SparkManTiles.DisplacementMap = "texture/SparkMan_height.bmp";
+	SparkManTiles.EmissionMap = "texture/temp.bmp";
+	SparkManTiles.AlphaMap = "texture/SparkManSpecular.bmp";
+	SparkManTiles.ReflectionMap = "texture/container2_specular.png";
+
+
+	 LoadTiles(gameManager.textureManager);
+	 CreateLevelGeometry(gameManager.textureManager);
+	
+	renderer.MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, VertexList, IndexList, SparkManTiles, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	renderer.MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	renderer.MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	renderer.MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, CalcVertex(), indices, meshTextures2, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	//MeshList.emplace_back(Mesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, quadvertices, quadindices, 5, 1, 2, 3, 4, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow));
 
-	Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, 0);
+	renderer.Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, 0);
 
-	debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
+	renderer.debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
 	//light.position = glm::vec3(0.5f, 1.0f, 0.3f);
 
 }
@@ -62,12 +80,12 @@ VulkanGraphics::~VulkanGraphics()
 	vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
 
 	gameManager.textureManager->UnloadAllTextures(*renderer.GetVulkanRendererBase());
-	for (auto mesh : MeshList)
+	for (auto mesh : renderer.MeshList)
 	{
 		mesh.Destory(*renderer.GetVulkanRendererBase());
 	}
-	debugLightMesh.Destory(renderer);
-	Skybox.Destory(renderer);
+	renderer.debugLightMesh.Destory(renderer);
+	renderer.Skybox.Destory(renderer);
 
 	renderer.DestoryVulkan();
 	Window.CleanUp();
@@ -88,7 +106,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 		//ImGui::Checkbox("Switch Camara", &SwatchCamara);
-		ImGui::SliderFloat3("direction", &light.direction.x, -1000.0f, 1000.0f);
+		ImGui::SliderFloat3("direction", &light.position.x, -10.0f, 10.0f);
 		ImGui::SliderFloat3("ambient", &light.ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("diffuse", &light.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("specular", &light.specular.x, 0.0f, 1.0f);
@@ -99,9 +117,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Begin("MeshSettings");
 		if (ImGui::TreeNode("MeshList"))
 		{
-			ImGui::Columns(2, "tree", true);
-
-			for (int x = 0; x < MeshList.size(); x++)
+			for (int x = 0; x < renderer.MeshList.size(); x++)
 			{
 				bool open1 = ImGui::TreeNode((void*)(intptr_t)x, "Mesh%d", x);
 				ImGui::NextColumn();
@@ -110,22 +126,24 @@ void VulkanGraphics::UpdateImGUI()
 				if (open1)
 				{
 					ImGui::NextColumn();
-					ImGui::SliderFloat2("UV", &MeshList[x].properites.UVOffset.x, -1.0, 1.0f);
-					ImGui::SliderFloat("shininess", &MeshList[x].properites.material.shininess, 0.0, 255.0f);
-					ImGui::SliderFloat("reflectivness", &MeshList[x].properites.material.reflectivness, 0.0f, 1.0f);
-					ImGui::SliderFloat("heightScale", &MeshList[x].properites.heightScale, -1.0, 1.0f);
-					ImGui::SliderFloat("Layers", &MeshList[x].properites.minLayers, 0.0, 50.0f);
-					ImGui::SliderFloat("maxLayers", &MeshList[x].properites.maxLayers, 0.0, 5000.0f);
-					ImGui::SliderInt("Diffuse", &MeshList[x].properites.UseDiffuseMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Specular", &MeshList[x].properites.UseSpecularMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Normal", &MeshList[x].properites.UseNormalMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Depth", &MeshList[x].properites.UseDepthMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Alpha", &MeshList[x].properites.UseAlphaMapBit, 0.0, 1.0f);
-					ImGui::SliderInt("Emission", &MeshList[x].properites.UseEmissionMapBit, 0.0, 1.0f);
-					ImGui::Image(gameManager.textureManager->GetTextureByID(MeshList[x].DiffuseMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-					ImGui::Image(gameManager.textureManager->GetTextureByID(MeshList[x].SpecularMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-					ImGui::Image(gameManager.textureManager->GetTextureByID(MeshList[x].NormalMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-					ImGui::Image(gameManager.textureManager->GetTextureByID(MeshList[x].DepthMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+					ImGui::SliderFloat2("UV", &renderer.MeshList[x].properites.UVOffset.x, -1.0, 1.0f);
+					ImGui::SliderFloat("shininess", &renderer.MeshList[x].properites.material.shininess, 0.0, 255.0f);
+					ImGui::SliderFloat("reflectivness", &renderer.MeshList[x].properites.material.reflectivness, 0.0f, 1.0f);
+					ImGui::SliderFloat("heightScale", &renderer.MeshList[x].properites.heightScale, -1.0, 1.0f);
+					ImGui::SliderFloat("Layers", &renderer.MeshList[x].properites.minLayers, 0.0, 50.0f);
+					ImGui::SliderFloat("maxLayers", &renderer.MeshList[x].properites.maxLayers, 0.0, 5000.0f);
+					ImGui::SliderInt("Diffuse", &renderer.MeshList[x].properites.UseDiffuseMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Specular", &renderer.MeshList[x].properites.UseSpecularMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Normal", &renderer.MeshList[x].properites.UseNormalMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Depth", &renderer.MeshList[x].properites.UseDepthMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Alpha", &renderer.MeshList[x].properites.UseAlphaMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Emission", &renderer.MeshList[x].properites.UseEmissionMapBit, 0.0, 1.0f);
+					ImGui::SliderInt("Reflection", &renderer.MeshList[x].properites.UseReflectionMapBit, 0.0, 1.0f);
+					ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.MeshList[x].DiffuseMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+					ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.MeshList[x].SpecularMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+					ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.MeshList[x].NormalMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+					ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.MeshList[x].DepthMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+
 					ImGui::NextColumn();
 					ImGui::TreePop();
 				}
@@ -150,13 +168,13 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 
 	light.viewPos = ActiveCamera->Position;
 
-	MeshList[1].MeshPosition = glm::vec3(2.0f, 0.0f, 0.0f);
-	MeshList[2].MeshPosition = glm::vec3(4.0f, 0.0f, 0.0f);
-	MeshList[3].MeshPosition = glm::vec3(6.0f, 0.0f, 0.0f);
+	renderer.MeshList[1].MeshPosition = glm::vec3(2.0f, 0.0f, 0.0f);
+	renderer.MeshList[2].MeshPosition = glm::vec3(4.0f, 0.0f, 0.0f);
+	renderer.MeshList[3].MeshPosition = glm::vec3(6.0f, 0.0f, 0.0f);
 
 	
 	//MeshList[4].MeshPosition = glm::vec3(8.0f, 0.0f, 0.0f);
-	for (auto mesh : MeshList)
+	for (auto mesh : renderer.MeshList)
 	{
 		mesh.Update(renderer, *ActiveCamera, light);
 	}
@@ -164,14 +182,14 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	//{
 	//	model.UpdateUniformBuffer(renderer, camera, light);
 	//}
-	Skybox.UpdateUniformBuffer(renderer, renderer.camera);
+	renderer.Skybox.UpdateUniformBuffer(renderer, renderer.camera);
 
 	MeshColor color = {};
 	color.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	//debugLightMesh.MeshPosition = light.position;
-	debugLightMesh.MeshScale = glm::vec3(.1f, .1f, .1f);
-	debugLightMesh.Update(renderer, *ActiveCamera, color);
+	renderer.debugLightMesh.MeshScale = glm::vec3(.1f, .1f, .1f);
+	renderer.debugLightMesh.Update(renderer, *ActiveCamera, color);
 	renderer.frameBuffer.UpdateUniformBuffer(renderer);
 }
 
@@ -244,6 +262,64 @@ std::vector<Vertex> VulkanGraphics::CalcVertex()
 	};
 }
 
+void VulkanGraphics::LoadTiles(std::shared_ptr<TextureManager> textureManager)
+{
+	const unsigned int TileSize = 16;
+	const float AmtXAxisTiles = 240 / TileSize;
+	const float AmtYAxisTiles = 32 / TileSize;
+	const float UVTileLocU = 1 / AmtXAxisTiles;
+	const float UVTileLocV = 1 / AmtYAxisTiles;
+
+	for (int x = 0; x <= AmtXAxisTiles; x++)
+	{
+		for (int y = 0; y < AmtYAxisTiles; y++)
+		{
+			TileMap[x + (y * AmtXAxisTiles)] = glm::ivec2(x + 1, y);
+		}
+	}
+}
+
+void VulkanGraphics::CreateLevelGeometry(std::shared_ptr<TextureManager> textureManager)
+{
+	const unsigned int TileSize = 16;
+	const float AmtXAxisTiles = 240 / TileSize;
+	const float AmtYAxisTiles = 32 / TileSize;
+	const float UVTileLocU = 1 / AmtXAxisTiles;
+	const float UVTileLocV = 1 / AmtYAxisTiles;
+
+	MapLocs = { 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
+				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
+				5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
+				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
+				5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
+				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
+				13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 12, 5, };
+
+	for (unsigned int x = 1; x < LevelBoundsX; x++)
+	{
+		for (unsigned int y = 1; y < LevelBoundsY; y++)
+		{
+			const unsigned int VertexCount = VertexList.size();
+			const Vertex BottomLeftVertex = { {x, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x, UVTileLocV * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y - 1)}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
+			const Vertex BottomRightVertex = { {x + 1.0f, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x - 1), UVTileLocV * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y - 1)}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
+			const Vertex TopRightVertex = { {x + 1.0f, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x - 1), UVTileLocV * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y }, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
+			const Vertex TopLeftVertex = { {x, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x, UVTileLocV * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
+
+			VertexList.emplace_back(BottomLeftVertex);
+			VertexList.emplace_back(BottomRightVertex);
+			VertexList.emplace_back(TopRightVertex);
+			VertexList.emplace_back(TopLeftVertex);
+
+			IndexList.emplace_back(VertexCount);
+			IndexList.emplace_back(VertexCount + 1);
+			IndexList.emplace_back(VertexCount + 2);
+			IndexList.emplace_back(VertexCount + 2);
+			IndexList.emplace_back(VertexCount + 3);
+			IndexList.emplace_back(VertexCount);
+		}
+	}
+}
+
 void VulkanGraphics::MainLoop()
 {
 	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
@@ -259,6 +335,6 @@ void VulkanGraphics::MainLoop()
 		keyboard.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
 		UpdateImGUI();
 		Update(renderer.DrawFrame);
-		renderer.Draw(Window.GetWindowPtr(), MeshList, Skybox, debugLightMesh);
+		renderer.Draw(Window.GetWindowPtr());
 	}
 }
