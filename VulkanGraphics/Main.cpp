@@ -41,8 +41,8 @@
 #include "Keyboard.h"
 #include <map>
 
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
+const uint32_t WIDTH = 1920;
+const uint32_t HEIGHT = 1080;
 
 
 #ifdef NDEBUG
@@ -280,7 +280,7 @@ private:
 		}
 	}
 
-        orthoCamera = OrthographicCamera(-10.00f, 10.00f, -7.5f, 7.5f);
+        orthoCamera = OrthographicCamera(-16.00f, 16.00f, -9.0f, 9.0f);
         orthoCamera.SetPosition(glm::vec3(3.0f, 3.0f, 0.0f));
         createInstance();
         setupDebugMessenger();
@@ -1348,33 +1348,6 @@ private:
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-        //orthoCamera.SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-
-        //if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        //{
-        //    orthoCamera.SetPosition(glm::vec3(orthoCamera.GetPosition().x, orthoCamera.GetPosition().y + 0.2f, 0.0f));
-        //}
-        //if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        //{
-        //    orthoCamera.SetPosition(glm::vec3(orthoCamera.GetPosition().x, orthoCamera.GetPosition().y + -0.2f, 0.0f));
-        //}
-        //if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        //{
-        //    orthoCamera.SetPosition(glm::vec3(orthoCamera.GetPosition().x + -0.2f, orthoCamera.GetPosition().y, 0.0f));
-        //}
-        //if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        //{
-        //    orthoCamera.SetPosition(glm::vec3(orthoCamera.GetPosition().x + 0.2f, orthoCamera.GetPosition().y, 0.0f));
-        //}
-        //if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        //{
-        //   // camera.ProcessKeyboard(FORWARD, deltaTime);
-        //}
-        //if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        //{
-        //   // camera.ProcessKeyboard(BACKWARD, deltaTime);
-        //}
 
         UniformBufferObject ubo{};
         ubo.model = glm::mat4(1.0f);

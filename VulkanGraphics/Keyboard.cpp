@@ -30,7 +30,6 @@ void Keyboard::UpdateOrtho(GLFWwindow* window, OrthographicCamera& camera)
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 
-
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		camera.ProcessKeyboard(UP, deltaTime);
