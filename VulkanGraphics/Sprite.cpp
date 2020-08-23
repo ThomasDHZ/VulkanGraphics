@@ -4,7 +4,7 @@
 //{
 //}
 //
-//Sprite::Sprite(VulkanRenderer& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type)
+//Sprite::Sprite(Renderer& renderer, float Width, float Height, TextureMaps spriteMaps, glm::vec2 StartPos, SpriteType type)
 //{
 //	const std::vector<Vertex> MegaManVertices =
 //	{
@@ -25,7 +25,7 @@
 //	SetPosition2D(StartPos);
 //}
 //
-//Sprite::Sprite(VulkanRenderer& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type)
+//Sprite::Sprite(Renderer& renderer, float Width, float Height, TextureMaps spriteMaps, glm::vec3 StartPos, SpriteType type)
 //{
 //	const std::vector<Vertex> MegaManVertices =
 //	{
@@ -50,20 +50,25 @@
 //{
 //}
 //
-//void Sprite::Update(VulkanRenderer& renderer, Camera& camera)
+//void Sprite::Update(Renderer& renderer, Camera& camera, Lights light)
 //{
 //	//CurrentAni.Update();
 //	//SpriteMesh.properites.SpriteUV = glm::vec2(CurrentAni.GetCurrentFrame());
 //
-//	SpriteMesh.Update(renderer, camera);
+//	SpriteMesh.Update(renderer, camera, light);
 //}
 //
-//void Sprite::Destory(VulkanRenderer& renderer)
+//void Sprite::Draw(Renderer& renderer, int currentFrame)
+//{
+//	SpriteMesh.Draw(renderer, currentFrame);
+//}
+//
+//void Sprite::Destory(Renderer& renderer)
 //{
 //	SpriteMaps.DiffuseMap.Destroy(renderer);
 //	SpriteMaps.SpecularMap.Destroy(renderer);
 //	SpriteMaps.NormalMap.Destroy(renderer);
-//	//SpriteMaps.DisplacementMap.Destroy(renderer);
+//	SpriteMaps.DisplacementMap.Destroy(renderer);
 //	SpriteMaps.AlphaMap.Destroy(renderer);
 //	SpriteMaps.CubeMap.Destroy(renderer);
 //	SpriteMesh.Destroy(renderer);

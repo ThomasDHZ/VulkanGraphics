@@ -35,7 +35,6 @@ void Mesh::CreateMaterialProperties()
     properites.material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
     properites.material.shininess = 32;
     properites.material.reflectivness = 0;
-    properites.UVOffset = glm::vec2(0.0f, 0.0f);
     properites.minLayers = 8.0f;
     properites.maxLayers = 32.0f;
     properites.heightScale = 0.1f;
@@ -60,9 +59,9 @@ void Mesh::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager
         NormalMapID = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseNormalMapBit = 1;
     }
-    if (!textures.DisplacementMap.empty())
+    if (!textures.DepthMap.empty())
     {
-        DepthMapID = textureManager->LoadTexture(renderer, textures.DisplacementMap, VK_FORMAT_R8G8B8A8_UNORM);
+        DepthMapID = textureManager->LoadTexture(renderer, textures.DepthMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseDepthMapBit = 1;
     }
     if (!textures.AlphaMap.empty())
@@ -78,7 +77,7 @@ void Mesh::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager
     if (!textures.ReflectionMap.empty())
     {
         ReflectionMapID = textureManager->LoadTexture(renderer, textures.ReflectionMap, VK_FORMAT_R8G8B8A8_UNORM);
-        properites.UseEmissionMapBit = 1;
+        properites.UseReflectionMapBit = 1;
     }
 }
 
@@ -261,8 +260,6 @@ void Mesh::Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Li
     ubo.view = camera.GetViewMatrix();
     ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
     ubo.proj[1][1] *= -1;
-
-    //properites.UVOffset.y += glfwGetTime() / 10;
 
     if (RotationAmount != 0 &&
         (MeshRotate.x != 0 ||

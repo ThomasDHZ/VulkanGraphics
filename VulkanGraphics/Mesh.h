@@ -8,12 +8,47 @@
 #include "Camera.h"
 #include "CubeMapTexture.h"
 
+struct DirectionalLightStruct {
+    alignas(16) glm::vec3 direction;
+
+    alignas(16) glm::vec3 ambient;
+    alignas(16) glm::vec3 diffuse;
+    alignas(16) glm::vec3 specular;
+};
+
+struct PointLightStruct {
+    alignas(16) glm::vec3 position;
+
+    alignas(4) float constant;
+    alignas(4) float linear;
+    alignas(4) float quadratic;
+
+    alignas(16) glm::vec3 ambient;
+    alignas(16) glm::vec3 diffuse;
+    alignas(16) glm::vec3 specular;
+};
+
+struct SpotLightStruct {
+    alignas(16) glm::vec3 position;
+    alignas(16) glm::vec3 direction;
+    alignas(4) float cutOff;
+    alignas(4) float outerCutOff;
+
+    alignas(4) float constant;
+    alignas(4) float linear;
+    alignas(4) float quadratic;
+
+    alignas(16) glm::vec3 ambient;
+    alignas(16) glm::vec3 diffuse;
+    alignas(16) glm::vec3 specular;
+};
+
 struct MeshTextures
 {
     std::string DiffuseMap;
     std::string SpecularMap;
     std::string NormalMap;
-    std::string DisplacementMap;
+    std::string DepthMap;
     std::string AlphaMap;
     std::string EmissionMap;
     std::string ReflectionMap;
@@ -42,7 +77,6 @@ struct Material
 struct MeshProperties
 {
     Material material;
-    alignas(8) glm::vec2 UVOffset;
     alignas(4) int UseDiffuseMapBit = 0;
     alignas(4) int UseSpecularMapBit = 0;
     alignas(4) int UseNormalMapBit = 0;
@@ -58,15 +92,14 @@ struct MeshProperties
 
 struct LightBufferObject
 {
+    DirectionalLightStruct dLight;
+    PointLightStruct pLight;
+    SpotLightStruct sLight;
     alignas(16) glm::vec3 position;
     alignas(16) glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);
     alignas(16) glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     alignas(16) glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    alignas(4) float constant = 1.0f;
-    alignas(4) float  linear = 0.09f;
-    alignas(4) float  quadratic = 0.032f;
     alignas(16) glm::vec3 viewPos;
-
 };
 
 struct UniformBufferObject {

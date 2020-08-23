@@ -79,16 +79,16 @@ void Texture2D::CreateTextureSampler(VulkanRenderer& renderer)
 	TextureImageSamplerInfo.magFilter = VK_FILTER_LINEAR;
 	TextureImageSamplerInfo.minFilter = VK_FILTER_LINEAR;
 	TextureImageSamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	TextureImageSamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	TextureImageSamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	TextureImageSamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	TextureImageSamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 	TextureImageSamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 	TextureImageSamplerInfo.mipLodBias = 0.0f;
-	TextureImageSamplerInfo.maxAnisotropy = 1.0f;
+	TextureImageSamplerInfo.maxAnisotropy = 16.0f;
 	TextureImageSamplerInfo.minLod = 0.0f;
 	TextureImageSamplerInfo.maxLod = 1.0f;
 	TextureImageSamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_WHITE;
 	TextureImageSamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-	TextureImageSamplerInfo.anisotropyEnable = VK_FALSE;
+	TextureImageSamplerInfo.anisotropyEnable = VK_TRUE;
 
 	Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }

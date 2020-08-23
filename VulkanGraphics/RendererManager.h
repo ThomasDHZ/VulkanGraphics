@@ -34,13 +34,12 @@ private:
 	TextureRenderer textureRenderer;
 	FramebufferRenderer frameBufferRenderer;
 	ShadowRenderer shadowRenderer;
+	Camera lightCamera;
+	Camera camera;
 
 	DebugLightMesh debugLightMesh;
 	SkyBoxMesh Skybox;
 	std::vector<Mesh> MeshList;
-
-	Camera lightCamera;
-	Camera camera;
 
 	LightBufferObject light;
 	MeshProperties meshProp;

@@ -3,6 +3,7 @@
 //#include "Texture2D.h"
 //#include <map>
 //#include "Camera.h"
+//#include "LightManager.h"
 //#include "GUIDebugger.h"
 //#include "LevelMesh2D.h"
 //#include "Sprite.h"
@@ -16,24 +17,24 @@
 //	Test
 //};
 //
-//class Level2D 
+//class Level2D : VulkanResources
 //{
 //private:
 //	LevelMesh2D LevelMap;
-//	//std::vector<Sprite> SpriteList;
+//	std::vector<Sprite> SpriteList;
 //
-//	//Lights light = {};
+//	Lights light = {};
 //public:
 //	Camera camera;
 //
 //	Level2D();
-//	Level2D(VulkanRenderer& renderer, TileSet tileset);
+//	Level2D(Renderer& renderer, TileSet tileset);
 //	~Level2D();
 //
-//	void LevelDebug(VulkanRenderer& renderer);
-//	void LevelLoop(VulkanRenderer& renderer);
-//	void Update(VulkanRenderer& renderer, GLFWwindow* Window);
-//	void Draw(VulkanRenderer& renderer, uint32_t DrawFrame);
-//	void Destroy(VulkanRenderer& renderer);
+//	void LevelDebug(Renderer& renderer);
+//	void LevelLoop(Renderer& renderer);
+//	void Update(Renderer& renderer, GLFWwindow* Window);
+//	void Draw(Renderer& renderer, uint32_t DrawFrame);
+//	void Destroy(Renderer& renderer);
 //};
 //

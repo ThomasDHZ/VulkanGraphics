@@ -91,6 +91,7 @@ public:
 
 	VkCommandPool RenderCommandPool;
 	std::vector<VkCommandBuffer> RenderCommandBuffer;
+	std::vector<VkCommandBuffer> RunCommandBuffers = {};
 
 	uint32_t DrawFrame = 0;
 	VulkanRendererSettings Settings;

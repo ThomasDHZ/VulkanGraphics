@@ -219,8 +219,6 @@
     <None Include="Shaders\ForwardRendererShader.vert" />
     <None Include="Shaders\FrameBufferShader.frag" />
     <None Include="Shaders\FrameBufferShader.vert" />
-    <None Include="Shaders\shader.frag" />
-    <None Include="Shaders\shader.vert" />
     <None Include="Shaders\ShadowDebug.frag" />
     <None Include="Shaders\ShadowDebug.vert" />
     <None Include="Shaders\SkyboxShader.frag" />
