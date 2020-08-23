@@ -1,6 +1,7 @@
 #pragma once
 #include <GLFW\glfw3.h>
 #include "Camera.h"
+#include "OrthographicCamera.h"
 #include "VulkanRenderer.h"
 
 class Keyboard
@@ -11,5 +12,6 @@ private:
 
 public:
 
-	void Update(GLFWwindow* window, Camera& camera, VulkanRendererSettings settings);
+	void Update(GLFWwindow* window, Camera& camera);
+	void UpdateOrtho(GLFWwindow* window, OrthographicCamera& camera);
 };

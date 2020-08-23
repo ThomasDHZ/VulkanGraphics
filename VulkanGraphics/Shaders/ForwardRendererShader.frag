@@ -94,10 +94,6 @@ layout(binding = 10) uniform Light
     DirectionalLightStruct dLight;
     PointLightStruct pLight;
     SpotLightStruct sLight;
-    vec3 position;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
     vec3 viewPos;
 } light;
 
@@ -248,11 +244,15 @@ void main()
 {           
      RemoveAlphaPixels();
 
+    vec3 ambient = vec3(1.0f, 0.0f, 0.0f);
+    vec3 diffuse = vec3(1.0f, 0.0f, 0.0f);
+    vec3 specular = vec3(1.0f, 0.0f, 0.0f);
+    vec3 result = vec3(1.0f, 0.0f, 0.0f);
     vec3 V = light.viewPos;
     vec3 N = Normal;
     vec2 UV = TexCoords;
 
-    vec3 TangentLightPos = TBN * light.position;
+    vec3 TangentLightPos = TBN * light.pLight.position;
     vec3 TangentViewPos  = TBN * light.viewPos;
     vec3 TangentFragPos  = TBN * FragPos;
     
@@ -272,46 +272,8 @@ void main()
             N = normalize(N * 2.0 - 1.0);   
         }
 
-     vec3 ambient = vec3(1.0f, 0.0f, 0.0f);
-     vec3 diffuse = vec3(1.0f, 0.0f, 0.0f);
-     vec3 specular = vec3(1.0f, 0.0f, 0.0f);
-     if(meshProperties.UseDiffuseMapBit == 1)
-     {
-		vec3 L = normalize(TangentLightPos - TangentFragPos);
-		vec3 R = reflect(-L, N);
-		vec3 H = normalize(L + V);  
+		result = PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
 
-        vec3 color = texture(DiffuseMap, UV).rgb;
-   		ambient = light.ambient * color;
-		diffuse = light.diffuse * (max(dot(L, N), 0.0) * color);
-        if(meshProperties.UseSpecularMapBit  == 1)
-        {
-            specular = light.specular * pow(max(dot(N, H), 0.0), meshProperties.material.shininess) * texture(SpecularMap, UV).rgb;
-        }
-        else
-        {
-            specular = light.specular * pow(max(dot(N, H), 0.0), meshProperties.material.shininess) * meshProperties.material.specular;  
-        }
-     }
-     else
-     {
-        vec3 L = normalize(light.position - FragPos);
-		vec3 R = reflect(-L, N);
-		vec3 H = normalize(L + V);  
-
-        ambient = light.ambient * meshProperties.material.ambient;
-		diffuse = light.diffuse * (max(dot(L, N), 0.0) * meshProperties.material.Diffuse);
-        if(meshProperties.UseSpecularMapBit  == 1)
-        {
-            specular = light.specular * pow(max(dot(N, H), 0.0), meshProperties.material.shininess) * texture(SpecularMap, UV).rgb;
-        }
-        else
-        {
-            specular = light.specular * pow(max(dot(N, H), 0.0), meshProperties.material.shininess) * meshProperties.material.specular;  
-        }
-     }
-
-    vec3 result = ambient + diffuse + specular;
 
     vec3 I = normalize(FragPos - light.viewPos);
     vec3 R = reflect(I, normalize(N));

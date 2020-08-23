@@ -9,23 +9,23 @@
 #include "CubeMapTexture.h"
 
 struct DirectionalLightStruct {
-    alignas(16) glm::vec3 direction;
+    alignas(16) glm::vec3 direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 
-    alignas(16) glm::vec3 ambient;
-    alignas(16) glm::vec3 diffuse;
-    alignas(16) glm::vec3 specular;
+    alignas(16) glm::vec3 ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+    alignas(16) glm::vec3 diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+    alignas(16) glm::vec3 specular = glm::vec3(0.5f, 0.5f, 0.5f);
 };
 
 struct PointLightStruct {
     alignas(16) glm::vec3 position;
 
-    alignas(4) float constant;
-    alignas(4) float linear;
-    alignas(4) float quadratic;
+    alignas(4) float constant = 1.0f;
+    alignas(4) float linear = 0.09f;
+    alignas(4) float quadratic = 0.032;
 
-    alignas(16) glm::vec3 ambient;
-    alignas(16) glm::vec3 diffuse;
-    alignas(16) glm::vec3 specular;
+    alignas(16) glm::vec3 ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+    alignas(16) glm::vec3 diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+    alignas(16) glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
 };
 
 struct SpotLightStruct {
@@ -95,10 +95,6 @@ struct LightBufferObject
     DirectionalLightStruct dLight;
     PointLightStruct pLight;
     SpotLightStruct sLight;
-    alignas(16) glm::vec3 position;
-    alignas(16) glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);
-    alignas(16) glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-    alignas(16) glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
     alignas(16) glm::vec3 viewPos;
 };
 

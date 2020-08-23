@@ -55,7 +55,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	renderer.Skybox = SkyBoxMesh(*renderer.GetVulkanRendererBase(), gameManager.textureManager, renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, 0);
 
 	renderer.debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), quadvertices, quadindices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
-	light.position = glm::vec3(0.5f, 1.0f, 0.3f);
+	light.pLight.position = glm::vec3(0.5f, 1.0f, 0.3f);
 
 }
 
@@ -90,10 +90,10 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
 		//ImGui::Checkbox("Switch Camara", &SwatchCamara);
-		ImGui::SliderFloat3("Light", &light.position.x, -10.0f, 10.0f);
-		ImGui::SliderFloat3("ambient", &light.ambient.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("diffuse", &light.diffuse.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("specular", &light.specular.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("Light", &light.pLight.position.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("ambient", &light.pLight.ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("diffuse", &light.pLight.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("specular", &light.pLight.specular.x, 0.0f, 1.0f);
 		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
@@ -170,7 +170,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	MeshColor color = {};
 	color.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	renderer.debugLightMesh.MeshPosition = light.position;
+	renderer.debugLightMesh.MeshPosition = light.pLight.position;
 	renderer.debugLightMesh.MeshScale = glm::vec3(.1f, .1f, .1f);
 	renderer.debugLightMesh.Update(renderer, *ActiveCamera, color);
 	renderer.frameBuffer.UpdateUniformBuffer(renderer);
@@ -257,7 +257,7 @@ void VulkanGraphics::MainLoop()
 
 		Window.Update();
 		mouse.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
-		keyboard.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
+		keyboard.Update(Window.GetWindowPtr(), renderer.camera);
 		UpdateImGUI();
 		Update(renderer.DrawFrame);
 		renderer.Draw(Window.GetWindowPtr());

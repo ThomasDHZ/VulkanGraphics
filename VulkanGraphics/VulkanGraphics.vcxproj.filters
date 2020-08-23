@@ -225,6 +225,12 @@
     <ClCompile Include="GameManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SpriteTexture2D.cpp">
+      <Filter>Source Files\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="OrthographicCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -468,6 +474,12 @@
     </ClInclude>
     <ClInclude Include="GameManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OrthographicCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteTexture2D.h">
+      <Filter>Header Files\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
