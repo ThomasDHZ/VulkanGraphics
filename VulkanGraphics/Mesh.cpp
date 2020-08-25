@@ -272,6 +272,19 @@ void Mesh::Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Li
     UpdateUniformBuffer(renderer, ubo, Lightbuffer);
 }
 
+void Mesh::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
+{
+    UniformBufferObject ubo{};
+    ubo.model = glm::mat4(1.0f);
+    ubo.model = glm::translate(ubo.model, MeshPosition);
+    ubo.model = glm::scale(ubo.model, MeshScale);
+    ubo.view = camera.GetViewMatrix();
+    ubo.proj = camera.GetProjectionMatrix();
+    ubo.proj[1][1] *= -1;
+
+    UpdateUniformBuffer(renderer, ubo, Lightbuffer);
+}
+
 void Mesh::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
 {
     uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));

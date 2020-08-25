@@ -1,112 +1,225 @@
-//#include "LevelMesh2D.h"
-//
-//
-//LevelMesh2D::LevelMesh2D()
-//{
-//}
-//
-//LevelMesh2D::LevelMesh2D(Renderer& renderer, const TileSet& tileSet)
-//{
-//	LoadTiles(renderer, tileSet);
-//	CreateLevelGeometry();
-//	LevelMesh = Mesh(renderer, VertexList, IndexList, TextureList);
-//}
-//
-//LevelMesh2D::~LevelMesh2D()
-//{
-//}
-//
-//void LevelMesh2D::LoadTiles(Renderer& renderer, const TileSet& tileSet)
-//{
-//	layout.Left = "texture/skybox/left.jpg";
-//	layout.Right = "texture/skybox/right.jpg";
-//	layout.Top = "texture/skybox/top.jpg";
-//	layout.Bottom = "texture/skybox/bottom.jpg";
-//	layout.Back = "texture/skybox/back.jpg";
-//	layout.Front = "texture/skybox/front.jpg";
-//
-//	TextureList.DiffuseMap = Texture2D(renderer, tileSet.DiffuseMap);
-//	TextureList.SpecularMap = Texture2D(renderer, tileSet.SpecularMap);
-//	TextureList.NormalMap = Texture2D(renderer, tileSet.NormalMap);
-//	TextureList.DisplacementMap = Texture2D(renderer, tileSet.AlphaMap);
-//	TextureList.EmissionMap = Texture2D(renderer, tileSet.EmissionMap);
-//	TextureList.AlphaMap = Texture2D(renderer, tileSet.AlphaMap);
-//	TextureList.CubeMap = CubeMapTexture(renderer, layout);
-//
-//	const unsigned int TileSize = 16;
-//	const float AmtXAxisTiles = TextureList.DiffuseMap.Width / TileSize;
-//	const float AmtYAxisTiles = TextureList.DiffuseMap.Height / TileSize;
-//	const float UVTileLocU = 1 / AmtXAxisTiles;
-//	const float UVTileLocV = 1 / AmtYAxisTiles;
-//
-//	for (int x = 0; x <= AmtXAxisTiles; x++)
-//	{
-//		for (int y = 0; y < AmtYAxisTiles; y++)
-//		{
-//			TileMap[x + (y * AmtXAxisTiles)] = glm::ivec2(x + 1, y);
-//		}
-//	}
-//}
-//
-//void LevelMesh2D::CreateLevelGeometry()
-//{
-//	const unsigned int TileSize = 16;
-//	const float AmtXAxisTiles = TextureList.DiffuseMap.Width / TileSize;
-//	const float AmtYAxisTiles = TextureList.DiffuseMap.Height / TileSize;
-//	const float UVTileLocU = 1 / AmtXAxisTiles;
-//	const float UVTileLocV = 1 / AmtYAxisTiles;
-//
-//	MapLocs = { 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
-//				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
-//				5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
-//				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
-//				5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
-//				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
-//				13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 12, 5, };
-//
-//	for (unsigned int x = 1; x < LevelBoundsX; x++)
-//	{
-//		for (unsigned int y = 1; y < LevelBoundsY; y++)
-//		{
-//			const unsigned int VertexCount = VertexList.size();
-//			const Vertex BottomLeftVertex = { {x, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x, UVTileLocV * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y - 1)}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
-//			const Vertex BottomRightVertex = { {x + 1.0f, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x - 1), UVTileLocV * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y - 1)}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
-//			const Vertex TopRightVertex = { {x + 1.0f, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x - 1), UVTileLocV * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y }, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
-//			const Vertex TopLeftVertex = { {x, y + 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x, UVTileLocV * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
-//
-//			VertexList.emplace_back(BottomLeftVertex);
-//			VertexList.emplace_back(BottomRightVertex);
-//			VertexList.emplace_back(TopRightVertex);
-//			VertexList.emplace_back(TopLeftVertex);
-//
-//			IndexList.emplace_back(VertexCount);
-//			IndexList.emplace_back(VertexCount + 1);
-//			IndexList.emplace_back(VertexCount + 2);
-//			IndexList.emplace_back(VertexCount + 2);
-//			IndexList.emplace_back(VertexCount + 3);
-//			IndexList.emplace_back(VertexCount);
-//		}
-//	}
-//}
-//
-//void LevelMesh2D::Update(Renderer& renderer, Camera& camera, Lights light)
-//{
-//	LevelMesh.Update(renderer, camera, light);
-//}
-//
-//void LevelMesh2D::Draw(Renderer& renderer, int currentFrame)
-//{
-//	LevelMesh.Draw(renderer, currentFrame);
-//}
-//
-//void LevelMesh2D::Destory(Renderer& renderer)
-//{
-//	TextureList.DiffuseMap.Destroy(renderer);
-//	TextureList.SpecularMap.Destroy(renderer);
-//	TextureList.NormalMap.Destroy(renderer);
-//	TextureList.DisplacementMap.Destroy(renderer);
-//	TextureList.AlphaMap.Destroy(renderer);
-//	TextureList.CubeMap.Destroy(renderer);
-//	LevelMesh.Destroy(renderer);
-//}
-//
+#include "LevelMesh2D.h"
+#include "Texture2D.h"
+
+LevelMesh2D::LevelMesh2D() : BaseMesh()
+{
+}
+
+LevelMesh2D::LevelMesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
+{
+    Vertexdata = vertexdata;
+    VertexSize = vertexdata.size();
+    IndexSize = indicesdata.size();
+
+    LoadTiles(renderer, textureManager, textures);
+    CreateVertexBuffer(renderer, vertexdata);
+    CreateIndexBuffer(renderer, indicesdata);
+    CreateUniformBuffers(renderer);
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager, descriptorSetLayout);
+    CreateMaterialProperties();
+}
+
+LevelMesh2D::~LevelMesh2D()
+{
+}
+
+void LevelMesh2D::CreateMaterialProperties()
+{
+    properites.material.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
+    properites.material.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+    properites.material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    properites.material.shininess = 32;
+    properites.material.reflectivness = 0;
+    properites.minLayers = 8.0f;
+    properites.maxLayers = 32.0f;
+    properites.heightScale = 0.1f;
+}
+
+void LevelMesh2D::LoadTiles(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
+{
+    if (!textures.DiffuseMap.empty())
+    {
+        DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
+        properites.UseDiffuseMapBit = 1;
+    }
+    if (!textures.SpecularMap.empty())
+    {
+        SpecularMapID = textureManager->LoadTexture(renderer, textures.SpecularMap, VK_FORMAT_R8G8B8A8_UNORM);
+        properites.UseSpecularMapBit = 1;
+    }
+    if (!textures.NormalMap.empty())
+    {
+        NormalMapID = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
+        properites.UseNormalMapBit = 1;
+    }
+    if (!textures.AlphaMap.empty())
+    {
+        AlphaMapID = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
+        properites.UseAlphaMapBit = 1;
+    }
+    if (!textures.EmissionMap.empty())
+    {
+        EmissionMapID = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
+        properites.UseEmissionMapBit = 1;
+    }
+}
+
+void LevelMesh2D::CreateUniformBuffers(VulkanRenderer& renderer)
+{
+    uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
+    lightBuffer = VulkanUniformBuffer(renderer, sizeof(LightBufferObject));
+    meshPropertiesBuffer = VulkanUniformBuffer(renderer, sizeof(MeshProperties));
+}
+
+void LevelMesh2D::CreateDescriptorPool(VulkanRenderer& renderer) {
+
+    std::array<DescriptorPoolSizeInfo, 8>  DescriptorPoolInfo = {};
+
+    DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+    BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+}
+
+void LevelMesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout)
+{
+    BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
+
+    VkDescriptorImageInfo DiffuseMap = {};
+    DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    DiffuseMap.imageView = textureManager->GetTextureByID(DiffuseMapID).View;
+    DiffuseMap.sampler = textureManager->GetTextureByID(DiffuseMapID).Sampler;
+
+    VkDescriptorImageInfo SpecularMap = {};
+    SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    SpecularMap.imageView = textureManager->GetTextureByID(SpecularMapID).View;
+    SpecularMap.sampler = textureManager->GetTextureByID(SpecularMapID).Sampler;
+
+    VkDescriptorImageInfo NormalMap = {};
+    NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    NormalMap.imageView = textureManager->GetTextureByID(NormalMapID).View;
+    NormalMap.sampler = textureManager->GetTextureByID(NormalMapID).Sampler;
+
+    VkDescriptorImageInfo AlphaMap = {};
+    AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    AlphaMap.imageView = textureManager->GetTextureByID(DiffuseMapID).View;
+    AlphaMap.sampler = textureManager->GetTextureByID(DiffuseMapID).Sampler;
+
+    VkDescriptorImageInfo EmissionMap = {};
+    EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    EmissionMap.imageView = textureManager->GetTextureByID(DiffuseMapID).View;
+    EmissionMap.sampler = textureManager->GetTextureByID(DiffuseMapID).Sampler;
+
+    for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
+    {
+        VkDescriptorBufferInfo PositionInfo = {};
+        PositionInfo.buffer = uniformBuffer.GetUniformBuffer(i);
+        PositionInfo.offset = 0;
+        PositionInfo.range = sizeof(UniformBufferObject);
+
+        VkDescriptorBufferInfo LightInfo = {};
+        LightInfo.buffer = lightBuffer.GetUniformBuffer(i);
+        LightInfo.offset = 0;
+        LightInfo.range = sizeof(LightBufferObject);
+
+        VkDescriptorBufferInfo meshPropertiesInfo = {};
+        meshPropertiesInfo.buffer = meshPropertiesBuffer.GetUniformBuffer(i);
+        meshPropertiesInfo.offset = 0;
+        meshPropertiesInfo.range = sizeof(MeshProperties);
+
+        std::vector<WriteDescriptorSetInfo> DescriptorList;
+
+        WriteDescriptorSetInfo PositionDescriptor;
+        PositionDescriptor.DstBinding = 0;
+        PositionDescriptor.DstSet = DescriptorSets[i];
+        PositionDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        PositionDescriptor.DescriptorBufferInfo = PositionInfo;
+        DescriptorList.emplace_back(PositionDescriptor);
+
+        WriteDescriptorSetInfo DiffuseMapDescriptor;
+        DiffuseMapDescriptor.DstBinding = 1;
+        DiffuseMapDescriptor.DstSet = DescriptorSets[i];
+        DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        DiffuseMapDescriptor.DescriptorImageInfo = DiffuseMap;
+        DescriptorList.emplace_back(DiffuseMapDescriptor);
+
+        WriteDescriptorSetInfo SpecularMapDescriptor;
+        SpecularMapDescriptor.DstBinding = 2;
+        SpecularMapDescriptor.DstSet = DescriptorSets[i];
+        SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
+        DescriptorList.emplace_back(SpecularMapDescriptor);
+
+        WriteDescriptorSetInfo NormalMapDescriptor;
+        NormalMapDescriptor.DstBinding = 3;
+        NormalMapDescriptor.DstSet = DescriptorSets[i];
+        NormalMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        NormalMapDescriptor.DescriptorImageInfo = NormalMap;
+        DescriptorList.emplace_back(NormalMapDescriptor);
+
+        WriteDescriptorSetInfo AlphaMapDescriptor;
+        AlphaMapDescriptor.DstBinding = 4;
+        AlphaMapDescriptor.DstSet = DescriptorSets[i];
+        AlphaMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        AlphaMapDescriptor.DescriptorImageInfo = AlphaMap;
+        DescriptorList.emplace_back(AlphaMapDescriptor);
+
+        WriteDescriptorSetInfo EmissionMapDescriptor;
+        EmissionMapDescriptor.DstBinding = 5;
+        EmissionMapDescriptor.DstSet = DescriptorSets[i];
+        EmissionMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
+        DescriptorList.emplace_back(EmissionMapDescriptor);
+
+        WriteDescriptorSetInfo  MeshPropertiesDescriptor;
+        MeshPropertiesDescriptor.DstBinding = 6;
+        MeshPropertiesDescriptor.DstSet = DescriptorSets[i];
+        MeshPropertiesDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        MeshPropertiesDescriptor.DescriptorBufferInfo = meshPropertiesInfo;
+        DescriptorList.emplace_back(MeshPropertiesDescriptor);
+
+        WriteDescriptorSetInfo LightDescriptor;
+        LightDescriptor.DstBinding = 7;
+        LightDescriptor.DstSet = DescriptorSets[i];
+        LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        LightDescriptor.DescriptorBufferInfo = LightInfo;
+        DescriptorList.emplace_back(LightDescriptor);
+
+        BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
+    }
+}
+
+void LevelMesh2D::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
+{
+    UniformBufferObject ubo{};
+    ubo.model = glm::mat4(1.0f);
+    ubo.model = glm::translate(ubo.model, MeshPosition);
+    ubo.model = glm::scale(ubo.model, MeshScale);
+    ubo.view = camera.GetViewMatrix();
+    ubo.proj = camera.GetProjectionMatrix();
+    ubo.proj[1][1] *= -1;
+
+    UpdateUniformBuffer(renderer, ubo, Lightbuffer);
+}
+
+void LevelMesh2D::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
+{
+    uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
+    lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
+    meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
+}
+
+void LevelMesh2D::Destory(VulkanRenderer& renderer)
+{
+    uniformBuffer.Destroy(renderer);
+    lightBuffer.Destroy(renderer);
+    meshPropertiesBuffer.Destroy(renderer);
+    BaseMesh::Destory(renderer);
+}

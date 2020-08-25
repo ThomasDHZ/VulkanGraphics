@@ -14,5 +14,7 @@ C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe DepthShader.vert -o DepthShaderVert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe DepthShader.frag -o DepthShaderFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe shader.vert -o vert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe shader.frag -o frag.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D.vert -o Shader2DVert.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D.frag -o Shader2DFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe EmptyShader.frag -o EmptyFrag.spv
 pause

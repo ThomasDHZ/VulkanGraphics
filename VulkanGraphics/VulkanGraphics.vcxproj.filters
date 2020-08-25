@@ -138,9 +138,6 @@
     <ClCompile Include="GraphicsPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
-    <ClCompile Include="LevelMesh2D.cpp">
-      <Filter>Source Files\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="FrameBufferMesh.cpp">
       <Filter>Source Files\Mesh</Filter>
     </ClCompile>
@@ -231,6 +228,12 @@
     <ClCompile Include="OrthographicCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Rendering2DPipeline.cpp">
+      <Filter>Source Files\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelMesh2D.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -282,6 +285,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\DepthShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader2D.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader2D.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -397,9 +406,6 @@
     <ClInclude Include="FrameBufferMesh.h">
       <Filter>Header Files\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="LevelMesh2D.h">
-      <Filter>Header Files\Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="CollisionDebugPipeline.h">
       <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
@@ -480,6 +486,12 @@
     </ClInclude>
     <ClInclude Include="SpriteTexture2D.h">
       <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering2DPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelMesh2D.h">
+      <Filter>Header Files\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

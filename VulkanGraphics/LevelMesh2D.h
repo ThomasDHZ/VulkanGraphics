@@ -1,47 +1,38 @@
-//#pragma once
-//#include "BaseMesh.h"
-//#include "UniformBuffer.h"
-//#include "Mesh.h"
-//#include <map>
-//
-//struct TileSet
-//{
-//	std::string DiffuseMap;
-//	std::string SpecularMap;
-//	std::string NormalMap;
-//	std::string DisplacementMap;
-//	std::string EmissionMap;
-//	std::string AlphaMap;
-//};
-//
-//class LevelMesh2D
-//{
-//private:
-//	CubeMapLayout layout;
-//
-//	unsigned int LevelBoundsX = 16;
-//	unsigned int LevelBoundsY = 8;
-//
-//	std::map<int, glm::ivec2> TileMap;
-//	std::vector<int> MapLocs;
-//
-//	std::vector<Vertex> VertexList;
-//	std::vector<uint16_t> IndexList;
-//
-//	TextureMaps TextureList;
-//	Mesh LevelMesh;
-//
-//
-//	void LoadTiles(Renderer& renderer, const TileSet& tileSet);
-//	void CreateLevelGeometry();
-//
-//public:
-//
-//	LevelMesh2D();
-//	LevelMesh2D(Renderer& renderer, const TileSet& tileSet);
-//	~LevelMesh2D();
-//
-//	void Update(Renderer& renderer, Camera& camera, Lights light);
-//	void Draw(Renderer& renderer, int currentFrame);
-//	void Destory(Renderer& renderer);
-//};
+#pragma once
+#include "BaseMesh.h"
+#include "Mesh.h"
+#include <map>
+
+class LevelMesh2D : public BaseMesh
+{
+private:
+
+    VulkanUniformBuffer uniformBuffer;
+    VulkanUniformBuffer lightBuffer;
+    VulkanUniformBuffer meshPropertiesBuffer;
+
+    void LoadTiles(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
+    void CreateUniformBuffers(VulkanRenderer& renderer);
+    void CreateDescriptorPool(VulkanRenderer& renderer);
+    void CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout);
+    void CreateMaterialProperties();
+    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer);
+
+public:
+
+    std::string MeshName;
+    MeshProperties properites;
+
+    std::vector<Vertex> Vertexdata;
+    glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 MeshScale = glm::vec3(1.0f);
+    float RotationAmount = 0.0f;
+
+    LevelMesh2D();
+    LevelMesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+    ~LevelMesh2D();
+
+    void Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
+    void Destory(VulkanRenderer& renderer);
+};

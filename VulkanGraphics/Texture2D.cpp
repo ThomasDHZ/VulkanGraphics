@@ -76,19 +76,18 @@ void Texture2D::CreateTextureSampler(VulkanRenderer& renderer)
 {
 	VkSamplerCreateInfo TextureImageSamplerInfo = {};
 	TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	TextureImageSamplerInfo.magFilter = VK_FILTER_LINEAR;
-	TextureImageSamplerInfo.minFilter = VK_FILTER_LINEAR;
-	TextureImageSamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	TextureImageSamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	TextureImageSamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	TextureImageSamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	TextureImageSamplerInfo.mipLodBias = 0.0f;
-	TextureImageSamplerInfo.maxAnisotropy = 16.0f;
-	TextureImageSamplerInfo.minLod = 0.0f;
-	TextureImageSamplerInfo.maxLod = 1.0f;
-	TextureImageSamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_WHITE;
+	TextureImageSamplerInfo.magFilter = VK_FILTER_NEAREST;
+	TextureImageSamplerInfo.minFilter = VK_FILTER_NEAREST;
+	TextureImageSamplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	TextureImageSamplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	TextureImageSamplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	TextureImageSamplerInfo.anisotropyEnable = VK_FALSE;
+	TextureImageSamplerInfo.maxAnisotropy = 1.0f;
+	TextureImageSamplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	TextureImageSamplerInfo.unnormalizedCoordinates = VK_FALSE;
+	TextureImageSamplerInfo.compareEnable = VK_FALSE;
 	TextureImageSamplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-	TextureImageSamplerInfo.anisotropyEnable = VK_TRUE;
+	TextureImageSamplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
 	Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }

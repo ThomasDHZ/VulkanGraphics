@@ -18,6 +18,9 @@
 #include "ShadowRenderer.h"
 #include <chrono>
 #include "DebugLightMesh.h"
+#include "OrthographicCamera.h"
+#include "LevelMesh2D.h"
+#include "Sprite.h"
 
 class RendererManager : public VulkanRenderer
 {
@@ -34,12 +37,15 @@ private:
 	TextureRenderer textureRenderer;
 	FramebufferRenderer frameBufferRenderer;
 	ShadowRenderer shadowRenderer;
-	Camera lightCamera;
+	//Camera lightCamera;
 	Camera camera;
+	OrthographicCamera OrthoCamera;
 
 	DebugLightMesh debugLightMesh;
 	SkyBoxMesh Skybox;
 	std::vector<Mesh> MeshList;
+
+	std::vector<LevelMesh2D> LevelMesh;
 
 	LightBufferObject light;
 	MeshProperties meshProp;

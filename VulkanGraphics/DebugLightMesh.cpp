@@ -99,6 +99,19 @@ void DebugLightMesh::Update(VulkanRenderer& renderer, Camera& camera, MeshColor 
     UpdateUniformBuffer(renderer, ubo, MeshColorBuffer);
 }
 
+void DebugLightMesh::Update(VulkanRenderer& renderer, OrthographicCamera& camera, MeshColor MeshColorBuffer)
+{
+    UniformBufferObject ubo{};
+    ubo.model = glm::mat4(1.0f);
+    ubo.model = glm::translate(ubo.model, MeshPosition);
+    ubo.model = glm::scale(ubo.model, MeshScale);
+    ubo.view = camera.GetViewMatrix();
+    ubo.proj = camera.GetProjectionMatrix();
+    ubo.proj[1][1] *= -1;
+
+    UpdateUniformBuffer(renderer, ubo, MeshColorBuffer);
+}
+
 void DebugLightMesh::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshColor MeshColorBuffer)
 {
     uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));

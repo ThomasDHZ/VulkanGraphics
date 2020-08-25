@@ -17,7 +17,8 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 	frameBuffer = FrameBufferMesh(*GetVulkanRendererBase(), textureRenderer.ColorTexture, frameBufferRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
-	lightCamera = Camera(glm::vec3(0.5f, 1.0f, 0.3f));
+	//lightCamera = Camera(glm::vec3(0.5f, 1.0f, 0.3f));
+	OrthoCamera = OrthographicCamera(16.0f , 9.0f );
 
 }
 
@@ -151,10 +152,10 @@ uint32_t RendererManager::Draw(GLFWwindow* window)
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
-	ShadowRenderPass();
-	DrawToTextureRenderPass();
+	//ShadowRenderPass();
+	//DrawToTextureRenderPass();
 	MainRenderPass();
-	FrameBufferRenderPass();
+	//FrameBufferRenderPass();
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -274,8 +275,23 @@ void RendererManager::MainRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : MeshList)
-	{
+	//for (auto mesh : MeshList)
+	//{
+	//	if (mesh.RenderBitFlags & RendererBitFlag::RenderOnMainPass)
+	//	{
+	//		if (Settings.ShowMeshLines)
+	//		{
+	//			forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.wireFramePipeline, mesh);
+	//		}
+	//		else
+	//		{
+	//			forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.renderer2DPipeline, mesh);
+	//		}
+	//	}
+	//}
+	//forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, Skybox);
+	for (auto mesh : LevelMesh)
+{
 		if (mesh.RenderBitFlags & RendererBitFlag::RenderOnMainPass)
 		{
 			if (Settings.ShowMeshLines)
@@ -284,11 +300,10 @@ void RendererManager::MainRenderPass()
 			}
 			else
 			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.forwardRendereringPipeline, mesh);
+				forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.renderer2DPipeline, mesh);
 			}
 		}
 	}
-	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, Skybox);
 	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.DebugLightPipeline, debugLightMesh);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);

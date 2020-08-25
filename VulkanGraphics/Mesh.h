@@ -7,6 +7,7 @@
 #include "BaseMesh.h"
 #include "Camera.h"
 #include "CubeMapTexture.h"
+#include "OrthographicCamera.h"
 
 struct DirectionalLightStruct {
     alignas(16) glm::vec3 direction = glm::vec3(-0.2f, -1.0f, -0.3f);
@@ -77,6 +78,7 @@ struct Material
 struct MeshProperties
 {
     Material material;
+    alignas(8) glm::vec2 UVOffset = glm::vec2(0.0f, 0.5f);
     alignas(4) int UseDiffuseMapBit = 0;
     alignas(4) int UseSpecularMapBit = 0;
     alignas(4) int UseNormalMapBit = 0;
@@ -133,6 +135,7 @@ public:
     ~Mesh();
 
     void Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Lightbuffer);
+    void Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
     void Destory(VulkanRenderer& renderer);
 };
 

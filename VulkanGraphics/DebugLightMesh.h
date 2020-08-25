@@ -36,6 +36,7 @@ public:
     ~DebugLightMesh();
 
     void Update(VulkanRenderer& renderer, Camera& camera, MeshColor meshColorBuffer);
+    void Update(VulkanRenderer& renderer, OrthographicCamera& camera, MeshColor meshColorBuffer);
     void Destory(VulkanRenderer& renderer);
 };
 

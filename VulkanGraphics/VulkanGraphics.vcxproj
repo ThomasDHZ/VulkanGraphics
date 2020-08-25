@@ -163,6 +163,7 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Level2D.cpp" />
+    <ClCompile Include="LevelMesh2D.cpp" />
     <ClCompile Include="MegaMan.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MMShot.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="OrthographicCamera.cpp" />
     <ClCompile Include="RendererHDRColorTexture.cpp" />
+    <ClCompile Include="Rendering2DPipeline.cpp" />
     <ClCompile Include="ShadowRenderer.cpp" />
     <ClCompile Include="ShadowRenderingPipeline.cpp" />
     <ClCompile Include="SpriteTexture2D.cpp" />
@@ -190,7 +192,6 @@
     <ClCompile Include="RendereredTexture.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Sprite.cpp" />
-    <ClCompile Include="LevelMesh2D.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TextureRenderer.cpp" />
@@ -221,6 +222,8 @@
     <None Include="Shaders\ForwardRendererShader.vert" />
     <None Include="Shaders\FrameBufferShader.frag" />
     <None Include="Shaders\FrameBufferShader.vert" />
+    <None Include="Shaders\Shader2D.frag" />
+    <None Include="Shaders\Shader2D.vert" />
     <None Include="Shaders\ShadowDebug.frag" />
     <None Include="Shaders\ShadowDebug.vert" />
     <None Include="Shaders\SkyboxShader.frag" />
@@ -245,6 +248,7 @@
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Level2D.h" />
+    <ClInclude Include="LevelMesh2D.h" />
     <ClInclude Include="MegaMan.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MMShot.h" />
@@ -252,6 +256,7 @@
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="OrthographicCamera.h" />
     <ClInclude Include="RendererHDRColorTexture.h" />
+    <ClInclude Include="Rendering2DPipeline.h" />
     <ClInclude Include="ShadowRenderer.h" />
     <ClInclude Include="ShadowRenderingPipeline.h" />
     <ClInclude Include="SpriteTexture2D.h" />
@@ -274,7 +279,6 @@
     <ClInclude Include="RendereredTexture.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Sprite.h" />
-    <ClInclude Include="LevelMesh2D.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="TextureRenderer.h" />

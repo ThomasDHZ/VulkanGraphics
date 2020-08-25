@@ -8,10 +8,10 @@
 //	Animation2D RunAni;
 //public:
 //	MegaMan();
-//	MegaMan(Renderer& renderer, TextureMaps SpriteMaps, glm::vec2 StartPos);
-//	MegaMan(Renderer& renderer, TextureMaps SpriteMaps, glm::vec3 StartPos);
+//	MegaMan(VulkanRenderer& renderer, MeshTextures SpriteMaps, glm::vec2 StartPos);
+//	MegaMan(VulkanRenderer& renderer, MeshTextures SpriteMaps, glm::vec3 StartPos);
 //	~MegaMan();
 //
-//	void Update(GLFWwindow* window, Renderer& renderer, Camera& camera, Lights light);
+//	void Update(GLFWwindow* window, VulkanRenderer& renderer, Camera& camera, UniformBufferObject light);
 //};
 //

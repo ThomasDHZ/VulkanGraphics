@@ -4,7 +4,7 @@
 //{
 //}
 //
-//MegaMan::MegaMan(Renderer& renderer, TextureMaps SpriteMaps, glm::vec2 StartPos) : Sprite(renderer, 1.0f, 1.0f, SpriteMaps, StartPos, SpriteType::SMegaMan)
+//MegaMan::MegaMan(VulkanRenderer& renderer, MeshTextures SpriteMaps, glm::vec2 StartPos) : Sprite(renderer, 1.0f, 1.0f, SpriteMaps, StartPos, SpriteType::SMegaMan)
 //{
 //	AnimationFrame[Stand1] = glm::vec2(0.011f, 0.0f);
 //	AnimationFrame[Stand2] = glm::vec2(0.144f, 0.0f);
@@ -22,7 +22,7 @@
 //	CurrentAni = StandAni;
 //}
 //
-//MegaMan::MegaMan(Renderer& renderer, TextureMaps SpriteMaps, glm::vec3 StartPos) : Sprite(renderer, 1.0f, 1.0f, SpriteMaps, StartPos, SpriteType::SMegaMan)
+//MegaMan::MegaMan(VulkanRenderer& renderer, MeshTextures SpriteMaps, glm::vec3 StartPos) : Sprite(renderer, 1.0f, 1.0f, SpriteMaps, StartPos, SpriteType::SMegaMan)
 //{
 //
 //
@@ -46,45 +46,45 @@
 //{
 //}
 //
-//void MegaMan::Update(GLFWwindow* window, Renderer& renderer, Camera& camera, Lights light)
+//void MegaMan::Update(GLFWwindow* window, VulkanRenderer& renderer, Camera& camera, UniformBufferObject light)
 //{
-//	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ||
-//		glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-//	{
-//		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-//		{
-//			/*if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x)
-//			{*/
-//			SpriteMesh.MeshPosition.x -= 0.001f;
-//			SpriteMesh.properites.FlipTexture = 1;
-//			camera.Position.x -= 0.001f;
-//			/*}*/
-//		}
-//		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-//		{
-//			/*if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x - 1.0f)
-//			{*/
-//			SpriteMesh.MeshPosition.x += 0.001f;
-//			SpriteMesh.properites.FlipTexture = 0;
-//			camera.Position.x += 0.001f;
-//			//}
-//			//else
-//			//{
-//			//	SpriteMesh.MeshPosition.x = otherSprite.MeshPosition.x - 1.0f;
-//			//}
-//		}
-//		if (CurrentAni.GetAnimationID() != RunAni.GetAnimationID())
-//		{
-//			CurrentAni = RunAni;
-//		}
-//	}
-//	else
-//	{
-//		if (CurrentAni.GetAnimationID() != StandAni.GetAnimationID())
-//		{
-//			CurrentAni = StandAni;
-//		}
-//	}
+//	//if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ||
+//	//	glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+//	//{
+//	//	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+//	//	{
+//	//		/*if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x)
+//	//		{*/
+//	//		SpriteMesh.MeshPosition.x -= 0.001f;
+//	//		SpriteMesh.properites.FlipTexture = 1;
+//	//		camera.Position.x -= 0.001f;
+//	//		/*}*/
+//	//	}
+//	//	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+//	//	{
+//	//		/*if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x - 1.0f)
+//	//		{*/
+//	//		SpriteMesh.MeshPosition.x += 0.001f;
+//	//		SpriteMesh.properites.FlipTexture = 0;
+//	//		camera.Position.x += 0.001f;
+//	//		//}
+//	//		//else
+//	//		//{
+//	//		//	SpriteMesh.MeshPosition.x = otherSprite.MeshPosition.x - 1.0f;
+//	//		//}
+//	//	}
+//	//	if (CurrentAni.GetAnimationID() != RunAni.GetAnimationID())
+//	//	{
+//	//		CurrentAni = RunAni;
+//	//	}
+//	//}
+//	//else
+//	//{
+//	//	if (CurrentAni.GetAnimationID() != StandAni.GetAnimationID())
+//	//	{
+//	//		CurrentAni = StandAni;
+//	//	}
+//	//}
 //
-//	Sprite::Update(renderer, camera, light);
+//	//Sprite::Update(renderer, camera, light);
 //}

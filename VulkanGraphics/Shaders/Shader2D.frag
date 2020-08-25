@@ -1,15 +1,6 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-
-const int UseDiffuseMapBit    = 0x00000001;
-const int UseSpecularMapBit   = 0x00000002;
-const int UseNormalMapBit     = 0x00000004;
-const int UseDepthMapBit      = 0x00000008;
-const int UseAlphaMapBit      = 0x00000016;
-const int UseEmissionMapBit   = 0x00000032;
-const int UseSkyBoxBit        = 0x00000064;
-
 struct MapBits
 {
      int UseDiffuseMapBit;
@@ -67,12 +58,9 @@ struct SpotLightStruct {
 layout(binding = 1) uniform sampler2D DiffuseMap;
 layout(binding = 2) uniform sampler2D SpecularMap;
 layout(binding = 3) uniform sampler2D normalMap;
-layout(binding = 4) uniform sampler2D depthMap;
-layout(binding = 5) uniform sampler2D AlphaMap;
-layout(binding = 6) uniform sampler2D EmissionMap;
-layout(binding = 7) uniform sampler2D ReflectionMap;
-layout(binding = 8) uniform samplerCube SkyBox;
-layout(binding = 9) uniform MeshProperties
+layout(binding = 4) uniform sampler2D AlphaMap;
+layout(binding = 5) uniform sampler2D EmissionMap;
+layout(binding = 6) uniform MeshProperties
 {
     Material material;
    // MapBits mapBitsFlags;
@@ -89,7 +77,7 @@ layout(binding = 9) uniform MeshProperties
     float maxLayers;
     float heightScale;
 } meshProperties;
-layout(binding = 10) uniform Light
+layout(binding = 7) uniform Light
 {
     DirectionalLightStruct dLight;
     PointLightStruct pLight;
@@ -101,7 +89,6 @@ layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec2 TexCoords;
 layout(location = 2) in vec3 Normal;
 layout(location = 3) in mat3 TBN;
-
 
 layout(location = 0) out vec4 FragColor;
 
@@ -200,92 +187,26 @@ vec3 SpotLight(vec3 TangentLightPos, vec3 TangentFragPos, vec3 V, vec3 N, vec2 U
         return (ambient + diffuse + specular);
 }
 
-vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
-{ 
-    // number of depth layers
-    float numLayers = mix(meshProperties.maxLayers, meshProperties.minLayers, abs(dot(vec3(0.0, 0.0, 1.0), viewDir)));  
-    // calculate the size of each layer
-    float layerDepth = 1.0 / numLayers;
-    // depth of current layer
-    float currentLayerDepth = 0.0;
-    // the amount to shift the texture coordinates per layer (from vector P)
-    vec2 P = viewDir.xy / viewDir.z * meshProperties.heightScale; 
-    vec2 deltaTexCoords = P / numLayers;
-  
-    // get initial values
-    vec2  currentTexCoords     = texCoords;
-    float currentDepthMapValue = texture(depthMap, currentTexCoords).r;
-      
-    while(currentLayerDepth < currentDepthMapValue)
-    {
-        // shift texture coordinates along direction of P
-        currentTexCoords -= deltaTexCoords;
-        // get depthmap value at current texture coordinates
-        currentDepthMapValue = texture(depthMap, currentTexCoords).r;  
-        // get depth of next layer
-        currentLayerDepth += layerDepth;  
-    }
-    
-    // get texture coordinates before collision (reverse operations)
-    vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
-
-    // get depth after and before collision for linear interpolation
-    float afterDepth  = currentDepthMapValue - currentLayerDepth;
-    float beforeDepth = texture(depthMap, prevTexCoords).r - currentLayerDepth + layerDepth;
- 
-    // interpolation of texture coordinates
-    float weight = afterDepth / (afterDepth - beforeDepth);
-    vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
-
-    return finalTexCoords;
-}
-
 void main()
 {           
-   //  RemoveAlphaPixels();
+    RemoveAlphaPixels();
 
-    vec3 ambient = vec3(1.0f, 0.0f, 0.0f);
-    vec3 diffuse = vec3(1.0f, 0.0f, 0.0f);
-    vec3 specular = vec3(1.0f, 0.0f, 0.0f);
-    vec3 result = vec3(1.0f, 0.0f, 0.0f);
     vec3 V = light.viewPos;
     vec3 N = Normal;
     vec2 UV = TexCoords + meshProperties.UVOffset;
 
+    vec3 TangentLightDirection = TBN * light.dLight.direction;
     vec3 TangentLightPos = TBN * light.pLight.position;
     vec3 TangentViewPos  = TBN * light.viewPos;
     vec3 TangentFragPos  = TBN * FragPos;
-    
-     if (meshProperties.UseDepthMapBit  == 1)
-        {
-        V = normalize(TangentViewPos - TangentFragPos);
 
-            UV = ParallaxMapping(UV,  V);       
-            if(UV.x > 1.0 || UV.y > 1.0 || UV.x < 0.0 || UV.y < 0.0)
-            {
-                discard;
-            }
-       }
-        if (meshProperties.UseNormalMapBit  == 1)
-        {
-            N = texture(normalMap, UV).rgb;
-            N = normalize(N * 2.0 - 1.0);   
-        }
-
-		result = PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
-
-
-    vec3 I = normalize(FragPos - light.viewPos);
-    vec3 R = reflect(I, normalize(N));
-    vec3 Reflected = texture(SkyBox, R).rgb;
-    if (meshProperties.UseReflectionMapBit  == 1)
+    if (meshProperties.UseNormalMapBit  == 1)
     {
-        result = mix(result, Reflected, texture(ReflectionMap, UV).r);
-    }
-    else
-    {
-        result = mix(result, Reflected, meshProperties.material.reflectivness);
-    }
+        N = texture(normalMap, UV).rgb;
+        N = normalize(N * 2.0 - 1.0);   
+   }
 
-    FragColor = vec4(result, 1.0);
+   vec3 result = DirectionalLight( V,  N,  UV, light.dLight);
+   result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
+   FragColor = vec4(result, 1.0);
 }

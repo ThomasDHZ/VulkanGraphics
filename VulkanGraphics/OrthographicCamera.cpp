@@ -1,44 +1,25 @@
 #include "OrthographicCamera.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-//OrthographicCamera::OrthographicCamera()
-//{
-//}
-//
-//OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top)
-//	: m_ProjectionMatrix(glm::ortho(left, right, bottom, top, -1.0f, 1.0f)), m_ViewMatrix(1.0f)
-//{
-//
-//	m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
-//}
-//
-//void OrthographicCamera::SetProjection(float left, float right, float bottom, float top)
-//{
-//
-//	m_ProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
-//	m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
-//}
-//
-//void OrthographicCamera::RecalculateViewMatrix()
-//{
-//	
-//
-//	glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position) *
-//		glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), glm::vec3(0, 0, 1));
-//
-//	m_ViewMatrix = glm::inverse(transform);
-//	m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
-//}
-
 OrthographicCamera::OrthographicCamera()
 {
 }
 
-OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top)
+OrthographicCamera::OrthographicCamera(float width, float height)
 {
 	Position = glm::vec3(0.0f);
 	Rotation = 0.0f;
-	ProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
+	ViewScreenSize = glm::vec2(width, height);
+	ProjectionMatrix = glm::ortho(-ViewScreenSize.x, ViewScreenSize.x, -ViewScreenSize.y, ViewScreenSize.y, -2.0f, 2.0f);
+	ViewMatrix = glm::mat4(1.0f);
+}
+
+OrthographicCamera::OrthographicCamera(glm::vec2 viewScreenSize)
+{
+	Position = glm::vec3(0.0f);
+	Rotation = 0.0f;
+	ViewScreenSize = viewScreenSize;
+	ProjectionMatrix = glm::ortho(-ViewScreenSize.x, ViewScreenSize.x, -ViewScreenSize.y, ViewScreenSize.y, -2.0f, 2.0f);
 	ViewMatrix = glm::mat4(1.0f);
 }
 
@@ -46,9 +27,9 @@ void OrthographicCamera::ProcessKeyboard(Camera_Movement direction, float deltaT
 {
 	float velocity = MovementSpeed * deltaTime;
 	if (direction == FORWARD)
-		Position.z -=  5.0f * velocity;
+		Zoom -=  5.0f * velocity;
 	if (direction == BACKWARD)
-		Position.z += 5.0f * velocity;
+		Zoom += 5.0f * velocity;
 	if (direction == UP)
 		Position.y -= 5.0f * velocity;
 	if (direction == DOWN)
@@ -92,10 +73,10 @@ void OrthographicCamera::SetRotation(float rotation)
 
 void OrthographicCamera::UpdateView()
 {
-	glm::mat4 transform = glm::translate(glm::mat4(1.0f), Position) *
-	glm::rotate(glm::mat4(1.0f), glm::radians(Rotation), glm::vec3(0, 0, 1));
+	glm::mat4 transform = glm::translate(glm::mat4(1.0f), Position) * glm::rotate(glm::mat4(1.0f), glm::radians(Rotation), glm::vec3(0, 0, 1));
+	ViewMatrix = glm::inverse(transform);
 
-	ViewMatrix = glm::inverse(transform);
-	ViewMatrix = glm::inverse(transform);
+	ProjectionMatrix = glm::ortho(-ViewScreenSize.x + Zoom, ViewScreenSize.x + Zoom, -ViewScreenSize.y + Zoom, ViewScreenSize.y + Zoom, -1.0f, 1.0f);
+
 }
 

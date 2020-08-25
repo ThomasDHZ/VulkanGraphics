@@ -2,6 +2,7 @@
 #include "RendererDepthTexture.h"
 #include "RendererHDRColorTexture.h"
 #include "RendererBase.h"
+#include "Rendering2DPipeline.h"
 
 class ForwardRenderer : public RendererBase
 {
@@ -18,6 +19,7 @@ public:
 	void Destroy(VulkanRenderer& renderer);
 
 	ForwardRenderingPipeline forwardRendereringPipeline;
+	Rendering2DPipeline renderer2DPipeline;
 	SkyBoxPipeline skyboxPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
 	//CollisionDebugPipeline DebugCollisionPipeline;
