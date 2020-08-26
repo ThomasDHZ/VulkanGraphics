@@ -1,5 +1,6 @@
 #include "RendererManager.h"
 #include <set>
+#include "Mesh2D.h"
 
 RendererManager::RendererManager() : VulkanRenderer()
 {
@@ -24,6 +25,11 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 
 RendererManager::~RendererManager()
 {
+}
+
+void RendererManager::AddDrawableMesh(std::shared_ptr<BaseMesh> mesh)
+{
+	ObjectMesh.emplace_back(mesh);
 }
 
 //void RendererManager::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
@@ -152,10 +158,10 @@ uint32_t RendererManager::Draw(GLFWwindow* window)
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
-	ShadowRenderPass();
-	DrawToTextureRenderPass();
+	//ShadowRenderPass();
+	//DrawToTextureRenderPass();
 	MainRenderPass();
-	FrameBufferRenderPass();
+	//FrameBufferRenderPass();
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -247,7 +253,7 @@ void RendererManager::DrawToTextureRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : LevelMesh)
+	for (auto mesh : ObjectMesh)
 	{
 		if (mesh->RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
 		{
@@ -291,7 +297,7 @@ void RendererManager::MainRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : LevelMesh)
+	for (auto mesh : ObjectMesh)
 {
 		if (mesh->RenderBitFlags & RendererBitFlag::RenderOnMainPass)
 		{
@@ -360,7 +366,7 @@ void RendererManager::ShadowRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : LevelMesh)
+	for (auto mesh : ObjectMesh)
 	{
 		if (mesh->RenderBitFlags & RendererBitFlag::RenderShadow)
 		{

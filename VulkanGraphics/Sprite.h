@@ -1,4 +1,5 @@
 #pragma once
+#include "RendererManager.h"
 #include "Mesh2D.h"
 #include "Animation2D.h"
 #include <map>
@@ -39,16 +40,16 @@ public:
 	std::map<SpriteAnime, glm::vec2> AnimationFrame;
 	std::shared_ptr<Mesh2D> SpriteMesh;
 	glm::vec2 UVOffset = glm::vec2(0.0f);
-	ColisionGeo CollisionVertexs;
+	//ColisionGeo CollisionVertexs;
 
 	Sprite();
-	Sprite(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
-	Sprite(VulkanRenderer& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type);
+	Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+	Sprite(RendererManager& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type);
 	~Sprite();
 
-	virtual void Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject light);
+	virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light);
 	//void Draw(VulkanRenderer& renderer, int currentFrame);
-	void Destory(VulkanRenderer& renderer);
+	void Destory(RendererManager& renderer);
 
 	void SetPosition2D(glm::vec2 Pos);
 	void SetPosition2D(float x, float y);

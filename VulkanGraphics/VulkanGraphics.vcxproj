@@ -163,6 +163,7 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Level2D.cpp" />
+    <ClCompile Include="LevelSprite.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Mesh2D.cpp" />
     <ClCompile Include="MegaMan.cpp" />
@@ -176,6 +177,7 @@
     <ClCompile Include="Rendering2DPipeline.cpp" />
     <ClCompile Include="ShadowRenderer.cpp" />
     <ClCompile Include="ShadowRenderingPipeline.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="SpriteTexture2D.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
@@ -250,6 +252,7 @@
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Level2D.h" />
+    <ClInclude Include="LevelSprite.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh2D.h" />
     <ClInclude Include="MegaMan.h" />
@@ -263,6 +266,7 @@
     <ClInclude Include="Rendering2DPipeline.h" />
     <ClInclude Include="ShadowRenderer.h" />
     <ClInclude Include="ShadowRenderingPipeline.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="SpriteTexture2D.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="VulkanBufferManager.h" />

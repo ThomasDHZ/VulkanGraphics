@@ -1,6 +1,7 @@
 #pragma once
 #include "Mesh2D.h"
 #include "DebugLightMesh.h"
+#include "RendererManager.h"
 
 const std::vector<Vertex> LightVertices = {
 	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
@@ -23,9 +24,9 @@ public:
 	LightBufferObject light;
 
 	Light();
-	Light(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout, int renderBit, glm::vec3 Pos);
+	Light(RendererManager& renderer, VkDescriptorSetLayout& descriptorSetLayout, int renderBit, glm::vec3 Pos);
 	~Light();
 
-	void Update(VulkanRenderer& renderer, OrthographicCamera& camera);
+	void Update(RendererManager& renderer, OrthographicCamera& camera);
 };
 

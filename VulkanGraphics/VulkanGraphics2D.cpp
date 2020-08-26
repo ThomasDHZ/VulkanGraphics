@@ -6,13 +6,14 @@
 
 #include <stb_image.h>
 #include "ImGui/imgui_impl_vulkan.h"
+#include "Sprite.h"
 
 VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 {
 
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = RendererManager(Window.GetWindowPtr());
-	gameManager = GameManager(*renderer.GetVulkanRendererBase());
+	gameManager = GameManager(renderer);
 
 	MeshTextures SparkManTextures = {};
 	SparkManTextures.DiffuseMap = "texture/SparkMan_diffuseOriginal.bmp";
@@ -24,65 +25,11 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	MegaManTextures.SpecularMap = "texture/container2_specular.png";
 	MegaManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 
-	light = Light(*renderer.GetVulkanRendererBase(), renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
+	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 
-	const unsigned int TileSize = 16;
-	const float AmtXAxisTiles = 240 / TileSize;
-	const float AmtYAxisTiles = 32 / TileSize;
-	const float UVTileLocU = 1 / AmtXAxisTiles;
-	const float UVTileLocV = 1 / AmtYAxisTiles;
 
-	for (int x = 0; x <= AmtXAxisTiles; x++)
-	{
-		for (int y = 0; y < AmtYAxisTiles; y++)
-		{
-			TileMap[x + (y * AmtXAxisTiles)] = glm::ivec2(x + 1, y);
-		}
-	}
-
-	MapLocs = { 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
-				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
-				5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
-				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
-				5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6, 5, 6,
-				3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4,
-				13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 12, 5, };
-
-	for (unsigned int x = 1; x < LevelBoundsX; x++)
-	{
-		for (unsigned int y = 1; y < LevelBoundsY; y++)
-		{
-			const unsigned int VertexCount = VertexList.size();
-			const Vertex BottomLeftVertex = { {x, y, -0.01f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x, UVTileLocV * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y - 1)}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
-			const Vertex BottomRightVertex = { {x + 1.0f, y, -0.01f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x - 1), UVTileLocV * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y - 1)}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
-			const Vertex TopRightVertex = { {x + 1.0f, y + 1.0f, -0.01f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * (TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x - 1), UVTileLocV * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y }, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
-			const Vertex TopLeftVertex = { {x, y + 1.0f, -0.01f}, {0.0f, 0.0f, 1.0f}, {UVTileLocU * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].x, UVTileLocV * TileMap[MapLocs[x + ((y - 1) * LevelBoundsX)]].y}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f} };
-
-			VertexList.emplace_back(BottomLeftVertex);
-			VertexList.emplace_back(BottomRightVertex);
-			VertexList.emplace_back(TopRightVertex);
-			VertexList.emplace_back(TopLeftVertex);
-
-			IndexList.emplace_back(VertexCount);
-			IndexList.emplace_back(VertexCount + 1);
-			IndexList.emplace_back(VertexCount + 2);
-			IndexList.emplace_back(VertexCount + 2);
-			IndexList.emplace_back(VertexCount + 3);
-			IndexList.emplace_back(VertexCount);
-		}
-	}
-
-	sprite.emplace_back(Sprite(*renderer.GetVulkanRendererBase(), gameManager.textureManager, 1.0f, 1.0f, MegaManTextures, glm::vec2(0.0f, 0.0f), SpriteType::SMegaMan, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	levelMesh = Mesh2D(*renderer.GetVulkanRendererBase(), gameManager.textureManager, VertexList, IndexList, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
-
-	renderer.LevelMesh.emplace_back(std::make_shared<Mesh2D>(levelMesh));
-	renderer.LevelMesh.emplace_back(sprite[0].SpriteMesh);
-	renderer.LevelMesh.emplace_back(light.LightMesh);
-
-	
-	//renderer.LevelMesh.emplace_back(std::make_shared<Mesh2D>(Mesh2D(*renderer.GetVulkanRendererBase(), gameManager.textureManager, MegaManVertices, MegaManIndices, MegaManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass)));
-	//renderer.debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), LightVertices, LightIndices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
-
+	sprite.emplace_back(Sprite(renderer, gameManager.textureManager, 1.0f, 1.0f, MegaManTextures, glm::vec2(0.0f, 0.0f), SpriteType::SMegaMan, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
 }
 
 VulkanGraphics2D::~VulkanGraphics2D()
@@ -168,7 +115,7 @@ void VulkanGraphics2D::UpdateImGUI()
 
 void VulkanGraphics2D::Update(uint32_t DrawFrame)
 {
-	levelMesh.Update(renderer, renderer.OrthoCamera, light.light);
+	level.Update(renderer, renderer.OrthoCamera, light.light);
 	for (auto mesh2 : sprite)
 	{
 		mesh2.Update(renderer, renderer.OrthoCamera, light.light);

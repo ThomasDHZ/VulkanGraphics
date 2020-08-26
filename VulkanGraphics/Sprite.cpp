@@ -4,7 +4,7 @@ Sprite::Sprite()
 {
 }
 
-Sprite::Sprite(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type, VkDescriptorSetLayout& descriptorSetLayout, int renderBit)
+Sprite::Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type, VkDescriptorSetLayout& descriptorSetLayout, int renderBit)
 {
 	const std::vector<Vertex> MegaManVertices =
 	{
@@ -22,11 +22,11 @@ Sprite::Sprite(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureM
 	Type = type;
 	SpriteMaps = spriteMaps;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, SpriteMaps, descriptorSetLayout, renderBit));
+	renderer.AddDrawableMesh(SpriteMesh);
 	SetPosition2D(StartPos);
-
 }
 
-Sprite::Sprite(VulkanRenderer& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type)
+Sprite::Sprite(RendererManager& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type)
 {
 	const std::vector<Vertex> MegaManVertices =
 	{
@@ -51,7 +51,7 @@ Sprite::~Sprite()
 {
 }
 
-void Sprite::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject light)
+void Sprite::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
 {
 	//CurrentAni.Update();
 	//SpriteMesh->properites.UVOffset = glm::vec2(CurrentAni.GetCurrentFrame());
@@ -64,7 +64,7 @@ void Sprite::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightB
 //	///SpriteMesh.Draw(renderer, currentFrame);
 //}
 
-void Sprite::Destory(VulkanRenderer& renderer)
+void Sprite::Destory(RendererManager& renderer)
 {
 	SpriteMesh->Destory(renderer);
 }

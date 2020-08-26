@@ -19,8 +19,7 @@
 #include <chrono>
 #include "DebugLightMesh.h"
 #include "OrthographicCamera.h"
-#include "Mesh2D.h"
-#include "Sprite.h"
+
 
 class RendererManager : public VulkanRenderer
 {
@@ -44,7 +43,7 @@ private:
 	DebugLightMesh debugLightMesh;
 	SkyBoxMesh Skybox;
 
-	std::vector<std::shared_ptr<BaseMesh>> LevelMesh;
+	std::vector<std::shared_ptr<BaseMesh>> ObjectMesh;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
@@ -68,5 +67,6 @@ public:
 	FrameBufferMesh frameBuffer;
 
 	void Update(uint32_t DrawFrame, Camera camera);
+	void AddDrawableMesh(std::shared_ptr<BaseMesh> mesh);
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
 };

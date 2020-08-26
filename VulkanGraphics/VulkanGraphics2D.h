@@ -21,6 +21,9 @@
 #include <map>
 #include "Mesh2D.h"
 #include "Light.h"
+#include "Sprite.h"
+#include "Level2D.h"
+#include "LevelSprite.h"
 
 const std::vector<Vertex> MegaManVertices = {
     {{-0.5f, -0.5f, -0.01f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
@@ -42,19 +45,10 @@ private:
 
     VulkanRendererSettings CompareVulkanSettings;
 
-    unsigned int LevelBoundsX = 16;
-    unsigned int LevelBoundsY = 8;
-
-    std::map<int, glm::ivec2> TileMap;
-    std::vector<int> MapLocs;
-
-    std::vector<Vertex> VertexList;
-    std::vector<uint16_t> IndexList;
-
     Keyboard keyboard;
     Mouse mouse;
     
-    Mesh2D levelMesh;
+    LevelSprite level;
     std::vector<Sprite> sprite;
 
     OrthographicCamera orthoCamera;
