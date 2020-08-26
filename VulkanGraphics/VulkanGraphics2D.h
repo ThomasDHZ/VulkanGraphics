@@ -19,7 +19,7 @@
 #include "FrameBufferMesh.h"
 #include "GameManager.h"
 #include <map>
-#include "LevelMesh2D.h"
+#include "Mesh2D.h"
 
 const std::vector<Vertex> LightVertices = {
     {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
@@ -63,8 +63,9 @@ private:
 
     Keyboard keyboard;
     Mouse mouse;
-
-    Sprite sprite;
+    
+    Mesh2D levelMesh;
+    std::vector<Sprite> sprite;
 
     OrthographicCamera orthoCamera;
 

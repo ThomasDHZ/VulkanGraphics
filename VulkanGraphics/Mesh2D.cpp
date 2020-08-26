@@ -1,11 +1,11 @@
-#include "LevelMesh2D.h"
+#include "Mesh2D.h"
 #include "Texture2D.h"
 
-LevelMesh2D::LevelMesh2D() : BaseMesh()
+Mesh2D::Mesh2D() : BaseMesh()
 {
 }
 
-LevelMesh2D::LevelMesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
+Mesh2D::Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
 {
     Vertexdata = vertexdata;
     VertexSize = vertexdata.size();
@@ -20,11 +20,11 @@ LevelMesh2D::LevelMesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManage
     CreateMaterialProperties();
 }
 
-LevelMesh2D::~LevelMesh2D()
+Mesh2D::~Mesh2D()
 {
 }
 
-void LevelMesh2D::CreateMaterialProperties()
+void Mesh2D::CreateMaterialProperties()
 {
     properites.material.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
     properites.material.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -36,7 +36,7 @@ void LevelMesh2D::CreateMaterialProperties()
     properites.heightScale = 0.1f;
 }
 
-void LevelMesh2D::LoadTiles(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
+void Mesh2D::LoadTiles(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
     if (!textures.DiffuseMap.empty())
     {
@@ -65,14 +65,14 @@ void LevelMesh2D::LoadTiles(VulkanRenderer& renderer, std::shared_ptr<TextureMan
     }
 }
 
-void LevelMesh2D::CreateUniformBuffers(VulkanRenderer& renderer)
+void Mesh2D::CreateUniformBuffers(VulkanRenderer& renderer)
 {
     uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
     lightBuffer = VulkanUniformBuffer(renderer, sizeof(LightBufferObject));
     meshPropertiesBuffer = VulkanUniformBuffer(renderer, sizeof(MeshProperties));
 }
 
-void LevelMesh2D::CreateDescriptorPool(VulkanRenderer& renderer) {
+void Mesh2D::CreateDescriptorPool(VulkanRenderer& renderer) {
 
     std::array<DescriptorPoolSizeInfo, 8>  DescriptorPoolInfo = {};
 
@@ -88,7 +88,7 @@ void LevelMesh2D::CreateDescriptorPool(VulkanRenderer& renderer) {
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void LevelMesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout)
+void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout)
 {
     BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
 
@@ -196,7 +196,7 @@ void LevelMesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr
     }
 }
 
-void LevelMesh2D::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
+void Mesh2D::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
@@ -209,14 +209,14 @@ void LevelMesh2D::Update(VulkanRenderer& renderer, OrthographicCamera& camera, L
     UpdateUniformBuffer(renderer, ubo, Lightbuffer);
 }
 
-void LevelMesh2D::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
+void Mesh2D::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
 {
     uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
     lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
     meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
 }
 
-void LevelMesh2D::Destory(VulkanRenderer& renderer)
+void Mesh2D::Destory(VulkanRenderer& renderer)
 {
     uniformBuffer.Destroy(renderer);
     lightBuffer.Destroy(renderer);

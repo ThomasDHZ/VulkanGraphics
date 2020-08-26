@@ -292,7 +292,7 @@ void RendererManager::MainRenderPass()
 	//forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, Skybox);
 	for (auto mesh : LevelMesh)
 {
-		if (mesh.RenderBitFlags & RendererBitFlag::RenderOnMainPass)
+		if (mesh->RenderBitFlags & RendererBitFlag::RenderOnMainPass)
 		{
 			if (Settings.ShowMeshLines)
 			{

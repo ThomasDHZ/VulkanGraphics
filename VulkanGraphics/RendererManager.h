@@ -19,7 +19,7 @@
 #include <chrono>
 #include "DebugLightMesh.h"
 #include "OrthographicCamera.h"
-#include "LevelMesh2D.h"
+#include "Mesh2D.h"
 #include "Sprite.h"
 
 class RendererManager : public VulkanRenderer
@@ -45,7 +45,7 @@ private:
 	SkyBoxMesh Skybox;
 	std::vector<Mesh> MeshList;
 
-	std::vector<LevelMesh2D> LevelMesh;
+	std::vector<std::shared_ptr<BaseMesh>> LevelMesh;
 
 	LightBufferObject light;
 	MeshProperties meshProp;

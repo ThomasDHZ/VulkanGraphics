@@ -20,9 +20,9 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 
 	MeshTextures MegaManTextures = {};
-	MegaManTextures.DiffuseMap = "texture/MegaMan_diffuseOriginal.bmp";
-	MegaManTextures.SpecularMap = "texture/MegaManSpecular.bmp";
-	MegaManTextures.NormalMap = "texture/MegaMan_normal.bmp";
+	MegaManTextures.DiffuseMap = "texture/SparkMan_diffuseOriginal.bmp";
+	MegaManTextures.SpecularMap = "texture/container2_specular.png";
+	MegaManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 
 	const unsigned int TileSize = 16;
 	const float AmtXAxisTiles = 240 / TileSize;
@@ -70,11 +70,14 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 		}
 	}
 
-	sprite = Sprite(*renderer.GetVulkanRendererBase(), gameManager.textureManager, 1.0f, 1.0f, MegaManTextures, glm::vec2(0.0f, 0.0f), SpriteType::SMegaMan, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
+	sprite.emplace_back(Sprite(*renderer.GetVulkanRendererBase(), gameManager.textureManager, 1.0f, 1.0f, MegaManTextures, glm::vec2(0.0f, 0.0f), SpriteType::SMegaMan, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	levelMesh = Mesh2D(*renderer.GetVulkanRendererBase(), gameManager.textureManager, VertexList, IndexList, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
 
-	renderer.LevelMesh.emplace_back(LevelMesh2D(*renderer.GetVulkanRendererBase(), gameManager.textureManager, VertexList, IndexList, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	renderer.LevelMesh.emplace_back(sprite.SpriteMesh);
-	renderer.LevelMesh.emplace_back(LevelMesh2D(*renderer.GetVulkanRendererBase(), gameManager.textureManager, MegaManVertices, MegaManIndices, MegaManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	renderer.LevelMesh.emplace_back(std::make_shared<Mesh2D>(levelMesh));
+	renderer.LevelMesh.emplace_back(sprite[0].SpriteMesh);
+
+	
+	//renderer.LevelMesh.emplace_back(std::make_shared<Mesh2D>(Mesh2D(*renderer.GetVulkanRendererBase(), gameManager.textureManager, MegaManVertices, MegaManIndices, MegaManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass)));
 	renderer.debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), LightVertices, LightIndices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
 
 	light.pLight.position = glm::vec3(1.0f, 1.0f, 0.0f);
@@ -172,77 +175,78 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame)
 
 	for (auto mesh : renderer.LevelMesh)
 	{
-		mesh.Update(renderer, renderer.OrthoCamera, light);
+		auto SpriteMesh = static_cast<Mesh2D*>(mesh.get());
+		SpriteMesh->Update(renderer, renderer.OrthoCamera, light);
 	}
 
-	const glm::vec3 BottomLeftVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[0].Position;
-	const glm::vec3 BottomRightVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[1].Position;
-	const glm::vec3 TopRightVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[2].Position;
-	const glm::vec3 TopLeftVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[3].Position;
+	//const glm::vec3 BottomLeftVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[0].Position;
+	//const glm::vec3 BottomRightVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[1].Position;
+	//const glm::vec3 TopRightVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[2].Position;
+	//const glm::vec3 TopLeftVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[3].Position;
 
-	const glm::vec3 BottomLeftVertex2 = renderer.LevelMesh[2].MeshPosition + renderer.LevelMesh[2].Vertexdata[0].Position;
-	const glm::vec3 BottomRightVertex2 = renderer.LevelMesh[2].MeshPosition + renderer.LevelMesh[2].Vertexdata[1].Position;
-	const glm::vec3 TopRightVertex2 = renderer.LevelMesh[2].MeshPosition + renderer.LevelMesh[2].Vertexdata[2].Position;
-	const glm::vec3 TopLeftVertex2 = renderer.LevelMesh[2].MeshPosition + renderer.LevelMesh[2].Vertexdata[3].Position;
+	//const glm::vec3 BottomLeftVertex2 = renderer.LevelMesh[2].MeshPosition + renderer.LevelMesh[2].Vertexdata[0].Position;
+	//const glm::vec3 BottomRightVertex2 = renderer.LevelMesh[2].MeshPosition + renderer.LevelMesh[2].Vertexdata[1].Position;
+	//const glm::vec3 TopRightVertex2 = renderer.LevelMesh[2].MeshPosition + renderer.LevelMesh[2].Vertexdata[2].Position;
+	//const glm::vec3 TopLeftVertex2 = renderer.LevelMesh[2].MeshPosition + renderer.LevelMesh[2].Vertexdata[3].Position;
 
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
-		renderer.LevelMesh[1].MeshPosition.x -= 0.01f;
-		if (TopRightVertex.x >= TopLeftVertex2.x &&
-			TopRightVertex2.x >= TopLeftVertex.x &&
-			TopRightVertex.y >= BottomRightVertex2.y &&
-			TopRightVertex2.y >= BottomRightVertex.y)
-		{
-			if (TopRightVertex2.x > TopLeftVertex.x)
-			{
-				renderer.LevelMesh[1].MeshPosition.x += TopRightVertex2.x;
-			}
-		}
+		sprite[0].SpriteMesh->MeshPosition.x -= 0.01f;
+		//if (TopRightVertex.x >= TopLeftVertex2.x &&
+		//	TopRightVertex2.x >= TopLeftVertex.x &&
+		//	TopRightVertex.y >= BottomRightVertex2.y &&
+		//	TopRightVertex2.y >= BottomRightVertex.y)
+		//{
+		//	if (TopRightVertex2.x > TopLeftVertex.x)
+		//	{
+		//		renderer.LevelMesh[1].MeshPosition.x += TopRightVertex2.x;
+		//	}
+		//}
 	}
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
-		renderer.LevelMesh[1].MeshPosition.x += 0.01f;
-		if (TopRightVertex.x >= TopLeftVertex2.x &&
-			TopRightVertex2.x >= TopLeftVertex.x &&
-			TopRightVertex.y >= BottomRightVertex2.y &&
-			TopRightVertex2.y >= BottomRightVertex.y)
-		{
-			if (TopRightVertex.x > TopLeftVertex2.x)
-			{
-				renderer.LevelMesh[1].MeshPosition.x -= TopRightVertex2.x;
-			}
-		}
+		sprite[0].SpriteMesh->MeshPosition.x += 0.01f;
+		//if (TopRightVertex.x >= TopLeftVertex2.x &&
+		//	TopRightVertex2.x >= TopLeftVertex.x &&
+		//	TopRightVertex.y >= BottomRightVertex2.y &&
+		//	TopRightVertex2.y >= BottomRightVertex.y)
+		//{
+		//	if (TopRightVertex.x > TopLeftVertex2.x)
+		//	{
+		//		renderer.LevelMesh[1].MeshPosition.x -= TopRightVertex2.x;
+		//	}
+		//}
 	}
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		renderer.LevelMesh[1].MeshPosition.y += 0.01f;
-		if (TopRightVertex.x >= TopLeftVertex2.x &&
-			TopRightVertex2.x >= TopLeftVertex.x &&
-			TopRightVertex.y >= BottomRightVertex2.y &&
-			TopRightVertex2.y >= BottomRightVertex.y)
-		{
-			if (TopRightVertex.y > BottomRightVertex2.y)
-			{
-				renderer.LevelMesh[1].MeshPosition.y -= TopRightVertex2.y;
-			}
-		}
+		sprite[0].SpriteMesh->MeshPosition.y += 0.01f;
+		//if (TopRightVertex.x >= TopLeftVertex2.x &&
+		//	TopRightVertex2.x >= TopLeftVertex.x &&
+		//	TopRightVertex.y >= BottomRightVertex2.y &&
+		//	TopRightVertex2.y >= BottomRightVertex.y)
+		//{
+		//	if (TopRightVertex.y > BottomRightVertex2.y)
+		//	{
+		//		renderer.LevelMesh[1].MeshPosition.y -= TopRightVertex2.y;
+		//	}
+		//}
 	}
 	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		renderer.LevelMesh[1].MeshPosition.y -= 0.01f;
-		if (TopRightVertex.x >= TopLeftVertex2.x &&
-			TopRightVertex2.x >= TopLeftVertex.x &&
-			TopRightVertex.y >= BottomRightVertex2.y &&
-			TopRightVertex2.y >= BottomRightVertex.y)
-		{
-			if (TopRightVertex2.y > BottomRightVertex.y)
-			{
-				renderer.LevelMesh[1].MeshPosition.y += TopRightVertex2.y;
-			}
-		}
+		sprite[0].SpriteMesh->MeshPosition.y -= 0.01f;
+		//if (TopRightVertex.x >= TopLeftVertex2.x &&
+		//	TopRightVertex2.x >= TopLeftVertex.x &&
+		//	TopRightVertex.y >= BottomRightVertex2.y &&
+		//	TopRightVertex2.y >= BottomRightVertex.y)
+		//{
+		//	if (TopRightVertex2.y > BottomRightVertex.y)
+		//	{
+		//		renderer.LevelMesh[1].MeshPosition.y += TopRightVertex2.y;
+		//	}
+		//}
 	}
 
-	renderer.LevelMesh[2].MeshPosition = glm::vec3(5.0f, 0.0f, 0.0f);
+	//renderer.LevelMesh[2]->MeshPosition = glm::vec3(5.0f, 0.0f, 0.0f);
 
 
 	//if (TopRightVertex.x >= TopLeftVertex2.x)

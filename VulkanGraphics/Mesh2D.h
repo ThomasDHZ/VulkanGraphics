@@ -3,7 +3,7 @@
 #include "Mesh.h"
 #include <map>
 
-class LevelMesh2D : public BaseMesh
+class Mesh2D : public BaseMesh
 {
 private:
 
@@ -29,9 +29,9 @@ public:
     glm::vec3 MeshScale = glm::vec3(1.0f);
     float RotationAmount = 0.0f;
 
-    LevelMesh2D();
-    LevelMesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
-    ~LevelMesh2D();
+    Mesh2D();
+    Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+    ~Mesh2D();
 
     void Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
     void Destory(VulkanRenderer& renderer);

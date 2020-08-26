@@ -163,7 +163,7 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Level2D.cpp" />
-    <ClCompile Include="LevelMesh2D.cpp" />
+    <ClCompile Include="Mesh2D.cpp" />
     <ClCompile Include="MegaMan.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MMShot.cpp" />
@@ -248,7 +248,7 @@
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Level2D.h" />
-    <ClInclude Include="LevelMesh2D.h" />
+    <ClInclude Include="Mesh2D.h" />
     <ClInclude Include="MegaMan.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MMShot.h" />

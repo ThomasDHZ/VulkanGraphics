@@ -4,7 +4,7 @@
 #include <map>
 #include "Camera.h"
 #include "GUIDebugger.h"
-#include "LevelMesh2D.h"
+#include "Mesh2D.h"
 #include "Sprite.h"
 #include <chrono>
 #include "MegaMan.h"

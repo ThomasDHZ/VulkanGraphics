@@ -231,7 +231,7 @@
     <ClCompile Include="Rendering2DPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
-    <ClCompile Include="LevelMesh2D.cpp">
+    <ClCompile Include="Mesh2D.cpp">
       <Filter>Source Files\Mesh</Filter>
     </ClCompile>
   </ItemGroup>
@@ -490,7 +490,7 @@
     <ClInclude Include="Rendering2DPipeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LevelMesh2D.h">
+    <ClInclude Include="Mesh2D.h">
       <Filter>Header Files\Mesh</Filter>
     </ClInclude>
   </ItemGroup>

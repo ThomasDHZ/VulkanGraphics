@@ -35,26 +35,24 @@ void RendererBase::Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, Bas
     }
 }
 
-void RendererBase::Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, std::vector<Mesh>& MeshList)
+void RendererBase::Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, const std::shared_ptr<BaseMesh> mesh)
 {
-    for (auto mesh : MeshList)
-    {
-        VkBuffer vertexBuffers[] = { mesh.VertexBuffer };
-        VkDeviceSize offsets[] = { 0 };
 
+    VkBuffer vertexBuffers[] = { mesh->VertexBuffer };
+    VkDeviceSize offsets[] = { 0 };
+
+    {
+        vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
+        vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[renderer.DrawFrame], 0, 1, vertexBuffers, offsets);
+        vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &mesh->DescriptorSets[renderer.DrawFrame], 0, nullptr);
+        if (mesh->IndexSize == 0)
         {
-            vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
-            vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[renderer.DrawFrame], 0, 1, vertexBuffers, offsets);
-            vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &mesh.DescriptorSets[renderer.DrawFrame], 0, nullptr);
-            if (mesh.IndexSize == 0)
-            {
-                vkCmdDraw(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh.VertexSize, 1, 0, 0);
-            }
-            else
-            {
-                vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh.IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-                vkCmdDrawIndexed(renderer.RenderCommandBuffer[renderer.DrawFrame], static_cast<uint32_t>(mesh.IndexSize), 1, 0, 0, 0);
-            }
+            vkCmdDraw(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh->VertexSize, 1, 0, 0);
+        }
+        else
+        {
+            vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh->IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdDrawIndexed(renderer.RenderCommandBuffer[renderer.DrawFrame], static_cast<uint32_t>(mesh->IndexSize), 1, 0, 0, 0);
         }
     }
 }

@@ -21,7 +21,7 @@ Sprite::Sprite(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureM
 
 	Type = type;
 	SpriteMaps = spriteMaps;
-	SpriteMesh = LevelMesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, SpriteMaps, descriptorSetLayout, renderBit);
+	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, SpriteMaps, descriptorSetLayout, renderBit));
 	SetPosition2D(StartPos);
 }
 
@@ -53,9 +53,9 @@ Sprite::~Sprite()
 void Sprite::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject light)
 {
 	CurrentAni.Update();
-	SpriteMesh.properites.UVOffset = glm::vec2(CurrentAni.GetCurrentFrame());
+	SpriteMesh->properites.UVOffset = glm::vec2(CurrentAni.GetCurrentFrame());
 
-	SpriteMesh.Update(renderer, camera, light);
+	SpriteMesh->Update(renderer, camera, light);
 }
 
 //void Sprite::Draw(VulkanRenderer& renderer, int currentFrame)
@@ -65,25 +65,25 @@ void Sprite::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightB
 
 void Sprite::Destory(VulkanRenderer& renderer)
 {
-	SpriteMesh.Destory(renderer);
+	SpriteMesh->Destory(renderer);
 }
 
 void Sprite::SetPosition2D(glm::vec2 Pos)
 {
-	SpriteMesh.MeshPosition = glm::vec3(Pos, 0.0f);
+	SpriteMesh->MeshPosition = glm::vec3(Pos, 0.0f);
 }
 
 void Sprite::SetPosition2D(float x, float y)
 {
-	SpriteMesh.MeshPosition = glm::vec3(x, y, 0.0f);
+	SpriteMesh->MeshPosition = glm::vec3(x, y, 0.0f);
 }
 
 void Sprite::SetPosition3D(glm::vec3 Pos)
 {
-	SpriteMesh.MeshPosition = Pos;
+	SpriteMesh->MeshPosition = Pos;
 }
 
 void Sprite::SetPosition3D(float x, float y, float z)
 {
-	SpriteMesh.MeshPosition = glm::vec3(x, y, z);
+	SpriteMesh->MeshPosition = glm::vec3(x, y, z);
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "LevelMesh2D.h"
+#include "Mesh2D.h"
 #include "Animation2D.h"
 #include <map>
 
@@ -37,7 +37,7 @@ public:
 	Animation2D CurrentAni;
 
 	std::map<SpriteAnime, glm::vec2> AnimationFrame;
-	LevelMesh2D SpriteMesh;
+	std::shared_ptr<Mesh2D> SpriteMesh;
 	glm::vec2 UVOffset = glm::vec2(0.0f);
 	ColisionGeo CollisionVertexs;
 
@@ -55,8 +55,8 @@ public:
 	void SetPosition3D(glm::vec3 Pos);
 	void SetPosition3D(float x, float y, float z);
 
-	glm::vec2 GetPosition2D() { return glm::vec2(SpriteMesh.MeshPosition.x, SpriteMesh.MeshPosition.y); }
-	glm::vec3 GetPosition3D() { return SpriteMesh.MeshPosition; }
+	glm::vec2 GetPosition2D() { return glm::vec2(SpriteMesh->MeshPosition.x, SpriteMesh->MeshPosition.y); }
+	glm::vec3 GetPosition3D() { return SpriteMesh->MeshPosition; }
 	float* GetUVOffsetPtr() { return &UVOffset.x; };
 };
 
