@@ -54,5 +54,5 @@ public:
     BaseMesh(int renderBitFlags);
     ~BaseMesh();
 
-    void Destory(VulkanRenderer& renderer);
+    virtual void Destory(VulkanRenderer& renderer);
 };

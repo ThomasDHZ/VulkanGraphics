@@ -43,12 +43,8 @@ private:
 
 	DebugLightMesh debugLightMesh;
 	SkyBoxMesh Skybox;
-	std::vector<Mesh> MeshList;
 
 	std::vector<std::shared_ptr<BaseMesh>> LevelMesh;
-
-	LightBufferObject light;
-	MeshProperties meshProp;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);

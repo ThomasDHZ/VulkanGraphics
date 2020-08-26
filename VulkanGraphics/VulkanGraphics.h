@@ -18,7 +18,7 @@
 #include "Texture2D.h"
 #include "FrameBufferMesh.h"
 #include "GameManager.h"
-
+#include "Object.h"
 
 const std::vector<Vertex> vertices =
 {
@@ -89,6 +89,8 @@ private:
     Camera* ActiveCamera;
 
 
+  
+    std::vector<Object> obj;
     LightBufferObject light;
 	//std::vector<Model> ModelList;
 

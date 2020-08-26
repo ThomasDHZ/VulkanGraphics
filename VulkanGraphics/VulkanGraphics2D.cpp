@@ -24,6 +24,8 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	MegaManTextures.SpecularMap = "texture/container2_specular.png";
 	MegaManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 
+	light = Light(*renderer.GetVulkanRendererBase(), renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
+
 	const unsigned int TileSize = 16;
 	const float AmtXAxisTiles = 240 / TileSize;
 	const float AmtYAxisTiles = 32 / TileSize;
@@ -75,14 +77,12 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 
 	renderer.LevelMesh.emplace_back(std::make_shared<Mesh2D>(levelMesh));
 	renderer.LevelMesh.emplace_back(sprite[0].SpriteMesh);
+	renderer.LevelMesh.emplace_back(light.LightMesh);
 
 	
 	//renderer.LevelMesh.emplace_back(std::make_shared<Mesh2D>(Mesh2D(*renderer.GetVulkanRendererBase(), gameManager.textureManager, MegaManVertices, MegaManIndices, MegaManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass)));
-	renderer.debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), LightVertices, LightIndices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
+	//renderer.debugLightMesh = DebugLightMesh(*renderer.GetVulkanRendererBase(), LightVertices, LightIndices, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass);
 
-	light.pLight.position = glm::vec3(1.0f, 1.0f, 0.0f);
-	light.pLight.ambient = glm::vec3(0.8f, 0.8f, 0.86f);
-	light.dLight.direction = glm::vec3(0.5f, 1.0f, 0.3f);
 }
 
 VulkanGraphics2D::~VulkanGraphics2D()
@@ -110,14 +110,14 @@ void VulkanGraphics2D::UpdateImGUI()
 		ImGui::SliderFloat("HDR Value", &renderer.frameBuffer.settings.HDRValue, 0.0f, 10.0f);
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
-		ImGui::SliderFloat3("dLight", &light.dLight.direction.x, -10.0f, 10.0f);
-		ImGui::SliderFloat3("dambient", &light.dLight.ambient.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("ddiffuse", &light.dLight.diffuse.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("dspecular", &light.dLight.specular.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pLight", &light.pLight.position.x, -10.0f, 10.0f);
-		ImGui::SliderFloat3("pambient", &light.pLight.ambient.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pdiffuse", &light.pLight.diffuse.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pspecular", &light.pLight.specular.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("dLight", &light.light.dLight.direction.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("dambient", &light.light.dLight.ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("ddiffuse", &light.light.dLight.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("dspecular", &light.light.dLight.specular.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pLight", &light.light.pLight.position.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("pambient", &light.light.pLight.ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pdiffuse", &light.light.pLight.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);
 		ImGui::End();
 
 		ImGui::Begin("MeshSettings");
@@ -125,7 +125,7 @@ void VulkanGraphics2D::UpdateImGUI()
 		{
 			ImGui::Columns(2, "tree", true);
 
-			for (int x = 0; x < renderer.MeshList.size(); x++)
+		/*	for (int x = 0; x < renderer.MeshList.size(); x++)
 			{
 				bool open1 = ImGui::TreeNode((void*)(intptr_t)x, "Mesh%d", x);
 				ImGui::NextColumn();
@@ -154,7 +154,7 @@ void VulkanGraphics2D::UpdateImGUI()
 					ImGui::NextColumn();
 					ImGui::TreePop();
 				}
-			}
+			}*/
 
 			ImGui::Columns(1);
 			ImGui::TreePop();
@@ -168,17 +168,12 @@ void VulkanGraphics2D::UpdateImGUI()
 
 void VulkanGraphics2D::Update(uint32_t DrawFrame)
 {
-	light.viewPos = renderer.OrthoCamera.GetPosition();
-
-	MeshColor color = {};
-	color.Color = glm::vec3(1.0f, 0.0f, 0.0f);
-
-	for (auto mesh : renderer.LevelMesh)
+	levelMesh.Update(renderer, renderer.OrthoCamera, light.light);
+	for (auto mesh2 : sprite)
 	{
-		auto SpriteMesh = static_cast<Mesh2D*>(mesh.get());
-		SpriteMesh->Update(renderer, renderer.OrthoCamera, light);
+		mesh2.Update(renderer, renderer.OrthoCamera, light.light);
 	}
-
+	light.Update(renderer, renderer.OrthoCamera);
 	//const glm::vec3 BottomLeftVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[0].Position;
 	//const glm::vec3 BottomRightVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[1].Position;
 	//const glm::vec3 TopRightVertex = renderer.LevelMesh[1].MeshPosition + renderer.LevelMesh[1].Vertexdata[2].Position;
@@ -277,8 +272,6 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame)
 	//	int a = 34;
 	//}
 
-	renderer.debugLightMesh.MeshPosition = light.pLight.position;
-	renderer.debugLightMesh.Update(renderer, renderer.OrthoCamera, color);
 }
 
 void VulkanGraphics2D::MainLoop()

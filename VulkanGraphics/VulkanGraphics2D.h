@@ -20,17 +20,7 @@
 #include "GameManager.h"
 #include <map>
 #include "Mesh2D.h"
-
-const std::vector<Vertex> LightVertices = {
-    {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-    {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-    {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-    {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
-};
-
-const std::vector<uint16_t> LightIndices = {
-    0, 1, 2, 2, 3, 0
-};
+#include "Light.h"
 
 const std::vector<Vertex> MegaManVertices = {
     {{-0.5f, -0.5f, -0.01f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
@@ -69,7 +59,7 @@ private:
 
     OrthographicCamera orthoCamera;
 
-    LightBufferObject light;
+    Light light;
 
     void UpdateImGUI();
     void Update(uint32_t DrawFrame);

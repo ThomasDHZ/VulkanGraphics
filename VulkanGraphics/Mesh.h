@@ -78,7 +78,7 @@ struct Material
 struct MeshProperties
 {
     Material material;
-    alignas(8) glm::vec2 UVOffset = glm::vec2(0.0f, 0.5f);
+    alignas(8) glm::vec2 UVOffset = glm::vec2(0.0f, 0.0f);
     alignas(4) int UseDiffuseMapBit = 0;
     alignas(4) int UseSpecularMapBit = 0;
     alignas(4) int UseNormalMapBit = 0;

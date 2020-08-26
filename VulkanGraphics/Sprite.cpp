@@ -23,6 +23,7 @@ Sprite::Sprite(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureM
 	SpriteMaps = spriteMaps;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, SpriteMaps, descriptorSetLayout, renderBit));
 	SetPosition2D(StartPos);
+
 }
 
 Sprite::Sprite(VulkanRenderer& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type)
@@ -52,8 +53,8 @@ Sprite::~Sprite()
 
 void Sprite::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject light)
 {
-	CurrentAni.Update();
-	SpriteMesh->properites.UVOffset = glm::vec2(CurrentAni.GetCurrentFrame());
+	//CurrentAni.Update();
+	//SpriteMesh->properites.UVOffset = glm::vec2(CurrentAni.GetCurrentFrame());
 
 	SpriteMesh->Update(renderer, camera, light);
 }

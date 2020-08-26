@@ -7,7 +7,7 @@ SkyBoxMesh::SkyBoxMesh() : BaseMesh()
 {
 }
 
-SkyBoxMesh::SkyBoxMesh(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout layout, int skyboxtexture) : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass | RendererBitFlag::RenderOnMainPass)
+SkyBoxMesh::SkyBoxMesh(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout layout, int skyboxtexture) : BaseMesh(RendererBitFlag::RenderOnTexturePass | RendererBitFlag::RenderOnMainPass)
 {
 	VertexSize = SkyBoxVertices.size();
 	IndexSize = 0;

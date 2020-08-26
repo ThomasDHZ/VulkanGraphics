@@ -152,10 +152,10 @@ uint32_t RendererManager::Draw(GLFWwindow* window)
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
 
-	//ShadowRenderPass();
-	//DrawToTextureRenderPass();
+	ShadowRenderPass();
+	DrawToTextureRenderPass();
 	MainRenderPass();
-	//FrameBufferRenderPass();
+	FrameBufferRenderPass();
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -247,15 +247,31 @@ void RendererManager::DrawToTextureRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : MeshList)
+	for (auto mesh : LevelMesh)
 	{
-		if (mesh.RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
+		if (mesh->RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
 		{
-			textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
+			if (Settings.ShowMeshLines)
+			{
+				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.wireFramePipeline, mesh);
+			}
+			else
+			{
+				if (dynamic_cast<DebugLightMesh*>(mesh.get()))
+				{
+					forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.DebugLightPipeline, mesh);
+				}
+				if (dynamic_cast<Mesh*>(mesh.get()))
+				{
+					forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
+				}
+				if (dynamic_cast<SkyBoxMesh*>(mesh.get()))
+				{
+					forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, mesh);
+				}
+			}
 		}
 	}
-	textureRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, Skybox);
-
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
@@ -275,21 +291,6 @@ void RendererManager::MainRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	//for (auto mesh : MeshList)
-	//{
-	//	if (mesh.RenderBitFlags & RendererBitFlag::RenderOnMainPass)
-	//	{
-	//		if (Settings.ShowMeshLines)
-	//		{
-	//			forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.wireFramePipeline, mesh);
-	//		}
-	//		else
-	//		{
-	//			forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.renderer2DPipeline, mesh);
-	//		}
-	//	}
-	//}
-	//forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, Skybox);
 	for (auto mesh : LevelMesh)
 {
 		if (mesh->RenderBitFlags & RendererBitFlag::RenderOnMainPass)
@@ -300,11 +301,25 @@ void RendererManager::MainRenderPass()
 			}
 			else
 			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.renderer2DPipeline, mesh);
+				if (dynamic_cast<Mesh2D*>(mesh.get()))
+				{
+					forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.renderer2DPipeline, mesh);
+				}
+				if (dynamic_cast<DebugLightMesh*>(mesh.get()))
+				{
+					forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.DebugLightPipeline, mesh);
+				}
+				if (dynamic_cast<Mesh*>(mesh.get()))
+				{
+					forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.forwardRendereringPipeline, mesh);
+				}
+				if (dynamic_cast<SkyBoxMesh*>(mesh.get()))
+				{
+					forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, mesh);
+				}
 			}
 		}
 	}
-	forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.DebugLightPipeline, debugLightMesh);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
@@ -345,11 +360,14 @@ void RendererManager::ShadowRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : MeshList)
+	for (auto mesh : LevelMesh)
 	{
-		if (mesh.RenderBitFlags & RendererBitFlag::RenderShadow)
+		if (mesh->RenderBitFlags & RendererBitFlag::RenderShadow)
 		{
-			shadowRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
+			if (dynamic_cast<Mesh*>(mesh.get()))
+			{
+				forwardRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
+			}
 		}
 	}
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
