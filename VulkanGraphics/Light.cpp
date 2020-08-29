@@ -10,7 +10,7 @@ Light::Light(RendererManager& renderer, VkDescriptorSetLayout& descriptorSetLayo
 	light.pLight.ambient = glm::vec3(0.8f, 0.8f, 0.86f);
 	light.dLight.direction = glm::vec3(0.5f, 1.0f, 0.3f);
 
-	LightMesh = std::make_unique<DebugLightMesh>(DebugLightMesh(renderer, LightVertices, LightIndices, descriptorSetLayout, renderBit));
+	LightMesh = std::make_shared<DebugLightMesh>(DebugLightMesh(renderer, LightVertices, LightIndices, descriptorSetLayout, renderBit));
 	renderer.AddDrawableMesh(LightMesh);
 }
 
@@ -27,4 +27,9 @@ void Light::Update(RendererManager& renderer, OrthographicCamera& camera)
 
 	LightMesh->MeshPosition = light.pLight.position;
 	LightMesh->Update(renderer, camera, color);
+}
+
+void Light::Destory(RendererManager& renderer)
+{
+	LightMesh->Destory(renderer);
 }

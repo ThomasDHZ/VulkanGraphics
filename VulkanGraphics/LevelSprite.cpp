@@ -20,6 +20,11 @@ void LevelSprite::Update(RendererManager& renderer, OrthographicCamera& camera, 
 	LevelMesh->Update(renderer, camera, Lightbuffer);
 }
 
+void LevelSprite::Destory(RendererManager& renderer)
+{
+	LevelMesh->Destory(renderer);
+}
+
 void LevelSprite::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
 	unsigned int DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);

@@ -32,6 +32,17 @@ void RendererManager::AddDrawableMesh(std::shared_ptr<BaseMesh> mesh)
 	ObjectMesh.emplace_back(mesh);
 }
 
+void RendererManager::RemoveMesh(std::shared_ptr<BaseMesh> mesh)
+{
+	for (int x = 0; x < ObjectMesh.size(); x++)
+	{
+		if (mesh == ObjectMesh[x])
+		{
+			ObjectMesh.erase(ObjectMesh.begin() + x);
+		}
+	}
+}
+
 //void RendererManager::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
 //{
 //	VkCommandBufferAllocateInfo allocInfo{};

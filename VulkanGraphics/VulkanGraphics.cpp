@@ -66,8 +66,6 @@ VulkanGraphics::~VulkanGraphics()
 	{
 		mesh->Destory(*renderer.GetVulkanRendererBase());
 	}
-	renderer.debugLightMesh.Destory(renderer);
-	renderer.Skybox.Destory(renderer);
 
 	renderer.DestoryVulkan();
 	Window.CleanUp();
@@ -154,8 +152,6 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	MeshColor color = {};
 	color.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	renderer.debugLightMesh.MeshPosition = glm::vec3(0.1f, 0.1f, 0.1f);
-	renderer.debugLightMesh.MeshScale = glm::vec3(0.1f, 0.1f, 0.1f);
 
 	for (auto mesh : renderer.ObjectMesh)
 	{

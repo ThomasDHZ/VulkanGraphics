@@ -40,9 +40,6 @@ private:
 	Camera camera;
 	OrthographicCamera OrthoCamera;
 
-	DebugLightMesh debugLightMesh;
-	SkyBoxMesh Skybox;
-
 	std::vector<std::shared_ptr<BaseMesh>> ObjectMesh;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
@@ -68,5 +65,6 @@ public:
 
 	void Update(uint32_t DrawFrame, Camera camera);
 	void AddDrawableMesh(std::shared_ptr<BaseMesh> mesh);
+	void RemoveMesh(std::shared_ptr<BaseMesh> mesh);
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
 };

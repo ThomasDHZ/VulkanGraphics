@@ -3,6 +3,7 @@
 #include "Mesh2D.h"
 #include "Animation2D.h"
 #include <map>
+#include "BoxCollider.h"
 
 enum SpriteAnime
 {
@@ -24,30 +25,34 @@ struct ColisionGeo
 enum SpriteType
 {
 	SMegaMan,
-	SMMShot
+	SMMShot,
+	SCoin
 };
 
 class Sprite
 {
 private:
-	MeshTextures SpriteMaps;
+
 
 public:
-
+	MeshTextures SpriteMaps;
+	glm::ivec2 Velocity;
 	SpriteType Type;
 	Animation2D CurrentAni;
-
+	BoxCollider collider;
 	std::map<SpriteAnime, glm::vec2> AnimationFrame;
 	std::shared_ptr<Mesh2D> SpriteMesh;
 	glm::vec2 UVOffset = glm::vec2(0.0f);
 	//ColisionGeo CollisionVertexs;
 
 	Sprite();
+	Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, SpriteType type, int renderBit);
 	Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
 	Sprite(RendererManager& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type);
 	~Sprite();
 
 	virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light);
+	virtual void Collision(std::vector<Sprite>& SpriteList);
 	//void Draw(VulkanRenderer& renderer, int currentFrame);
 	void Destory(RendererManager& renderer);
 

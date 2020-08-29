@@ -23,5 +23,6 @@ public:
 	~LevelSprite();
 
 	void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
+	void Destory(RendererManager& renderer);
 };
 

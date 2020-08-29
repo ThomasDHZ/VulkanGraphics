@@ -28,5 +28,6 @@ public:
 	~Light();
 
 	void Update(RendererManager& renderer, OrthographicCamera& camera);
+	void Destory(RendererManager& renderer);
 };
 

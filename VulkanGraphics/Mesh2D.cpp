@@ -109,8 +109,8 @@ void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Text
 
     VkDescriptorImageInfo AlphaMap = {};
     AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    AlphaMap.imageView = textureManager->GetTextureByID(DiffuseMapID).View;
-    AlphaMap.sampler = textureManager->GetTextureByID(DiffuseMapID).Sampler;
+    AlphaMap.imageView = textureManager->GetTextureByID(AlphaMapID).View;
+    AlphaMap.sampler = textureManager->GetTextureByID(AlphaMapID).Sampler;
 
     VkDescriptorImageInfo EmissionMap = {};
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

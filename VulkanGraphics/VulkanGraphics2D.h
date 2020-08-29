@@ -49,7 +49,8 @@ private:
     Mouse mouse;
     
     LevelSprite level;
-    std::vector<Sprite> sprite;
+    std::vector<Sprite> SpriteList;
+    std::shared_ptr<Mesh2D> spriteMesh;
 
     OrthographicCamera orthoCamera;
 
