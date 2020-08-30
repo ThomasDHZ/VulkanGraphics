@@ -1,4 +1,5 @@
 #pragma once
+#include "BoxCollider.h"
 #include "Mesh2D.h"
 #include "RendererManager.h"
 
@@ -21,6 +22,8 @@ public:
 	LevelSprite();
 	LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
 	~LevelSprite();
+
+	std::vector<BoxCollider> LevelColliderList;
 
 	void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
 	void Destory(RendererManager& renderer);

@@ -26,6 +26,7 @@ Coin::Coin(RendererManager& renderer, std::shared_ptr<TextureManager>textureMana
 	};
 
 	Type = SpriteType::SCoin;
+	ObjectFlagBits = ObjectFlags::Collectible;
 	SpriteMaps = CoinTextures;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, CoinTextures, descriptorSetLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	renderer.AddDrawableMesh(SpriteMesh);

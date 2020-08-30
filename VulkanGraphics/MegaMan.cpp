@@ -26,6 +26,7 @@ MegaMan::MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textu
 	};
 
 	Type = SpriteType::SMegaMan;
+	ObjectFlagBits = ObjectFlags::Player | ObjectFlags::ApplyGravity;
 	SpriteMaps = MegaManTextures;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, MegaManTextures, descriptorSetLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	renderer.AddDrawableMesh(SpriteMesh);

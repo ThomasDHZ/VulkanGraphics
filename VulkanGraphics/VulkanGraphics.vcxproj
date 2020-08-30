@@ -181,8 +181,6 @@
     <ClCompile Include="ShadowRenderingPipeline.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="SpriteTexture2D.cpp" />
-    <ClCompile Include="TestBase.cpp" />
-    <ClCompile Include="TestChild.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="GUIDebugger.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -274,8 +272,6 @@
     <ClInclude Include="ShadowRenderingPipeline.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="SpriteTexture2D.h" />
-    <ClInclude Include="TestBase.h" />
-    <ClInclude Include="TestChild.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="VulkanBufferManager.h" />
     <ClInclude Include="GUIDebugger.h" />

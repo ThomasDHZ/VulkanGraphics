@@ -4,12 +4,12 @@ Sprite::Sprite()
 {
 }
 
-Sprite::Sprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, SpriteType type, int renderBit)
+Sprite::Sprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, SpriteType type, int ObjectFlagBits, int renderBit)
 {
 
 }
 
-Sprite::Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type, VkDescriptorSetLayout& descriptorSetLayout, int renderBit)
+Sprite::Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type, VkDescriptorSetLayout& descriptorSetLayout, int ObjectFlagBits, int renderBit)
 {
 	const std::vector<Vertex> MegaManVertices =
 	{
@@ -37,7 +37,7 @@ Sprite::Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>texture
 	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
 }
 
-Sprite::Sprite(RendererManager& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type)
+Sprite::Sprite(RendererManager& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type, int ObjectFlagBits)
 {
 	const std::vector<Vertex> MegaManVertices =
 	{
@@ -60,6 +60,49 @@ Sprite::Sprite(RendererManager& renderer, float Width, float Height, MeshTexture
 
 Sprite::~Sprite()
 {
+}
+
+void Sprite::Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList)
+{
+	if (ObjectFlagBits & ObjectFlags::ApplyGravity)
+	{
+		glm::vec3 MoveDirection = glm::vec3(0.0f, -0.01f, 0.0f);
+		Move(SpriteList, MoveDirection);
+	}
+}
+
+void Sprite::Move(std::vector<std::shared_ptr<Sprite>> SpriteList, glm::vec3 MoveDirection)
+{
+	for (auto& sprite : SpriteList)
+	{
+		if (sprite.get() != this &&
+			sprite->ObjectFlagBits & ObjectFlags::Wall)
+		{
+			if (collider.CollidesWith(sprite->collider, MoveDirection))
+			{
+				MoveDirection = glm::vec3(0.0f);
+				break;
+			}
+		}
+	}
+
+	SpriteMesh->MeshPosition += MoveDirection;
+}
+
+void Sprite::Move(std::vector<BoxCollider> SpriteList, glm::vec3 MoveDirection)
+{
+	for (auto& sprite : SpriteList)
+	{
+
+			if (collider.CollidesWith(sprite, MoveDirection))
+			{
+				MoveDirection = glm::vec3(0.0f);
+				break;
+			}
+		
+	}
+
+	SpriteMesh->MeshPosition += MoveDirection;
 }
 
 void Sprite::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)

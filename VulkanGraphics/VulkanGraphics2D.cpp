@@ -29,6 +29,19 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(5.0f, 6.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, 3.0f))));
 	
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(0.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(1.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(2.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(4.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(5.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(6.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(7.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(8.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(9.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(10.0f, -2.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(11.0f, -2.0f))));
+	
 	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
 }
 
@@ -122,80 +135,38 @@ void VulkanGraphics2D::UpdateImGUI()
 
 void VulkanGraphics2D::Update(uint32_t DrawFrame)
 {
-	bool Collide = false;
-	glm::vec3 MoveDirection = glm::vec3(0.0f);
 
 	light.Update(renderer, renderer.OrthoCamera);
 	level.Update(renderer, renderer.OrthoCamera, light.light);
 	for (auto& sprite : SpriteList)
 	{
-		sprite->Update(renderer, renderer.OrthoCamera, light.light);
-		//sprite.get()->Collision(renderer, SpriteList);
-	}
-	//for (auto& sprite : SpriteList)
-	//{
-	//	if (sprite.get() != SpriteList[0].get())
-	//	{
-	//		if (!SpriteList[0]->collider.CollidesWith(sprite->collider, MoveDirection))
-	//		{
-	//			if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_LEFT) == GLFW_PRESS)
-	//			{
-	//				MoveDirection = glm::vec3(-0.01f, 0.0f, 0.0f);
-	//			}
-	//			else if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_RIGHT) == GLFW_PRESS)
-	//			{
-	//				MoveDirection = glm::vec3(0.01f, 0.0f, 0.0f);
-	//			}
-	//			if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_DOWN) == GLFW_PRESS)
-	//			{
-	//				MoveDirection = glm::vec3(0.0f, -0.01f, 0.0f);
-	//			}
-	//			else if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_UP) == GLFW_PRESS)
-	//			{
-	//				MoveDirection = glm::vec3(0.0f, 0.01f, 0.0f);
-	//			}
-	//		}
-	//		else
-	//		{
-	//			MoveDirection = glm::vec3(0.0f);
-	//			break;
-	//		}
-	//	}
-	//}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		if (!SpriteList[0]->collider.CollidesWith(SpriteList[1]->collider, glm::vec3(-0.01f, 0.0f, 0.0f)) &&
-			!SpriteList[0]->collider.CollidesWith(SpriteList[2]->collider, glm::vec3(-0.01f, 0.0f, 0.0f)))
+		if (auto MM = dynamic_cast<MegaMan*>(sprite.get()))
 		{
-			SpriteList[0]->SpriteMesh->MeshPosition += glm::vec3(-0.01f, 0.0f, 0.0f);
+			glm::vec3 MoveDirection = glm::vec3(0.0f, 0.0f, 0.0f);
+			if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_LEFT) == GLFW_PRESS)
+			{
+				MoveDirection = glm::vec3(-0.01f, 0.0f, 0.0f);
+			}
+			else if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_RIGHT) == GLFW_PRESS)
+			{
+				MoveDirection = glm::vec3(0.01f, 0.0f, 0.0f);
+			}
+			if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_DOWN) == GLFW_PRESS)
+			{
+				MoveDirection = glm::vec3(0.0f, -0.01f, 0.0f);
+			}
+			else if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_UP) == GLFW_PRESS)
+			{
+				MoveDirection = glm::vec3(0.0f, 0.01f, 0.0f);
+			}
+		//	MM->Move(SpriteList, MoveDirection);
+			MM->Move(level.LevelColliderList, MoveDirection);
 		}
-	}
-	else if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		if (!SpriteList[0]->collider.CollidesWith(SpriteList[1]->collider, glm::vec3(0.01f, 0.0f, 0.0f)) &&
-			!SpriteList[0]->collider.CollidesWith(SpriteList[2]->collider, glm::vec3(0.01f, 0.0f, 0.0f)))
-		{
-			SpriteList[0]->SpriteMesh->MeshPosition += glm::vec3(0.01f, 0.0f, 0.0f);
-		}
-	}
-	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_DOWN) == GLFW_PRESS)
-	{
-		if (!SpriteList[0]->collider.CollidesWith(SpriteList[1]->collider, glm::vec3(0.0f, -0.01f, 0.0f)) &&
-			!SpriteList[0]->collider.CollidesWith(SpriteList[2]->collider, glm::vec3(0.0f, -0.01f, 0.0f)))
-		{
-			SpriteList[0]->SpriteMesh->MeshPosition += glm::vec3(0.0f, -0.01f, 0.0f);
-		}
-	}
-	else if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_UP) == GLFW_PRESS)
-	{
-		if (!SpriteList[0]->collider.CollidesWith(SpriteList[1]->collider, glm::vec3(0.0f, 0.01f, 0.0f)) &&
-			!SpriteList[0]->collider.CollidesWith(SpriteList[2]->collider, glm::vec3(0.0f, 0.01f, 0.0f)))
-		{
-			SpriteList[0]->SpriteMesh->MeshPosition += glm::vec3(0.0f, 0.01f, 0.0f);
-		}
-	}
 
-	SpriteList[0]->SpriteMesh->MeshPosition += MoveDirection;
+		//sprite->Gravity(SpriteList);
+		sprite->Update(renderer, renderer.OrthoCamera, light.light);
+		sprite->Collision(renderer, SpriteList);
+	}
 }
 
 void VulkanGraphics2D::MainLoop()
