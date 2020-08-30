@@ -9,6 +9,6 @@ public:
 	Coin(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos);
 	~Coin();
 
-	void Collision(std::vector<Sprite>& SpriteList);
+	void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList) override;
 };
 

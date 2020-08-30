@@ -75,9 +75,6 @@ void Sprite::Update(RendererManager& renderer, OrthographicCamera& camera, Light
 	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
 }
 
-void Sprite::Collision(std::vector<Sprite>& SpriteList)
-{
-}
 
 //void Sprite::Draw(VulkanRenderer& renderer, int currentFrame)
 //{

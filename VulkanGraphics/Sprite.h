@@ -52,7 +52,7 @@ public:
 	~Sprite();
 
 	virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light);
-	virtual void Collision(std::vector<Sprite>& SpriteList);
+	virtual void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList) = 0;
 	//void Draw(VulkanRenderer& renderer, int currentFrame);
 	void Destory(RendererManager& renderer);
 

@@ -42,15 +42,26 @@ Coin::~Coin()
 {
 }
 
-void Coin::Collision(std::vector<Sprite>& SpriteList)
+void Coin::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList)
 {
-	for (auto& sprite : SpriteList)
+	for (auto sprite : SpriteList)
 	{
-		if (sprite.Type == SpriteType::SMegaMan)
+		if (sprite->Type == SpriteType::SMegaMan)
 		{
-			if(sprite.collider.CollidesWith(collider));
+			if(sprite->collider.CollidesWith(collider))
 			{
-				int a = 34;
+				vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
+				Destory(renderer);
+				renderer.RemoveMesh(SpriteMesh);
+
+				for (int x = 0; x < SpriteList.size(); x++)
+				{
+					if (this == SpriteList[x].get())
+					{
+						SpriteList.erase(SpriteList.begin() + x);
+						break;
+					}
+				}
 			}
 		}
 	}
