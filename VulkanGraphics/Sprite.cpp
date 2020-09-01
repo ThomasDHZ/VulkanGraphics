@@ -71,6 +71,15 @@ void Sprite::Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList)
 	}
 }
 
+void Sprite::Gravity(std::vector<BoxCollider> SpriteList)
+{
+	if (ObjectFlagBits & ObjectFlags::ApplyGravity)
+	{
+		glm::vec3 MoveDirection = glm::vec3(0.0f, -0.01f, 0.0f);
+		Move(SpriteList, MoveDirection);
+	}
+}
+
 void Sprite::Move(std::vector<std::shared_ptr<Sprite>> SpriteList, glm::vec3 MoveDirection)
 {
 	for (auto& sprite : SpriteList)
@@ -126,7 +135,9 @@ void Sprite::Update(RendererManager& renderer, OrthographicCamera& camera, Light
 
 void Sprite::Destory(RendererManager& renderer)
 {
+	vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
 	SpriteMesh->Destory(renderer);
+	renderer.RemoveMesh(SpriteMesh);
 }
 
 void Sprite::SetPosition2D(glm::vec2 Pos)

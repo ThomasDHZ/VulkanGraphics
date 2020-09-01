@@ -22,26 +22,13 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
+	renderer.OrthoCamera.SetPosition(2.5f, 8.5f);
 
 	//spriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, gameManager.textureManager, MegaManVertices, MegaManIndices, MegaManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
-	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(0.0f, 0.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(5.0f, 6.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, 3.0f))));
-	
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(0.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(1.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(2.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(4.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(5.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(6.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(7.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(8.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(9.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(10.0f, -2.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(11.0f, -2.0f))));
-	
+	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(1.0f, 10.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(5.0f, 8.0f))));
+	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, 8.0f))));
 	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
 }
 
@@ -138,6 +125,13 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame)
 
 	light.Update(renderer, renderer.OrthoCamera);
 	level.Update(renderer, renderer.OrthoCamera, light.light);
+	for (int x= SpriteList.size() - 1; x > 0; x--)
+	{
+ 		if (SpriteList[x]->SpriteMesh->VertexBuffer == NULL)
+		{
+			SpriteList.erase(SpriteList.begin() + x);
+		}
+	}
 	for (auto& sprite : SpriteList)
 	{
 		if (auto MM = dynamic_cast<MegaMan*>(sprite.get()))
@@ -159,11 +153,19 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame)
 			{
 				MoveDirection = glm::vec3(0.0f, 0.01f, 0.0f);
 			}
+
+		    if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_SPACE) == GLFW_PRESS)
+			{
+				SpriteList.emplace_back(std::make_shared<MMShot>(MMShot(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(MM->SpriteMesh->MeshPosition.x + 1.0f, MM->SpriteMesh->MeshPosition.y + 0.5f))));
+				break;
+			}
+			
 		//	MM->Move(SpriteList, MoveDirection);
 			MM->Move(level.LevelColliderList, MoveDirection);
+			MM->Update(Window.GetWindowPtr(), renderer, renderer.OrthoCamera, light.light);
 		}
 
-		//sprite->Gravity(SpriteList);
+		sprite->Gravity(level.LevelColliderList);
 		sprite->Update(renderer, renderer.OrthoCamera, light.light);
 		sprite->Collision(renderer, SpriteList);
 	}

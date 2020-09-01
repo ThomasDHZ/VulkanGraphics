@@ -33,6 +33,7 @@ public:
 	const glm::vec3& GetPosition() { return Position; }
 	float GetRotation() { return Rotation; }
 
+	const glm::vec2& GetVuewScreenSize() { return ViewScreenSize; }
 	const glm::mat4& GetProjectionMatrix() { return ProjectionMatrix; }
 	const glm::mat4& GetViewMatrix() { return ViewMatrix; }
 };

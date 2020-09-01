@@ -12,7 +12,7 @@ public:
 	MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos);
 	~MegaMan();
 
-	void Update(GLFWwindow* window, VulkanRenderer& renderer, Camera& camera, UniformBufferObject light);
+	void Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light);
 	void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList) override;
 };
 

@@ -51,18 +51,7 @@ void Coin::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Spri
 		{
 			if(sprite->collider.CollidesWith(collider))
 			{
-				vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
 				Destory(renderer);
-				renderer.RemoveMesh(SpriteMesh);
-
-				for (int x = 0; x < SpriteList.size(); x++)
-				{
-					if (this == SpriteList[x].get())
-					{
-						SpriteList.erase(SpriteList.begin() + x);
-						break;
-					}
-				}
 			}
 		}
 	}

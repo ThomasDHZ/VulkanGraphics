@@ -61,6 +61,7 @@ public:
 	~Sprite();
 
 	void Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList);
+	void Gravity(std::vector<BoxCollider> SpriteList);
 	void Move(std::vector<std::shared_ptr<Sprite>> SpriteList, glm::vec3 MoveDirection);
 	void Move(std::vector<BoxCollider> SpriteList, glm::vec3 MoveDirection);
 	virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light);

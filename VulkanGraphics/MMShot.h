@@ -1,17 +1,18 @@
-//#pragma once
-//#include "Sprite.h"
-//
-//class MMShot : public Sprite
-//{
-//private:
-//	Animation2D StandAni;
-//	Animation2D RunAni;
-//public:
-//	MMShot();
-//	MMShot(Renderer& renderer, TextureMaps SpriteMaps, glm::vec2 StartPos);
-//	MMShot(Renderer& renderer, TextureMaps SpriteMaps, glm::vec3 StartPos);
-//	~MMShot();
-//
-//	void Update(GLFWwindow* window, Renderer& renderer, Camera& camera, Lights light);
-//};
-//
+#pragma once
+#include "Sprite.h"
+
+class MMShot : public Sprite
+{
+private:
+	static constexpr glm::vec2 SpriteSize = glm::vec2(0.25f, 0.25f);
+	Animation2D StandAni;
+	Animation2D RunAni;
+public:
+	MMShot();
+	MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos);
+	~MMShot();
+
+	void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light) override;
+	void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList) override;
+};
+
