@@ -252,6 +252,9 @@
     <ClCompile Include="Coin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Reflection2DPipeline.cpp">
+      <Filter>Source Files\Pipelines</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -309,6 +312,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\Shader2D.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\ReflectShader2D.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\ReflectShader2D.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -505,9 +514,6 @@
     <ClInclude Include="SpriteTexture2D.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering2DPipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh2D.h">
       <Filter>Header Files\Mesh</Filter>
     </ClInclude>
@@ -528,6 +534,12 @@
     </ClInclude>
     <ClInclude Include="Coin.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Reflection2DPipeline.h">
+      <Filter>Header Files\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering2DPipeline.h">
+      <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

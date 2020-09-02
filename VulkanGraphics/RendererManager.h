@@ -32,7 +32,6 @@ private:
 	bool framebufferResized = false;
 
 	GUIDebugger guiDebugger;
-	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
 	FramebufferRenderer frameBufferRenderer;
 	ShadowRenderer shadowRenderer;
@@ -61,6 +60,7 @@ public:
 	RendererManager(GLFWwindow* window);
 	~RendererManager();
 
+	ForwardRenderer forwardRenderer;
 	FrameBufferMesh frameBuffer;
 
 	void Update(uint32_t DrawFrame, Camera camera);

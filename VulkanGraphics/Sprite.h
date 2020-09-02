@@ -13,7 +13,13 @@ enum SpriteAnime
 	Run1,
 	Run2,
 	Run3,
-	Run4
+	Run4,
+	CoinFlip1,
+	CoinFlip2,
+	CoinFlip3,
+	CoinFlip4,
+	CoinFlip5,
+	CoinFlip6
 };
 
 struct ColisionGeo

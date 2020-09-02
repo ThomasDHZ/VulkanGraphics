@@ -2,6 +2,7 @@
 #include "BaseMesh.h"
 #include "Mesh.h"
 #include <map>
+#include "RendererColorTexture.h"
 
 class Mesh2D : public BaseMesh
 {
@@ -31,6 +32,7 @@ public:
 
     Mesh2D();
     Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+    Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit, unsigned int texture);
     ~Mesh2D();
 
     void Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);

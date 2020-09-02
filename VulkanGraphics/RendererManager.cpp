@@ -19,7 +19,7 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
 	//lightCamera = Camera(glm::vec3(0.5f, 1.0f, 0.3f));
-	OrthoCamera = OrthographicCamera(16.0f , 9.0f );
+	OrthoCamera = OrthographicCamera(9.0f, 4.5f );
 
 }
 
@@ -170,7 +170,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window)
 	}
 
 	//ShadowRenderPass();
-	//DrawToTextureRenderPass();
+	DrawToTextureRenderPass();
 	MainRenderPass();
 	//FrameBufferRenderPass();
 
@@ -274,6 +274,10 @@ void RendererManager::DrawToTextureRenderPass()
 			}
 			else
 			{
+				if (dynamic_cast<Mesh2D*>(mesh.get()))
+				{
+					forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.renderer2DPipeline, mesh);
+				}
 				if (dynamic_cast<DebugLightMesh*>(mesh.get()))
 				{
 					forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.DebugLightPipeline, mesh);

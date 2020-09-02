@@ -74,7 +74,7 @@ void Mesh2D::CreateUniformBuffers(VulkanRenderer& renderer)
 
 void Mesh2D::CreateDescriptorPool(VulkanRenderer& renderer) {
 
-    std::array<DescriptorPoolSizeInfo, 8>  DescriptorPoolInfo = {};
+    std::array<DescriptorPoolSizeInfo, 9>  DescriptorPoolInfo = {};
 
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -82,8 +82,9 @@ void Mesh2D::CreateDescriptorPool(VulkanRenderer& renderer) {
     DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -116,6 +117,11 @@ void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Text
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     EmissionMap.imageView = textureManager->GetTextureByID(DiffuseMapID).View;
     EmissionMap.sampler = textureManager->GetTextureByID(DiffuseMapID).Sampler;
+
+    VkDescriptorImageInfo ReflectDiffuseMap = {};
+    ReflectDiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    ReflectDiffuseMap.imageView = textureManager->GetTextureByID(NormalMapID).View;
+    ReflectDiffuseMap.sampler = textureManager->GetTextureByID(NormalMapID).Sampler;
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -178,15 +184,22 @@ void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Text
         EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
         DescriptorList.emplace_back(EmissionMapDescriptor);
 
+        WriteDescriptorSetInfo ReflectDiffuseMapDescriptor;
+        ReflectDiffuseMapDescriptor.DstBinding = 6;
+        ReflectDiffuseMapDescriptor.DstSet = DescriptorSets[i];
+        ReflectDiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        ReflectDiffuseMapDescriptor.DescriptorImageInfo = ReflectDiffuseMap;
+        DescriptorList.emplace_back(ReflectDiffuseMapDescriptor);
+
         WriteDescriptorSetInfo  MeshPropertiesDescriptor;
-        MeshPropertiesDescriptor.DstBinding = 6;
+        MeshPropertiesDescriptor.DstBinding = 7;
         MeshPropertiesDescriptor.DstSet = DescriptorSets[i];
         MeshPropertiesDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         MeshPropertiesDescriptor.DescriptorBufferInfo = meshPropertiesInfo;
         DescriptorList.emplace_back(MeshPropertiesDescriptor);
 
         WriteDescriptorSetInfo LightDescriptor;
-        LightDescriptor.DstBinding = 7;
+        LightDescriptor.DstBinding = 8;
         LightDescriptor.DstSet = DescriptorSets[i];
         LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         LightDescriptor.DescriptorBufferInfo = LightInfo;

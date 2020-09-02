@@ -2,6 +2,8 @@
 #include "RendererBase.h"
 #include "RendererColorTexture.h"
 #include "RendererDepthTexture.h"
+#include "Rendering2DPipeline.h"
+#include "Reflection2DPipeline.h"
 
 class TextureRenderer : public RendererBase
 {
@@ -17,6 +19,8 @@ public:
 	ForwardRenderingPipeline forwardRendereringPipeline;
 	SkyBoxPipeline skyboxPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
+	Rendering2DPipeline renderer2DPipeline;
+	Reflection2DPipeline reflection2DPipeline;
 	//CollisionDebugPipeline DebugCollisionPipeline;
 	WireFramePipeline wireFramePipeline;
 

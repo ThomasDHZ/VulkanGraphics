@@ -1,24 +1,24 @@
-#include "Rendering2DPipeline.h"
+#include "Reflection2DPipeline.h"
 #include "Vertex.h"
 #include <stdexcept>
 
-Rendering2DPipeline::Rendering2DPipeline() : GraphicsPipeline()
+Reflection2DPipeline::Reflection2DPipeline() : GraphicsPipeline()
 {
 }
 
-Rendering2DPipeline::Rendering2DPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+Reflection2DPipeline::Reflection2DPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
     CreateShaderPipeLine(renderer, renderPass);
 }
 
-Rendering2DPipeline::~Rendering2DPipeline()
+Reflection2DPipeline::~Reflection2DPipeline()
 {
 }
 
-void Rendering2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void Reflection2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
-    std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
+    std::array<DescriptorSetLayoutBindingInfo, 8> LayoutBindingInfo = {};
 
     LayoutBindingInfo[0].Binding = 0;
     LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -45,24 +45,20 @@ void Rendering2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     LayoutBindingInfo[5].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
     LayoutBindingInfo[6].Binding = 6;
-    LayoutBindingInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    LayoutBindingInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     LayoutBindingInfo[6].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
     LayoutBindingInfo[7].Binding = 7;
     LayoutBindingInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     LayoutBindingInfo[7].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-    LayoutBindingInfo[8].Binding = 8;
-    LayoutBindingInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    LayoutBindingInfo[8].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void Reflection2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-    auto vertShaderCode = ReadShaderFile("shaders/Shader2DVert.spv");
-    auto fragShaderCode = ReadShaderFile("shaders/Shader2DFrag.spv");
+    auto vertShaderCode = ReadShaderFile("shaders/ReflectShader2DVert.spv");
+    auto fragShaderCode = ReadShaderFile("shaders/ReflectShader2DFrag.spv");
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);
@@ -200,7 +196,7 @@ void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const V
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void Rendering2DPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void Reflection2DPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

@@ -23,16 +23,16 @@ MegaMan::MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textu
 
 	MeshTextures MegaManTextures = {};
 	MegaManTextures.DiffuseMap = "texture/MegaMan_diffuseOriginal.bmp";
-	MegaManTextures.SpecularMap = "texture/container2_specular.png";
-	MegaManTextures.NormalMap = "texture/SparkMan_normal.bmp";
-	MegaManTextures.AlphaMap = "texture/MegaManAlpha.bmp";
+	MegaManTextures.SpecularMap = "texture/MegaMan_Specular.bmp";
+	MegaManTextures.NormalMap = "texture/MegaMan_Normal.bmp";
+	MegaManTextures.AlphaMap = "texture/MegaMan_Alpha.bmp";
 
 	const std::vector<Vertex> MegaManVertices =
 	{
-		{{0.0f, 0.0f, 0.0f},				 {0.0f, 0.0f, 1.0f}, {0.14f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+		{{0.0f, 0.0f, 0.0f},				 {0.0f, 0.0f, 1.0f}, {0.14f / 3, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
 		{{SpriteSize.x, 0.0f, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{SpriteSize.x, SpriteSize.y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{0.0f, SpriteSize.y, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.14f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
+		{{SpriteSize.x, SpriteSize.y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+		{{0.0f, SpriteSize.y, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.14f / 3, -1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
 	};
 
 	const std::vector<uint16_t> MegaManIndices =
@@ -58,33 +58,35 @@ MegaMan::~MegaMan()
 {
 }
 
-void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
+void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light, std::vector<std::shared_ptr<Sprite>> SpriteList, std::vector<BoxCollider> LevelCollidorList, std::shared_ptr<TextureManager>textureManager)
 {
+	glm::vec3 MoveDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ||
 		glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
-			/*if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x)
-			{*/
-			//SpriteMesh->MeshPosition.x -= 0.001f;
-			//SpriteMesh->properites.FlipTexture = 1;
-			//camera.Position.x -= 0.001f;
-			/*}*/
+			MoveDirection = glm::vec3(-0.01f, 0.0f, 0.0f);
 		}
-		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
-			/*if (SpriteMesh.MeshPosition.x < otherSprite.MeshPosition.x - 1.0f)
-			{*/
-			//SpriteMesh->MeshPosition.x += 0.001f;
-			//SpriteMesh->properites.FlipTexture = 0;
-			//camera.Position.x += 0.001f;
-			//}
-			//else
-			//{
-			//	SpriteMesh.MeshPosition.x = otherSprite.MeshPosition.x - 1.0f;
-			//}
+			MoveDirection = glm::vec3(0.01f, 0.0f, 0.0f);
 		}
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		{
+			MoveDirection = glm::vec3(0.0f, -0.01f, 0.0f);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		{
+			MoveDirection = glm::vec3(0.0f, 0.01f, 0.0f);
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(SpriteMesh->MeshPosition.x + 1.0f, SpriteMesh->MeshPosition.y + 0.5f)));
+			SpriteList.emplace_back(shot);
+		}
+
 		if (CurrentAni.GetAnimationID() != RunAni.GetAnimationID())
 		{
 			CurrentAni = RunAni;
@@ -97,7 +99,8 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 			CurrentAni = StandAni;
 		}
 	}
-	CurrentAni.Update();
+
+	Move(LevelCollidorList, MoveDirection);
 	Sprite::Update(renderer, camera, light);
 }
 

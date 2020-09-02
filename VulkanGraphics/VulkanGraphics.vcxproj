@@ -175,6 +175,7 @@
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="OrthographicCamera.cpp" />
+    <ClCompile Include="Reflection2DPipeline.cpp" />
     <ClCompile Include="RendererHDRColorTexture.cpp" />
     <ClCompile Include="Rendering2DPipeline.cpp" />
     <ClCompile Include="ShadowRenderer.cpp" />
@@ -228,6 +229,8 @@
     <None Include="Shaders\ForwardRendererShader.vert" />
     <None Include="Shaders\FrameBufferShader.frag" />
     <None Include="Shaders\FrameBufferShader.vert" />
+    <None Include="Shaders\ReflectShader2D.frag" />
+    <None Include="Shaders\ReflectShader2D.vert" />
     <None Include="Shaders\Shader2D.frag" />
     <None Include="Shaders\Shader2D.vert" />
     <None Include="Shaders\ShadowDebug.frag" />
@@ -266,6 +269,7 @@
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="OrthographicCamera.h" />
+    <ClInclude Include="Reflection2DPipeline.h" />
     <ClInclude Include="RendererHDRColorTexture.h" />
     <ClInclude Include="Rendering2DPipeline.h" />
     <ClInclude Include="ShadowRenderer.h" />

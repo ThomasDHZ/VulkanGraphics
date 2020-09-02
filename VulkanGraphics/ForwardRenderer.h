@@ -20,6 +20,7 @@ public:
 
 	ForwardRenderingPipeline forwardRendereringPipeline;
 	Rendering2DPipeline renderer2DPipeline;
+	//ReflectRendering2DPipeline reflectRenderer2DPipeline;
 	SkyBoxPipeline skyboxPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
 	//CollisionDebugPipeline DebugCollisionPipeline;
