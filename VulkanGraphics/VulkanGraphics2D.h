@@ -56,7 +56,7 @@ private:
     Light light;
 
     void UpdateImGUI();
-    void Update(uint32_t DrawFrame);
+    void Update(uint32_t DrawFrame, OrthographicCamera& camera);
 public:
     VulkanGraphics2D(int Width, int Height, const char* AppName);
     ~VulkanGraphics2D();

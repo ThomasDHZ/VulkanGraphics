@@ -24,6 +24,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
 	renderer.OrthoCamera.SetPosition(2.5f, 8.5f);
+	renderer.OrthoCamera2.SetPosition(20.5f, 8.5f);
 
 //	unsigned int  a=  gameManager.textureManager->LoadTexture(renderer, "texture/SparkMan_diffuseOriginal.png", VK_FORMAT_R32G32B32A32_UINT);
 	//spriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, gameManager.textureManager, MegaManVertices, MegaManIndices, MegaManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
@@ -31,7 +32,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(1.0f, 10.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(5.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, 8.0f))));
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, 4.0f), glm::vec2(20.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
+	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, 8.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
 	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
 }
 
@@ -124,11 +125,11 @@ void VulkanGraphics2D::UpdateImGUI()
 	ImGui::Render();
 }
 
-void VulkanGraphics2D::Update(uint32_t DrawFrame)
+void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 {
 
-	light.Update(renderer, renderer.OrthoCamera);
-	level.Update(renderer, renderer.OrthoCamera, light.light);
+	light.Update(renderer, camera);
+	level.Update(renderer, camera, light.light);
 	for (int x= SpriteList.size() - 1; x > 0; x--)
 	{
  		if (SpriteList[x]->SpriteMesh->VertexBuffer == NULL)
@@ -140,11 +141,11 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame)
 	{
 		if (auto MM = dynamic_cast<MegaMan*>(sprite.get()))
 		{
-			MM->Update(Window.GetWindowPtr(), renderer, renderer.OrthoCamera, light.light, SpriteList, level.LevelColliderList, gameManager.textureManager);
+			MM->Update(Window.GetWindowPtr(), renderer, camera, light.light, SpriteList, level.LevelColliderList, gameManager.textureManager);
 		}
 
 		sprite->Gravity(level.LevelColliderList);
-		sprite->Update(renderer, renderer.OrthoCamera, light.light);
+		sprite->Update(renderer, camera, light.light);
 		sprite->Collision(renderer, SpriteList);
 	}
 }
@@ -161,9 +162,25 @@ void VulkanGraphics2D::MainLoop()
 
 		Window.Update();
 		//mouse.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
-		keyboard.UpdateOrtho(Window.GetWindowPtr(), renderer.OrthoCamera);
+		keyboard.UpdateOrtho(Window.GetWindowPtr(), renderer.OrthoCamera2);
 		UpdateImGUI();
-		Update(renderer.DrawFrame);
-		renderer.Draw(Window.GetWindowPtr());
+
+		renderer.StartDraw(Window.GetWindowPtr());
+		//ShadowRenderPass();
+		if (renderer.currentFrame == 1)
+		{
+			Update(renderer.DrawFrame, renderer.OrthoCamera2);
+			renderer.DrawToTextureRenderPass();
+		}
+		else
+		{
+			
+			Update(renderer.DrawFrame, renderer.OrthoCamera);
+			renderer.MainRenderPass();
+			
+		}
+		//FrameBufferRenderPass();
+		//renderer.Draw(Window.GetWindowPtr());
+		renderer.EndDraw(Window.GetWindowPtr());
 	}
 }

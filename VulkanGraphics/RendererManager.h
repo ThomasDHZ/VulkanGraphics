@@ -38,6 +38,7 @@ private:
 	//Camera lightCamera;
 	Camera camera;
 	OrthographicCamera OrthoCamera;
+	OrthographicCamera OrthoCamera2;
 
 	std::vector<std::shared_ptr<BaseMesh>> ObjectMesh;
 
@@ -52,6 +53,8 @@ private:
 protected:
 
 	uint32_t Draw(GLFWwindow* window);
+	void StartDraw(GLFWwindow* window);
+	void EndDraw(GLFWwindow* window);
 	void DestoryVulkan();
 
 public:

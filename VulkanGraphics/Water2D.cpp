@@ -36,6 +36,7 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	ObjectFlagBits = ObjectFlags::Collectible;
 	SpriteMaps = CoinTextures;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, Water2DVertices, Water2DIndices, CoinTextures, descriptorSetLayout, RendererBitFlag::RenderOnMainPass));
+	SpriteMesh->reflect = true;
 	renderer.AddDrawableMesh(SpriteMesh);
 	SetPosition2D(StartPos);
 
