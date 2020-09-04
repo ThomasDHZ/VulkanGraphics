@@ -50,7 +50,6 @@ private:
     
     LevelSprite level;
     std::vector<std::shared_ptr<Sprite>> SpriteList;
-    std::shared_ptr<Mesh2D> spriteMesh;
 
     OrthographicCamera orthoCamera;
 

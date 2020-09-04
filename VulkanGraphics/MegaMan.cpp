@@ -44,6 +44,17 @@ MegaMan::MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textu
 	ObjectFlagBits = ObjectFlags::Player | ObjectFlags::ApplyGravity;
 	SpriteMaps = MegaManTextures;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, MegaManTextures, descriptorSetLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	
+	//DrawMessage draw = {};
+	//draw.RenderBit = RendererBitFlag::RenderOnMainPass;
+	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
+	//draw.mesh = SpriteMesh;
+	//auto a = std::make_shared<DrawMessage>(draw);
+	////renderer.AddDrawableMesh(a);
+	//draw.RenderBit = RendererBitFlag::RenderOnTexturePass;
+	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
+	//draw.mesh = SpriteMesh;
+	//renderer.AddDrawableMesh(a);
 	renderer.AddDrawableMesh(SpriteMesh);
 	SetPosition2D(StartPos);
 
@@ -81,12 +92,6 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 			MoveDirection = glm::vec3(0.0f, 0.01f, 0.0f);
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		{
-			auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(SpriteMesh->MeshPosition.x + 1.0f, SpriteMesh->MeshPosition.y + 0.5f)));
-			SpriteList.emplace_back(shot);
-		}
-
 		if (CurrentAni.GetAnimationID() != RunAni.GetAnimationID())
 		{
 			CurrentAni = RunAni;
@@ -98,6 +103,12 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 		{
 			CurrentAni = StandAni;
 		}
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(SpriteMesh->MeshPosition.x + 1.0f, SpriteMesh->MeshPosition.y + 0.5f)));
+		SpriteList.emplace_back(shot);
 	}
 
 	Move(LevelCollidorList, MoveDirection);

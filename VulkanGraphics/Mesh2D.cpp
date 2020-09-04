@@ -20,6 +20,21 @@ Mesh2D::Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager> texture
     CreateMaterialProperties();
 }
 
+Mesh2D::Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit, Texture& texture) : BaseMesh(renderBit)
+{
+    Vertexdata = vertexdata;
+    VertexSize = vertexdata.size();
+    IndexSize = indicesdata.size();
+
+    LoadTiles(renderer, textureManager, textures);
+    CreateVertexBuffer(renderer, vertexdata);
+    CreateIndexBuffer(renderer, indicesdata);
+    CreateUniformBuffers(renderer);
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager, descriptorSetLayout, texture);
+    CreateMaterialProperties();
+}
+
 Mesh2D::~Mesh2D()
 {
 }
@@ -209,6 +224,126 @@ void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Text
     }
 }
 
+void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, Texture& texture)
+{
+    BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
+
+    VkDescriptorImageInfo DiffuseMap = {};
+    DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    DiffuseMap.imageView = texture.View;;
+    DiffuseMap.sampler = texture.Sampler;
+
+    VkDescriptorImageInfo SpecularMap = {};
+    SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    SpecularMap.imageView = textureManager->GetTextureByID(SpecularMapID).View;
+    SpecularMap.sampler = textureManager->GetTextureByID(SpecularMapID).Sampler;
+
+    VkDescriptorImageInfo NormalMap = {};
+    NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    NormalMap.imageView = textureManager->GetTextureByID(NormalMapID).View;
+    NormalMap.sampler = textureManager->GetTextureByID(NormalMapID).Sampler;
+
+    VkDescriptorImageInfo AlphaMap = {};
+    AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    AlphaMap.imageView = textureManager->GetTextureByID(AlphaMapID).View;
+    AlphaMap.sampler = textureManager->GetTextureByID(AlphaMapID).Sampler;
+
+    VkDescriptorImageInfo EmissionMap = {};
+    EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    EmissionMap.imageView = textureManager->GetTextureByID(DiffuseMapID).View;
+    EmissionMap.sampler = textureManager->GetTextureByID(DiffuseMapID).Sampler;
+
+    VkDescriptorImageInfo ReflectDiffuseMap = {};
+    ReflectDiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    ReflectDiffuseMap.imageView = textureManager->GetTextureByID(NormalMapID).View;
+    ReflectDiffuseMap.sampler = textureManager->GetTextureByID(NormalMapID).Sampler;
+
+    for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
+    {
+        VkDescriptorBufferInfo PositionInfo = {};
+        PositionInfo.buffer = uniformBuffer.GetUniformBuffer(i);
+        PositionInfo.offset = 0;
+        PositionInfo.range = sizeof(UniformBufferObject);
+
+        VkDescriptorBufferInfo LightInfo = {};
+        LightInfo.buffer = lightBuffer.GetUniformBuffer(i);
+        LightInfo.offset = 0;
+        LightInfo.range = sizeof(LightBufferObject);
+
+        VkDescriptorBufferInfo meshPropertiesInfo = {};
+        meshPropertiesInfo.buffer = meshPropertiesBuffer.GetUniformBuffer(i);
+        meshPropertiesInfo.offset = 0;
+        meshPropertiesInfo.range = sizeof(MeshProperties);
+
+        std::vector<WriteDescriptorSetInfo> DescriptorList;
+
+        WriteDescriptorSetInfo PositionDescriptor;
+        PositionDescriptor.DstBinding = 0;
+        PositionDescriptor.DstSet = DescriptorSets[i];
+        PositionDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        PositionDescriptor.DescriptorBufferInfo = PositionInfo;
+        DescriptorList.emplace_back(PositionDescriptor);
+
+        WriteDescriptorSetInfo DiffuseMapDescriptor;
+        DiffuseMapDescriptor.DstBinding = 1;
+        DiffuseMapDescriptor.DstSet = DescriptorSets[i];
+        DiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        DiffuseMapDescriptor.DescriptorImageInfo = DiffuseMap;
+        DescriptorList.emplace_back(DiffuseMapDescriptor);
+
+        WriteDescriptorSetInfo SpecularMapDescriptor;
+        SpecularMapDescriptor.DstBinding = 2;
+        SpecularMapDescriptor.DstSet = DescriptorSets[i];
+        SpecularMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        SpecularMapDescriptor.DescriptorImageInfo = SpecularMap;
+        DescriptorList.emplace_back(SpecularMapDescriptor);
+
+        WriteDescriptorSetInfo NormalMapDescriptor;
+        NormalMapDescriptor.DstBinding = 3;
+        NormalMapDescriptor.DstSet = DescriptorSets[i];
+        NormalMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        NormalMapDescriptor.DescriptorImageInfo = NormalMap;
+        DescriptorList.emplace_back(NormalMapDescriptor);
+
+        WriteDescriptorSetInfo AlphaMapDescriptor;
+        AlphaMapDescriptor.DstBinding = 4;
+        AlphaMapDescriptor.DstSet = DescriptorSets[i];
+        AlphaMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        AlphaMapDescriptor.DescriptorImageInfo = AlphaMap;
+        DescriptorList.emplace_back(AlphaMapDescriptor);
+
+        WriteDescriptorSetInfo EmissionMapDescriptor;
+        EmissionMapDescriptor.DstBinding = 5;
+        EmissionMapDescriptor.DstSet = DescriptorSets[i];
+        EmissionMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
+        DescriptorList.emplace_back(EmissionMapDescriptor);
+
+        WriteDescriptorSetInfo ReflectDiffuseMapDescriptor;
+        ReflectDiffuseMapDescriptor.DstBinding = 6;
+        ReflectDiffuseMapDescriptor.DstSet = DescriptorSets[i];
+        ReflectDiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        ReflectDiffuseMapDescriptor.DescriptorImageInfo = ReflectDiffuseMap;
+        DescriptorList.emplace_back(ReflectDiffuseMapDescriptor);
+
+        WriteDescriptorSetInfo  MeshPropertiesDescriptor;
+        MeshPropertiesDescriptor.DstBinding = 7;
+        MeshPropertiesDescriptor.DstSet = DescriptorSets[i];
+        MeshPropertiesDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        MeshPropertiesDescriptor.DescriptorBufferInfo = meshPropertiesInfo;
+        DescriptorList.emplace_back(MeshPropertiesDescriptor);
+
+        WriteDescriptorSetInfo LightDescriptor;
+        LightDescriptor.DstBinding = 8;
+        LightDescriptor.DstSet = DescriptorSets[i];
+        LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        LightDescriptor.DescriptorBufferInfo = LightInfo;
+        DescriptorList.emplace_back(LightDescriptor);
+
+        BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
+    }
+}
+
 void Mesh2D::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
 {
     UniformBufferObject ubo{};
@@ -219,6 +354,7 @@ void Mesh2D::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightB
     ubo.proj = camera.GetProjectionMatrix();
     ubo.proj[1][1] *= -1;
 
+    properites.timer = glfwGetTime();
     UpdateUniformBuffer(renderer, ubo, Lightbuffer);
 }
 

@@ -28,6 +28,16 @@ MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>texture
 	//ObjectFlagBits = ObjectFlags::Player | ObjectFlags::ApplyGravity;
 	SpriteMaps = MegaManTextures;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, MegaManTextures, descriptorSetLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	//DrawMessage draw = {};
+	//draw.RenderBit = RendererBitFlag::RenderOnMainPass;
+	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
+	//draw.mesh = SpriteMesh;
+	//auto a = std::make_shared<DrawMessage>(draw);
+	//renderer.AddDrawableMesh(a);
+	//draw.RenderBit = RendererBitFlag::RenderOnTexturePass;
+	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
+	//draw.mesh = SpriteMesh;
+	//renderer.AddDrawableMesh(a);
 	renderer.AddDrawableMesh(SpriteMesh);
 	SetPosition2D(StartPos);
 

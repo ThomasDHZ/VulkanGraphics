@@ -41,6 +41,19 @@ Coin::Coin(RendererManager& renderer, std::shared_ptr<TextureManager>textureMana
 	ObjectFlagBits = ObjectFlags::Collectible;
 	SpriteMaps = CoinTextures;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, CoinTextures, descriptorSetLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+
+	//DrawMessage draw = {};
+	//draw.RenderBit = RendererBitFlag::RenderOnMainPass;
+	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
+	//draw.mesh = SpriteMesh;
+	//auto a = std::make_shared<DrawMessage>(draw);
+	////renderer.AddDrawableMesh(a);
+
+	//draw.RenderBit = RendererBitFlag::RenderOnTexturePass;
+	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
+	//draw.mesh = SpriteMesh;
+	////renderer.AddDrawableMesh(a);
+
 	renderer.AddDrawableMesh(SpriteMesh);
 	SetPosition2D(StartPos);
 

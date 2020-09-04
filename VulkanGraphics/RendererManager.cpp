@@ -324,7 +324,9 @@ void RendererManager::MainRenderPass()
 			{
 				if (dynamic_cast<Mesh2D*>(mesh.get()))
 				{
-					forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.renderer2DPipeline, mesh);
+				
+						forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.renderer2DPipeline, mesh);
+					
 				}
 				if (dynamic_cast<DebugLightMesh*>(mesh.get()))
 				{

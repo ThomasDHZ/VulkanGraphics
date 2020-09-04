@@ -33,7 +33,7 @@ public:
     unsigned int AlphaMapID;
     unsigned int EmissionMapID;
     unsigned int ReflectionMapID;
-
+   
     VkBuffer VertexBuffer;
     VkDeviceMemory VertexBufferMemory;
 

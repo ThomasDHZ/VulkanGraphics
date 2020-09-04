@@ -76,6 +76,7 @@ layout(binding = 6) uniform MeshProperties
     float minLayers;
     float maxLayers;
     float heightScale;
+    float timer;
 } meshProperties;
 layout(binding = 7) uniform Light
 {
@@ -188,8 +189,22 @@ vec3 SpotLight(vec3 TangentLightPos, vec3 TangentFragPos, vec3 V, vec3 N, vec2 U
 }
 
 void main()
-{           
+{   
+    vec2 Distortion_scale = vec2(.389f, .053f);
+    float intensity = 00.3f;
+    float speed = 0.085f;
+
+    float waveAmp  = 0.238f;
+    float waveSpeed = 4.0f;
+    float wavePeriod = 2.423f;
+
+    float waves = TexCoords.y + sin(TexCoords.x / wavePeriod - (meshProperties.timer * waveSpeed)) * cos(1.2f * TexCoords.x / wavePeriod + meshProperties.timer - waveSpeed)* waveAmp - waveAmp;
+
+    float Distorion = texture(normalMap, TexCoords * Distortion_scale + (meshProperties.timer * speed)).r;
+    Distorion -= 0.5f;
     vec2 UV = TexCoords + meshProperties.UVOffset;
+    UV -= Distorion * intensity;
+
     RemoveAlphaPixels(UV);
 
     vec3 V = light.viewPos;
@@ -208,5 +223,6 @@ void main()
 
    vec3 result = DirectionalLight( V,  N,  UV, light.dLight);
    result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
-   FragColor = vec4(result, 1.0);
+   result = mix(result, vec3(0.0f, 0.7f, 0.8f), 0.5f);
+   FragColor = vec4(result, smoothstep(0.1f, 0.13f, vec3(waves)));
 }

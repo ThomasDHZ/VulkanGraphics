@@ -90,6 +90,7 @@ struct MeshProperties
     alignas(4) float minLayers;
     alignas(4) float maxLayers;
     alignas(4) float heightScale;
+    alignas(4) float timer;
 };
 
 struct LightBufferObject
