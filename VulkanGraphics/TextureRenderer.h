@@ -28,6 +28,6 @@ public:
 	RendererDepthTexture DepthTexture;
 
 	void UpdateSwapChain(VulkanRenderer& renderer);
-	void Destroy(VulkanRenderer& renderer);
+	void Destroy(VulkanRenderer& renderer) override;
 };
 

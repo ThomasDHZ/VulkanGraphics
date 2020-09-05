@@ -1,10 +1,10 @@
-#include "Water2D.h"
+#include "WaterSurface2D.h"
 
-Water2D::Water2D()
+WaterSurface2D::WaterSurface2D()
 {
 }
 
-Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize)
+WaterSurface2D::WaterSurface2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize)
 {
 	const std::vector<Vertex> Water2DVertices =
 	{
@@ -30,7 +30,7 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	renderer.DrawMessageList.emplace_back(mainDraw);
 }
 
-Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize, Texture& texture)
+WaterSurface2D::WaterSurface2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize, Texture& texture)
 {
 	const std::vector<Vertex> Water2DVertices =
 	{
@@ -52,17 +52,9 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	CoinTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
 	Type = SpriteType::SCoin;
-	ObjectFlagBits = ObjectFlags::Collectible;
-	//SpriteMaps = CoinTextures;
+	ObjectFlagBits = ObjectFlags::None;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, Water2DVertices, Water2DIndices, CoinTextures, RendererBitFlag::RenderOnMainPass, texture));
 	SpriteMesh->reflect = true;
-
-	//DrawMessage draw = {};
-	//draw.RenderBit = RendererBitFlag::RenderOnMainPass;
-	//draw.pipeline = renderer.forwardRenderer.reflection2DPipeline;
-	//draw.mesh = SpriteMesh;
-	//auto a = std::make_shared<DrawMessage>(draw);
-	//renderer.AddDrawableMesh(a);
 
 	renderer.AddDrawableMesh(SpriteMesh);
 	SetPosition2D(StartPos);
@@ -81,10 +73,10 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	renderer.DrawMessageList.emplace_back(mainDraw);
 }
 
-Water2D::~Water2D()
+WaterSurface2D::~WaterSurface2D()
 {
 }
 
-void Water2D::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList)
+void WaterSurface2D::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList)
 {
 }

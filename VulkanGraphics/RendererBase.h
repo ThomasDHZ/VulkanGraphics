@@ -18,6 +18,8 @@
 
 class RendererBase
 {
+protected:
+
 public:
 	VkRenderPass RenderPass;
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
@@ -27,7 +29,6 @@ public:
 	~RendererBase();
 
 	void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, const std::shared_ptr<BaseMesh> mesh);
-	void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, BaseMesh& mesh);
-	void Destroy(VulkanRenderer& renderer);
+	virtual void Destroy(VulkanRenderer& renderer);
 };
 

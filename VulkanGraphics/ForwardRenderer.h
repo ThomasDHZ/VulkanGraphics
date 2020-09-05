@@ -17,7 +17,7 @@ public:
 	~ForwardRenderer();
 
 	void UpdateSwapChain(VulkanRenderer& renderer);
-	void Destroy(VulkanRenderer& renderer);
+	void Destroy(VulkanRenderer& renderer) override;
 
 	ForwardRenderingPipeline forwardRendereringPipeline;
 	Reflection2DPipeline reflection2DPipeline;

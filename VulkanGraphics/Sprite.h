@@ -37,6 +37,7 @@ enum SpriteType
 
 enum ObjectFlags
 {
+	None = 0x00,
 	Player = 0x01,
 	Enemy = 0x02,
 	Wall = 0x04,

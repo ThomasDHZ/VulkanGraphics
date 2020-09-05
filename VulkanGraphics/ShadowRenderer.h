@@ -14,7 +14,7 @@ public:
 	~ShadowRenderer();
 
 	void UpdateSwapChain(VulkanRenderer& renderer);
-	void Destroy(VulkanRenderer& renderer);
+	void Destroy(VulkanRenderer& renderer) override;
 
 	ForwardRenderingPipeline forwardRendereringPipeline;
 	RendererDepthTexture DepthTexture;

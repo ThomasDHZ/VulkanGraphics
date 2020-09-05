@@ -8,7 +8,7 @@
 #include "ImGui/imgui_impl_vulkan.h"
 #include "Sprite.h"
 #include "Coin.h"
-#include "Water2D.h"
+#include "WaterSurface2D.h"
 
 VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 {
@@ -26,13 +26,11 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	renderer.OrthoCamera.SetPosition(2.5f, 8.5f);
 	renderer.OrthoCamera2.SetPosition(20.5f, 8.5f);
 
-//	unsigned int  a=  gameManager.textureManager->LoadTexture(renderer, "texture/SparkMan_diffuseOriginal.png", VK_FORMAT_R32G32B32A32_UINT);
-	//spriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, gameManager.textureManager, MegaManVertices, MegaManIndices, MegaManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, 8.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
+	SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, 8.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
 	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
 
 
@@ -149,6 +147,13 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 		sprite->Gravity(level.LevelColliderList);
 		sprite->Update(renderer, camera, light.light);
 		sprite->Collision(renderer, SpriteList);
+	}
+	for (int x = SpriteList.size() - 1; x > 0; x--)
+	{
+		if (SpriteList[x]->SpriteMesh->VertexBuffer == NULL)
+		{
+			SpriteList.erase(SpriteList.begin() + x);
+		}
 	}
 }
 

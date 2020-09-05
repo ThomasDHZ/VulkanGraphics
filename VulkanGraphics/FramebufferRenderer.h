@@ -16,7 +16,7 @@ public:
 	~FramebufferRenderer();
 
 	void UpdateSwapChain(VulkanRenderer& renderer);
-	void Destroy(VulkanRenderer& renderer);
+	void Destroy(VulkanRenderer& renderer) override;
 
 	FrameBufferRenderingPipeline frameBufferPipeline;
 	RendererDepthTexture DepthTexture;
