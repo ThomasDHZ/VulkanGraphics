@@ -60,8 +60,7 @@ layout(binding = 2) uniform sampler2D SpecularMap;
 layout(binding = 3) uniform sampler2D normalMap;
 layout(binding = 4) uniform sampler2D AlphaMap;
 layout(binding = 5) uniform sampler2D EmissionMap;
-layout(binding = 6) uniform sampler2D ReflectDiffuseMap;
-layout(binding = 7) uniform MeshProperties
+layout(binding = 6) uniform MeshProperties
 {
     Material material;
    // MapBits mapBitsFlags;
@@ -79,7 +78,7 @@ layout(binding = 7) uniform MeshProperties
     float heightScale;
     
 } meshProperties;
-layout(binding = 8) uniform Light
+layout(binding = 7) uniform Light
 {
     DirectionalLightStruct dLight;
     PointLightStruct pLight;

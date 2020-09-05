@@ -1,32 +1,24 @@
 #include "Sprite.h"
 
+
+
 Sprite::Sprite()
 {
 }
 
-Sprite::Sprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, SpriteType type, int ObjectFlagBits, int renderBit)
+Sprite::~Sprite()
 {
-
 }
 
-Sprite::Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type, VkDescriptorSetLayout& descriptorSetLayout, int ObjectFlagBits, int renderBit)
+void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos)
 {
-	const std::vector<Vertex> MegaManVertices =
-	{
-		{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{Width, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{Width, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{0.0f, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
-	};
-
-	const std::vector<uint16_t> MegaManIndices =
+	const std::vector<uint16_t> SpriteIndices =
 	{
 		  0, 1, 2, 2, 3, 0
 	};
 
-	Type = type;
-	SpriteMaps = spriteMaps;
-	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, SpriteMaps, descriptorSetLayout, renderBit));
+	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+
 	renderer.AddDrawableMesh(SpriteMesh);
 	SetPosition2D(StartPos);
 
@@ -35,31 +27,6 @@ Sprite::Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>texture
 	const glm::vec3 TopRightVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[2].Position;
 	const glm::vec3 TopLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[3].Position;
 	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
-}
-
-Sprite::Sprite(RendererManager& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type, int ObjectFlagBits)
-{
-	const std::vector<Vertex> MegaManVertices =
-	{
-		{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{Width, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{Width, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{0.0f, Height, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
-	};
-
-	const std::vector<uint16_t> MegaManIndices =
-	{
-		  0, 1, 2, 2, 3, 0
-	};
-
-	Type = type;
-	SpriteMaps = spriteMaps;
-	//SpriteMesh = Mesh(renderer, MegaManVertices, MegaManIndices, SpriteMaps);
-	SetPosition2D(StartPos);
-}
-
-Sprite::~Sprite()
-{
 }
 
 void Sprite::Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList)

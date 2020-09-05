@@ -48,9 +48,11 @@ class Sprite
 {
 private:
 
+protected:
+	void SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos);
 
 public:
-	MeshTextures SpriteMaps;
+
 	glm::ivec2 Velocity;
 	SpriteType Type;
 	int ObjectFlagBits;

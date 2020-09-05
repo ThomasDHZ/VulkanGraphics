@@ -4,8 +4,16 @@ MegaMan::MegaMan() : Sprite()
 {
 }
 
-MegaMan::MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos) : Sprite()
+MegaMan::MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos) : Sprite()
 {
+	const std::vector<Vertex> MegaManVertices =
+	{
+		{{0.0f, 0.0f, 0.0f},				 {0.0f, 0.0f, 1.0f}, {0.14f / 3, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+		{{SpriteSize.x, 0.0f, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+		{{SpriteSize.x, SpriteSize.y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+		{{0.0f, SpriteSize.y, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.14f / 3, -1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
+	};
+
 	AnimationFrame[Stand1] = glm::vec2(0.011f, 0.0f);
 	AnimationFrame[Stand2] = glm::vec2(0.144f, 0.0f);
 	AnimationFrame[StartRun] = glm::vec2(0.279f, 0.0f);
@@ -27,42 +35,9 @@ MegaMan::MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textu
 	MegaManTextures.NormalMap = "texture/MegaMan_Normal.bmp";
 	MegaManTextures.AlphaMap = "texture/MegaMan_Alpha.bmp";
 
-	const std::vector<Vertex> MegaManVertices =
-	{
-		{{0.0f, 0.0f, 0.0f},				 {0.0f, 0.0f, 1.0f}, {0.14f / 3, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{SpriteSize.x, 0.0f, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{SpriteSize.x, SpriteSize.y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{0.0f, SpriteSize.y, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.14f / 3, -1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
-	};
-
-	const std::vector<uint16_t> MegaManIndices =
-	{
-		  0, 1, 2, 2, 3, 0
-	};
-
-	Type = SpriteType::SMegaMan;
 	ObjectFlagBits = ObjectFlags::Player | ObjectFlags::ApplyGravity;
-	SpriteMaps = MegaManTextures;
-	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, MegaManTextures, descriptorSetLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	
-	//DrawMessage draw = {};
-	//draw.RenderBit = RendererBitFlag::RenderOnMainPass;
-	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
-	//draw.mesh = SpriteMesh;
-	//auto a = std::make_shared<DrawMessage>(draw);
-	////renderer.AddDrawableMesh(a);
-	//draw.RenderBit = RendererBitFlag::RenderOnTexturePass;
-	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
-	//draw.mesh = SpriteMesh;
-	//renderer.AddDrawableMesh(a);
-	renderer.AddDrawableMesh(SpriteMesh);
-	SetPosition2D(StartPos);
 
-	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[0].Position;
-	const glm::vec3 BottomRightVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[1].Position;
-	const glm::vec3 TopRightVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[2].Position;
-	const glm::vec3 TopLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[3].Position;
-	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
+	SetUpSprite(renderer, textureManager, MegaManVertices, MegaManTextures, StartPos);
 }
 
 MegaMan::~MegaMan()
@@ -107,7 +82,7 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(SpriteMesh->MeshPosition.x + 1.0f, SpriteMesh->MeshPosition.y + 0.5f)));
+		auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, glm::vec2(SpriteMesh->MeshPosition.x + 1.0f, SpriteMesh->MeshPosition.y + 0.5f)));
 		SpriteList.emplace_back(shot);
 	}
 

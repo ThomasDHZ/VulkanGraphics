@@ -9,7 +9,7 @@ private:
 	Animation2D RunAni;
 public:
 	MMShot();
-	MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos);
+	MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos);
 	~MMShot();
 
 	void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light) override;

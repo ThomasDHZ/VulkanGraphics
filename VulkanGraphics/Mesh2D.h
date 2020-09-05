@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include <map>
 #include "RendererColorTexture.h"
+#include "RendererManager.h"
 
 class Mesh2D : public BaseMesh
 {
@@ -12,13 +13,13 @@ private:
     VulkanUniformBuffer lightBuffer;
     VulkanUniformBuffer meshPropertiesBuffer;
 
-    void LoadTiles(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
-    void CreateUniformBuffers(VulkanRenderer& renderer);
-    void CreateDescriptorPool(VulkanRenderer& renderer);
-    void CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout);
-    void CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, Texture& texture);
+    void LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
+    void CreateUniformBuffers(RendererManager& renderer);
+    void CreateDescriptorPool(RendererManager& renderer);
+    void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager);
+    void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, Texture& texture);
     void CreateMaterialProperties();
-    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer);
+    void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer);
 
 public:
 
@@ -33,10 +34,10 @@ public:
     bool reflect = 0;
 
     Mesh2D();
-    Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
-    Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit, Texture& texture);
+    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit);
+    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit, Texture& texture);
     ~Mesh2D();
 
-    void Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
-    void Destory(VulkanRenderer& renderer);
+    void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
+    void Destory(RendererManager& renderer);
 };

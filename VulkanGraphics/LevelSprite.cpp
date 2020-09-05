@@ -7,7 +7,7 @@ LevelSprite::LevelSprite()
 LevelSprite::LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit)
 {
 	LoadTiles(renderer, textureManager, textures);
-	LevelMesh = std::make_shared<Mesh2D>(Mesh2D(*renderer.GetVulkanRendererBase(), textureManager, VertexList, IndexList, textures, descriptorSetLayout, renderBit));
+	LevelMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, VertexList, IndexList, textures, renderBit));
 
 	//DrawMessage draw = {};
 	//draw.RenderBit = RendererBitFlag::RenderOnMainPass;

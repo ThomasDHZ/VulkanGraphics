@@ -46,6 +46,7 @@ struct SpotLightStruct {
 
 struct MeshTextures
 {
+    Texture* RendererDiffuseMap;
     std::string DiffuseMap;
     std::string SpecularMap;
     std::string NormalMap;

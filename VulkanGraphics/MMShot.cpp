@@ -3,7 +3,7 @@ MMShot::MMShot() : Sprite()
 {
 }
 
-MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos) : Sprite()
+MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos) : Sprite()
 {
 	MeshTextures MegaManTextures = {};
 	MegaManTextures.DiffuseMap = "texture/MegaMan_diffuseOriginal.bmp";
@@ -19,33 +19,7 @@ MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>texture
 		{{0.0f, SpriteSize.y, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.14f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
 	};
 
-	const std::vector<uint16_t> MegaManIndices =
-	{
-		  0, 1, 2, 2, 3, 0
-	};
-
-	Type = SpriteType::SMMShot;
-	//ObjectFlagBits = ObjectFlags::Player | ObjectFlags::ApplyGravity;
-	SpriteMaps = MegaManTextures;
-	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, MegaManVertices, MegaManIndices, MegaManTextures, descriptorSetLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
-	//DrawMessage draw = {};
-	//draw.RenderBit = RendererBitFlag::RenderOnMainPass;
-	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
-	//draw.mesh = SpriteMesh;
-	//auto a = std::make_shared<DrawMessage>(draw);
-	//renderer.AddDrawableMesh(a);
-	//draw.RenderBit = RendererBitFlag::RenderOnTexturePass;
-	//draw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
-	//draw.mesh = SpriteMesh;
-	//renderer.AddDrawableMesh(a);
-	renderer.AddDrawableMesh(SpriteMesh);
-	SetPosition2D(StartPos);
-
-	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[0].Position;
-	const glm::vec3 BottomRightVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[1].Position;
-	const glm::vec3 TopRightVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[2].Position;
-	const glm::vec3 TopLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[3].Position;
-	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
+	SetUpSprite(renderer, textureManager, MegaManVertices, MegaManTextures, StartPos);
 }
 
 MMShot::~MMShot()

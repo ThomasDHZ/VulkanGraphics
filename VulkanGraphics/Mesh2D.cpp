@@ -5,7 +5,7 @@ Mesh2D::Mesh2D() : BaseMesh()
 {
 }
 
-Mesh2D::Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit) : BaseMesh(renderBit)
 {
     Vertexdata = vertexdata;
     VertexSize = vertexdata.size();
@@ -16,11 +16,11 @@ Mesh2D::Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager> texture
     CreateIndexBuffer(renderer, indicesdata);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, textureManager, descriptorSetLayout);
+    CreateDescriptorSets(renderer, textureManager);
     CreateMaterialProperties();
 }
 
-Mesh2D::Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit, Texture& texture) : BaseMesh(renderBit)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit, Texture& texture) : BaseMesh(renderBit)
 {
     Vertexdata = vertexdata;
     VertexSize = vertexdata.size();
@@ -31,7 +31,7 @@ Mesh2D::Mesh2D(VulkanRenderer& renderer, std::shared_ptr<TextureManager> texture
     CreateIndexBuffer(renderer, indicesdata);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, textureManager, descriptorSetLayout, texture);
+    CreateDescriptorSets(renderer, textureManager, texture);
     CreateMaterialProperties();
 }
 
@@ -51,7 +51,7 @@ void Mesh2D::CreateMaterialProperties()
     properites.heightScale = 0.1f;
 }
 
-void Mesh2D::LoadTiles(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
+void Mesh2D::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
     if (!textures.DiffuseMap.empty())
     {
@@ -80,14 +80,14 @@ void Mesh2D::LoadTiles(VulkanRenderer& renderer, std::shared_ptr<TextureManager>
     }
 }
 
-void Mesh2D::CreateUniformBuffers(VulkanRenderer& renderer)
+void Mesh2D::CreateUniformBuffers(RendererManager& renderer)
 {
     uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
     lightBuffer = VulkanUniformBuffer(renderer, sizeof(LightBufferObject));
     meshPropertiesBuffer = VulkanUniformBuffer(renderer, sizeof(MeshProperties));
 }
 
-void Mesh2D::CreateDescriptorPool(VulkanRenderer& renderer) {
+void Mesh2D::CreateDescriptorPool(RendererManager& renderer) {
 
     std::array<DescriptorPoolSizeInfo, 9>  DescriptorPoolInfo = {};
 
@@ -104,9 +104,9 @@ void Mesh2D::CreateDescriptorPool(VulkanRenderer& renderer) {
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout)
+void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
+    BaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -132,11 +132,6 @@ void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Text
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     EmissionMap.imageView = textureManager->GetTextureByID(DiffuseMapID).View;
     EmissionMap.sampler = textureManager->GetTextureByID(DiffuseMapID).Sampler;
-
-    VkDescriptorImageInfo ReflectDiffuseMap = {};
-    ReflectDiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    ReflectDiffuseMap.imageView = textureManager->GetTextureByID(NormalMapID).View;
-    ReflectDiffuseMap.sampler = textureManager->GetTextureByID(NormalMapID).Sampler;
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -199,22 +194,15 @@ void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Text
         EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
         DescriptorList.emplace_back(EmissionMapDescriptor);
 
-        WriteDescriptorSetInfo ReflectDiffuseMapDescriptor;
-        ReflectDiffuseMapDescriptor.DstBinding = 6;
-        ReflectDiffuseMapDescriptor.DstSet = DescriptorSets[i];
-        ReflectDiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        ReflectDiffuseMapDescriptor.DescriptorImageInfo = ReflectDiffuseMap;
-        DescriptorList.emplace_back(ReflectDiffuseMapDescriptor);
-
         WriteDescriptorSetInfo  MeshPropertiesDescriptor;
-        MeshPropertiesDescriptor.DstBinding = 7;
+        MeshPropertiesDescriptor.DstBinding = 6;
         MeshPropertiesDescriptor.DstSet = DescriptorSets[i];
         MeshPropertiesDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         MeshPropertiesDescriptor.DescriptorBufferInfo = meshPropertiesInfo;
         DescriptorList.emplace_back(MeshPropertiesDescriptor);
 
         WriteDescriptorSetInfo LightDescriptor;
-        LightDescriptor.DstBinding = 8;
+        LightDescriptor.DstBinding = 7;
         LightDescriptor.DstSet = DescriptorSets[i];
         LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         LightDescriptor.DescriptorBufferInfo = LightInfo;
@@ -224,9 +212,9 @@ void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Text
     }
 }
 
-void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, Texture& texture)
+void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, Texture& texture)
 {
-    BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
+    BaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -319,22 +307,15 @@ void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Text
         EmissionMapDescriptor.DescriptorImageInfo = EmissionMap;
         DescriptorList.emplace_back(EmissionMapDescriptor);
 
-        WriteDescriptorSetInfo ReflectDiffuseMapDescriptor;
-        ReflectDiffuseMapDescriptor.DstBinding = 6;
-        ReflectDiffuseMapDescriptor.DstSet = DescriptorSets[i];
-        ReflectDiffuseMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        ReflectDiffuseMapDescriptor.DescriptorImageInfo = ReflectDiffuseMap;
-        DescriptorList.emplace_back(ReflectDiffuseMapDescriptor);
-
         WriteDescriptorSetInfo  MeshPropertiesDescriptor;
-        MeshPropertiesDescriptor.DstBinding = 7;
+        MeshPropertiesDescriptor.DstBinding = 6;
         MeshPropertiesDescriptor.DstSet = DescriptorSets[i];
         MeshPropertiesDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         MeshPropertiesDescriptor.DescriptorBufferInfo = meshPropertiesInfo;
         DescriptorList.emplace_back(MeshPropertiesDescriptor);
 
         WriteDescriptorSetInfo LightDescriptor;
-        LightDescriptor.DstBinding = 8;
+        LightDescriptor.DstBinding = 7;
         LightDescriptor.DstSet = DescriptorSets[i];
         LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         LightDescriptor.DescriptorBufferInfo = LightInfo;
@@ -344,7 +325,7 @@ void Mesh2D::CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<Text
     }
 }
 
-void Mesh2D::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
+void Mesh2D::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
@@ -358,14 +339,14 @@ void Mesh2D::Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightB
     UpdateUniformBuffer(renderer, ubo, Lightbuffer);
 }
 
-void Mesh2D::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
+void Mesh2D::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
 {
     uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
     lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
     meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
 }
 
-void Mesh2D::Destory(VulkanRenderer& renderer)
+void Mesh2D::Destory(RendererManager& renderer)
 {
     uniformBuffer.Destroy(renderer);
     lightBuffer.Destroy(renderer);
