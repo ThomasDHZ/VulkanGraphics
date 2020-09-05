@@ -49,8 +49,10 @@ class Sprite
 private:
 
 protected:
-	void SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos);
+	std::vector<DrawMeshMessage> spriteDrawMessageList;
 
+	void SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos);
+	virtual void DrawMessage(RendererManager& renderer);
 public:
 
 	glm::ivec2 Velocity;
@@ -63,9 +65,6 @@ public:
 	glm::vec2 UVOffset = glm::vec2(0.0f);
 
 	Sprite();
-	Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, SpriteType type, int ObjectFlagBits, int renderBit);
-	Sprite(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, float Width, float Height, MeshTextures spriteMaps, glm::vec2 StartPos, SpriteType type, VkDescriptorSetLayout& descriptorSetLayout, int ObjectFlagBits, int renderBit);
-	Sprite(RendererManager& renderer, float Width, float Height, MeshTextures spriteMaps, glm::vec3 StartPos, SpriteType type, int ObjectFlagBits);
 	~Sprite();
 
 	void Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList);

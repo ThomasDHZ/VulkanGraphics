@@ -416,39 +416,17 @@ void RendererManager::MainRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : ObjectMesh)
+	for (auto mesh : DrawMessageList)
 {
-		if (mesh->RenderBitFlags & RendererBitFlag::RenderOnMainPass)
+		if (mesh.RendererID == 1)
 		{
 			if (Settings.ShowMeshLines)
 			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.wireFramePipeline, mesh);
+				forwardRenderer.Draw(*GetVulkanRendererBase(), mesh.pipeline, mesh.ObjectMesh);
 			}
 			else
 			{
-				if (auto a = dynamic_cast<Mesh2D*>(mesh.get()))
-				{
-					if (a->reflect)
-					{
-						forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.reflection2DPipeline, mesh);
-					}
-					else
-					{
-						forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.renderer2DPipeline, mesh);
-					}
-				}
-				if (dynamic_cast<DebugLightMesh*>(mesh.get()))
-				{
-					forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.DebugLightPipeline, mesh);
-				}
-				if (dynamic_cast<Mesh*>(mesh.get()))
-				{
-					forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.forwardRendereringPipeline, mesh);
-				}
-				if (dynamic_cast<SkyBoxMesh*>(mesh.get()))
-				{
-					forwardRenderer.Draw(*GetVulkanRendererBase(), forwardRenderer.skyboxPipeline, mesh);
-				}
+				forwardRenderer.Draw(*GetVulkanRendererBase(), mesh.pipeline, mesh.ObjectMesh);
 			}
 		}
 	}

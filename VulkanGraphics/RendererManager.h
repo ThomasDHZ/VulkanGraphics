@@ -21,6 +21,13 @@
 #include "OrthographicCamera.h"
 
 
+struct DrawMeshMessage
+{
+	unsigned int RendererID;
+	std::shared_ptr<BaseMesh> ObjectMesh;
+	GraphicsPipeline pipeline;
+};
+
 class RendererManager : public VulkanRenderer
 {
 	friend class VulkanGraphics;
@@ -41,6 +48,7 @@ private:
 	OrthographicCamera OrthoCamera2;
 
 	std::vector<std::shared_ptr<BaseMesh>> ObjectMesh;
+
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
@@ -63,6 +71,7 @@ public:
 	RendererManager(GLFWwindow* window);
 	~RendererManager();
 
+	std::vector<DrawMeshMessage> DrawMessageList;
 	ForwardRenderer forwardRenderer;
 	FrameBufferMesh frameBuffer;
 

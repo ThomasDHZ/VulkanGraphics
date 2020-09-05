@@ -20,6 +20,13 @@ LevelSprite::LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 	//draw.mesh = LevelMesh;
 	//renderer.AddDrawableMesh(a);
 	renderer.AddDrawableMesh(LevelMesh);
+
+	DrawMeshMessage mainDraw = {};
+	mainDraw.RendererID = 1;
+	mainDraw.ObjectMesh = LevelMesh;
+	mainDraw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
+
+	renderer.DrawMessageList.emplace_back(mainDraw);
 }
 
 LevelSprite::~LevelSprite()

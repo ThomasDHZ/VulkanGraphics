@@ -21,6 +21,13 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	CoinTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
 	SetUpSprite(renderer, textureManager, Water2DVertices, CoinTextures, StartPos);
+
+	DrawMeshMessage mainDraw = {};
+	mainDraw.RendererID = 1;
+	mainDraw.ObjectMesh = SpriteMesh;
+	mainDraw.pipeline = renderer.forwardRenderer.reflection2DPipeline;
+
+	renderer.DrawMessageList.emplace_back(mainDraw);
 }
 
 Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize, Texture& texture)
@@ -65,6 +72,13 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	const glm::vec3 TopRightVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[2].Position;
 	const glm::vec3 TopLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[3].Position;
 	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
+
+	DrawMeshMessage mainDraw = {};
+	mainDraw.RendererID = 1;
+	mainDraw.ObjectMesh = SpriteMesh;
+	mainDraw.pipeline = renderer.forwardRenderer.reflection2DPipeline;
+
+	renderer.DrawMessageList.emplace_back(mainDraw);
 }
 
 Water2D::~Water2D()

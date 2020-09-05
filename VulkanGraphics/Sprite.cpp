@@ -27,6 +27,19 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 	const glm::vec3 TopRightVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[2].Position;
 	const glm::vec3 TopLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[3].Position;
 	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
+
+	DrawMessage(renderer);
+}
+
+void Sprite::DrawMessage(RendererManager& renderer)
+{
+	DrawMeshMessage mainDraw = {};
+	mainDraw.RendererID = 1;
+	mainDraw.ObjectMesh = SpriteMesh;
+	mainDraw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
+
+	spriteDrawMessageList.emplace_back(mainDraw);
+	renderer.DrawMessageList.emplace_back(mainDraw);
 }
 
 void Sprite::Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList)
