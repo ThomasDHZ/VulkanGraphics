@@ -7,7 +7,11 @@ Mesh2D::Mesh2D() : NewBaseMesh()
 
 Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures) : NewBaseMesh(renderer, vertexdata, indicesdata)
 {
+    CustomBuffer EmptyBuffer;
+    EmptyBuffer.ByteSize = sizeof(Empty);
+
     Vertexdata = vertexdata;
+    ExtendedMesProperitesBuffer = EmptyBuffer;
 
     LoadTextures(renderer, textureManager, textures);
     LoadTiles(renderer, textureManager, textures);
@@ -17,9 +21,10 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
     CreateMaterialProperties();
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, Texture& texture) : NewBaseMesh(renderer, vertexdata, indicesdata)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, Texture& texture, CustomBuffer customBuffer) : NewBaseMesh(renderer, vertexdata, indicesdata)
 {
     Vertexdata = vertexdata;
+    ExtendedMesProperitesBuffer = customBuffer;
 
     LoadTextures(renderer, textureManager, textures);
     LoadTiles(renderer, textureManager, textures);
@@ -76,11 +81,12 @@ void Mesh2D::CreateUniformBuffers(RendererManager& renderer)
     uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
     lightBuffer = VulkanUniformBuffer(renderer, sizeof(LightBufferObject));
     meshPropertiesBuffer = VulkanUniformBuffer(renderer, sizeof(MeshProperties));
+    ExtendedMesProperitesBuffer.customBuffer = VulkanUniformBuffer(renderer, ExtendedMesProperitesBuffer.ByteSize);
 }
 
 void Mesh2D::CreateDescriptorPool(RendererManager& renderer) {
 
-    std::array<DescriptorPoolSizeInfo, 9>  DescriptorPoolInfo = {};
+    std::array<DescriptorPoolSizeInfo, 10>  DescriptorPoolInfo = {};
 
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -88,7 +94,7 @@ void Mesh2D::CreateDescriptorPool(RendererManager& renderer) {
     DescriptorPoolInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     DescriptorPoolInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    DescriptorPoolInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
@@ -140,6 +146,11 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
         meshPropertiesInfo.buffer = meshPropertiesBuffer.GetUniformBuffer(i);
         meshPropertiesInfo.offset = 0;
         meshPropertiesInfo.range = sizeof(MeshProperties);
+
+        VkDescriptorBufferInfo emptyPropertiesInfo = {};
+        emptyPropertiesInfo.buffer = ExtendedMesProperitesBuffer.customBuffer.GetUniformBuffer(i);
+        emptyPropertiesInfo.offset = 0;
+        emptyPropertiesInfo.range = ExtendedMesProperitesBuffer.ByteSize;
 
         std::vector<WriteDescriptorSetInfo> DescriptorList;
 
@@ -198,6 +209,13 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
         LightDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         LightDescriptor.DescriptorBufferInfo = LightInfo;
         DescriptorList.emplace_back(LightDescriptor);
+
+        WriteDescriptorSetInfo emptyDescriptor;
+        emptyDescriptor.DstBinding = 8;
+        emptyDescriptor.DstSet = DescriptorSets[i];
+        emptyDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        emptyDescriptor.DescriptorBufferInfo = emptyPropertiesInfo;
+        DescriptorList.emplace_back(emptyDescriptor);
 
         NewBaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
@@ -254,6 +272,11 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
         meshPropertiesInfo.offset = 0;
         meshPropertiesInfo.range = sizeof(MeshProperties);
 
+        VkDescriptorBufferInfo emptyPropertiesInfo = {};
+        emptyPropertiesInfo.buffer = ExtendedMesProperitesBuffer.customBuffer.GetUniformBuffer(i);
+        emptyPropertiesInfo.offset = 0;
+        emptyPropertiesInfo.range = ExtendedMesProperitesBuffer.ByteSize;
+
         std::vector<WriteDescriptorSetInfo> DescriptorList;
 
         WriteDescriptorSetInfo PositionDescriptor;
@@ -312,6 +335,13 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
         LightDescriptor.DescriptorBufferInfo = LightInfo;
         DescriptorList.emplace_back(LightDescriptor);
 
+        WriteDescriptorSetInfo emptyDescriptor;
+        emptyDescriptor.DstBinding = 8;
+        emptyDescriptor.DstSet = DescriptorSets[i];
+        emptyDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        emptyDescriptor.DescriptorBufferInfo = emptyPropertiesInfo;
+        DescriptorList.emplace_back(emptyDescriptor);
+
         NewBaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
 }
@@ -330,11 +360,37 @@ void Mesh2D::Update(RendererManager& renderer, OrthographicCamera& camera, Light
     UpdateUniformBuffer(renderer, ubo, Lightbuffer);
 }
 
+void Mesh2D::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo)
+{
+    UniformBufferObject ubo{};
+    ubo.model = glm::mat4(1.0f);
+    ubo.model = glm::translate(ubo.model, MeshPosition);
+    ubo.model = glm::scale(ubo.model, MeshScale);
+    ubo.view = camera.GetViewMatrix();
+    ubo.proj = camera.GetProjectionMatrix();
+    ubo.proj[1][1] *= -1;
+
+    properites.timer = glfwGetTime();
+    UpdateUniformBuffer(renderer, ubo, Lightbuffer, CustomBufferinfo);
+}
+
 void Mesh2D::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
+{
+    Empty empty = {};
+    empty.empty = 1.0f;
+
+    uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
+    lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
+    meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
+    ExtendedMesProperitesBuffer.customBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&empty));
+}
+
+void Mesh2D::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo)
 {
     uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
     lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
     meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
+    ExtendedMesProperitesBuffer.customBuffer.UpdateUniformBuffer(renderer, CustomBufferinfo);
 }
 
 void Mesh2D::Destory(RendererManager& renderer)
@@ -342,5 +398,6 @@ void Mesh2D::Destory(RendererManager& renderer)
     uniformBuffer.Destroy(renderer);
     lightBuffer.Destroy(renderer);
     meshPropertiesBuffer.Destroy(renderer);
+    ExtendedMesProperitesBuffer.customBuffer.Destroy(renderer);
     NewBaseMesh::Destory(renderer);
 }

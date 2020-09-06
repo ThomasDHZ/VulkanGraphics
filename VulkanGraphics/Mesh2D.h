@@ -5,6 +5,17 @@
 #include "RendererColorTexture.h"
 #include "RendererManager.h"
 
+struct Empty
+{
+    alignas(4) float empty;
+};
+
+struct CustomBuffer
+{
+    unsigned int ByteSize;
+    VulkanUniformBuffer customBuffer;
+};
+
 class Mesh2D : public NewBaseMesh
 {
 private:
@@ -12,6 +23,7 @@ private:
     VulkanUniformBuffer uniformBuffer;
     VulkanUniformBuffer lightBuffer;
     VulkanUniformBuffer meshPropertiesBuffer;
+    CustomBuffer ExtendedMesProperitesBuffer;
 
     void LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
     void CreateUniformBuffers(RendererManager& renderer);
@@ -20,6 +32,7 @@ private:
     void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, Texture& texture);
     void CreateMaterialProperties();
     void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer);
+    void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo);
 
 public:
 
@@ -31,9 +44,10 @@ public:
 
     Mesh2D();
     Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures);
-    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, Texture& texture);
+    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, Texture& texture, CustomBuffer customBuffer);
     ~Mesh2D();
 
     void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
+    void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo);
     void Destory(RendererManager& renderer);
 };

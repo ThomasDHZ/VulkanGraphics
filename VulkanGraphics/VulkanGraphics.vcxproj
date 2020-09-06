@@ -204,10 +204,12 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TextureRenderer.cpp" />
+    <ClCompile Include="UnderWater2DPipeline.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VulkanGraphics2D.cpp" />
     <ClCompile Include="VulkanRenderer.cpp" />
     <ClCompile Include="VulkanUniformBuffer.cpp" />
+    <ClCompile Include="Water2D.cpp" />
     <ClCompile Include="WaterSurface2D.cpp" />
     <ClCompile Include="WireFramePipeline.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -241,6 +243,8 @@
     <None Include="Shaders\ShadowDebug.vert" />
     <None Include="Shaders\SkyboxShader.frag" />
     <None Include="Shaders\SkyboxShader.vert" />
+    <None Include="Shaders\UnderWater2DShader.frag" />
+    <None Include="Shaders\UnderWater2DShader.vert" />
     <None Include="Shaders\WireFrameShader.frag" />
     <None Include="Shaders\WireFrameShader.vert" />
   </ItemGroup>
@@ -283,6 +287,7 @@
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="SpriteTexture2D.h" />
     <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="UnderWater2DPipeline.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VulkanBufferManager.h" />
     <ClInclude Include="GUIDebugger.h" />
@@ -308,6 +313,7 @@
     <ClInclude Include="VulkanGraphics2D.h" />
     <ClInclude Include="VulkanRenderer.h" />
     <ClInclude Include="VulkanUniformBuffer.h" />
+    <ClInclude Include="Water2D.h" />
     <ClInclude Include="WaterSurface2D.h" />
     <ClInclude Include="WireFramePipeline.h" />
     <ClInclude Include="Model.h" />

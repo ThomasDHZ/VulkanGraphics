@@ -85,6 +85,10 @@ layout(binding = 7) uniform Light
     SpotLightStruct sLight;
     vec3 viewPos;
 } light;
+layout(binding = 8) uniform ExtendedMesh
+{
+    int empty;
+} extended;
 
 layout(location = 0) in vec3 FragPos;
 layout(location = 1) in vec2 TexCoords;

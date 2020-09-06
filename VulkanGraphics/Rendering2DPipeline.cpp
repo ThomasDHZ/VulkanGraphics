@@ -18,7 +18,7 @@ Rendering2DPipeline::~Rendering2DPipeline()
 
 void Rendering2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
-    std::array<DescriptorSetLayoutBindingInfo, 8> LayoutBindingInfo = {};
+    std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
 
     LayoutBindingInfo[0].Binding = 0;
     LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -51,6 +51,10 @@ void Rendering2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     LayoutBindingInfo[7].Binding = 7;
     LayoutBindingInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     LayoutBindingInfo[7].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    LayoutBindingInfo[8].Binding = 8;
+    LayoutBindingInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    LayoutBindingInfo[8].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
@@ -149,7 +153,7 @@ void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const V
     colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
     colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_SUBTRACT;
 
     VkPipelineColorBlendStateCreateInfo colorBlending{};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

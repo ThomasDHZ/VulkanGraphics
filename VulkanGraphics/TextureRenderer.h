@@ -20,7 +20,7 @@ public:
 	SkyBoxPipeline skyboxPipeline;
 	DebugLightRenderingPipeline DebugLightPipeline;
 	Rendering2DPipeline renderer2DPipeline;
-	Reflection2DPipeline reflection2DPipeline;
+	//Reflection2DPipeline reflection2DPipeline;
 	//CollisionDebugPipeline DebugCollisionPipeline;
 	WireFramePipeline wireFramePipeline;
 

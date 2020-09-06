@@ -9,6 +9,7 @@
 #include "Sprite.h"
 #include "Coin.h"
 #include "WaterSurface2D.h"
+#include "Water2D.h"
 
 VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 {
@@ -30,7 +31,8 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
-	SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(3.0f, 8.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
+	//SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
+	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(-6.5f, 4.0f), glm::vec2(9.0f * 2, 4.5f * 2), renderer.textureRenderer.ColorTexture)));
 	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
 }
 
@@ -56,8 +58,25 @@ void VulkanGraphics2D::UpdateImGUI()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 	{
+		alignas(16) glm::vec3 WaterColor = glm::vec3(0.7f, 0.0, 0.4f);
+		alignas(8) glm::vec2 Distortion_scale = glm::vec2(.389f, .053f);
+		alignas(4) float intensity = 00.3f;
+		alignas(4)float speed = 0.085f;
+		alignas(4) float waveAmp = 0.238f;
+		alignas(4) float waveSpeed = 4.0f;
+		alignas(4) float wavePeriod = 2.423f;
+
 
 		ImGui::Begin("Settings");
+		auto a = static_cast<WaterSurface2D*>(SpriteList[3].get());
+		ImGui::SliderFloat3("water color", &a->waveprop.WaterColor.x, 0.0f, 1.0f);
+		ImGui::SliderFloat2("Distortion_scale", &a->waveprop.Distortion_scale.x, 0.0f, 1.0f);
+		ImGui::SliderFloat("intensity", &a->waveprop.intensity, 0.0f, 1.0f);
+		ImGui::SliderFloat("speed", &a->waveprop.speed, 0.0f, 1.0f);
+		ImGui::SliderFloat("waveAmp", &a->waveprop.waveAmp, 0.0f, 1.0f);
+		ImGui::SliderFloat("waveSpeed", &a->waveprop.waveSpeed, 0.0f, 1.0f);
+		ImGui::SliderFloat("wavePeriod", &a->waveprop.wavePeriod, 0.0f, 60.0f);
+
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::SliderFloat("Gamma", &renderer.frameBuffer.settings.Gamma, 0.0f, 10.0f);
 		ImGui::SliderFloat("HDR Value", &renderer.frameBuffer.settings.HDRValue, 0.0f, 10.0f);
@@ -173,7 +192,7 @@ void VulkanGraphics2D::MainLoop()
 		//ShadowRenderPass();
 		if (renderer.currentFrame == 1)
 		{
-			Update(renderer.DrawFrame, renderer.OrthoCamera2);
+			Update(renderer.DrawFrame, renderer.OrthoCamera);
 			renderer.DrawToTextureRenderPass();
 		}
 		else

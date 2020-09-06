@@ -198,14 +198,43 @@ vec3 SpotLight(vec3 TangentLightPos, vec3 TangentFragPos, vec3 V, vec3 N, vec2 U
         return (ambient + diffuse + specular);
 }
 
+
+float rand(vec2 coord){
+	return fract(sin(dot(coord, vec2(12.9898, 78.233)))* 43758.5453123);
+}
+
+float noise(vec2 coord){
+	vec2 i = floor(coord);
+	vec2 f = fract(coord);
+
+	// 4 corners of a rectangle surrounding our point
+	float a = rand(i);
+	float b = rand(i + vec2(1.0, 0.0));
+	float c = rand(i + vec2(0.0, 1.0));
+	float d = rand(i + vec2(1.0, 1.0));
+
+	vec2 cubic = f * f * (3.0 - 2.0 * f);
+
+	return mix(a, b, cubic.x) + (c - a) * cubic.y * (1.0 - cubic.x) + (d - b) * cubic.x * cubic.y;
+}
+
 void main()
 {   
-    float waves = TexCoords.y + sin(TexCoords.x / wavesProp.wavePeriod - (meshProperties.timer * wavesProp.waveSpeed)) * cos(0.2f * TexCoords.x / wavesProp.wavePeriod + meshProperties.timer - wavesProp.waveSpeed)* wavesProp.waveAmp - wavesProp.waveAmp;
+    vec2 UV = TexCoords;
+    UV.x = 1.0f - UV.x;
+    UV.y = 1.0f - UV.y;
 
-    float Distorion = texture(normalMap, TexCoords * wavesProp.Distortion_scale + (meshProperties.timer * wavesProp.speed)).r;
-    Distorion -= 0.5f;
-    vec2 UV = TexCoords + meshProperties.UVOffset;
-    UV.x -= Distorion * wavesProp.intensity;
+    vec2 NoiseUV = UV * 8.0f;
+    vec2 NoiceUV2 = UV * 8.0f + 4.0f;
+
+    vec2 Motion1 = vec2(meshProperties.timer * 0.3, meshProperties.timer * -0.4f);
+    vec2 Motion2 = vec2(meshProperties.timer * 0.1, meshProperties.timer * 0.5f);
+
+    vec2 distort1 = vec2(noise(NoiseUV + Motion1), noise(NoiceUV2 + Motion2)) - vec2(0.5f);
+    vec2 distort2 = vec2(noise(NoiseUV + Motion2), noise(NoiceUV2  + Motion1)) - vec2(0.5f);
+    vec2 distort = (distort1 + distort2) / 60.0f;
+
+    UV += distort;
 
     RemoveAlphaPixels(UV);
 
@@ -225,6 +254,7 @@ void main()
 
    vec3 result = DirectionalLight( V,  N,  UV, light.dLight);
    result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
-   result = mix(result, wavesProp.WaterColor, 0.5f);
-   FragColor = vec4(result, smoothstep(0.1f, 0.13f, vec3(waves)));
+   result = mix(result, wavesProp.WaterColor, 0.3f);
+   result = mix(vec3(0.5f), result, 1.4f);
+   FragColor = vec4(result, 1.00f);
 }

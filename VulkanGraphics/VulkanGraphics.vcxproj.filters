@@ -267,6 +267,12 @@
     <ClCompile Include="IndicesBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Water2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UnderWater2DPipeline.cpp">
+      <Filter>Source Files\Pipelines</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -330,6 +336,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\ReflectShader2D.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\UnderWater2DShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\UnderWater2DShader.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -564,6 +576,12 @@
     </ClInclude>
     <ClInclude Include="IndicesBuffer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Water2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UnderWater2DPipeline.h">
+      <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

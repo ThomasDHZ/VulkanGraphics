@@ -12,6 +12,7 @@ Sprite::~Sprite()
 
 void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos)
 {
+
 	const std::vector<uint16_t> SpriteIndices =
 	{
 		  0, 1, 2, 2, 3, 0
@@ -30,14 +31,14 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 	DrawMessage(renderer);
 }
 
-void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos, Texture texture)
+void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos, Texture texture, CustomBuffer custom)
 {
 	const std::vector<uint16_t> SpriteIndices =
 	{
 		  0, 1, 2, 2, 3, 0
 	};
 
-	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures, texture));
+	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures, texture, custom));
 
 	SetPosition2D(StartPos);
 
