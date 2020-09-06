@@ -258,6 +258,15 @@
     <ClCompile Include="WaterSurface2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NewBaseMesh.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IndicesBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -545,6 +554,15 @@
       <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
     <ClInclude Include="WaterSurface2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NewBaseMesh.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IndicesBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

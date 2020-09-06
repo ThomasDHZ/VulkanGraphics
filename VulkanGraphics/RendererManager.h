@@ -19,14 +19,7 @@
 #include <chrono>
 #include "DebugLightMesh.h"
 #include "OrthographicCamera.h"
-
-
-struct DrawMeshMessage
-{
-	unsigned int RendererID;
-	std::shared_ptr<BaseMesh> ObjectMesh;
-	GraphicsPipeline pipeline;
-};
+#include "NewBaseMesh.h"
 
 class RendererManager : public VulkanRenderer
 {

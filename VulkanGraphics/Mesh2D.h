@@ -5,7 +5,7 @@
 #include "RendererColorTexture.h"
 #include "RendererManager.h"
 
-class Mesh2D : public BaseMesh
+class Mesh2D : public NewBaseMesh
 {
 private:
 

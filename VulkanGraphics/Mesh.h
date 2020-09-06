@@ -44,18 +44,6 @@ struct SpotLightStruct {
     alignas(16) glm::vec3 specular;
 };
 
-struct MeshTextures
-{
-    Texture* RendererDiffuseMap;
-    std::string DiffuseMap;
-    std::string SpecularMap;
-    std::string NormalMap;
-    std::string DepthMap;
-    std::string AlphaMap;
-    std::string EmissionMap;
-    std::string ReflectionMap;
-};
-
 struct MapBits
 {
     alignas(4) int UseDiffuseMapBit = 0;

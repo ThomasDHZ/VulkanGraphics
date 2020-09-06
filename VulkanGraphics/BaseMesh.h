@@ -13,11 +13,24 @@ enum RendererBitFlag
     RenderOnFrameBufferPass = 1 << 2,
     RenderShadow = 1 << 3
 };
+struct MeshTextures
+{
+    Texture* RendererDiffuseMap;
+    std::string DiffuseMap;
+    std::string SpecularMap;
+    std::string NormalMap;
+    std::string DepthMap;
+    std::string AlphaMap;
+    std::string EmissionMap;
+    std::string ReflectionMap;
+};
 
 class BaseMesh
 {
 private:
 protected:
+
+
     void CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex> vertexdata);
     void CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex2D> vertexdata);
     void CreateIndexBuffer(VulkanRenderer& renderer, std::vector<uint16_t> indicesdata);
@@ -42,8 +55,6 @@ public:
 
     VkDescriptorPool DescriptorPool;
     std::vector<VkDescriptorSet> DescriptorSets;
-
-    std::shared_ptr<TextureManager> textureManager;
 
     Texture texture;
     int IndexSize;

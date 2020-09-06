@@ -1,34 +1,32 @@
 #include "Mesh2D.h"
 #include "Texture2D.h"
 
-Mesh2D::Mesh2D() : BaseMesh()
+Mesh2D::Mesh2D() : NewBaseMesh()
 {
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit) : BaseMesh(renderBit)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit) : NewBaseMesh(renderBit)
 {
     Vertexdata = vertexdata;
-    VertexSize = vertexdata.size();
-    IndexSize = indicesdata.size();
 
+    LoadTextures(renderer, textureManager, textures);
     LoadTiles(renderer, textureManager, textures);
-    CreateVertexBuffer(renderer, vertexdata);
-    CreateIndexBuffer(renderer, indicesdata);
+    MeshVertex = VertexBuffer(renderer, Vertexdata);
+    MeshIndices = IndicesBuffer(renderer, indicesdata);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
     CreateMaterialProperties();
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit, Texture& texture) : BaseMesh(renderBit)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit, Texture& texture) : NewBaseMesh(renderBit)
 {
     Vertexdata = vertexdata;
-    VertexSize = vertexdata.size();
-    IndexSize = indicesdata.size();
 
+    LoadTextures(renderer, textureManager, textures);
     LoadTiles(renderer, textureManager, textures);
-    CreateVertexBuffer(renderer, vertexdata);
-    CreateIndexBuffer(renderer, indicesdata);
+    MeshVertex = VertexBuffer(renderer, Vertexdata);
+    MeshIndices = IndicesBuffer(renderer, indicesdata);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager, texture);
@@ -53,31 +51,28 @@ void Mesh2D::CreateMaterialProperties()
 
 void Mesh2D::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
+
     if (!textures.DiffuseMap.empty())
     {
-        DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
         properites.UseDiffuseMapBit = 1;
     }
     if (!textures.SpecularMap.empty())
     {
-        SpecularMapID = textureManager->LoadTexture(renderer, textures.SpecularMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseSpecularMapBit = 1;
     }
     if (!textures.NormalMap.empty())
     {
-        NormalMapID = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseNormalMapBit = 1;
     }
     if (!textures.AlphaMap.empty())
     {
-        AlphaMapID = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseAlphaMapBit = 1;
     }
     if (!textures.EmissionMap.empty())
     {
-        EmissionMapID = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
         properites.UseEmissionMapBit = 1;
     }
+
 }
 
 void Mesh2D::CreateUniformBuffers(RendererManager& renderer)
@@ -101,12 +96,12 @@ void Mesh2D::CreateDescriptorPool(RendererManager& renderer) {
     DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
-    BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+    NewBaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
 void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    BaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
+    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -208,13 +203,13 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
         LightDescriptor.DescriptorBufferInfo = LightInfo;
         DescriptorList.emplace_back(LightDescriptor);
 
-        BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
+        NewBaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
 }
 
 void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, Texture& texture)
 {
-    BaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
+    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -321,7 +316,7 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
         LightDescriptor.DescriptorBufferInfo = LightInfo;
         DescriptorList.emplace_back(LightDescriptor);
 
-        BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
+        NewBaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
 }
 
@@ -351,5 +346,5 @@ void Mesh2D::Destory(RendererManager& renderer)
     uniformBuffer.Destroy(renderer);
     lightBuffer.Destroy(renderer);
     meshPropertiesBuffer.Destroy(renderer);
-    BaseMesh::Destory(renderer);
+    NewBaseMesh::Destory(renderer);
 }

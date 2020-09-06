@@ -19,7 +19,6 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
 
-	renderer.AddDrawableMesh(SpriteMesh);
 	SetPosition2D(StartPos);
 
 	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[0].Position;
@@ -117,7 +116,7 @@ void Sprite::Destory(RendererManager& renderer)
 {
 	vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
 	SpriteMesh->Destory(renderer);
-	renderer.RemoveMesh(SpriteMesh);
+	//renderer.RemoveMesh(SpriteMesh);
 }
 
 void Sprite::SetPosition2D(glm::vec2 Pos)

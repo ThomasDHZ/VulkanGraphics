@@ -15,6 +15,7 @@
 #include "FrameBufferMesh.h"
 #include "ForwardRenderingPipeline.h"
 #include "ShadowRenderingPipeline.h"
+#include "NewBaseMesh.h"
 
 class RendererBase
 {
@@ -29,6 +30,7 @@ public:
 	~RendererBase();
 
 	void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, const std::shared_ptr<BaseMesh> mesh);
+	void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, const std::shared_ptr<NewBaseMesh> mesh);
 	virtual void Destroy(VulkanRenderer& renderer);
 };
 

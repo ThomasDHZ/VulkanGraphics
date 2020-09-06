@@ -55,8 +55,6 @@ WaterSurface2D::WaterSurface2D(RendererManager& renderer, std::shared_ptr<Textur
 	ObjectFlagBits = ObjectFlags::None;
 	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, Water2DVertices, Water2DIndices, CoinTextures, RendererBitFlag::RenderOnMainPass, texture));
 	SpriteMesh->reflect = true;
-
-	renderer.AddDrawableMesh(SpriteMesh);
 	SetPosition2D(StartPos);
 
 	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[0].Position;
