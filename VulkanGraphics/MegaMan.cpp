@@ -36,6 +36,7 @@ MegaMan::MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textu
 	MegaManTextures.AlphaMap = "texture/MegaMan_Alpha.bmp";
 
 	ObjectFlagBits = ObjectFlags::Player | ObjectFlags::ApplyGravity;
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass;
 
 	SetUpSprite(renderer, textureManager, MegaManVertices, MegaManTextures, StartPos);
 }

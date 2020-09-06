@@ -28,13 +28,6 @@ struct ColisionGeo
 	std::vector<uint16_t> CollisionIndices;
 };
 
-enum SpriteType
-{
-	SMegaMan,
-	SMMShot,
-	SCoin
-};
-
 enum ObjectFlags
 {
 	None = 0x00,
@@ -50,15 +43,14 @@ class Sprite
 private:
 
 protected:
-	std::vector<RendererDrawMessage> spriteDrawMessageList;
-
 	void SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos);
+	void SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos, Texture texture);
 	virtual void DrawMessage(RendererManager& renderer);
 public:
 
 	glm::ivec2 Velocity;
-	SpriteType Type;
 	int ObjectFlagBits;
+	int RenderBitFlags;
 	Animation2D CurrentAni;
 	BoxCollider collider;
 	std::map<SpriteAnime, glm::vec2> AnimationFrame;

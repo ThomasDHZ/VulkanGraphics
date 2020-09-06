@@ -17,7 +17,27 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 		  0, 1, 2, 2, 3, 0
 	};
 
-	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass));
+	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures));
+
+	SetPosition2D(StartPos);
+
+	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[0].Position;
+	const glm::vec3 BottomRightVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[1].Position;
+	const glm::vec3 TopRightVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[2].Position;
+	const glm::vec3 TopLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[3].Position;
+	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
+
+	DrawMessage(renderer);
+}
+
+void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos, Texture texture)
+{
+	const std::vector<uint16_t> SpriteIndices =
+	{
+		  0, 1, 2, 2, 3, 0
+	};
+
+	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures, texture));
 
 	SetPosition2D(StartPos);
 
@@ -32,8 +52,40 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 
 void Sprite::DrawMessage(RendererManager& renderer)
 {
-	SpriteMesh->CreateDrawMessage(1, renderer.forwardRenderer.renderer2DPipeline);
-	renderer.DrawMessageList.emplace_back(SpriteMesh->DrawMessageList[0]);
+
+	/*if (mesh->RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
+	{
+		if (Settings.ShowMeshLines)
+		{
+			forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.wireFramePipeline, mesh);
+		}
+		else
+		{
+			if (dynamic_cast<Mesh2D*>(mesh.get()))
+			{
+				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.renderer2DPipeline, mesh);
+			}
+			if (dynamic_cast<DebugLightMesh*>(mesh.get()))
+			{
+				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.DebugLightPipeline, mesh);
+			}
+			if (dynamic_cast<Mesh*>(mesh.get()))
+			{
+				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
+			}
+			if (dynamic_cast<SkyBoxMesh*>(mesh.get()))
+			{
+				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, mesh);
+			}
+		}
+	}*/
+
+	auto drawMessage = SpriteMesh->CreateDrawMessage(1, renderer.forwardRenderer.renderer2DPipeline);
+	auto drawMessage2 = SpriteMesh->CreateDrawMessage(2, renderer.textureRenderer.renderer2DPipeline);
+	
+	
+	renderer.DrawMessageList.emplace_back(drawMessage);
+	renderer.DrawMessageList.emplace_back(drawMessage2);
 }
 
 void Sprite::Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList)

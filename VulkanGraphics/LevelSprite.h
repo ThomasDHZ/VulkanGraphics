@@ -20,7 +20,7 @@ private:
 	void LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
 public:
 	LevelSprite();
-	LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+	LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout);
 	~LevelSprite();
 
 	std::vector<BoxCollider> LevelColliderList;

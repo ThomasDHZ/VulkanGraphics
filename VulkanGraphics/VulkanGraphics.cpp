@@ -46,11 +46,11 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	meshTextures2.DepthMap = "texture/bricks2_disp.jpg";
 	meshTextures2.ReflectionMap = "texture/container2_specular.png";
 
-	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
-	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
-	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
-	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderShadow | RendererBitFlag::RenderOnTexturePass);
-	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RendererBitFlag::RenderOnMainPass | RendererBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
+	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
+	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
+	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
+	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline.ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
+	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	skybox = SkyBox(renderer, gameManager.textureManager, renderer.forwardRenderer.skyboxPipeline.ShaderPipelineDescriptorLayout, layout);
 
 	light.light.pLight.position = glm::vec3(0.5f, 1.0f, 0.3f);

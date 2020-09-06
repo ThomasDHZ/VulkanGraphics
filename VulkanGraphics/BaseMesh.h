@@ -6,7 +6,7 @@
 #include "Vertex.h"
 #include "TextureManager.h"
 
-enum RendererBitFlag
+enum RenderBitFlag
 {
     RenderOnMainPass =  1 << 0,
     RenderOnTexturePass = 1 << 1,

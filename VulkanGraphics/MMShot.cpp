@@ -19,6 +19,8 @@ MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>texture
 		{{0.0f, SpriteSize.y, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.14f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
 	};
 
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass;
+
 	SetUpSprite(renderer, textureManager, MegaManVertices, MegaManTextures, StartPos);
 }
 

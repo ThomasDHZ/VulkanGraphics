@@ -27,15 +27,11 @@ public:
     MeshProperties properites;
 
     std::vector<Vertex> Vertexdata;
-    glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 MeshScale = glm::vec3(1.0f);
     float RotationAmount = 0.0f;
-    bool reflect = 0;
 
     Mesh2D();
-    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, int renderBit);
-    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, int renderBit, Texture& texture);
+    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures);
+    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, Texture& texture);
     ~Mesh2D();
 
     void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);

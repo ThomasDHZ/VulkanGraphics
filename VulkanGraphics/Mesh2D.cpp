@@ -5,7 +5,7 @@ Mesh2D::Mesh2D() : NewBaseMesh()
 {
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, int renderBit) : NewBaseMesh(renderer, vertexdata, indicesdata, renderBit)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures) : NewBaseMesh(renderer, vertexdata, indicesdata)
 {
     Vertexdata = vertexdata;
 
@@ -17,7 +17,7 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
     CreateMaterialProperties();
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, int renderBit, Texture& texture) : NewBaseMesh(renderer, vertexdata, indicesdata, renderBit)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, Texture& texture) : NewBaseMesh(renderer, vertexdata, indicesdata)
 {
     Vertexdata = vertexdata;
 

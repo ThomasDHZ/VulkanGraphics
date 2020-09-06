@@ -3,6 +3,7 @@
 class WaterSurface2D : public Sprite
 {
 private:
+	void DrawMessage(RendererManager& renderer) override;
 public:
 	WaterSurface2D();
 	WaterSurface2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize);

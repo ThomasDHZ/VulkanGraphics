@@ -46,13 +46,15 @@ public:
     VkDescriptorPool DescriptorPool;
     std::vector<VkDescriptorSet> DescriptorSets;
 
-    int RenderBitFlags;
+    glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 MeshScale = glm::vec3(1.0f);
 
     NewBaseMesh();
-    NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata, int renderBitFlags);
-    NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata, int renderBitFlags);
+    NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata);
+    NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata);
     ~NewBaseMesh();
 
-    void CreateDrawMessage(unsigned int RendererID, GraphicsPipeline pipeline);
+    std::shared_ptr<RendererDrawMessage> CreateDrawMessage(unsigned int RendererID, GraphicsPipeline pipeline);
     virtual void Destory(VulkanRenderer& renderer);
 };

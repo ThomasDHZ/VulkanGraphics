@@ -368,33 +368,11 @@ void RendererManager::DrawToTextureRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : ObjectMesh)
+	for (auto drawMessage : DrawMessageList)
 	{
-		if (mesh->RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
+		if (drawMessage->RendererID == 2)
 		{
-			if (Settings.ShowMeshLines)
-			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.wireFramePipeline, mesh);
-			}
-			else
-			{
-				if (dynamic_cast<Mesh2D*>(mesh.get()))
-				{
-					forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.renderer2DPipeline, mesh);
-				}
-				if (dynamic_cast<DebugLightMesh*>(mesh.get()))
-				{
-					forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.DebugLightPipeline, mesh);
-				}
-				if (dynamic_cast<Mesh*>(mesh.get()))
-				{
-					forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
-				}
-				if (dynamic_cast<SkyBoxMesh*>(mesh.get()))
-				{
-					forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, mesh);
-				}
-			}
+			forwardRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
 		}
 	}
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
@@ -465,7 +443,7 @@ void RendererManager::ShadowRenderPass()
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 	for (auto mesh : ObjectMesh)
 	{
-		if (mesh->RenderBitFlags & RendererBitFlag::RenderShadow)
+		if (mesh->RenderBitFlags & RenderBitFlag::RenderShadow)
 		{
 			if (dynamic_cast<Mesh*>(mesh.get()))
 			{

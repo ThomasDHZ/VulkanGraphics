@@ -32,7 +32,6 @@ private:
 	bool framebufferResized = false;
 
 	GUIDebugger guiDebugger;
-	TextureRenderer textureRenderer;
 	FramebufferRenderer frameBufferRenderer;
 	ShadowRenderer shadowRenderer;
 	//Camera lightCamera;
@@ -66,6 +65,7 @@ public:
 
 	std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 	ForwardRenderer forwardRenderer;
+	TextureRenderer textureRenderer;
 	FrameBufferMesh frameBuffer;
 
 	void Update(uint32_t DrawFrame, Camera camera);

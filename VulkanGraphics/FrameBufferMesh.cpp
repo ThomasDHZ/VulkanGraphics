@@ -1,10 +1,10 @@
 #include "FrameBufferMesh.h"
 #include "Texture2D.h"
 
-FrameBufferMesh::FrameBufferMesh() : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass | RendererBitFlag::RenderOnMainPass)
+FrameBufferMesh::FrameBufferMesh() : BaseMesh(RenderBitFlag::RenderOnFrameBufferPass | RenderBitFlag::RenderOnMainPass)
 {}
 
-FrameBufferMesh::FrameBufferMesh(VulkanRenderer& renderer, Texture FrameBufferImage, VkDescriptorSetLayout& descriptorSetLayout) : BaseMesh(RendererBitFlag::RenderOnFrameBufferPass)
+FrameBufferMesh::FrameBufferMesh(VulkanRenderer& renderer, Texture FrameBufferImage, VkDescriptorSetLayout& descriptorSetLayout) : BaseMesh(RenderBitFlag::RenderOnFrameBufferPass)
 {
     texture = FrameBufferImage;
 
