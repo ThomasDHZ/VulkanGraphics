@@ -34,8 +34,8 @@ public:
     bool reflect = 0;
 
     Mesh2D();
-    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit);
-    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit, Texture& texture);
+    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, int renderBit);
+    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, int renderBit, Texture& texture);
     ~Mesh2D();
 
     void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);

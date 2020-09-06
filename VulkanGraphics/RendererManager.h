@@ -64,7 +64,7 @@ public:
 	RendererManager(GLFWwindow* window);
 	~RendererManager();
 
-	std::vector<DrawMeshMessage> DrawMessageList;
+	std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 	ForwardRenderer forwardRenderer;
 	FrameBufferMesh frameBuffer;
 

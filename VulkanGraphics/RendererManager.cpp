@@ -416,18 +416,11 @@ void RendererManager::MainRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : DrawMessageList)
+	for (auto drawMessage : DrawMessageList)
 {
-		if (mesh.RendererID == 1)
+		if (drawMessage->RendererID == 1)
 		{
-			if (Settings.ShowMeshLines)
-			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), mesh.pipeline, mesh.ObjectMesh);
-			}
-			else
-			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), mesh.pipeline, mesh.ObjectMesh);
-			}
+			forwardRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
 		}
 	}
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);

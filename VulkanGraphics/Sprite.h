@@ -50,7 +50,7 @@ class Sprite
 private:
 
 protected:
-	std::vector<DrawMeshMessage> spriteDrawMessageList;
+	std::vector<RendererDrawMessage> spriteDrawMessageList;
 
 	void SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos);
 	virtual void DrawMessage(RendererManager& renderer);

@@ -8,12 +8,20 @@
 #include "VertexBuffer.h"
 #include "IndicesBuffer.h"
 
+struct RendererDrawMessage
+{
+    unsigned int RendererID;
+    VertexBuffer MeshVertex;
+    IndicesBuffer MeshIndices;
+    std::vector<VkDescriptorSet> DescriptorSets;
+    GraphicsPipeline pipeline;
+};
+
 class NewBaseMesh
 {
 private:
 
 protected:
-
 
     void LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
     void CreateDescriptorPool(VulkanRenderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
@@ -33,22 +41,18 @@ public:
     VertexBuffer MeshVertex;
     IndicesBuffer MeshIndices;
 
+    std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
+
     VkDescriptorPool DescriptorPool;
     std::vector<VkDescriptorSet> DescriptorSets;
 
     int RenderBitFlags;
 
     NewBaseMesh();
-    NewBaseMesh(int renderBitFlags);
+    NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata, int renderBitFlags);
+    NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata, int renderBitFlags);
     ~NewBaseMesh();
 
-    virtual void DrawMessage();
+    void CreateDrawMessage(unsigned int RendererID, GraphicsPipeline pipeline);
     virtual void Destory(VulkanRenderer& renderer);
-};
-
-struct DrawMeshMessage
-{
-    unsigned int RendererID;
-    std::shared_ptr<NewBaseMesh> ObjectMesh;
-    GraphicsPipeline pipeline;
 };

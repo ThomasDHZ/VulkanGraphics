@@ -35,23 +35,23 @@ void RendererBase::Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, con
     }
 }
 
-void RendererBase::Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, const std::shared_ptr<NewBaseMesh> mesh)
+void RendererBase::Draw(VulkanRenderer& renderer, std::shared_ptr<RendererDrawMessage>& drawMessage) const
 {
-    VkBuffer vertexBuffers[] = { mesh->MeshVertex.GetVertexBuffer() };
+    VkBuffer vertexBuffers[] = { drawMessage->MeshVertex.GetVertexBuffer() };
     VkDeviceSize offsets[] = { 0 };
 
     {
-        vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
+        vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, drawMessage->pipeline.ShaderPipeline);
         vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[renderer.DrawFrame], 0, 1, vertexBuffers, offsets);
-        vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &mesh->DescriptorSets[renderer.DrawFrame], 0, nullptr);
-        if (mesh->MeshIndices.GetIndiceBuffer() == 0)
+        vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, drawMessage->pipeline.ShaderPipelineLayout, 0, 1, &drawMessage->DescriptorSets[renderer.DrawFrame], 0, nullptr);
+        if (drawMessage->MeshIndices.GetIndiceBuffer() == 0)
         {
-            vkCmdDraw(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh->MeshVertex.GetVertexCount(), 1, 0, 0);
+            vkCmdDraw(renderer.RenderCommandBuffer[renderer.DrawFrame], drawMessage->MeshVertex.GetVertexCount(), 1, 0, 0);
         }
         else
         {
-            vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh->MeshIndices.GetIndiceBuffer(), 0, VK_INDEX_TYPE_UINT16);
-            vkCmdDrawIndexed(renderer.RenderCommandBuffer[renderer.DrawFrame], static_cast<uint32_t>(mesh->MeshIndices.GetIndiceCount()), 1, 0, 0, 0);
+            vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[renderer.DrawFrame], drawMessage->MeshIndices.GetIndiceBuffer(), 0, VK_INDEX_TYPE_UINT16);
+            vkCmdDrawIndexed(renderer.RenderCommandBuffer[renderer.DrawFrame], static_cast<uint32_t>(drawMessage->MeshIndices.GetIndiceCount()), 1, 0, 0, 0);
         }
     }
 }

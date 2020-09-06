@@ -4,10 +4,16 @@
 NewBaseMesh::NewBaseMesh()
 {
 }
-NewBaseMesh::NewBaseMesh(int renderBitFlags)
+NewBaseMesh::NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata, int renderBitFlags)
 {
-    RenderBitFlags = renderBitFlags;
+    MeshVertex = VertexBuffer(renderer, Vertexdata);
+    MeshIndices = IndicesBuffer(renderer, Indicesdata);
 }
+NewBaseMesh::NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata, int renderBitFlags)
+{
+    MeshVertex = VertexBuffer(renderer, Vertexdata);
+}
+
 NewBaseMesh::~NewBaseMesh()
 {
 }
@@ -110,8 +116,15 @@ void NewBaseMesh::CreateDescriptorSetsData(VulkanRenderer& renderer, std::vector
     vkUpdateDescriptorSets(renderer.Device, static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
-void NewBaseMesh::DrawMessage()
+void NewBaseMesh::CreateDrawMessage(unsigned int RendererID, GraphicsPipeline pipeline)
 {
+    RendererDrawMessage DrawMessage = {};
+    DrawMessage.RendererID = RendererID;
+    DrawMessage.MeshVertex = MeshVertex;
+    DrawMessage.MeshIndices = MeshIndices;
+    DrawMessage.DescriptorSets = DescriptorSets;
+    DrawMessage.pipeline = pipeline;
+    DrawMessageList.emplace_back(std::make_shared<RendererDrawMessage>(DrawMessage));
 }
 
 void NewBaseMesh::Destory(VulkanRenderer& renderer)

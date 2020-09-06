@@ -32,13 +32,8 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 
 void Sprite::DrawMessage(RendererManager& renderer)
 {
-	DrawMeshMessage mainDraw = {};
-	mainDraw.RendererID = 1;
-	mainDraw.ObjectMesh = SpriteMesh;
-	mainDraw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
-
-	spriteDrawMessageList.emplace_back(mainDraw);
-	renderer.DrawMessageList.emplace_back(mainDraw);
+	SpriteMesh->CreateDrawMessage(1, renderer.forwardRenderer.renderer2DPipeline);
+	renderer.DrawMessageList.emplace_back(SpriteMesh->DrawMessageList[0]);
 }
 
 void Sprite::Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList)

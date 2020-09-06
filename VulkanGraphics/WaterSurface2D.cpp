@@ -22,12 +22,12 @@ WaterSurface2D::WaterSurface2D(RendererManager& renderer, std::shared_ptr<Textur
 
 	SetUpSprite(renderer, textureManager, Water2DVertices, CoinTextures, StartPos);
 
-	DrawMeshMessage mainDraw = {};
-	mainDraw.RendererID = 1;
-	mainDraw.ObjectMesh = SpriteMesh;
-	mainDraw.pipeline = renderer.forwardRenderer.reflection2DPipeline;
+	//DrawMeshMessage mainDraw = {};
+	//mainDraw.RendererID = 1;
+	////mainDraw.ObjectMesh = SpriteMesh;
+	//mainDraw.pipeline = renderer.forwardRenderer.reflection2DPipeline;
 
-	renderer.DrawMessageList.emplace_back(mainDraw);
+	//renderer.DrawMessageList.emplace_back(mainDraw);
 }
 
 WaterSurface2D::WaterSurface2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize, Texture& texture)
@@ -63,12 +63,8 @@ WaterSurface2D::WaterSurface2D(RendererManager& renderer, std::shared_ptr<Textur
 	const glm::vec3 TopLeftVertex = SpriteMesh.get()->MeshPosition + SpriteMesh.get()->Vertexdata[3].Position;
 	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
 
-	DrawMeshMessage mainDraw = {};
-	mainDraw.RendererID = 1;
-	mainDraw.ObjectMesh = SpriteMesh;
-	mainDraw.pipeline = renderer.forwardRenderer.reflection2DPipeline;
-
-	renderer.DrawMessageList.emplace_back(mainDraw);
+	SpriteMesh->CreateDrawMessage(1, renderer.forwardRenderer.reflection2DPipeline);
+	renderer.DrawMessageList.emplace_back(SpriteMesh->DrawMessageList[0]);
 }
 
 WaterSurface2D::~WaterSurface2D()

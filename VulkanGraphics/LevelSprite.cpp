@@ -9,12 +9,8 @@ LevelSprite::LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 	LoadTiles(renderer, textureManager, textures);
 	LevelMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, VertexList, IndexList, textures, renderBit));
 
-	DrawMeshMessage mainDraw = {};
-	mainDraw.RendererID = 1;
-	mainDraw.ObjectMesh = LevelMesh;
-	mainDraw.pipeline = renderer.forwardRenderer.renderer2DPipeline;
-
-	renderer.DrawMessageList.emplace_back(mainDraw);
+	LevelMesh->CreateDrawMessage(1, renderer.forwardRenderer.renderer2DPipeline);
+	renderer.DrawMessageList.emplace_back(LevelMesh->DrawMessageList[0]);
 }
 
 LevelSprite::~LevelSprite()

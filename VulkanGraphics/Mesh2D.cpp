@@ -5,28 +5,24 @@ Mesh2D::Mesh2D() : NewBaseMesh()
 {
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit) : NewBaseMesh(renderBit)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, int renderBit) : NewBaseMesh(renderer, vertexdata, indicesdata, renderBit)
 {
     Vertexdata = vertexdata;
 
     LoadTextures(renderer, textureManager, textures);
     LoadTiles(renderer, textureManager, textures);
-    MeshVertex = VertexBuffer(renderer, Vertexdata);
-    MeshIndices = IndicesBuffer(renderer, indicesdata);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
     CreateMaterialProperties();
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int renderBit, Texture& texture) : NewBaseMesh(renderBit)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, int renderBit, Texture& texture) : NewBaseMesh(renderer, vertexdata, indicesdata, renderBit)
 {
     Vertexdata = vertexdata;
 
     LoadTextures(renderer, textureManager, textures);
     LoadTiles(renderer, textureManager, textures);
-    MeshVertex = VertexBuffer(renderer, Vertexdata);
-    MeshIndices = IndicesBuffer(renderer, indicesdata);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager, texture);
