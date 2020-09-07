@@ -15,33 +15,16 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 	frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
 	shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
 
-	frameBuffer = FrameBufferMesh(*GetVulkanRendererBase(), textureRenderer.ColorTexture, frameBufferRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout);
+	frameBuffer = FrameBufferMesh(*GetVulkanRendererBase(), *textureRenderer.ColorTexture.get(), frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
 	//lightCamera = Camera(glm::vec3(0.5f, 1.0f, 0.3f));
-	OrthoCamera = OrthographicCamera(9.0f, 4.5f );
-	OrthoCamera2 = OrthographicCamera(9.0f, 4.5f);
 }
 
 RendererManager::~RendererManager()
 {
 }
 
-void RendererManager::AddDrawableMesh(std::shared_ptr<BaseMesh> mesh)
-{
-	ObjectMesh.emplace_back(mesh);
-}
-
-void RendererManager::RemoveMesh(std::shared_ptr<BaseMesh> mesh)
-{
-	for (int x = 0; x < ObjectMesh.size(); x++)
-	{
-		if (mesh == ObjectMesh[x])
-		{
-			ObjectMesh.erase(ObjectMesh.begin() + x);
-		}
-	}
-}
 
 //void RendererManager::CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList)
 //{
@@ -139,7 +122,7 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window)
 
 	InitializeCommandBuffers();
 
-	frameBuffer.UpdateSwapChain(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline.ShaderPipelineDescriptorLayout, textureRenderer.ColorTexture);
+	frameBuffer.UpdateSwapChain(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout, *textureRenderer.ColorTexture.get());
 }
 
 uint32_t RendererManager::Draw(GLFWwindow* window)
@@ -428,30 +411,30 @@ void RendererManager::FrameBufferRenderPass()
 
 void RendererManager::ShadowRenderPass()
 {
-	std::array<VkClearValue, 1> clearValues{};
-	clearValues[0].depthStencil = { 1.0f, 0 };
+	//std::array<VkClearValue, 1> clearValues{};
+	//clearValues[0].depthStencil = { 1.0f, 0 };
 
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = shadowRenderer.RenderPass;
-	renderPassInfo.framebuffer = shadowRenderer.SwapChainFramebuffers[DrawFrame];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
+	//VkRenderPassBeginInfo renderPassInfo{};
+	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	//renderPassInfo.renderPass = shadowRenderer.RenderPass;
+	//renderPassInfo.framebuffer = shadowRenderer.SwapChainFramebuffers[DrawFrame];
+	//renderPassInfo.renderArea.offset = { 0, 0 };
+	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	//renderPassInfo.pClearValues = clearValues.data();
 
-	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto mesh : ObjectMesh)
-	{
-		if (mesh->RenderBitFlags & RenderBitFlag::RenderShadow)
-		{
-			if (dynamic_cast<Mesh*>(mesh.get()))
-			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
-			}
-		}
-	}
-	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	//for (auto mesh : ObjectMesh)
+	//{
+	//	if (mesh->RenderBitFlags & RenderBitFlag::RenderShadow)
+	//	{
+	//		if (dynamic_cast<Mesh*>(mesh.get()))
+	//		{
+	//			forwardRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
+	//		}
+	//	}
+	//}
+	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
 void RendererManager::DestoryVulkan()
@@ -466,4 +449,15 @@ void RendererManager::DestoryVulkan()
 	frameBuffer.Destory(*GetVulkanRendererBase());
 
 	VulkanRenderer::Destory();
+}
+
+void RendererManager::RemoveDrawMessage(std::shared_ptr<RendererDrawMessage> mesh)
+{
+	for (int x = 0; x < DrawMessageList.size(); x++)
+	{
+		if (mesh == DrawMessageList[x])
+		{
+			DrawMessageList.erase(DrawMessageList.begin() + x);
+		}
+	}
 }

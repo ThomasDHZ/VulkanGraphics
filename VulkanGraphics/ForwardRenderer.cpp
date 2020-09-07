@@ -15,13 +15,13 @@ ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase(render
     HDRColorTexture = RendererHDRColorTexture(renderer);
     CreateRendererFramebuffers(renderer);
 
-    forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
-    reflection2DPipeline = Reflection2DPipeline(renderer, RenderPass);
-    renderer2DPipeline = Rendering2DPipeline(renderer, RenderPass);
-    underwater2DPipeline = UnderWater2DPipeline(renderer, RenderPass);
-    skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
-    DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
-    wireFramePipeline = WireFramePipeline(renderer, RenderPass);
+    forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass);
+    reflection2DPipeline = std::make_shared<Reflection2DPipeline>(renderer, RenderPass);
+    renderer2DPipeline = std::make_shared<Rendering2DPipeline>(renderer, RenderPass);
+    underwater2DPipeline = std::make_shared<UnderWater2DPipeline>(renderer, RenderPass);
+    skyboxPipeline = std::make_shared<SkyBoxPipeline>(renderer, RenderPass);
+    DebugLightPipeline = std::make_shared<DebugLightRenderingPipeline>(renderer, RenderPass);
+    wireFramePipeline = std::make_shared<WireFramePipeline>(renderer, RenderPass);
 }
 
 ForwardRenderer::~ForwardRenderer()
@@ -117,13 +117,13 @@ void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
    HDRColorTexture.RecreateRendererTexture(renderer);
    DepthTexture.RecreateRendererTexture(renderer);
 
-   forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-   renderer2DPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-   reflection2DPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-   underwater2DPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-   skyboxPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-   DebugLightPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-   wireFramePipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+   forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+   renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+   reflection2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+   underwater2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+   skyboxPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+   DebugLightPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+   wireFramePipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
 
    for (auto& framebuffer : SwapChainFramebuffers)
    {
@@ -138,13 +138,13 @@ void ForwardRenderer::Destroy(VulkanRenderer& renderer)
     HDRColorTexture.Delete(renderer);
     DepthTexture.Delete(renderer);
 
-    forwardRendereringPipeline.Destroy(renderer);
-    renderer2DPipeline.Destroy(renderer);
-    reflection2DPipeline.Destroy(renderer);
-    underwater2DPipeline.Destroy(renderer);
-    skyboxPipeline.Destroy(renderer);
-    DebugLightPipeline.Destroy(renderer);
-    wireFramePipeline.Destroy(renderer);
+    forwardRendereringPipeline->Destroy(renderer);
+    renderer2DPipeline->Destroy(renderer);
+    reflection2DPipeline->Destroy(renderer);
+    underwater2DPipeline->Destroy(renderer);
+    skyboxPipeline->Destroy(renderer);
+    DebugLightPipeline->Destroy(renderer);
+    wireFramePipeline->Destroy(renderer);
 
     RendererBase::Destroy(renderer);
 }

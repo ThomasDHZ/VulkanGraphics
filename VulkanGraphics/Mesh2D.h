@@ -4,6 +4,7 @@
 #include <map>
 #include "RendererColorTexture.h"
 #include "RendererManager.h"
+#include "NewBaseMesh.h"
 
 struct Empty
 {
@@ -29,7 +30,7 @@ private:
     void CreateUniformBuffers(RendererManager& renderer);
     void CreateDescriptorPool(RendererManager& renderer);
     void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager);
-    void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, Texture& texture);
+    void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::shared_ptr<Texture>& texture);
     void CreateMaterialProperties();
     void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer);
     void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo);
@@ -44,7 +45,7 @@ public:
 
     Mesh2D();
     Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures);
-    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, Texture& texture, CustomBuffer customBuffer);
+    Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, const std::shared_ptr<Texture>& texture, CustomBuffer customBuffer);
     ~Mesh2D();
 
     void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);

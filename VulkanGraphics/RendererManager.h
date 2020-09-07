@@ -19,13 +19,12 @@
 #include <chrono>
 #include "DebugLightMesh.h"
 #include "OrthographicCamera.h"
-#include "NewBaseMesh.h"
 
 class RendererManager : public VulkanRenderer
 {
 	friend class VulkanGraphics;
 	friend class VulkanGraphics2D;
-
+	friend class Level2D;
 private:
 
 	size_t currentFrame = 0;
@@ -36,11 +35,6 @@ private:
 	ShadowRenderer shadowRenderer;
 	//Camera lightCamera;
 	Camera camera;
-	OrthographicCamera OrthoCamera;
-	OrthographicCamera OrthoCamera2;
-
-	std::vector<std::shared_ptr<BaseMesh>> ObjectMesh;
-
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
@@ -68,8 +62,8 @@ public:
 	TextureRenderer textureRenderer;
 	FrameBufferMesh frameBuffer;
 
+
+	void RemoveDrawMessage(std::shared_ptr<RendererDrawMessage> mesh);
 	void Update(uint32_t DrawFrame, Camera camera);
-	void AddDrawableMesh(std::shared_ptr<BaseMesh> mesh);
-	void RemoveMesh(std::shared_ptr<BaseMesh> mesh);
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
 };

@@ -2,9 +2,6 @@
 #include "RendererDepthTexture.h"
 #include "RendererHDRColorTexture.h"
 #include "RendererBase.h"
-#include "Rendering2DPipeline.h"
-#include "Reflection2DPipeline.h"
-#include "UnderWater2DPipeline.h"
 
 class ForwardRenderer : public RendererBase
 {
@@ -20,15 +17,15 @@ public:
 	void UpdateSwapChain(VulkanRenderer& renderer);
 	void Destroy(VulkanRenderer& renderer) override;
 
-	ForwardRenderingPipeline forwardRendereringPipeline;
-	Reflection2DPipeline reflection2DPipeline;
-	Rendering2DPipeline renderer2DPipeline;
-	UnderWater2DPipeline underwater2DPipeline;
+	std::shared_ptr<ForwardRenderingPipeline> forwardRendereringPipeline;
+	std::shared_ptr<Reflection2DPipeline> reflection2DPipeline;
+	std::shared_ptr<Rendering2DPipeline> renderer2DPipeline;
+	std::shared_ptr<UnderWater2DPipeline> underwater2DPipeline;
 	//ReflectRendering2DPipeline reflectRenderer2DPipeline;
-	SkyBoxPipeline skyboxPipeline;
-	DebugLightRenderingPipeline DebugLightPipeline;
+	std::shared_ptr<SkyBoxPipeline> skyboxPipeline;
+	std::shared_ptr<DebugLightRenderingPipeline> DebugLightPipeline;
 	//CollisionDebugPipeline DebugCollisionPipeline;
-	WireFramePipeline wireFramePipeline;
+	std::shared_ptr<WireFramePipeline> wireFramePipeline;
 
 	RendererDepthTexture DepthTexture;
 	RendererHDRColorTexture HDRColorTexture;

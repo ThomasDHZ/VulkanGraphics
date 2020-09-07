@@ -10,6 +10,7 @@
 #include "Coin.h"
 #include "WaterSurface2D.h"
 #include "Water2D.h"
+#include "MegaMan.h"
 
 VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 {
@@ -24,16 +25,19 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
-	renderer.OrthoCamera.SetPosition(2.5f, 8.5f);
-	renderer.OrthoCamera2.SetPosition(20.5f, 8.5f);
+	OrthoCamera = OrthographicCamera(9.0f, 4.5f);
+	OrthoCamera2 = OrthographicCamera(9.0f, 4.5f);
 
-	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline.ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
+	OrthoCamera.SetPosition(2.5f, 8.5f);
+	OrthoCamera2.SetPosition(20.5f, 8.5f);
+
+	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
-	//SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout, glm::vec2(-6.5f, 4.0f), glm::vec2(9.0f * 2, 4.5f * 2), renderer.textureRenderer.ColorTexture)));
-	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
+	SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
+	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(9.0f * 2, 4.5f * 2), renderer.textureRenderer.ColorTexture)));
+	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures);
 }
 
 VulkanGraphics2D::~VulkanGraphics2D()
@@ -68,14 +72,14 @@ void VulkanGraphics2D::UpdateImGUI()
 
 
 		ImGui::Begin("Settings");
-		auto a = static_cast<WaterSurface2D*>(SpriteList[3].get());
-		ImGui::SliderFloat3("water color", &a->waveprop.WaterColor.x, 0.0f, 1.0f);
-		ImGui::SliderFloat2("Distortion_scale", &a->waveprop.Distortion_scale.x, 0.0f, 1.0f);
-		ImGui::SliderFloat("intensity", &a->waveprop.intensity, 0.0f, 1.0f);
-		ImGui::SliderFloat("speed", &a->waveprop.speed, 0.0f, 1.0f);
-		ImGui::SliderFloat("waveAmp", &a->waveprop.waveAmp, 0.0f, 1.0f);
-		ImGui::SliderFloat("waveSpeed", &a->waveprop.waveSpeed, 0.0f, 1.0f);
-		ImGui::SliderFloat("wavePeriod", &a->waveprop.wavePeriod, 0.0f, 60.0f);
+		//auto a = static_cast<WaterSurface2D*>(SpriteList[3].get());
+		//ImGui::SliderFloat3("water color", &a->waveprop.WaterColor.x, 0.0f, 1.0f);
+		//ImGui::SliderFloat2("Distortion_scale", &a->waveprop.Distortion_scale.x, 0.0f, 1.0f);
+		//ImGui::SliderFloat("intensity", &a->waveprop.intensity, 0.0f, 1.0f);
+		//ImGui::SliderFloat("speed", &a->waveprop.speed, 0.0f, 1.0f);
+		//ImGui::SliderFloat("waveAmp", &a->waveprop.waveAmp, 0.0f, 1.0f);
+		//ImGui::SliderFloat("waveSpeed", &a->waveprop.waveSpeed, 0.0f, 1.0f);
+		//ImGui::SliderFloat("wavePeriod", &a->waveprop.wavePeriod, 0.0f, 60.0f);
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::SliderFloat("Gamma", &renderer.frameBuffer.settings.Gamma, 0.0f, 10.0f);
@@ -90,49 +94,49 @@ void VulkanGraphics2D::UpdateImGUI()
 		ImGui::SliderFloat3("pambient", &light.light.pLight.ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pdiffuse", &light.light.pLight.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);
-		ImGui::Image(renderer.textureRenderer.ColorTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::Image(renderer.textureRenderer.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
 
 		ImGui::Begin("MeshSettings");
 		if (ImGui::TreeNode("MeshList"))
 		{
-			ImGui::Columns(2, "tree", true);
+			//ImGui::Columns(2, "tree", true);
 
-			for (int x = 0; x < renderer.ObjectMesh.size(); x++)
-			{
-				bool open1 = ImGui::TreeNode((void*)(intptr_t)x, "Mesh%d", x);
-				ImGui::NextColumn();
-				ImGui::Text("Node contents");
-				ImGui::NextColumn();
-				if (open1)
-				{
+			//for (int x = 0; x < renderer.ObjectMesh.size(); x++)
+			//{
+			//	bool open1 = ImGui::TreeNode((void*)(intptr_t)x, "Mesh%d", x);
+			//	ImGui::NextColumn();
+			//	ImGui::Text("Node contents");
+			//	ImGui::NextColumn();
+			//	if (open1)
+			//	{
 
-					ImGui::NextColumn();
-					if (const auto mesh = dynamic_cast<Mesh2D*>(renderer.ObjectMesh[x].get()))
-					{
-						ImGui::SliderFloat2("shininess", &mesh->properites.UVOffset.x, 0.0, 1.0f);
-						ImGui::SliderFloat("shininess", &mesh->properites.material.shininess, 0.0, 255.0f);
-						ImGui::SliderFloat("reflectivness", &mesh->properites.material.reflectivness, 0.0f, 1.0f);
-						ImGui::SliderFloat("heightScale", &mesh->properites.heightScale, -1.0, 1.0f);
-						ImGui::SliderFloat("Layers", &mesh->properites.minLayers, 0.0, 50.0f);
-						ImGui::SliderFloat("maxLayers", &mesh->properites.maxLayers, 0.0, 5000.0f);
-						ImGui::SliderInt("Diffuse", &mesh->properites.UseDiffuseMapBit, 0.0, 1.0f);
-						ImGui::SliderInt("Specular", &mesh->properites.UseSpecularMapBit, 0.0, 1.0f);
-						ImGui::SliderInt("Normal", &mesh->properites.UseNormalMapBit, 0.0, 1.0f);
-						ImGui::SliderInt("Depth", &mesh->properites.UseDepthMapBit, 0.0, 1.0f);
-						ImGui::SliderInt("Alpha", &mesh->properites.UseAlphaMapBit, 0.0, 1.0f);
-						ImGui::SliderInt("Emission", &mesh->properites.UseEmissionMapBit, 0.0, 1.0f);
-						ImGui::SliderInt("Reflection", &mesh->properites.UseReflectionMapBit, 0.0, 1.0f);
-						ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->DiffuseMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-						ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->SpecularMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-						ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->NormalMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-						ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->DepthMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-						ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->ReflectionMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-					}
-					ImGui::NextColumn();
-					ImGui::TreePop();
-				}
-			}
+			//		ImGui::NextColumn();
+			//		if (const auto mesh = dynamic_cast<Mesh2D*>(renderer.ObjectMesh[x].get()))
+			//		{
+			//			ImGui::SliderFloat2("shininess", &mesh->properites.UVOffset.x, 0.0, 1.0f);
+			//			ImGui::SliderFloat("shininess", &mesh->properites.material.shininess, 0.0, 255.0f);
+			//			ImGui::SliderFloat("reflectivness", &mesh->properites.material.reflectivness, 0.0f, 1.0f);
+			//			ImGui::SliderFloat("heightScale", &mesh->properites.heightScale, -1.0, 1.0f);
+			//			ImGui::SliderFloat("Layers", &mesh->properites.minLayers, 0.0, 50.0f);
+			//			ImGui::SliderFloat("maxLayers", &mesh->properites.maxLayers, 0.0, 5000.0f);
+			//			ImGui::SliderInt("Diffuse", &mesh->properites.UseDiffuseMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Specular", &mesh->properites.UseSpecularMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Normal", &mesh->properites.UseNormalMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Depth", &mesh->properites.UseDepthMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Alpha", &mesh->properites.UseAlphaMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Emission", &mesh->properites.UseEmissionMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Reflection", &mesh->properites.UseReflectionMapBit, 0.0, 1.0f);
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->DiffuseMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->SpecularMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->NormalMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->DepthMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->ReflectionMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//		}
+			//		ImGui::NextColumn();
+			//		ImGui::TreePop();
+			//	}
+			//}
 		}
 		ImGui::End();
 		gameManager.textureManager->UpdateIMGUIVRAM();
@@ -185,20 +189,20 @@ void VulkanGraphics2D::MainLoop()
 
 		Window.Update();
 		//mouse.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
-		keyboard.UpdateOrtho(Window.GetWindowPtr(), renderer.OrthoCamera2);
+		keyboard.UpdateOrtho(Window.GetWindowPtr(), OrthoCamera);
 		UpdateImGUI();
 
 		renderer.StartDraw(Window.GetWindowPtr());
 		//ShadowRenderPass();
 		if (renderer.currentFrame == 1)
 		{
-			Update(renderer.DrawFrame, renderer.OrthoCamera);
+			Update(renderer.DrawFrame, OrthoCamera);
 			renderer.DrawToTextureRenderPass();
 		}
 		else
 		{
 			
-			Update(renderer.DrawFrame, renderer.OrthoCamera);
+			Update(renderer.DrawFrame, OrthoCamera);
 			renderer.MainRenderPass();
 			
 		}

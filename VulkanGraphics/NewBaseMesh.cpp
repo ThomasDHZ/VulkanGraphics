@@ -1,15 +1,16 @@
 #include "NewBaseMesh.h"
 #include "VulkanBufferManager.h"
+#include "RendererBase.h"
 
 NewBaseMesh::NewBaseMesh()
 {
 }
-NewBaseMesh::NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata)
+NewBaseMesh::NewBaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata)
 {
     MeshVertex = VertexBuffer(renderer, Vertexdata);
     MeshIndices = IndicesBuffer(renderer, Indicesdata);
 }
-NewBaseMesh::NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata)
+NewBaseMesh::NewBaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata)
 {
     MeshVertex = VertexBuffer(renderer, Vertexdata);
 }
@@ -18,12 +19,11 @@ NewBaseMesh::~NewBaseMesh()
 {
 }
 
-void NewBaseMesh::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
+void NewBaseMesh::LoadTextures(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
     if (!textures.DiffuseMap.empty())
     {
         DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
-
     }
     if (!textures.SpecularMap.empty())
     {
@@ -51,7 +51,7 @@ void NewBaseMesh::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<Texture
     }
 }
 
-void NewBaseMesh::CreateDescriptorPool(VulkanRenderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)
+void NewBaseMesh::CreateDescriptorPool(RendererManager& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)
 {
     std::vector<VkDescriptorPoolSize> DescriptorPoolList = {};
 
@@ -74,7 +74,7 @@ void NewBaseMesh::CreateDescriptorPool(VulkanRenderer& renderer, std::vector<Des
     }
 }
 
-void NewBaseMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout layout)
+void NewBaseMesh::CreateDescriptorSets(RendererManager& renderer, VkDescriptorSetLayout layout)
 {
     std::vector<VkDescriptorSetLayout> layouts(renderer.SwapChain.GetSwapChainImageCount(), layout);
     VkDescriptorSetAllocateInfo allocInfo = {};
@@ -89,7 +89,7 @@ void NewBaseMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSet
     }
 }
 
-void NewBaseMesh::CreateDescriptorSetsData(VulkanRenderer& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList)
+void NewBaseMesh::CreateDescriptorSetsData(RendererManager& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList)
 {
     std::vector<VkWriteDescriptorSet>  WriteDescriptorInfo = {};
 
@@ -116,7 +116,7 @@ void NewBaseMesh::CreateDescriptorSetsData(VulkanRenderer& renderer, std::vector
     vkUpdateDescriptorSets(renderer.Device, static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
-std::shared_ptr<RendererDrawMessage> NewBaseMesh::CreateDrawMessage(unsigned int RendererID, GraphicsPipeline pipeline)
+void NewBaseMesh::CreateDrawMessage(RendererManager& renderer, unsigned int RendererID, std::shared_ptr<GraphicsPipeline> pipeline)
 {
     RendererDrawMessage DrawMessage = {};
     DrawMessage.RendererID = RendererID;
@@ -126,11 +126,11 @@ std::shared_ptr<RendererDrawMessage> NewBaseMesh::CreateDrawMessage(unsigned int
     DrawMessage.pipeline = pipeline;
     
     std::shared_ptr<RendererDrawMessage> DrawMessagePtr = std::make_shared<RendererDrawMessage>(DrawMessage);
+    renderer.DrawMessageList.emplace_back(DrawMessagePtr);
     DrawMessageList.emplace_back(DrawMessagePtr);
-    return DrawMessagePtr;
 }
 
-void NewBaseMesh::Destory(VulkanRenderer& renderer)
+void NewBaseMesh::Destory(RendererManager& renderer)
 {
     MeshVertex.Destory(renderer);
     MeshVertex.Destory(renderer);
@@ -138,4 +138,9 @@ void NewBaseMesh::Destory(VulkanRenderer& renderer)
 
     vkDestroyDescriptorPool(renderer.Device, DescriptorPool, nullptr);
     DescriptorPool = VK_NULL_HANDLE;
+
+    for (auto drawMessage : DrawMessageList)
+    {
+        renderer.RemoveDrawMessage(drawMessage);
+    }
 }

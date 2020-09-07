@@ -11,7 +11,7 @@ Light::Light(RendererManager& renderer, VkDescriptorSetLayout& descriptorSetLayo
 	light.dLight.direction = glm::vec3(0.5f, 1.0f, 0.3f);
 
 	LightMesh = std::make_shared<DebugLightMesh>(DebugLightMesh(renderer, LightVertices, LightIndices, descriptorSetLayout, renderBit));
-	renderer.AddDrawableMesh(LightMesh);
+	//renderer.AddDrawableMesh(LightMesh);
 }
 
 Light::~Light()

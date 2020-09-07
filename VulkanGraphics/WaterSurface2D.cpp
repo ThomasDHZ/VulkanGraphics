@@ -4,7 +4,7 @@ WaterSurface2D::WaterSurface2D()
 {
 }
 
-WaterSurface2D::WaterSurface2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize, Texture& texture)
+WaterSurface2D::WaterSurface2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const std::shared_ptr<Texture> texture)
 {
 	CustomBuffer custom = {};
 	custom.ByteSize = sizeof(WaveProperites);
@@ -35,8 +35,7 @@ WaterSurface2D::~WaterSurface2D()
 
 void WaterSurface2D::DrawMessage(RendererManager& renderer)
 {
-	auto drawMessage = SpriteMesh->CreateDrawMessage(1, renderer.forwardRenderer.reflection2DPipeline);
-	renderer.DrawMessageList.emplace_back(drawMessage);
+	SpriteMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.reflection2DPipeline);
 }
 
 void WaterSurface2D::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)

@@ -1,15 +1,15 @@
 #pragma once
-#include <string>
-#include "Texture2D.h"
-#include <map>
-#include "Camera.h"
-#include "GUIDebugger.h"
-#include "Mesh2D.h"
+#include "LevelSprite.h"
 #include "Sprite.h"
-#include <chrono>
-#include "MegaMan.h"
-#include "MMShot.h"
-
+#include "DebugLightMesh.h"
+#include "Keyboard.h"
+#include "Mouse.h"
+#include "Texture2D.h"
+#include "Mesh2D.h"
+#include "Light.h"
+#include "LevelSprite.h"
+#include "OrthographicCamera.h"
+#include "GameManager.h"
 enum Level
 {
 	SparkMan,
@@ -19,17 +19,26 @@ enum Level
 class Level2D
 {
 private:
+	Keyboard keyboard;
+	Mouse mouse;
 
+	LevelSprite level;
+	std::vector<std::shared_ptr<Sprite>> SpriteList;
+
+	OrthographicCamera OrthoCamera;
+	OrthographicCamera OrthoCamera2;
+
+	Light light;
 public:
 
 	Level2D();
-	Level2D(VulkanRenderer& renderer);
+	Level2D(RendererManager& renderer, GameManager& gameManager);
 	~Level2D();
 
-	void LevelDebug(VulkanRenderer& renderer);
-	void LevelLoop(VulkanRenderer& renderer);
-	void Update(VulkanRenderer& renderer, GLFWwindow* Window);
-	void Draw(VulkanRenderer& renderer, uint32_t DrawFrame);
-	void Destroy(VulkanRenderer& renderer);
+	void LevelDebug(RendererManager& renderer);
+	void LevelLoop(RendererManager& renderer, GLFWwindow* Window);
+	void Update(RendererManager& renderer, OrthographicCamera& camera);
+	void Draw(RendererManager& renderer, GLFWwindow* Window);
+	void Destroy(RendererManager& renderer);
 };
 

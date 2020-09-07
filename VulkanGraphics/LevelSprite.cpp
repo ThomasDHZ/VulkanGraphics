@@ -4,17 +4,14 @@ LevelSprite::LevelSprite()
 {
 }
 
-LevelSprite::LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures, VkDescriptorSetLayout& descriptorSetLayout)
+LevelSprite::LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
 	LoadTiles(renderer, textureManager, textures);
 	LevelMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, VertexList, IndexList, textures));
 
-	auto drawMessage = LevelMesh->CreateDrawMessage(1, renderer.forwardRenderer.renderer2DPipeline);
-	auto drawMessage2 = LevelMesh->CreateDrawMessage(2, renderer.textureRenderer.renderer2DPipeline);
+	LevelMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.renderer2DPipeline);
+	LevelMesh->CreateDrawMessage(renderer, 2, renderer.textureRenderer.renderer2DPipeline);
 
-
-	renderer.DrawMessageList.emplace_back(drawMessage);
-	renderer.DrawMessageList.emplace_back(drawMessage2);
 }
 
 LevelSprite::~LevelSprite()

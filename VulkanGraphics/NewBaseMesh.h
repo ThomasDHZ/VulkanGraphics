@@ -7,15 +7,8 @@
 #include "BaseMesh.h"
 #include "VertexBuffer.h"
 #include "IndicesBuffer.h"
-
-struct RendererDrawMessage
-{
-    unsigned int RendererID;
-    VertexBuffer MeshVertex;
-    IndicesBuffer MeshIndices;
-    std::vector<VkDescriptorSet> DescriptorSets;
-    GraphicsPipeline pipeline;
-};
+#include "RendererBase.h"
+#include "RendererManager.h"
 
 class NewBaseMesh
 {
@@ -23,10 +16,10 @@ private:
 
 protected:
 
-    void LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
-    void CreateDescriptorPool(VulkanRenderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
-    void CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout layout);
-    void CreateDescriptorSetsData(VulkanRenderer& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
+    void LoadTextures(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
+    void CreateDescriptorPool(RendererManager& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
+    void CreateDescriptorSets(RendererManager& renderer, VkDescriptorSetLayout layout);
+    void CreateDescriptorSetsData(RendererManager& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 
 public:
 
@@ -41,20 +34,20 @@ public:
     VertexBuffer MeshVertex;
     IndicesBuffer MeshIndices;
 
-    std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
-
     VkDescriptorPool DescriptorPool;
     std::vector<VkDescriptorSet> DescriptorSets;
+
+    std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 
     glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 MeshScale = glm::vec3(1.0f);
 
     NewBaseMesh();
-    NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata);
-    NewBaseMesh(VulkanRenderer& renderer, const std::vector<Vertex>& Vertexdata);
+    NewBaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata);
+    NewBaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata);
     ~NewBaseMesh();
 
-    std::shared_ptr<RendererDrawMessage> CreateDrawMessage(unsigned int RendererID, GraphicsPipeline pipeline);
-    virtual void Destory(VulkanRenderer& renderer);
+    void CreateDrawMessage(RendererManager& renderer, unsigned int RendererID, std::shared_ptr<GraphicsPipeline> pipeline);
+    virtual void Destory(RendererManager& renderer);
 };

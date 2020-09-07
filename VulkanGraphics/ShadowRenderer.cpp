@@ -9,7 +9,7 @@ ShadowRenderer::ShadowRenderer(VulkanRenderer& renderer) : RendererBase(renderer
     DepthTexture = RendererDepthTexture(renderer);
     CreateRendererFramebuffers(renderer);
 
-    forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
+    forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass);
 
     ImGui_ImplVulkan_AddTexture(DepthTexture.ImGuiDescriptorSet, DepthTexture.Sampler, DepthTexture.View, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
@@ -96,7 +96,7 @@ void ShadowRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 void ShadowRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
     DepthTexture.RecreateRendererTexture(renderer);
-    forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
     for (auto& framebuffer : SwapChainFramebuffers)
     {
         vkDestroyFramebuffer(renderer.Device, framebuffer, nullptr);
@@ -110,6 +110,6 @@ void ShadowRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 void ShadowRenderer::Destroy(VulkanRenderer& renderer)
 {
     DepthTexture.Delete(renderer);
-    forwardRendereringPipeline.Destroy(renderer);
+    forwardRendereringPipeline->Destroy(renderer);
     RendererBase::Destroy(renderer);
 }

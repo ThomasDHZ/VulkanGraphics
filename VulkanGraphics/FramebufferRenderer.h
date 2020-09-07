@@ -18,7 +18,7 @@ public:
 	void UpdateSwapChain(VulkanRenderer& renderer);
 	void Destroy(VulkanRenderer& renderer) override;
 
-	FrameBufferRenderingPipeline frameBufferPipeline;
+	std::shared_ptr<FrameBufferRenderingPipeline> frameBufferPipeline;
 	RendererDepthTexture DepthTexture;
 };
 

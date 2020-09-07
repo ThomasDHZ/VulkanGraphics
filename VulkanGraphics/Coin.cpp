@@ -33,6 +33,9 @@ Coin::Coin(RendererManager& renderer, std::shared_ptr<TextureManager>textureMana
 	CoinTextures.NormalMap = "texture/coin_normal.bmp";
 	CoinTextures.AlphaMap = "texture/coin_alpha.bmp";
 
+	ObjectFlagBits = ObjectFlags::Collectible;
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass;
+
 	SetUpSprite(renderer, textureManager, SpriteVertices, CoinTextures, StartPos);
 }
 

@@ -16,15 +16,15 @@ public:
 	TextureRenderer(VulkanRenderer& renderer);
 	~TextureRenderer();
 
-	ForwardRenderingPipeline forwardRendereringPipeline;
-	SkyBoxPipeline skyboxPipeline;
-	DebugLightRenderingPipeline DebugLightPipeline;
-	Rendering2DPipeline renderer2DPipeline;
+	std::shared_ptr<ForwardRenderingPipeline> forwardRendereringPipeline;
+	std::shared_ptr<SkyBoxPipeline> skyboxPipeline;
+	std::shared_ptr<DebugLightRenderingPipeline> DebugLightPipeline;
+	std::shared_ptr<Rendering2DPipeline> renderer2DPipeline;
 	//Reflection2DPipeline reflection2DPipeline;
 	//CollisionDebugPipeline DebugCollisionPipeline;
-	WireFramePipeline wireFramePipeline;
+	std::shared_ptr<WireFramePipeline> wireFramePipeline;
 
-	RendererColorTexture ColorTexture;
+	std::shared_ptr<RendererColorTexture> ColorTexture;
 	RendererDepthTexture DepthTexture;
 
 	void UpdateSwapChain(VulkanRenderer& renderer);

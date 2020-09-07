@@ -11,17 +11,17 @@ TextureRenderer::TextureRenderer(VulkanRenderer& renderer) : RendererBase(render
 {
     CreateRenderPass(renderer);
     DepthTexture = RendererDepthTexture(renderer);
-    ColorTexture = RendererColorTexture(renderer);
+    ColorTexture = std::make_shared<RendererColorTexture>(renderer);
     CreateRendererFramebuffers(renderer);
 
-    forwardRendereringPipeline = ForwardRenderingPipeline(renderer, RenderPass);
-    renderer2DPipeline = Rendering2DPipeline(renderer, RenderPass);
+    forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass);
+    renderer2DPipeline = std::make_shared <Rendering2DPipeline>(renderer, RenderPass);
     //reflection2DPipeline = Reflection2DPipeline(renderer, RenderPass);
-    skyboxPipeline = SkyBoxPipeline(renderer, RenderPass);
-    DebugLightPipeline = DebugLightRenderingPipeline(renderer, RenderPass);
-    wireFramePipeline = WireFramePipeline(renderer, RenderPass);
+    skyboxPipeline = std::make_shared<SkyBoxPipeline>(renderer, RenderPass);
+    DebugLightPipeline = std::make_shared<DebugLightRenderingPipeline>(renderer, RenderPass);
+    wireFramePipeline = std::make_shared<WireFramePipeline>(renderer, RenderPass);
 
-    ImGui_ImplVulkan_AddTexture(ColorTexture.ImGuiDescriptorSet, ColorTexture.Sampler, ColorTexture.View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    ImGui_ImplVulkan_AddTexture(ColorTexture->ImGuiDescriptorSet, ColorTexture->Sampler, ColorTexture->View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 TextureRenderer::~TextureRenderer()
@@ -98,7 +98,7 @@ void TextureRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
         VkImageView attachments[2];
-        attachments[0] = ColorTexture.View;
+        attachments[0] = ColorTexture->View;
         attachments[1] = DepthTexture.View;
 
         VkFramebufferCreateInfo fbufCreateInfo = {};
@@ -119,15 +119,15 @@ void TextureRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 
 void TextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
-    ColorTexture.RecreateRendererTexture(renderer);
+    ColorTexture->RecreateRendererTexture(renderer);
     DepthTexture.RecreateRendererTexture(renderer);
 
-    forwardRendereringPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    renderer2DPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+    renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
    // reflection2DPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    skyboxPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    DebugLightPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
-    wireFramePipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    skyboxPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+    DebugLightPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+    wireFramePipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
 
     for (auto& framebuffer : SwapChainFramebuffers)
     {
@@ -139,15 +139,15 @@ void TextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 
 void TextureRenderer::Destroy(VulkanRenderer& renderer)
 {
-    ColorTexture.Delete(renderer);
+    ColorTexture->Delete(renderer);
     DepthTexture.Delete(renderer);
 
-    forwardRendereringPipeline.Destroy(renderer);
-    renderer2DPipeline.Destroy(renderer);
+    forwardRendereringPipeline->Destroy(renderer);
+    renderer2DPipeline->Destroy(renderer);
    // reflection2DPipeline.Destroy(renderer);
-    skyboxPipeline.Destroy(renderer);
-    DebugLightPipeline.Destroy(renderer);
-    wireFramePipeline.Destroy(renderer);
+    skyboxPipeline->Destroy(renderer);
+    DebugLightPipeline->Destroy(renderer);
+    wireFramePipeline->Destroy(renderer);
 
     RendererBase::Destroy(renderer);
 }

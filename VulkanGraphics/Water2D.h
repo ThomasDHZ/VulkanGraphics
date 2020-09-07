@@ -10,7 +10,7 @@ private:
 
 public:
 	Water2D();
-	Water2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize, Texture& texture);
+	Water2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const std::shared_ptr<Texture> texture);
 	~Water2D();
 
 	WaveProperites waveprop;

@@ -51,7 +51,8 @@ private:
     LevelSprite level;
     std::vector<std::shared_ptr<Sprite>> SpriteList;
 
-    OrthographicCamera orthoCamera;
+    OrthographicCamera OrthoCamera;
+    OrthographicCamera OrthoCamera2;
 
     Light light;
 

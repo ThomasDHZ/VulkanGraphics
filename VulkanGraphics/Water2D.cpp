@@ -4,7 +4,7 @@ Water2D::Water2D()
 {
 }
 
-Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, VkDescriptorSetLayout& descriptorSetLayout, glm::vec2 StartPos, glm::vec2 WaterSize, Texture& texture)
+Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const std::shared_ptr<Texture> texture)
 {
 	CustomBuffer custom = {};
 	custom.ByteSize = sizeof(WaveProperites);
@@ -26,7 +26,6 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	RenderBitFlags = RenderBitFlag::RenderOnMainPass;
 	ObjectFlagBits = ObjectFlags::None;
 
-
 	WaterCamera = OrthographicCamera(WaterSize);
 	WaterCamera.SetPosition(StartPos);
 	SetUpSprite(renderer, textureManager, Water2DVertices, CoinTextures, StartPos, texture, custom);
@@ -38,8 +37,7 @@ Water2D::~Water2D()
 
 void Water2D::DrawMessage(RendererManager& renderer)
 {
-	auto drawMessage = SpriteMesh->CreateDrawMessage(1, renderer.forwardRenderer.underwater2DPipeline);
-	renderer.DrawMessageList.emplace_back(drawMessage);
+	SpriteMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.underwater2DPipeline);
 }
 
 void Water2D::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)

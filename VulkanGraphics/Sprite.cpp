@@ -31,7 +31,7 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 	DrawMessage(renderer);
 }
 
-void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos, Texture texture, CustomBuffer custom)
+void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos, const std::shared_ptr<Texture> texture, CustomBuffer custom)
 {
 	const std::vector<uint16_t> SpriteIndices =
 	{
@@ -53,40 +53,14 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 
 void Sprite::DrawMessage(RendererManager& renderer)
 {
-
-	/*if (mesh->RenderBitFlags & RendererBitFlag::RenderOnTexturePass)
+	if (RenderBitFlags & RenderBitFlag::RenderOnMainPass)
 	{
-		if (Settings.ShowMeshLines)
-		{
-			forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.wireFramePipeline, mesh);
-		}
-		else
-		{
-			if (dynamic_cast<Mesh2D*>(mesh.get()))
-			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.renderer2DPipeline, mesh);
-			}
-			if (dynamic_cast<DebugLightMesh*>(mesh.get()))
-			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.DebugLightPipeline, mesh);
-			}
-			if (dynamic_cast<Mesh*>(mesh.get()))
-			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.forwardRendereringPipeline, mesh);
-			}
-			if (dynamic_cast<SkyBoxMesh*>(mesh.get()))
-			{
-				forwardRenderer.Draw(*GetVulkanRendererBase(), textureRenderer.skyboxPipeline, mesh);
-			}
-		}
-	}*/
-
-	auto drawMessage = SpriteMesh->CreateDrawMessage(1, renderer.forwardRenderer.renderer2DPipeline);
-	auto drawMessage2 = SpriteMesh->CreateDrawMessage(2, renderer.textureRenderer.renderer2DPipeline);
-	
-	
-	renderer.DrawMessageList.emplace_back(drawMessage);
-	renderer.DrawMessageList.emplace_back(drawMessage2);
+		SpriteMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.renderer2DPipeline);
+	}
+	if (RenderBitFlags & RenderBitFlag::RenderOnTexturePass)
+	{
+		SpriteMesh->CreateDrawMessage(renderer, 2, renderer.textureRenderer.renderer2DPipeline);
+	}
 }
 
 void Sprite::Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList)
@@ -164,7 +138,6 @@ void Sprite::Destory(RendererManager& renderer)
 {
 	vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
 	SpriteMesh->Destory(renderer);
-	//renderer.RemoveMesh(SpriteMesh);
 }
 
 void Sprite::SetPosition2D(glm::vec2 Pos)

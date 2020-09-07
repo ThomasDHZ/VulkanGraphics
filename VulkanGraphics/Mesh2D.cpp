@@ -21,7 +21,7 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
     CreateMaterialProperties();
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, Texture& texture, CustomBuffer customBuffer) : NewBaseMesh(renderer, vertexdata, indicesdata)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, const std::shared_ptr<Texture>& texture, CustomBuffer customBuffer) : NewBaseMesh(renderer, vertexdata, indicesdata)
 {
     Vertexdata = vertexdata;
     ExtendedMesProperitesBuffer = customBuffer;
@@ -103,7 +103,7 @@ void Mesh2D::CreateDescriptorPool(RendererManager& renderer) {
 
 void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
+    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline->ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -221,14 +221,14 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
     }
 }
 
-void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, Texture& texture)
+void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::shared_ptr<Texture>& texture)
 {
-    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline.ShaderPipelineDescriptorLayout);
+    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline->ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DiffuseMap.imageView = texture.View;;
-    DiffuseMap.sampler = texture.Sampler;
+    DiffuseMap.imageView = texture->View;
+    DiffuseMap.sampler = texture->Sampler;
 
     VkDescriptorImageInfo SpecularMap = {};
     SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

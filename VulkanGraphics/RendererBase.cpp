@@ -13,27 +13,27 @@ RendererBase::~RendererBase()
 {
 }
 
-void RendererBase::Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, const std::shared_ptr<BaseMesh> mesh)
-{
-
-    VkBuffer vertexBuffers[] = { mesh->VertexBuffer };
-    VkDeviceSize offsets[] = { 0 };
-
-    {
-        vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
-        vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[renderer.DrawFrame], 0, 1, vertexBuffers, offsets);
-        vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &mesh->DescriptorSets[renderer.DrawFrame], 0, nullptr);
-        if (mesh->IndexSize == 0)
-        {
-            vkCmdDraw(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh->VertexSize, 1, 0, 0);
-        }
-        else
-        {
-            vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh->IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-            vkCmdDrawIndexed(renderer.RenderCommandBuffer[renderer.DrawFrame], static_cast<uint32_t>(mesh->IndexSize), 1, 0, 0, 0);
-        }
-    }
-}
+//void RendererBase::Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, const std::shared_ptr<BaseMesh> mesh)
+//{
+//
+//    VkBuffer vertexBuffers[] = { mesh->VertexBuffer };
+//    VkDeviceSize offsets[] = { 0 };
+//
+//    {
+//        vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipeline);
+//        vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[renderer.DrawFrame], 0, 1, vertexBuffers, offsets);
+//        vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.ShaderPipelineLayout, 0, 1, &mesh->DescriptorSets[renderer.DrawFrame], 0, nullptr);
+//        if (mesh->IndexSize == 0)
+//        {
+//            vkCmdDraw(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh->VertexSize, 1, 0, 0);
+//        }
+//        else
+//        {
+//            vkCmdBindIndexBuffer(renderer.RenderCommandBuffer[renderer.DrawFrame], mesh->IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+//            vkCmdDrawIndexed(renderer.RenderCommandBuffer[renderer.DrawFrame], static_cast<uint32_t>(mesh->IndexSize), 1, 0, 0, 0);
+//        }
+//    }
+//}
 
 void RendererBase::Draw(VulkanRenderer& renderer, std::shared_ptr<RendererDrawMessage>& drawMessage) const
 {
@@ -41,9 +41,9 @@ void RendererBase::Draw(VulkanRenderer& renderer, std::shared_ptr<RendererDrawMe
     VkDeviceSize offsets[] = { 0 };
 
     {
-        vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, drawMessage->pipeline.ShaderPipeline);
+        vkCmdBindPipeline(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, drawMessage->pipeline->ShaderPipeline);
         vkCmdBindVertexBuffers(renderer.RenderCommandBuffer[renderer.DrawFrame], 0, 1, vertexBuffers, offsets);
-        vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, drawMessage->pipeline.ShaderPipelineLayout, 0, 1, &drawMessage->DescriptorSets[renderer.DrawFrame], 0, nullptr);
+        vkCmdBindDescriptorSets(renderer.RenderCommandBuffer[renderer.DrawFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, drawMessage->pipeline->ShaderPipelineLayout, 0, 1, &drawMessage->DescriptorSets[renderer.DrawFrame], 0, nullptr);
         if (drawMessage->MeshIndices.GetIndiceBuffer() == 0)
         {
             vkCmdDraw(renderer.RenderCommandBuffer[renderer.DrawFrame], drawMessage->MeshVertex.GetVertexCount(), 1, 0, 0);

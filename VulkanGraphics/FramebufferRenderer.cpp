@@ -14,7 +14,7 @@ FramebufferRenderer::FramebufferRenderer(VulkanRenderer& renderer) : RendererBas
     DepthTexture = RendererDepthTexture(renderer);
     CreateRendererFramebuffers(renderer);
 
-    frameBufferPipeline = FrameBufferRenderingPipeline(renderer, RenderPass);
+    frameBufferPipeline = std::make_shared<FrameBufferRenderingPipeline>(renderer, RenderPass);
 }
 
 FramebufferRenderer::~FramebufferRenderer()
@@ -107,7 +107,7 @@ void FramebufferRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 void FramebufferRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
     DepthTexture.RecreateRendererTexture(renderer);
-    frameBufferPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
+    frameBufferPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
 
     for (auto& framebuffer : SwapChainFramebuffers)
     {
@@ -119,7 +119,7 @@ void FramebufferRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 
 void FramebufferRenderer::Destroy(VulkanRenderer& renderer)
 {
-    frameBufferPipeline.Destroy(renderer);
+    frameBufferPipeline->Destroy(renderer);
     DepthTexture.Delete(renderer);
     RendererBase::Destroy(renderer);
 }
