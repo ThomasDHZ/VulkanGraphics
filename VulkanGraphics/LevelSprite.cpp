@@ -33,8 +33,8 @@ void LevelSprite::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureMa
 	unsigned int DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
 
 	const unsigned int TileSize = 16;
-	const float AmtXAxisTiles = textureManager->GetTextureByID(DiffuseMapID).Width / TileSize;
-	const float AmtYAxisTiles = textureManager->GetTextureByID(DiffuseMapID).Height / TileSize;
+	const float AmtXAxisTiles = textureManager->GetTextureByID(DiffuseMapID)->Width / TileSize;
+	const float AmtYAxisTiles = textureManager->GetTextureByID(DiffuseMapID)->Height / TileSize;
 	const float UVTileLocU = 1 / AmtXAxisTiles;
 	const float UVTileLocV = 1 / AmtYAxisTiles;
 

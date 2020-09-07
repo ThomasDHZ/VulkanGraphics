@@ -64,8 +64,8 @@ void SkyBoxMesh::SetUpDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<T
 
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	imageInfo.imageView = textureManager->GetTexture(skyboxtexture).View;
-	imageInfo.sampler = textureManager->GetTexture(skyboxtexture).Sampler;
+	imageInfo.imageView = textureManager->GetTexture(skyboxtexture)->GetTextureView();
+	imageInfo.sampler = textureManager->GetTexture(skyboxtexture)->GetTextureSampler();
 
 	for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
 	{

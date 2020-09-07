@@ -5,7 +5,7 @@
 class TextureManager
 {
 private:
-	std::vector<Texture> TextureList;
+	std::vector<std::shared_ptr<Texture>> TextureList;
 
 	unsigned int IDNum = 0;
 	unsigned int CreateNewTextureID();
@@ -17,16 +17,16 @@ public:
 
 	unsigned int LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format);
 	unsigned int LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
-	unsigned int LoadTexture(Texture texture);
+	unsigned int LoadTexture(std::shared_ptr<Texture> texture);
 	void UnloadTexture(VulkanRenderer& renderer, unsigned int ID);
 	void UnloadAllTextures(VulkanRenderer& renderer);
 	void UpdateIMGUIVRAM();
 
 	bool GetTextureByName(std::string name);
 	bool GetTextureByName(std::string name, unsigned int& textureID);
-	Texture GetTextureByID(unsigned int ID);
+	std::shared_ptr<Texture> GetTextureByID(unsigned int ID);
 
-	Texture GetTexture(int index) { return TextureList[index]; }
-	std::vector<Texture> GetTextureList() {  return TextureList; }
+	std::shared_ptr<Texture> GetTexture(int index) { return TextureList[index]; }
+	std::vector<std::shared_ptr<Texture>> GetTextureList() {  return TextureList; }
 };
 

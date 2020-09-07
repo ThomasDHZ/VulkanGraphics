@@ -42,8 +42,8 @@ void FrameBufferMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescripto
 
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = texture.View;
-    imageInfo.sampler = texture.Sampler;
+    imageInfo.imageView = texture.GetTextureView();
+    imageInfo.sampler = texture.GetTextureSampler();
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {

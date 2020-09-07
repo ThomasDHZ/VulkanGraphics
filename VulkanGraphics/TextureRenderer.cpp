@@ -21,7 +21,7 @@ TextureRenderer::TextureRenderer(VulkanRenderer& renderer) : RendererBase(render
     DebugLightPipeline = std::make_shared<DebugLightRenderingPipeline>(renderer, RenderPass);
     wireFramePipeline = std::make_shared<WireFramePipeline>(renderer, RenderPass);
 
-    ImGui_ImplVulkan_AddTexture(ColorTexture->ImGuiDescriptorSet, ColorTexture->Sampler, ColorTexture->View, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    ImGui_ImplVulkan_AddTexture(ColorTexture->ImGuiDescriptorSet, ColorTexture->GetTextureSampler(), ColorTexture->GetTextureView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 TextureRenderer::~TextureRenderer()

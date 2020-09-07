@@ -86,7 +86,7 @@ void FramebufferRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageViews().size(); i++) {
         std::array<VkImageView, 2> attachments = {
             renderer.SwapChain.GetSwapChainImageViews()[i],
-             DepthTexture.View
+             DepthTexture.GetTextureView()
         };
 
         VkFramebufferCreateInfo framebufferInfo{};
