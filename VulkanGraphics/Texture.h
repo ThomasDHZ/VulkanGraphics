@@ -27,6 +27,7 @@ protected:
     void TransitionImageLayout(VulkanRenderer& renderer, VkImageLayout oldLayout, VkImageLayout newLayout);
     void CopyBufferToImage(VulkanRenderer& renderer, VkBuffer buffer);
 
+    virtual void LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format);
     virtual void CreateTextureImage(VulkanRenderer& renderer, VkImageCreateInfo TextureInfo);
     virtual void CreateTextureView(VulkanRenderer& renderer, VkImageViewCreateInfo TextureImageViewInfo);
     virtual void CreateTextureSampler(VulkanRenderer& renderer, VkSamplerCreateInfo TextureImageSamplerInfo);
@@ -43,8 +44,8 @@ public:
     int Height;
 
     Texture();
-    Texture(VulkanRenderer& renderer, std::string TextureLocation, unsigned int textureID, TextureType textureType);
-    Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType);
+    Texture(VulkanRenderer& renderer, std::string TextureLocation, unsigned int textureID, TextureType textureType, VkFormat format);
+    Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType, VkFormat format);
     Texture(VulkanRenderer& renderer, unsigned int textureID, TextureType textureType);
     Texture(VulkanRenderer& renderer, TextureType textureType);
     ~Texture();

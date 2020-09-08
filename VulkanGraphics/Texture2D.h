@@ -4,7 +4,6 @@
 class Texture2D : public Texture
 {
 private:
-    void LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format);
     void CreateTextureView(VulkanRenderer& renderer, VkFormat format);
     void CreateTextureSampler(VulkanRenderer& renderer);
 public:
