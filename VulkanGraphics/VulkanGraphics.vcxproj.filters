@@ -273,6 +273,9 @@
     <ClCompile Include="UnderWater2DPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
+    <ClCompile Include="NewMesh.cpp">
+      <Filter>Source Files\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -582,6 +585,9 @@
     </ClInclude>
     <ClInclude Include="UnderWater2DPipeline.h">
       <Filter>Header Files\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="NewMesh.h">
+      <Filter>Header Files\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

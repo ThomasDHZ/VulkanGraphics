@@ -4,7 +4,7 @@ Water2D::Water2D()
 {
 }
 
-Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const std::shared_ptr<Texture> texture)
+Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const OrthographicCamera& camera, const std::shared_ptr<Texture> texture)
 {
 	CustomBuffer custom = {};
 	custom.ByteSize = sizeof(WaveProperites);
@@ -26,7 +26,7 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	RenderBitFlags = RenderBitFlag::RenderOnMainPass;
 	ObjectFlagBits = ObjectFlags::None;
 
-	WaterCamera = OrthographicCamera(WaterSize);
+	WaterCamera = OrthographicCamera(camera.Width, camera.Height);
 	WaterCamera.SetPosition(StartPos);
 	SetUpSprite(renderer, textureManager, Water2DVertices, CoinTextures, StartPos, custom);
 }

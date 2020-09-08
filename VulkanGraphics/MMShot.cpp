@@ -9,7 +9,7 @@ MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>texture
 	MegaManTextures.DiffuseMap = "texture/MegaMan_diffuseOriginal.bmp";
 	MegaManTextures.SpecularMap = "texture/container2_specular.png";
 	MegaManTextures.NormalMap = "texture/SparkMan_normal.bmp";
-	MegaManTextures.AlphaMap = "texture/MegaManAlpha.bmp";
+	MegaManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
 	const std::vector<Vertex> MegaManVertices =
 	{

@@ -33,6 +33,7 @@ protected:
 
     glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 MeshScale = glm::vec3(1.0f);
+    float RotationAmount = 0.0f;
 
     bool MeshDeletedFlag = false;
 
@@ -43,6 +44,7 @@ protected:
 
 public:
 
+    std::string MeshName;
     glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
     NewBaseMesh();

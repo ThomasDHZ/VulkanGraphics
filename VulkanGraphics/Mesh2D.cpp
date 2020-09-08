@@ -1,11 +1,11 @@
 #include "Mesh2D.h"
 #include "Texture2D.h"
 
-Mesh2D::Mesh2D() : NewBaseMesh()
+Mesh2D::Mesh2D() : NewMesh()
 {
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures) : NewBaseMesh(renderer, vertexdata, indicesdata)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures) : NewMesh(renderer, vertexdata, indicesdata)
 {
     CustomBuffer EmptyBuffer;
     EmptyBuffer.ByteSize = sizeof(Empty);
@@ -13,15 +13,15 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
     Vertexdata = vertexdata;
     ExtendedMesProperitesBuffer = EmptyBuffer;
 
+    CreateMaterialProperties();
     LoadTextures(renderer, textureManager, textures);
     LoadTiles(renderer, textureManager, textures);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
-    CreateMaterialProperties();
 }
 
-Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer) : NewBaseMesh(renderer, vertexdata, indicesdata)
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer) : NewMesh(renderer, vertexdata, indicesdata, customBuffer)
 {
     Vertexdata = vertexdata;
     ExtendedMesProperitesBuffer = customBuffer;
@@ -36,52 +36,6 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
 
 Mesh2D::~Mesh2D()
 {
-}
-
-void Mesh2D::CreateMaterialProperties()
-{
-    properites.material.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
-    properites.material.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-    properites.material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    properites.material.shininess = 32;
-    properites.material.reflectivness = 0;
-    properites.minLayers = 8.0f;
-    properites.maxLayers = 32.0f;
-    properites.heightScale = 0.1f;
-}
-
-void Mesh2D::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
-{
-
-    if (!textures.DiffuseMap.empty())
-    {
-        properites.UseDiffuseMapBit = 1;
-    }
-    if (!textures.SpecularMap.empty())
-    {
-        properites.UseSpecularMapBit = 1;
-    }
-    if (!textures.NormalMap.empty())
-    {
-        properites.UseNormalMapBit = 1;
-    }
-    if (!textures.AlphaMap.empty())
-    {
-        properites.UseAlphaMapBit = 1;
-    }
-    if (!textures.EmissionMap.empty())
-    {
-        properites.UseEmissionMapBit = 1;
-    }
-
-}
-
-void Mesh2D::CreateUniformBuffers(RendererManager& renderer)
-{
-    uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
-    lightBuffer = VulkanUniformBuffer(renderer, sizeof(LightBufferObject));
-    meshPropertiesBuffer = VulkanUniformBuffer(renderer, sizeof(MeshProperties));
-    ExtendedMesProperitesBuffer.customBuffer = VulkanUniformBuffer(renderer, ExtendedMesProperitesBuffer.ByteSize);
 }
 
 void Mesh2D::CreateDescriptorPool(RendererManager& renderer) {
@@ -219,60 +173,4 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
 
         NewBaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
-}
-
-void Mesh2D::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
-{
-    UniformBufferObject ubo{};
-    ubo.model = glm::mat4(1.0f);
-    ubo.model = glm::translate(ubo.model, MeshPosition);
-    ubo.model = glm::scale(ubo.model, MeshScale);
-    ubo.view = camera.GetViewMatrix();
-    ubo.proj = camera.GetProjectionMatrix();
-    ubo.proj[1][1] *= -1;
-
-    properites.timer = glfwGetTime();
-    UpdateUniformBuffer(renderer, ubo, Lightbuffer);
-}
-
-void Mesh2D::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo)
-{
-    UniformBufferObject ubo{};
-    ubo.model = glm::mat4(1.0f);
-    ubo.model = glm::translate(ubo.model, MeshPosition);
-    ubo.model = glm::scale(ubo.model, MeshScale);
-    ubo.view = camera.GetViewMatrix();
-    ubo.proj = camera.GetProjectionMatrix();
-    ubo.proj[1][1] *= -1;
-
-    properites.timer = glfwGetTime();
-    UpdateUniformBuffer(renderer, ubo, Lightbuffer, CustomBufferinfo);
-}
-
-void Mesh2D::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer)
-{
-    Empty empty = {};
-    empty.empty = 1.0f;
-
-    uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
-    lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
-    meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
-    ExtendedMesProperitesBuffer.customBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&empty));
-}
-
-void Mesh2D::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo)
-{
-    uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
-    lightBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&Lightbuffer));
-    meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
-    ExtendedMesProperitesBuffer.customBuffer.UpdateUniformBuffer(renderer, CustomBufferinfo);
-}
-
-void Mesh2D::Destory(RendererManager& renderer)
-{
-    uniformBuffer.Destroy(renderer);
-    lightBuffer.Destroy(renderer);
-    meshPropertiesBuffer.Destroy(renderer);
-    ExtendedMesProperitesBuffer.customBuffer.Destroy(renderer);
-    NewBaseMesh::Destory(renderer);
 }

@@ -175,6 +175,7 @@
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="NewBaseMesh.cpp" />
+    <ClCompile Include="NewMesh.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="OrthographicCamera.cpp" />
     <ClCompile Include="Reflection2DPipeline.cpp" />
@@ -277,6 +278,7 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="NewBaseMesh.h" />
+    <ClInclude Include="NewMesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="OrthographicCamera.h" />
     <ClInclude Include="Reflection2DPipeline.h" />

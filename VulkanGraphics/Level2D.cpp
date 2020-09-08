@@ -28,7 +28,7 @@ Level2D::Level2D(RendererManager& renderer, GameManager& gameManager)
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(9.0f * 2, 4.5f * 2), renderer.textureRenderer.ColorTexture)));
+	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(9.0f * 2, 4.5f * 2), renderer.textureRenderer.ColorTexture)));
 	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures);
 }
 

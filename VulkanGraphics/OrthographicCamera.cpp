@@ -7,6 +7,9 @@ OrthographicCamera::OrthographicCamera()
 
 OrthographicCamera::OrthographicCamera(float width, float height)
 {
+	Width = width;
+	Height = height;
+
 	Position = glm::vec3(0.0f);
 	Rotation = 0.0f;
 	ViewScreenSize = glm::vec2(width, height);
@@ -16,6 +19,9 @@ OrthographicCamera::OrthographicCamera(float width, float height)
 
 OrthographicCamera::OrthographicCamera(glm::vec2 viewScreenSize)
 {
+	Width = viewScreenSize.x;
+	Height = viewScreenSize.y;
+
 	Position = glm::vec3(0.0f);
 	Rotation = 0.0f;
 	ViewScreenSize = viewScreenSize;

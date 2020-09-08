@@ -18,6 +18,9 @@ private:
 	void UpdateView();
 
 public:
+	float Width;
+	float Height;
+
 	OrthographicCamera();
 	OrthographicCamera(float width, float height);
 	OrthographicCamera(glm::vec2 viewScreenSize);
