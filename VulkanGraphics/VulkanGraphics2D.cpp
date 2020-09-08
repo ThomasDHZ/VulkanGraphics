@@ -152,7 +152,7 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 	level.Update(renderer, camera, light.light);
 	for (int x= SpriteList.size() - 1; x > 0; x--)
 	{
- 		if (SpriteList[x]->SpriteMesh->MeshVertex.GetVertexBuffer() == VK_NULL_HANDLE)
+ 		if (SpriteList[x]->SpriteMesh->GetMeshDeletedFlag())
 		{
 			SpriteList.erase(SpriteList.begin() + x);
 		}
@@ -167,13 +167,6 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 		sprite->Gravity(level.LevelColliderList);
 		sprite->Update(renderer, camera, light.light);
 		sprite->Collision(renderer, SpriteList);
-	}
-	for (int x = SpriteList.size() - 1; x > 0; x--)
-	{
-		if (SpriteList[x]->SpriteMesh->MeshVertex.GetVertexBuffer() == VK_NULL_HANDLE)
-		{
-			SpriteList.erase(SpriteList.begin() + x);
-		}
 	}
 }
 

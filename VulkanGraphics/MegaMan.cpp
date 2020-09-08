@@ -83,7 +83,7 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, glm::vec2(SpriteMesh->MeshPosition.x + 1.0f, SpriteMesh->MeshPosition.y + 0.5f)));
+		auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, glm::vec2(SpriteMesh->GetPosition2D().x + 1.0f, SpriteMesh->GetPosition2D().y + 0.5f)));
 		SpriteList.emplace_back(shot);
 	}
 

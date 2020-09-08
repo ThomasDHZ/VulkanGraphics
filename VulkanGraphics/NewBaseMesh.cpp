@@ -25,29 +25,63 @@ void NewBaseMesh::LoadTextures(RendererManager& renderer, std::shared_ptr<Textur
     {
         DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
     }
+    else if (textures.RendererDiffuseMap)
+    {
+        DiffuseMapID = textures.RendererDiffuseMap;
+    }
+
     if (!textures.SpecularMap.empty())
     {
         SpecularMapID = textureManager->LoadTexture(renderer, textures.SpecularMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
+    else if (textures.RendererSpecularMap)
+    {
+        SpecularMapID = textures.RendererSpecularMap;
+    }
+
     if (!textures.NormalMap.empty())
     {
         NormalMapID = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
+    else if (textures.RendererNormalMap)
+    {
+        NormalMapID = textures.RendererNormalMap;
+    }
+
     if (!textures.DepthMap.empty())
     {
         DepthMapID = textureManager->LoadTexture(renderer, textures.DepthMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
+    else if (textures.RendererDepthMap)
+    {
+        DepthMapID = textures.RendererDepthMap;
+    }
+
     if (!textures.AlphaMap.empty())
     {
         AlphaMapID = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
+    else if (textures.RendererAlphaMap)
+    {
+        AlphaMapID = textures.RendererAlphaMap;
+    }
+
     if (!textures.EmissionMap.empty())
     {
         EmissionMapID = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
+    else if (textures.RendererEmissionMap)
+    {
+        EmissionMapID = textures.RendererEmissionMap;
+    }
+
     if (!textures.ReflectionMap.empty())
     {
         ReflectionMapID = textureManager->LoadTexture(renderer, textures.ReflectionMap, VK_FORMAT_R8G8B8A8_UNORM);
+    }
+    else if (textures.RendererReflectionMap)
+    {
+        ReflectionMapID = textures.RendererReflectionMap;
     }
 }
 
@@ -116,6 +150,26 @@ void NewBaseMesh::CreateDescriptorSetsData(RendererManager& renderer, std::vecto
     vkUpdateDescriptorSets(renderer.Device, static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
+void NewBaseMesh::SetPosition2D(glm::vec2 Pos)
+{
+    MeshPosition = glm::vec3(Pos, 0.0f);
+}
+
+void NewBaseMesh::SetPosition2D(float x, float y)
+{
+    MeshPosition = glm::vec3(x, y, 0.0f);
+}
+
+void NewBaseMesh::SetPosition3D(glm::vec3 Pos)
+{
+   MeshPosition = Pos;
+}
+
+void NewBaseMesh::SetPosition3D(float x, float y, float z)
+{
+    MeshPosition = glm::vec3(x, y, z);
+}
+
 void NewBaseMesh::CreateDrawMessage(RendererManager& renderer, unsigned int RendererID, std::shared_ptr<GraphicsPipeline> pipeline)
 {
     RendererDrawMessage DrawMessage = {};
@@ -143,4 +197,6 @@ void NewBaseMesh::Destory(RendererManager& renderer)
     {
         renderer.RemoveDrawMessage(drawMessage);
     }
+
+    MeshDeletedFlag = true;
 }

@@ -15,7 +15,6 @@ enum RenderBitFlag
 };
 struct MeshTextures
 {
-    Texture* RendererDiffuseMap;
     std::string DiffuseMap;
     std::string SpecularMap;
     std::string NormalMap;
@@ -23,6 +22,14 @@ struct MeshTextures
     std::string AlphaMap;
     std::string EmissionMap;
     std::string ReflectionMap;
+
+    std::shared_ptr<Texture> RendererDiffuseMap;
+    std::shared_ptr<Texture> RendererSpecularMap;
+    std::shared_ptr<Texture> RendererNormalMap;
+    std::shared_ptr<Texture> RendererDepthMap;
+    std::shared_ptr<Texture> RendererAlphaMap;
+    std::shared_ptr<Texture> RendererEmissionMap;
+    std::shared_ptr<Texture> RendererReflectionMap;
 };
 
 class BaseMesh

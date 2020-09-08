@@ -44,7 +44,7 @@ private:
 
 protected:
 	void SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos);
-	void SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos, const std::shared_ptr<Texture> texture, CustomBuffer custom);
+	void SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos, CustomBuffer custom);
 	virtual void DrawMessage(RendererManager& renderer);
 public:
 
@@ -74,8 +74,8 @@ public:
 	void SetPosition3D(glm::vec3 Pos);
 	void SetPosition3D(float x, float y, float z);
 
-	glm::vec2 GetPosition2D() { return glm::vec2(SpriteMesh->MeshPosition.x, SpriteMesh->MeshPosition.y); }
-	glm::vec3 GetPosition3D() { return SpriteMesh->MeshPosition; }
+	glm::vec2 GetPosition2D() { return glm::vec2(SpriteMesh->GetPosition2D().x, SpriteMesh->GetPosition2D().y); }
+	glm::vec3 GetPosition3D() { return SpriteMesh->GetPosition3D(); }
 	float* GetUVOffsetPtr() { return &UVOffset.x; };
 };
 

@@ -131,7 +131,7 @@ void Level2D::Update(RendererManager& renderer, OrthographicCamera& camera)
 	level.Update(renderer, camera, light.light);
 	for (int x = SpriteList.size() - 1; x > 0; x--)
 	{
-		if (SpriteList[x]->SpriteMesh->MeshVertex.GetVertexBuffer() == VK_NULL_HANDLE)
+		if (SpriteList[x]->SpriteMesh->GetMeshDeletedFlag())
 		{
 			SpriteList.erase(SpriteList.begin() + x);
 		}

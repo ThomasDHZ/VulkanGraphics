@@ -18,7 +18,7 @@ private:
 	void DrawMessage(RendererManager& renderer) override;
 public:
 	WaterSurface2D();
-	WaterSurface2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const std::shared_ptr<Texture> texture);
+	WaterSurface2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, std::shared_ptr<Texture> texture);
 	~WaterSurface2D();
 
 	WaveProperites waveprop;

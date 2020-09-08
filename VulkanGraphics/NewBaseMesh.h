@@ -13,15 +13,15 @@
 class NewBaseMesh
 {
 private:
+    std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 
 protected:
 
-    void LoadTextures(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
-    void CreateDescriptorPool(RendererManager& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
-    void CreateDescriptorSets(RendererManager& renderer, VkDescriptorSetLayout layout);
-    void CreateDescriptorSetsData(RendererManager& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
+    VertexBuffer MeshVertex;
+    IndicesBuffer MeshIndices;
 
-public:
+    VkDescriptorPool DescriptorPool;
+    std::vector<VkDescriptorSet> DescriptorSets;
 
     std::shared_ptr<Texture> DiffuseMapID;
     std::shared_ptr<Texture> SpecularMapID;
@@ -31,17 +31,19 @@ public:
     std::shared_ptr<Texture> EmissionMapID;
     std::shared_ptr<Texture> ReflectionMapID;
 
-    VertexBuffer MeshVertex;
-    IndicesBuffer MeshIndices;
-
-    VkDescriptorPool DescriptorPool;
-    std::vector<VkDescriptorSet> DescriptorSets;
-
-    std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
-
-    glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 MeshScale = glm::vec3(1.0f);
+
+    bool MeshDeletedFlag = false;
+
+    void LoadTextures(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
+    void CreateDescriptorPool(RendererManager& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo);
+    void CreateDescriptorSets(RendererManager& renderer, VkDescriptorSetLayout layout);
+    void CreateDescriptorSetsData(RendererManager& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
+
+public:
+
+    glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
     NewBaseMesh();
     NewBaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata);
@@ -50,4 +52,13 @@ public:
 
     void CreateDrawMessage(RendererManager& renderer, unsigned int RendererID, std::shared_ptr<GraphicsPipeline> pipeline);
     virtual void Destory(RendererManager& renderer);
+
+    void SetPosition2D(glm::vec2 Pos);
+    void SetPosition2D(float x, float y);
+    void SetPosition3D(glm::vec3 Pos);
+    void SetPosition3D(float x, float y, float z);
+
+    glm::vec2 GetPosition2D() { return glm::vec2(MeshPosition.x, MeshPosition.y); }
+    glm::vec3 GetPosition3D() { return MeshPosition; }
+    bool GetMeshDeletedFlag() { return MeshDeletedFlag; }
 };

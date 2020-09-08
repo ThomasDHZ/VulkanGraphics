@@ -32,7 +32,7 @@ void MMShot::Update(RendererManager& renderer, OrthographicCamera& camera, Light
 {
 	SpriteMesh->MeshPosition.x += 0.1f;
 	Sprite::Update(renderer, camera, light);
-	if (SpriteMesh->MeshPosition.x - SpriteSize.x> camera.GetVuewScreenSize().x + camera.GetPosition().x)
+	if (SpriteMesh->GetPosition2D().x - SpriteSize.x> camera.GetVuewScreenSize().x + camera.GetPosition().x)
 	{
 		Destory(renderer);
 	}
