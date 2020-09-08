@@ -23,13 +23,13 @@ protected:
 
 public:
 
-    unsigned int DiffuseMapID;
-    unsigned int SpecularMapID;
-    unsigned int NormalMapID;
-    unsigned int DepthMapID;
-    unsigned int AlphaMapID;
-    unsigned int EmissionMapID;
-    unsigned int ReflectionMapID;
+    std::shared_ptr<Texture> DiffuseMapID;
+    std::shared_ptr<Texture> SpecularMapID;
+    std::shared_ptr<Texture> NormalMapID;
+    std::shared_ptr<Texture> DepthMapID;
+    std::shared_ptr<Texture> AlphaMapID;
+    std::shared_ptr<Texture> EmissionMapID;
+    std::shared_ptr<Texture> ReflectionMapID;
 
     VertexBuffer MeshVertex;
     IndicesBuffer MeshIndices;

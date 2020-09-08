@@ -17,34 +17,36 @@ unsigned int TextureManager::CreateNewTextureID()
 	return IDNum++;
 }
 
-unsigned int TextureManager::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format)
+std::shared_ptr<Texture> TextureManager::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format)
 {
-	unsigned int TextureID;
-	if (!GetTextureByName(TextureLocation, TextureID))
+	unsigned int TextureID = 0;
+	std::shared_ptr<Texture> Ptr;
+
+	if (!GetTextureByName(TextureLocation, Ptr))
 	{
+		Ptr = std::make_shared<Texture2D>(Texture2D(renderer, format, TextureLocation, TextureID));
 		TextureID = CreateNewTextureID();
-		auto a = std::make_shared<Texture2D>(Texture2D(renderer, format, TextureLocation, TextureID));
-		TextureList.emplace_back(a);
+		TextureList.emplace_back(Ptr);
 	}
 
-	return TextureID;
+	return Ptr;
 }
 
-unsigned int TextureManager::LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList)
+std::shared_ptr<Texture>  TextureManager::LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList)
 {
 	unsigned int TextureID = CreateNewTextureID();
 	auto a = std::make_shared<CubeMapTexture>(CubeMapTexture(renderer, cubeMapList, TextureID));
 	TextureList.emplace_back(a);
-	return TextureID;
+	return a;
 }
 
-unsigned int TextureManager::LoadTexture(std::shared_ptr<Texture> texture)
+std::shared_ptr<Texture>  TextureManager::LoadTexture(std::shared_ptr<Texture> texture)
 {
 	unsigned int TextureID = CreateNewTextureID();
 	texture->TextureID = TextureID;
 	TextureList.emplace_back(texture);
 
-	return TextureID;
+	return texture;
 }
 
 void TextureManager::UnloadTexture(VulkanRenderer& renderer, unsigned int ID)
@@ -93,13 +95,13 @@ bool TextureManager::GetTextureByName(std::string name)
 	return false;
 }
 
-bool TextureManager::GetTextureByName(std::string name, unsigned int& textureID)
+bool TextureManager::GetTextureByName(std::string name, std::shared_ptr<Texture>& textureID)
 {
 	for (auto texture : TextureList)
 	{
 		if (texture->FileName == name)
 		{
-			textureID = texture->TextureID;
+			textureID = texture;
 			return true;
 		}
 	}

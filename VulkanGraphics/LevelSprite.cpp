@@ -30,11 +30,11 @@ void LevelSprite::Destory(RendererManager& renderer)
 
 void LevelSprite::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
-	unsigned int DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
+	auto DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
 
 	const unsigned int TileSize = 16;
-	const float AmtXAxisTiles = textureManager->GetTextureByID(DiffuseMapID)->Width / TileSize;
-	const float AmtYAxisTiles = textureManager->GetTextureByID(DiffuseMapID)->Height / TileSize;
+	const float AmtXAxisTiles = DiffuseMapID->Width / TileSize;
+	const float AmtYAxisTiles = DiffuseMapID->Height / TileSize;
 	const float UVTileLocU = 1 / AmtXAxisTiles;
 	const float UVTileLocV = 1 / AmtYAxisTiles;
 

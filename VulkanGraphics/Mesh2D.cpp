@@ -107,28 +107,28 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DiffuseMap.imageView = textureManager->GetTextureByID(DiffuseMapID)->GetTextureView();
-    DiffuseMap.sampler = textureManager->GetTextureByID(DiffuseMapID)->GetTextureSampler();
+    DiffuseMap.imageView = DiffuseMapID->GetTextureView();
+    DiffuseMap.sampler = DiffuseMapID->GetTextureSampler();
 
     VkDescriptorImageInfo SpecularMap = {};
     SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    SpecularMap.imageView = textureManager->GetTextureByID(SpecularMapID)->GetTextureView();
-    SpecularMap.sampler = textureManager->GetTextureByID(SpecularMapID)->GetTextureSampler();
+    SpecularMap.imageView = SpecularMapID->GetTextureView();
+    SpecularMap.sampler = SpecularMapID->GetTextureSampler();
 
     VkDescriptorImageInfo NormalMap = {};
     NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    NormalMap.imageView = textureManager->GetTextureByID(NormalMapID)->GetTextureView();
-    NormalMap.sampler = textureManager->GetTextureByID(NormalMapID)->GetTextureSampler();
+    NormalMap.imageView = NormalMapID->GetTextureView();
+    NormalMap.sampler = NormalMapID->GetTextureSampler();
 
     VkDescriptorImageInfo AlphaMap = {};
     AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    AlphaMap.imageView = textureManager->GetTextureByID(AlphaMapID)->GetTextureView();
-    AlphaMap.sampler = textureManager->GetTextureByID(AlphaMapID)->GetTextureSampler();
+    AlphaMap.imageView = AlphaMapID->GetTextureView();
+    AlphaMap.sampler = AlphaMapID->GetTextureSampler();
 
     VkDescriptorImageInfo EmissionMap = {};
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    EmissionMap.imageView = textureManager->GetTextureByID(DiffuseMapID)->GetTextureView();
-    EmissionMap.sampler = textureManager->GetTextureByID(DiffuseMapID)->GetTextureSampler();
+    EmissionMap.imageView = DiffuseMapID->GetTextureView();
+    EmissionMap.sampler = DiffuseMapID->GetTextureSampler();
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -232,28 +232,23 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
 
     VkDescriptorImageInfo SpecularMap = {};
     SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    SpecularMap.imageView = textureManager->GetTextureByID(SpecularMapID)->GetTextureView();
-    SpecularMap.sampler = textureManager->GetTextureByID(SpecularMapID)->GetTextureSampler();
+    SpecularMap.imageView = SpecularMapID->GetTextureView();
+    SpecularMap.sampler = SpecularMapID->GetTextureSampler();
 
     VkDescriptorImageInfo NormalMap = {};
     NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    NormalMap.imageView = textureManager->GetTextureByID(NormalMapID)->GetTextureView();
-    NormalMap.sampler = textureManager->GetTextureByID(NormalMapID)->GetTextureSampler();
+    NormalMap.imageView = NormalMapID->GetTextureView();
+    NormalMap.sampler = NormalMapID->GetTextureSampler();
 
     VkDescriptorImageInfo AlphaMap = {};
     AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    AlphaMap.imageView = textureManager->GetTextureByID(AlphaMapID)->GetTextureView();
-    AlphaMap.sampler = textureManager->GetTextureByID(AlphaMapID)->GetTextureSampler();
+    AlphaMap.imageView = AlphaMapID->GetTextureView();
+    AlphaMap.sampler = AlphaMapID->GetTextureSampler();
 
     VkDescriptorImageInfo EmissionMap = {};
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    EmissionMap.imageView = textureManager->GetTextureByID(DiffuseMapID)->GetTextureView();
-    EmissionMap.sampler = textureManager->GetTextureByID(DiffuseMapID)->GetTextureSampler();
-
-    VkDescriptorImageInfo ReflectDiffuseMap = {};
-    ReflectDiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    ReflectDiffuseMap.imageView = textureManager->GetTextureByID(NormalMapID)->GetTextureView();
-    ReflectDiffuseMap.sampler = textureManager->GetTextureByID(NormalMapID)->GetTextureSampler();
+    EmissionMap.imageView = DiffuseMapID->GetTextureView();
+    EmissionMap.sampler = DiffuseMapID->GetTextureSampler();
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {

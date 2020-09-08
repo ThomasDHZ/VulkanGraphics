@@ -15,15 +15,16 @@ public:
 	TextureManager(VulkanRenderer& renderer);
 	~TextureManager();
 
-	unsigned int LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format);
-	unsigned int LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
-	unsigned int LoadTexture(std::shared_ptr<Texture> texture);
+	std::shared_ptr<Texture> LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format);
+	std::shared_ptr<Texture> LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
+	std::shared_ptr<Texture> LoadTexture(std::shared_ptr<Texture> texture);
+
 	void UnloadTexture(VulkanRenderer& renderer, unsigned int ID);
 	void UnloadAllTextures(VulkanRenderer& renderer);
 	void UpdateIMGUIVRAM();
 
 	bool GetTextureByName(std::string name);
-	bool GetTextureByName(std::string name, unsigned int& textureID);
+	bool GetTextureByName(std::string name, std::shared_ptr<Texture>& textureID);
 	std::shared_ptr<Texture> GetTextureByID(unsigned int ID);
 
 	std::shared_ptr<Texture> GetTexture(int index) { return TextureList[index]; }

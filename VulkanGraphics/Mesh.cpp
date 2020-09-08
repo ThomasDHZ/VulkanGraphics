@@ -44,41 +44,41 @@ void Mesh::CreateMaterialProperties()
 
 void Mesh::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
-    if (!textures.DiffuseMap.empty())
-    {
-        DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
-        properites.UseDiffuseMapBit = 1;
-    }
-    if (!textures.SpecularMap.empty())
-    {
-        SpecularMapID = textureManager->LoadTexture(renderer, textures.SpecularMap, VK_FORMAT_R8G8B8A8_UNORM);
-        properites.UseSpecularMapBit = 1;
-    }
-    if (!textures.NormalMap.empty())
-    {
-        NormalMapID = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
-        properites.UseNormalMapBit = 1;
-    }
-    if (!textures.DepthMap.empty())
-    {
-        DepthMapID = textureManager->LoadTexture(renderer, textures.DepthMap, VK_FORMAT_R8G8B8A8_UNORM);
-        properites.UseDepthMapBit = 1;
-    }
-    if (!textures.AlphaMap.empty())
-    {
-        AlphaMapID = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
-        properites.UseAlphaMapBit = 1;
-    }
-    if (!textures.EmissionMap.empty())
-    {
-        EmissionMapID = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
-        properites.UseEmissionMapBit = 1;
-    }
-    if (!textures.ReflectionMap.empty())
-    {
-        ReflectionMapID = textureManager->LoadTexture(renderer, textures.ReflectionMap, VK_FORMAT_R8G8B8A8_UNORM);
-        properites.UseReflectionMapBit = 1;
-    }
+    //if (!textures.DiffuseMap.empty())
+    //{
+    //    DiffuseMapID = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
+    //    properites.UseDiffuseMapBit = 1;
+    //}
+    //if (!textures.SpecularMap.empty())
+    //{
+    //    SpecularMapID = textureManager->LoadTexture(renderer, textures.SpecularMap, VK_FORMAT_R8G8B8A8_UNORM);
+    //    properites.UseSpecularMapBit = 1;
+    //}
+    //if (!textures.NormalMap.empty())
+    //{
+    //    NormalMapID = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
+    //    properites.UseNormalMapBit = 1;
+    //}
+    //if (!textures.DepthMap.empty())
+    //{
+    //    DepthMapID = textureManager->LoadTexture(renderer, textures.DepthMap, VK_FORMAT_R8G8B8A8_UNORM);
+    //    properites.UseDepthMapBit = 1;
+    //}
+    //if (!textures.AlphaMap.empty())
+    //{
+    //    AlphaMapID = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
+    //    properites.UseAlphaMapBit = 1;
+    //}
+    //if (!textures.EmissionMap.empty())
+    //{
+    //    EmissionMapID = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
+    //    properites.UseEmissionMapBit = 1;
+    //}
+    //if (!textures.ReflectionMap.empty())
+    //{
+    //    ReflectionMapID = textureManager->LoadTexture(renderer, textures.ReflectionMap, VK_FORMAT_R8G8B8A8_UNORM);
+    //    properites.UseReflectionMapBit = 1;
+    //}
 }
 
 void Mesh::CreateUniformBuffers(VulkanRenderer& renderer)
