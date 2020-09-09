@@ -166,8 +166,8 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 			MM->Update(Window.GetWindowPtr(), renderer, camera, light.light, SpriteList, level.LevelColliderList, gameManager.textureManager);
 		}
 
-		sprite->Gravity(level.LevelColliderList);
 		sprite->Update(renderer, camera, light.light);
+		sprite->ApplyGravity(level.LevelColliderList);
 		sprite->Collision(renderer, SpriteList);
 	}
 }

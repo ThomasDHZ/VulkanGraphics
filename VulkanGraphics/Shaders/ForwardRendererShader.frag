@@ -88,6 +88,9 @@ layout(binding = 9) uniform MeshProperties
     float minLayers;
     float maxLayers;
     float heightScale;
+    float timer;
+    int ReflectSprite;
+    vec2 UVScale;
 } meshProperties;
 layout(binding = 10) uniform Light
 {

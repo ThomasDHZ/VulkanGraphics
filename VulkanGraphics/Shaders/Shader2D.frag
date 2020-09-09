@@ -76,6 +76,9 @@ layout(binding = 6) uniform MeshProperties
     float minLayers;
     float maxLayers;
     float heightScale;
+    float timer;
+    int ReflectSprite;
+     vec2 UVScale;
     
 } meshProperties;
 layout(binding = 7) uniform Light
@@ -195,6 +198,12 @@ vec3 SpotLight(vec3 TangentLightPos, vec3 TangentFragPos, vec3 V, vec3 N, vec2 U
 void main()
 {           
     vec2 UV = TexCoords + meshProperties.UVOffset;
+    if(meshProperties.ReflectSprite == 1.0f)
+    {
+        UV.x = 1.0f - UV.x;
+    }
+    UV *= meshProperties.UVScale;
+
     RemoveAlphaPixels(UV);
 
     vec3 V = light.viewPos;

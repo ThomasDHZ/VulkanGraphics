@@ -143,7 +143,7 @@ void Level2D::Update(RendererManager& renderer, OrthographicCamera& camera)
 			//MM->Update(Window.GetWindowPtr(), renderer, camera, light.light, SpriteList, level.LevelColliderList, gameManager.textureManager);
 		}
 
-		sprite->Gravity(level.LevelColliderList);
+		sprite->ApplyGravity(level.LevelColliderList);
 		sprite->Update(renderer, camera, light.light);
 		sprite->Collision(renderer, SpriteList);
 	}

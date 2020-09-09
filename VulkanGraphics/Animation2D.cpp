@@ -7,13 +7,13 @@ Animation2D::Animation2D()
 	TimeBetweenFrames = 0;
 }
 
-Animation2D::Animation2D(std::vector<glm::vec2> AnimationFrames, float timeBetweenFrames, unsigned int animationID)
+Animation2D::Animation2D(std::vector<Frame2D> frameList, float timeBetweenFrames, unsigned int animationID)
 {
 	AnimationID = animationID;
 	CurrentFrame = 0;
 	lastframeTime = 0;
 	TimeBetweenFrames = timeBetweenFrames;
-	UVOffsetList = AnimationFrames;
+	FrameList = frameList;
 }
 
 void Animation2D::Update()
@@ -24,7 +24,7 @@ void Animation2D::Update()
 
 	if ((time - lastframeTime) > TimeBetweenFrames)
 	{
-		if (CurrentFrame < UVOffsetList.size() - 1)
+		if (CurrentFrame < FrameList.size() - 1)
 		{
 			CurrentFrame++;
 		}
@@ -35,3 +35,4 @@ void Animation2D::Update()
 		lastframeTime = time;
 	}
 }
+

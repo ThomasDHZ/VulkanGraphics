@@ -15,16 +15,12 @@ Coin::Coin(RendererManager& renderer, std::shared_ptr<TextureManager>textureMana
 		{{0.0f, SpriteSize.y, -0.1f},		 {0.0f, 0.0f, 1.0f}, {0.4f, 0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
 	};
 
-	AnimationFrame[CoinFlip1] = glm::vec2(0.011f, 0.0f);
-	AnimationFrame[CoinFlip2] = glm::vec2(0.144f, 0.0f);
-	AnimationFrame[CoinFlip3] = glm::vec2(0.279f, 0.0f);
-	AnimationFrame[CoinFlip4] = glm::vec2(0.422f, 0.0f);
-	AnimationFrame[CoinFlip5] = glm::vec2(0.568f, 0.0f);
-	AnimationFrame[CoinFlip6] = glm::vec2(0.700f, 0.0f);
+	std::vector<Frame2D> StandFrames;
+	StandFrames.emplace_back(Frame2D(glm::vec2(0.0f, 0.0f)));
+	StandFrames.emplace_back(Frame2D(glm::vec2(0.0521f, 0.0f)));
+	StandFrames.emplace_back(Frame2D(glm::vec2(0.1021f, 0.0f)));
 
-	std::vector<glm::vec2> CoinTurn2 = { AnimationFrame[CoinFlip1], AnimationFrame[CoinFlip2], AnimationFrame[CoinFlip3], AnimationFrame[CoinFlip4], AnimationFrame[CoinFlip5], AnimationFrame[CoinFlip6] };
-
-	CoinTurn = Animation2D(CoinTurn2, 1.0f, 0);
+	CoinTurn = Animation2D(StandFrames, 1.0f, 0);
 	CurrentAni = CoinTurn;
 
 	MeshTextures CoinTextures = {};

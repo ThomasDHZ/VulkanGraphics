@@ -158,6 +158,7 @@
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="ForwardRenderer.cpp" />
     <ClCompile Include="ForwardRenderingPipeline.cpp" />
+    <ClCompile Include="Frame2D.cpp" />
     <ClCompile Include="FrameBufferMesh.cpp" />
     <ClCompile Include="DifferedRenderingPipeline.cpp" />
     <ClCompile Include="FramebufferRenderer.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="DeferredRenderer.h" />
     <ClInclude Include="ForwardRenderer.h" />
     <ClInclude Include="ForwardRenderingPipeline.h" />
+    <ClInclude Include="Frame2D.h" />
     <ClInclude Include="FrameBufferMesh.h" />
     <ClInclude Include="DifferedRenderingPipeline.h" />
     <ClInclude Include="FramebufferRenderer.h" />

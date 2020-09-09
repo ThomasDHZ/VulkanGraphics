@@ -63,21 +63,31 @@ void Sprite::DrawMessage(RendererManager& renderer)
 	}
 }
 
-void Sprite::Gravity(std::vector<std::shared_ptr<Sprite>> SpriteList)
+bool Sprite::OnGroundCheck(std::vector<BoxCollider> SpriteList)
+{
+	for (auto& sprite : SpriteList)
+	{
+		if (collider.CollidesWith(sprite, Gravity))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void Sprite::ApplyGravity(std::vector<std::shared_ptr<Sprite>> SpriteList)
 {
 	if (ObjectFlagBits & ObjectFlags::ApplyGravity)
 	{
-		glm::vec3 MoveDirection = glm::vec3(0.0f, -0.01f, 0.0f);
-		Move(SpriteList, MoveDirection);
+		Move(SpriteList, Gravity);
 	}
 }
 
-void Sprite::Gravity(std::vector<BoxCollider> SpriteList)
+void Sprite::ApplyGravity(std::vector<BoxCollider> SpriteList)
 {
 	if (ObjectFlagBits & ObjectFlags::ApplyGravity)
 	{
-		glm::vec3 MoveDirection = glm::vec3(0.0f, -0.01f, 0.0f);
-		Move(SpriteList, MoveDirection);
+		Move(SpriteList, Gravity);
 	}
 }
 
@@ -103,22 +113,20 @@ void Sprite::Move(std::vector<BoxCollider> SpriteList, glm::vec3 MoveDirection)
 {
 	for (auto& sprite : SpriteList)
 	{
-
-			if (collider.CollidesWith(sprite, MoveDirection))
-			{
-				MoveDirection = glm::vec3(0.0f);
-				break;
-			}
-		
+		if (collider.CollidesWith(sprite, MoveDirection))
+		{
+			MoveDirection = glm::vec3(0.0f);
+			break;
+		}
 	}
-
 	SpriteMesh->MeshPosition += MoveDirection;
 }
 
 void Sprite::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
 {
-	//CurrentAni.Update();
-	//SpriteMesh->properites.UVOffset = glm::vec2(CurrentAni.GetCurrentFrame());
+	CurrentAni.Update();
+	SpriteMesh->properites.UVOffset = CurrentAni.GetCurrentFrame().GetUVOffset();
+	SpriteMesh->properites.UVScale = CurrentAni.GetCurrentFrame().GetUVScale();
 
 	SpriteMesh->Update(renderer, camera, light);
 	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[0].Position;
@@ -126,6 +134,13 @@ void Sprite::Update(RendererManager& renderer, OrthographicCamera& camera, Light
 	const glm::vec3 TopRightVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[2].Position;
 	const glm::vec3 TopLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[3].Position;
 	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
+
+	AnimationHandler();
+}
+
+void Sprite::AnimationHandler()
+{
+	int a = 34;
 }
 
 

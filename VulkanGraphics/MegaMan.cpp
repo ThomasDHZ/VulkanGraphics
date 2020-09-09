@@ -1,4 +1,5 @@
 #include "MegaMan.h"
+#include "Water2D.h"
 
 MegaMan::MegaMan() : Sprite()
 {
@@ -8,25 +9,38 @@ MegaMan::MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textu
 {
 	const std::vector<Vertex> MegaManVertices =
 	{
-		{{0.0f, 0.0f, -0.1f},				 {0.0f, 0.0f, 1.0f}, {0.14f / 3, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+		{{0.0f, 0.0f, -0.1f},				 {0.0f, 0.0f, 1.0f}, {0.0521f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
 		{{SpriteSize.x, 0.0f, -0.1f},		 {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
 		{{SpriteSize.x, SpriteSize.y, -0.1f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f},  {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{0.0f, SpriteSize.y, -0.1f},		 {0.0f, 0.0f, 1.0f}, {0.14f / 3, -1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
+		{{0.0f, SpriteSize.y, -0.1f},		 {0.0f, 0.0f, 1.0f}, {0.0521f, -1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
 	};
 
-	AnimationFrame[Stand1] = glm::vec2(0.011f, 0.0f);
-	AnimationFrame[Stand2] = glm::vec2(0.144f, 0.0f);
-	AnimationFrame[StartRun] = glm::vec2(0.279f, 0.0f);
-	AnimationFrame[Run1] = glm::vec2(0.422f, 0.0f);
-	AnimationFrame[Run2] = glm::vec2(0.568f, 0.0f);
-	AnimationFrame[Run3] = glm::vec2(0.700f, 0.0f);
-	AnimationFrame[Run4] = glm::vec2(0.822f, 0.0f);
-	
-	std::vector<glm::vec2> StandFrames = { AnimationFrame[Stand1] , AnimationFrame[Stand2] };
-	std::vector<glm::vec2> RunFrames = { AnimationFrame[Run1] , AnimationFrame[Run2], AnimationFrame[Run3], AnimationFrame[Run4] };
-	
-	StandAni = Animation2D(StandFrames, 1.0f, 0);
+	std::vector<Frame2D> StandFrames;
+	StandFrames.emplace_back(Frame2D(glm::vec2(0.0f, 0.0f)));
+	StandFrames.emplace_back(Frame2D(glm::vec2(0.0521f, 0.0f)));
+	StandFrames.emplace_back(Frame2D(glm::vec2(0.1021f, 0.0f)));
+
+	std::vector<Frame2D> RunFrames;
+	RunFrames.emplace_back(Frame2D(glm::vec2(0.16459f, 0.0f)));
+	RunFrames.emplace_back(Frame2D(glm::vec2(0.2167f, 0.0f)));
+	RunFrames.emplace_back(Frame2D(glm::vec2(0.2708f, 0.0f)));
+	RunFrames.emplace_back(Frame2D(glm::vec2(0.2167f, 0.0f)));
+
+	std::vector<Frame2D> SlideFrames;
+	SlideFrames.emplace_back(Frame2D(glm::vec2(0.3333f, 0.0f), glm::vec2(1.6875f, 1.0f), 3.0f));
+
+	std::vector<Frame2D> JumpFrames;
+	JumpFrames.emplace_back(Frame2D(glm::vec2(0.40412f, 0.0f)));
+
+	std::vector<Frame2D> ShootFrames;
+	ShootFrames.emplace_back(Frame2D(glm::vec2(0.60625f, 0.0f)));
+
+	StandAni = Animation2D(StandFrames, 2.0f, 0);
 	RunAni = Animation2D(RunFrames, 0.1f, 1);
+	SlideAni = Animation2D(SlideFrames, 6.1f, 2);
+	JumpAni = Animation2D(JumpFrames, 6.1, 3);
+	ShootAni = Animation2D(ShootFrames, 6.1, 4);
+
 	CurrentAni = StandAni;
 
 	MeshTextures MegaManTextures = {};
@@ -47,16 +61,27 @@ MegaMan::~MegaMan()
 
 void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light, std::vector<std::shared_ptr<Sprite>> SpriteList, std::vector<BoxCollider> LevelCollidorList, std::shared_ptr<TextureManager>textureManager)
 {
+	if (OnGroundCheck(LevelCollidorList))
+	{
+		MegaManStateBitFlag |= MegaManStatesFlag::StateOnGround;
+	}
+	else
+	{
+		MegaManStateBitFlag &= ~MegaManStatesFlag::StateOnGround;
+	}
+
 	glm::vec3 MoveDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ||
 		glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
+			SpriteMesh->properites.ReflectSprite = true;
 			MoveDirection = glm::vec3(-0.01f, 0.0f, 0.0f);
 		}
 		else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
+			SpriteMesh->properites.ReflectSprite = false;
 			MoveDirection = glm::vec3(0.01f, 0.0f, 0.0f);
 		}
 		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
@@ -68,30 +93,68 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 			MoveDirection = glm::vec3(0.0f, 0.01f, 0.0f);
 		}
 
-		if (CurrentAni.GetAnimationID() != RunAni.GetAnimationID())
-		{
-			CurrentAni = RunAni;
-		}
+		MegaManStateBitFlag |= MegaManStatesFlag::StateRunning;
 	}
 	else
 	{
-		if (CurrentAni.GetAnimationID() != StandAni.GetAnimationID())
-		{
-			CurrentAni = StandAni;
-		}
+		MegaManStateBitFlag &= ~MegaManStatesFlag::StateRunning;
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
+		CurrentAni = ShootAni;
 		auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, glm::vec2(SpriteMesh->GetPosition2D().x + 1.0f, SpriteMesh->GetPosition2D().y + 0.5f)));
 		SpriteList.emplace_back(shot);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+	{
+	//	MegaManStateBitFlag |= MegaManStatesFlag::StateJump;
+		SpriteMesh->MeshPosition.y += 0.1f;
 	}
 
 	Move(LevelCollidorList, MoveDirection);
 	Sprite::Update(renderer, camera, light);
 }
 
+void MegaMan::AnimationHandler()
+{
+	if (MegaManStateBitFlag & MegaManStatesFlag::StateOnGround)
+	{
+		if (CurrentAni.GetAnimationID() != StandAni.GetAnimationID())
+		{
+			CurrentAni = StandAni;
+		}
+	}
+	else
+	{
+		CurrentAni = JumpAni;
+	}
+
+	if (MegaManStateBitFlag & MegaManStatesFlag::StateRunning | MegaManStatesFlag::StateOnGround)
+	{
+		if (CurrentAni.GetAnimationID() != StandAni.GetAnimationID())
+		{
+			CurrentAni = RunAni;
+		}
+	}
+}
+
 void MegaMan::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList)
 {
-	int a = 34;
+	for (auto& sprite : SpriteList)
+	{
+		if (dynamic_cast<Water2D*>(sprite.get()))
+		{
+			if (sprite->collider.CollidesWith(collider))
+			{
+				MegaManStateBitFlag |= MegaManStatesFlag::StateInWater;
+				break;
+			}
+			else
+			{
+				MegaManStateBitFlag &= ~MegaManStatesFlag::StateInWater;
+			}
+		}
+	}
 }

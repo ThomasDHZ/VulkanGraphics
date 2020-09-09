@@ -77,6 +77,8 @@ layout(binding = 6) uniform MeshProperties
     float maxLayers;
     float heightScale;
     float timer;
+    int ReflectSprite;
+     vec2 UVScale;
 } meshProperties;
 layout(binding = 7) uniform Light
 {

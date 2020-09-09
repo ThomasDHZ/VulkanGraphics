@@ -80,6 +80,8 @@ struct MeshProperties
     alignas(4) float maxLayers;
     alignas(4) float heightScale;
     alignas(4) float timer;
+    alignas(4) int ReflectSprite;
+    alignas(8) glm::vec2 UVScale = glm::vec2(1.0f, 1.0f);
 };
 
 struct LightBufferObject

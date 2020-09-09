@@ -52,4 +52,5 @@ void Water2D::Update(RendererManager& renderer, OrthographicCamera& camera, Ligh
 
 void Water2D::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList)
 {
+
 }
