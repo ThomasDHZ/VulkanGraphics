@@ -59,9 +59,9 @@ MegaMan::~MegaMan()
 {
 }
 
-void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light, std::vector<std::shared_ptr<Sprite>> SpriteList, std::vector<BoxCollider> LevelCollidorList, std::shared_ptr<TextureManager>textureManager)
+void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light, std::vector<std::shared_ptr<Sprite>> SpriteList, std::vector<std::shared_ptr<ColliderObject>> TileColliderList, std::shared_ptr<TextureManager>textureManager)
 {
-	if (OnGroundCheck(LevelCollidorList))
+	if (OnGroundCheck(TileColliderList))
 	{
 		MegaManStateBitFlag |= MegaManStatesFlag::StateOnGround;
 	}
@@ -113,7 +113,7 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 		SpriteMesh->MeshPosition.y += 0.1f;
 	}
 
-	Move(LevelCollidorList, MoveDirection);
+	Move(TileColliderList, MoveDirection);
 	Sprite::Update(renderer, camera, light);
 }
 

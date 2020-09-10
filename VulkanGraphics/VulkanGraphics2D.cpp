@@ -163,11 +163,11 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 	{
 		if (auto MM = dynamic_cast<MegaMan*>(sprite.get()))
 		{
-			MM->Update(Window.GetWindowPtr(), renderer, camera, light.light, SpriteList, level.LevelColliderList, gameManager.textureManager);
+			MM->Update(Window.GetWindowPtr(), renderer, camera, light.light, SpriteList, level.TileColliderList, gameManager.textureManager);
 		}
 
 		sprite->Update(renderer, camera, light.light);
-		sprite->ApplyGravity(level.LevelColliderList);
+		sprite->ApplyGravity(level.TileColliderList);
 		sprite->Collision(renderer, SpriteList);
 	}
 }

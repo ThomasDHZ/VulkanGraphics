@@ -63,11 +63,11 @@ void Sprite::DrawMessage(RendererManager& renderer)
 	}
 }
 
-bool Sprite::OnGroundCheck(std::vector<BoxCollider> SpriteList)
+bool Sprite::OnGroundCheck(std::vector<std::shared_ptr<ColliderObject>> TileColliderList)
 {
-	for (auto& sprite : SpriteList)
+	for (auto& sprite : TileColliderList)
 	{
-		if (collider.CollidesWith(sprite, Gravity))
+		if (collider.CollidesWith(sprite->GetCollider(), Gravity))
 		{
 			return true;
 		}
@@ -83,11 +83,11 @@ void Sprite::ApplyGravity(std::vector<std::shared_ptr<Sprite>> SpriteList)
 	}
 }
 
-void Sprite::ApplyGravity(std::vector<BoxCollider> SpriteList)
+void Sprite::ApplyGravity(std::vector<std::shared_ptr<ColliderObject>> TileColliderList)
 {
 	if (ObjectFlagBits & ObjectFlags::ApplyGravity)
 	{
-		Move(SpriteList, Gravity);
+		Move(TileColliderList, Gravity);
 	}
 }
 
@@ -109,11 +109,11 @@ void Sprite::Move(std::vector<std::shared_ptr<Sprite>> SpriteList, glm::vec3 Mov
 	SpriteMesh->MeshPosition += MoveDirection;
 }
 
-void Sprite::Move(std::vector<BoxCollider> SpriteList, glm::vec3 MoveDirection)
+void Sprite::Move(std::vector<std::shared_ptr<ColliderObject>> TileColliderList, glm::vec3 MoveDirection)
 {
-	for (auto& sprite : SpriteList)
+	for (auto& sprite : TileColliderList)
 	{
-		if (collider.CollidesWith(sprite, MoveDirection))
+		if (collider.CollidesWith(sprite->GetCollider(), MoveDirection))
 		{
 			MoveDirection = glm::vec3(0.0f);
 			break;

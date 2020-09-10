@@ -4,6 +4,7 @@
 #include "Animation2D.h"
 #include <map>
 #include "BoxCollider.h"
+#include "ColliderObject.h"
 
 struct ColisionGeo
 {
@@ -46,15 +47,15 @@ public:
 
 
 	void ApplyGravity(std::vector<std::shared_ptr<Sprite>> SpriteList);
-	void ApplyGravity(std::vector<BoxCollider> SpriteList);
+	void ApplyGravity(std::vector<std::shared_ptr<ColliderObject>> TileColliderList);
 	void Move(std::vector<std::shared_ptr<Sprite>> SpriteList, glm::vec3 MoveDirection);
-	void Move(std::vector<BoxCollider> SpriteList, glm::vec3 MoveDirection);
+	void Move(std::vector<std::shared_ptr<ColliderObject>> TileColliderList, glm::vec3 MoveDirection);
 	virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light);
 	virtual void AnimationHandler();
 	virtual void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList) = 0;
 	void Destory(RendererManager& renderer);
 
-	bool OnGroundCheck(std::vector<BoxCollider> SpriteList);
+	bool OnGroundCheck(std::vector<std::shared_ptr<ColliderObject>> TileColliderList);
 
 	void SetPosition2D(glm::vec2 Pos);
 	void SetPosition2D(float x, float y);

@@ -76,8 +76,7 @@ void LevelSprite::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureMa
 			IndexList.emplace_back(VertexCount + 3);
 			IndexList.emplace_back(VertexCount);
 
-
-			LevelColliderList.push_back(BoxCollider(TopLeftVertex.Position.x, TopRightVertex.Position.x, TopRightVertex.Position.y, BottomRightVertex.Position.y));
+			TileColliderList.emplace_back(std::make_shared<ColliderObject>(BoxCollider(TopLeftVertex.Position.x, TopRightVertex.Position.x, TopRightVertex.Position.y, BottomRightVertex.Position.y), CollidorType::LevelCollider));
 		}
 	}
 

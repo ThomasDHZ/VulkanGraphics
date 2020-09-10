@@ -150,6 +150,7 @@
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Coin.cpp" />
+    <ClCompile Include="ColliderObject.cpp" />
     <ClCompile Include="CollisionDebugPipeline.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="DebugLightMesh.cpp" />
@@ -255,6 +256,7 @@
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Coin.h" />
+    <ClInclude Include="ColliderObject.h" />
     <ClInclude Include="CollisionDebugPipeline.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="DebugLightMesh.h" />

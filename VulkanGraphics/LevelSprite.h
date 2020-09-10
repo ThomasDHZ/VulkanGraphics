@@ -2,7 +2,7 @@
 #include "BoxCollider.h"
 #include "Mesh2D.h"
 #include "RendererManager.h"
-
+#include "ColliderObject.h"
 class LevelSprite
 {
 private:
@@ -23,7 +23,7 @@ public:
 	LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
 	~LevelSprite();
 
-	std::vector<BoxCollider> LevelColliderList;
+	std::vector<std::shared_ptr<ColliderObject>> TileColliderList;
 
 	void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
 	void Destory(RendererManager& renderer);

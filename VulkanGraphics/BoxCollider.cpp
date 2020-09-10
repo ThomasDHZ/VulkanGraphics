@@ -18,14 +18,6 @@ BoxCollider::~BoxCollider()
 
 bool BoxCollider::CollidesWith(const BoxCollider& OtherBox) const
 {
-	bool a = Right < OtherBox.Left;
-	bool b = Left < OtherBox.Right;
-	bool c = Bottom > OtherBox.Top;
-	bool d = Top > OtherBox.Bottom;
-	bool e = Right < OtherBox.Left&&
-		Left < OtherBox.Right&&
-		Bottom > OtherBox.Top&&
-		Top > OtherBox.Bottom;
 	return Right > OtherBox.Left &&
 		   Left < OtherBox.Right &&
 		   Bottom < OtherBox.Top &&
