@@ -4,28 +4,19 @@ LevelSprite::LevelSprite()
 {
 }
 
-LevelSprite::LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
+LevelSprite::LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures) : Object2D()
 {
 	LoadTiles(renderer, textureManager, textures);
-	LevelMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, VertexList, IndexList, textures));
+	ObjectMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, VertexList, IndexList, textures));
 
-	LevelMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.renderer2DPipeline);
-	LevelMesh->CreateDrawMessage(renderer, 2, renderer.textureRenderer.renderer2DPipeline);
+	ObjectMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.collisionDebugPipeline);
+	ObjectMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.renderer2DPipeline);
+	ObjectMesh->CreateDrawMessage(renderer, 2, renderer.textureRenderer.renderer2DPipeline);
 
 }
 
 LevelSprite::~LevelSprite()
 {
-}
-
-void LevelSprite::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
-{
-	LevelMesh->Update(renderer, camera, Lightbuffer);
-}
-
-void LevelSprite::Destory(RendererManager& renderer)
-{
-	LevelMesh->Destory(renderer);
 }
 
 void LevelSprite::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
@@ -76,9 +67,14 @@ void LevelSprite::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureMa
 			IndexList.emplace_back(VertexCount + 3);
 			IndexList.emplace_back(VertexCount);
 
-			TileColliderList.emplace_back(std::make_shared<ColliderObject>(BoxCollider(TopLeftVertex.Position.x, TopRightVertex.Position.x, TopRightVertex.Position.y, BottomRightVertex.Position.y), CollidorType::LevelCollider));
+			const std::vector<Vertex> CollisionVertices
+			{
+				BottomLeftVertex,
+				BottomRightVertex,
+				TopRightVertex,
+				TopLeftVertex
+			};
+			ObjectColliderList.emplace_back(std::make_shared<ColliderObject>(CollisionVertices, IndexList, glm::vec3(0.0), CollidorType::LevelCollider));
 		}
 	}
-
-	int a = 34;
 }

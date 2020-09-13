@@ -17,23 +17,51 @@ CollisionDebugPipeline::~CollisionDebugPipeline()
 
 void CollisionDebugPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
-	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
 
 	LayoutBindingInfo[0].Binding = 0;
 	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	LayoutBindingInfo[0].StageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
-	LayoutBindingInfo[0].Binding = 1;
-	LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	LayoutBindingInfo[0].StageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	LayoutBindingInfo[1].Binding = 1;
+	LayoutBindingInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	LayoutBindingInfo[1].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[2].Binding = 2;
+	LayoutBindingInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	LayoutBindingInfo[2].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[3].Binding = 3;
+	LayoutBindingInfo[3].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	LayoutBindingInfo[3].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[4].Binding = 4;
+	LayoutBindingInfo[4].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	LayoutBindingInfo[4].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[5].Binding = 5;
+	LayoutBindingInfo[5].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	LayoutBindingInfo[5].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[6].Binding = 6;
+	LayoutBindingInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LayoutBindingInfo[6].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[7].Binding = 7;
+	LayoutBindingInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LayoutBindingInfo[7].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	LayoutBindingInfo[8].Binding = 8;
+	LayoutBindingInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LayoutBindingInfo[8].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
 	GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
 void CollisionDebugPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-	auto vertShaderCode = ReadShaderFile("shaders/FlatShaderVert.spv");
-	auto fragShaderCode = ReadShaderFile("shaders/FlatShaderFrag.spv");
+	auto vertShaderCode = ReadShaderFile("shaders/CollisionDebugShaderVert.spv");
+	auto fragShaderCode = ReadShaderFile("shaders/CollisionDebugShaderFrag.spv");
 
 	VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
 	VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);

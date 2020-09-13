@@ -1,5 +1,6 @@
 #pragma once
 #include "BoxCollider.h"
+#include "Mesh2D.h"
 enum CollidorType 
 {
 	LevelCollider,
@@ -9,14 +10,15 @@ enum CollidorType
 class ColliderObject
 {
 private:
+	std::vector<Vertex> VertexList;
+	std::vector<uint16_t> Indicesdata;
+	Mesh2D ColliderMesh;
 	glm::vec3 Position = glm::vec3(0.0f);
 	BoxCollider Collider;
 	CollidorType Type;
 public:
 	ColliderObject();
-	ColliderObject(BoxCollider collider, CollidorType type);
-	ColliderObject(glm::vec2 position, CollidorType type);
-	ColliderObject(glm::vec3 position, CollidorType type);
+	ColliderObject(const std::vector<Vertex>& vertexList, const std::vector<uint16_t>& indicesdata, glm::vec3 position, CollidorType type);
 	~ColliderObject();
 
 	void Update(glm::vec2 position);

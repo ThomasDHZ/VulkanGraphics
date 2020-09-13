@@ -282,6 +282,9 @@
     <ClCompile Include="ColliderObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Object2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -351,6 +354,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\UnderWater2DShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\CollisionDebugShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\CollisionDebugShader.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -599,6 +608,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ColliderObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Object2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

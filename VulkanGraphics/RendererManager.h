@@ -32,7 +32,6 @@ private:
 
 	GUIDebugger guiDebugger;
 	FramebufferRenderer frameBufferRenderer;
-	ShadowRenderer shadowRenderer;
 	//Camera lightCamera;
 	Camera camera;
 
@@ -60,6 +59,7 @@ public:
 	std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
+	ShadowRenderer shadowRenderer;
 	FrameBufferMesh frameBuffer;
 
 

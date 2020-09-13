@@ -24,22 +24,18 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
-	OrthoCamera = OrthographicCamera(9.0f, 4.5f);
-	OrthoCamera2 = OrthographicCamera(9.0f, 4.5f);
+	OrthoCamera = OrthographicCamera(glm::vec2(1920, 1080), 9.0f);
+	OrthoCamera2 = OrthographicCamera(glm::vec2(1920, 1080), 9.0f);
 
-	OrthoCamera.SetPosition(2.5f, 8.5f);
-	OrthoCamera2.SetPosition(20.5f, 8.5f);
-
-	OrthoCamera2 = OrthographicCamera(glm::vec2(9.0f, 4.5f));
-	OrthoCamera2.SetPosition(glm::vec2(2.5f, 8.5));
+	OrthoCamera.SetPosition(0.0f, 3.5f);
 
 	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
 	//SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.textureRenderer.ColorTexture)));
-	level = LevelSprite(renderer, gameManager.textureManager, SparkManTextures);
+	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.textureRenderer.ColorTexture)));
+	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
 }
 
 VulkanGraphics2D::~VulkanGraphics2D()
@@ -52,7 +48,6 @@ VulkanGraphics2D::~VulkanGraphics2D()
 	{
 		sprite->Destory(renderer);
 	}
-	level.Destory(renderer);
 
 	renderer.DestoryVulkan();
 	Window.CleanUp();
@@ -151,10 +146,9 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 {
 
 	light.Update(renderer, camera);
-	level.Update(renderer, camera, light.light);
 	for (int x= SpriteList.size() - 1; x > 0; x--)
 	{
- 		if (SpriteList[x]->SpriteMesh->GetMeshDeletedFlag())
+ 		if (SpriteList[x]->ObjectMesh->GetMeshDeletedFlag())
 		{
 			SpriteList.erase(SpriteList.begin() + x);
 		}
@@ -163,11 +157,16 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 	{
 		if (auto MM = dynamic_cast<MegaMan*>(sprite.get()))
 		{
-			MM->Update(Window.GetWindowPtr(), renderer, camera, light.light, SpriteList, level.TileColliderList, gameManager.textureManager);
+			MM->Update(Window.GetWindowPtr(), renderer, camera, light.light, SpriteList, gameManager.textureManager);
 		}
-
-		sprite->Update(renderer, camera, light.light);
-		sprite->ApplyGravity(level.TileColliderList);
+		else
+		{
+			sprite->Update(renderer, camera, light.light);
+		}
+		if (auto MM = dynamic_cast<Sprite*>(sprite.get()))
+		{
+			MM->ApplyGravity(SpriteList);
+		}
 		sprite->Collision(renderer, SpriteList);
 	}
 }

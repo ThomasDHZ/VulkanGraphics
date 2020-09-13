@@ -59,16 +59,16 @@ MegaMan::~MegaMan()
 {
 }
 
-void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light, std::vector<std::shared_ptr<Sprite>> SpriteList, std::vector<std::shared_ptr<ColliderObject>> TileColliderList, std::shared_ptr<TextureManager>textureManager)
+void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light, std::vector<std::shared_ptr<Object2D>>& SpriteList, std::shared_ptr<TextureManager>textureManager)
 {
-	if (OnGroundCheck(TileColliderList))
-	{
-		MegaManStateBitFlag |= MegaManStatesFlag::StateOnGround;
-	}
-	else
-	{
-		MegaManStateBitFlag &= ~MegaManStatesFlag::StateOnGround;
-	}
+	//if (OnGroundCheck(TileColliderList))
+	//{
+	//	MegaManStateBitFlag |= MegaManStatesFlag::StateOnGround;
+	//}
+	//else
+	//{
+	//	MegaManStateBitFlag &= ~MegaManStatesFlag::StateOnGround;
+	//}
 
 	glm::vec3 MoveDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ||
@@ -76,12 +76,12 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 	{
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
-			SpriteMesh->properites.ReflectSprite = true;
+			ObjectMesh->properites.ReflectSprite = true;
 			MoveDirection = glm::vec3(-0.01f, 0.0f, 0.0f);
 		}
 		else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
-			SpriteMesh->properites.ReflectSprite = false;
+			ObjectMesh->properites.ReflectSprite = false;
 			MoveDirection = glm::vec3(0.01f, 0.0f, 0.0f);
 		}
 		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
@@ -103,17 +103,17 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
 		CurrentAni = ShootAni;
-		auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, glm::vec2(SpriteMesh->GetPosition2D().x + 1.0f, SpriteMesh->GetPosition2D().y + 0.5f)));
+		auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, glm::vec2(ObjectMesh->GetPosition2D().x + 1.0f, ObjectMesh->GetPosition2D().y + 0.5f)));
 		SpriteList.emplace_back(shot);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
 	{
 	//	MegaManStateBitFlag |= MegaManStatesFlag::StateJump;
-		SpriteMesh->MeshPosition.y += 0.1f;
+		ObjectMesh->MeshPosition.y += 0.1f;
 	}
 
-	Move(TileColliderList, MoveDirection);
+	Move(SpriteList, MoveDirection);
 	Sprite::Update(renderer, camera, light);
 }
 
@@ -140,21 +140,26 @@ void MegaMan::AnimationHandler()
 	}
 }
 
-void MegaMan::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList)
+void MegaMan::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList)
 {
-	for (auto& sprite : SpriteList)
-	{
-		if (dynamic_cast<Water2D*>(sprite.get()))
-		{
-			if (sprite->collider.CollidesWith(collider))
-			{
-				MegaManStateBitFlag |= MegaManStatesFlag::StateInWater;
-				break;
-			}
-			else
-			{
-				MegaManStateBitFlag &= ~MegaManStatesFlag::StateInWater;
-			}
-		}
-	}
+	auto a = ObjectColliderList;
+	int ba = 34;
+	//for (auto& sprite : SpriteList)
+	//{
+	//	if (dynamic_cast<Water2D*>(sprite.get()))
+	//	{
+	//		for (auto spriteCollider : sprite->ObjectColliderList)
+	//		{
+	//			if (spriteCollider->GetCollider().CollidesWith(spriteCollider->GetCollider()))
+	//			{
+	//				MegaManStateBitFlag |= MegaManStatesFlag::StateInWater;
+	//				break;
+	//			}
+	//			else
+	//			{
+	//				MegaManStateBitFlag &= ~MegaManStatesFlag::StateInWater;
+	//			}
+	//		}
+	//	}
+	//}
 }

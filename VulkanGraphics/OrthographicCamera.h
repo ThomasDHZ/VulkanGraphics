@@ -13,6 +13,7 @@ private:
 	glm::vec2 ViewScreenSize;
 	glm::vec3 Position;
 
+	float Aspect;
 	float Rotation;
 
 	void UpdateView();
@@ -23,7 +24,9 @@ public:
 
 	OrthographicCamera();
 	OrthographicCamera(float width, float height);
+	OrthographicCamera(float width, float height, float zoom);
 	OrthographicCamera(glm::vec2 viewScreenSize);
+	OrthographicCamera(glm::vec2 viewScreenSize, float zoom);
 
 	void ProcessKeyboard(Camera_Movement direction, float deltaTime);
 

@@ -48,8 +48,7 @@ private:
     Keyboard keyboard;
     Mouse mouse;
     
-    LevelSprite level;
-    std::vector<std::shared_ptr<Sprite>> SpriteList;
+    std::vector<std::shared_ptr<Object2D>> SpriteList;
  
     OrthographicCamera OrthoCamera;
     OrthographicCamera OrthoCamera2;

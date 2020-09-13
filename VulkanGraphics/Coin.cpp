@@ -1,7 +1,9 @@
 #include "Coin.h"
 #include "MegaMan.h"
+#include <algorithm>
+#include <functional>
 
-Coin::Coin()
+Coin::Coin() : Sprite()
 {
 }
 
@@ -39,16 +41,27 @@ Coin::~Coin()
 {
 }
 
-void Coin::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList)
+void Coin::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList)
 {
-	for (auto sprite : SpriteList)
-	{
-		if(dynamic_cast<MegaMan*>(sprite.get()))
-		{
-			if(sprite->collider.CollidesWith(collider))
-			{
-				Destory(renderer);
-			}
-		}
-	}
+	//auto spriteList = SpriteList;
+	//spriteList.erase(std::remove_if(SpriteList.begin(), SpriteList.end(),
+	//		[](const std::shared_ptr<Sprite> spriteList)
+	//		{
+	//			 return spriteList->ObjectFlagBits & ObjectFlags::Collectible;
+	//		}));
+
+
+	//for (auto sprite : SpriteList)
+	//{
+	//	if(dynamic_cast<MegaMan*>(sprite.get()))
+	//	{
+	//		for (auto spriteCollider : sprite->ObjectColliderList)
+	//		{
+	//			if (spriteCollider->GetCollider().CollidesWith(spriteCollider->GetCollider()))
+	//			{
+	//				Destory(renderer);
+	//			}
+	//		}
+	//	}
+	//}
 }

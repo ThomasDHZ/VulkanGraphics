@@ -5,6 +5,16 @@ Mesh2D::Mesh2D() : NewMesh()
 {
 }
 
+Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata)
+{
+    CustomBuffer EmptyBuffer;
+    EmptyBuffer.ByteSize = sizeof(Empty);
+
+    CreateUniformBuffers(renderer);
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager);
+}
+
 Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures) : NewMesh(renderer, vertexdata, indicesdata)
 {
     CustomBuffer EmptyBuffer;

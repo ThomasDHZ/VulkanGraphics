@@ -21,6 +21,7 @@ ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase(render
     underwater2DPipeline = std::make_shared<UnderWater2DPipeline>(renderer, RenderPass);
     skyboxPipeline = std::make_shared<SkyBoxPipeline>(renderer, RenderPass);
     DebugLightPipeline = std::make_shared<DebugLightRenderingPipeline>(renderer, RenderPass);
+    collisionDebugPipeline = std::make_shared<CollisionDebugPipeline>(renderer, RenderPass);
     wireFramePipeline = std::make_shared<WireFramePipeline>(renderer, RenderPass);
 }
 
@@ -123,6 +124,7 @@ void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
    underwater2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
    skyboxPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
    DebugLightPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+   collisionDebugPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
    wireFramePipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
 
    for (auto& framebuffer : SwapChainFramebuffers)
@@ -144,6 +146,7 @@ void ForwardRenderer::Destroy(VulkanRenderer& renderer)
     underwater2DPipeline->Destroy(renderer);
     skyboxPipeline->Destroy(renderer);
     DebugLightPipeline->Destroy(renderer);
+    collisionDebugPipeline-> Destroy(renderer);
     wireFramePipeline->Destroy(renderer);
 
     RendererBase::Destroy(renderer);

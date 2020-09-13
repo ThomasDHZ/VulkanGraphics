@@ -20,5 +20,7 @@ C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe ReflectShader2D.vert -o ReflectShader2DVe
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe ReflectShader2D.frag -o ReflectShader2DFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe UnderWater2DShader.vert -o UnderWater2DShaderVert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe UnderWater2DShader.frag -o UnderWater2DShaderFrag.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe CollisionDebugShader.vert -o CollisionDebugShaderVert.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe CollisionDebugShader.frag -o CollisionDebugShaderFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe EmptyShader.frag -o EmptyFrag.spv
 pause

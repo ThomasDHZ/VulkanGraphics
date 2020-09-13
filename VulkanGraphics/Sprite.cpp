@@ -1,8 +1,13 @@
 #include "Sprite.h"
+#include "LevelSprite.h"
 
 
 
-Sprite::Sprite()
+Sprite::Sprite() : Object2D()
+{
+}
+
+Sprite::Sprite(RendererManager& renderer, int renderBitFlags) : Object2D()
 {
 }
 
@@ -10,24 +15,87 @@ Sprite::~Sprite()
 {
 }
 
+bool Sprite::OnGroundCheck(std::vector<std::shared_ptr<Object2D>>& ObjectList)
+{
+	for (auto& obj : ObjectList)
+	{
+		for (auto objCollider : obj->ObjectColliderList)
+		{
+			for (auto thisObjCollider : ObjectColliderList)
+			{
+				if (thisObjCollider->GetCollider().CollidesWith(objCollider->GetCollider(), Gravity))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void Sprite::ApplyGravity(std::vector<std::shared_ptr<Object2D>>& ObjectList)
+{
+	glm::vec3 MoveDirection = Gravity;
+	if (ObjectFlagBits & ObjectFlags::ApplyGravity)
+	{
+		for (auto& obj : ObjectList)
+		{
+			if (auto Level = dynamic_cast<LevelSprite*>(obj.get()))
+			{
+				for (auto& collider : obj->ObjectColliderList)
+				{
+					if (collider->GetCollider().CollidesWith(ObjectColliderList[0]->GetCollider(), MoveDirection))
+					{
+						MoveDirection = glm::vec3(0.0f);
+						break;
+					}
+				}
+			}
+		}
+		ObjectMesh->MeshPosition += MoveDirection;
+	}
+}
+
+void Sprite::Move(std::vector<std::shared_ptr<Object2D>>& ObjectList, glm::vec3 MoveDirection)
+{
+	if (MoveDirection != glm::vec3(0.0f))
+	{
+		for (auto& obj : ObjectList)
+		{
+			/*if (obj.get() != this)
+			{
+				if (auto Level = dynamic_cast<LevelSprite*>(obj.get()))
+				{
+
+				}
+				else
+				{
+					for (auto& collider : obj->ObjectColliderList)
+					{
+						if (collider->GetCollider().CollidesWith(ObjectColliderList[0]->GetCollider(), MoveDirection))
+						{
+							MoveDirection = glm::vec3(0.0f);
+							break;
+						}
+					}
+				}
+			}*/
+		}
+		ObjectMesh->MeshPosition += MoveDirection;
+	}
+}
+
 void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex> SpriteVertices, const MeshTextures& SpriteTextures, glm::vec2 StartPos)
 {
-
 	const std::vector<uint16_t> SpriteIndices =
 	{
 		  0, 1, 2, 2, 3, 0
 	};
 
-	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures));
+	ObjectMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures));
+	ObjectColliderList.emplace_back(std::make_shared<ColliderObject>(SpriteVertices, SpriteIndices, glm::vec3(StartPos.x, StartPos.y, ObjectMesh->GetPosition3D().z), CollidorType::EnemyCollider));
 
 	SetPosition2D(StartPos);
-
-	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[0].Position;
-	const glm::vec3 BottomRightVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[1].Position;
-	const glm::vec3 TopRightVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[2].Position;
-	const glm::vec3 TopLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[3].Position;
-	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
-
 	DrawMessage(renderer);
 }
 
@@ -38,139 +106,24 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 		  0, 1, 2, 2, 3, 0
 	};
 
-	SpriteMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures, custom));
+	ObjectMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, SpriteVertices, SpriteIndices, SpriteTextures, custom));
+	ObjectColliderList.emplace_back(std::make_shared<ColliderObject>(SpriteVertices, SpriteIndices, glm::vec3(StartPos.x, StartPos.y, ObjectMesh->GetPosition3D().z), CollidorType::EnemyCollider));
 
 	SetPosition2D(StartPos);
-
-	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[0].Position;
-	const glm::vec3 BottomRightVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[1].Position;
-	const glm::vec3 TopRightVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[2].Position;
-	const glm::vec3 TopLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[3].Position;
-	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
-
 	DrawMessage(renderer);
-}
-
-void Sprite::DrawMessage(RendererManager& renderer)
-{
-	if (RenderBitFlags & RenderBitFlag::RenderOnMainPass)
-	{
-		SpriteMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.renderer2DPipeline);
-	}
-	if (RenderBitFlags & RenderBitFlag::RenderOnTexturePass)
-	{
-		SpriteMesh->CreateDrawMessage(renderer, 2, renderer.textureRenderer.renderer2DPipeline);
-	}
-}
-
-bool Sprite::OnGroundCheck(std::vector<std::shared_ptr<ColliderObject>> TileColliderList)
-{
-	for (auto& sprite : TileColliderList)
-	{
-		if (collider.CollidesWith(sprite->GetCollider(), Gravity))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-void Sprite::ApplyGravity(std::vector<std::shared_ptr<Sprite>> SpriteList)
-{
-	if (ObjectFlagBits & ObjectFlags::ApplyGravity)
-	{
-		Move(SpriteList, Gravity);
-	}
-}
-
-void Sprite::ApplyGravity(std::vector<std::shared_ptr<ColliderObject>> TileColliderList)
-{
-	if (ObjectFlagBits & ObjectFlags::ApplyGravity)
-	{
-		Move(TileColliderList, Gravity);
-	}
-}
-
-void Sprite::Move(std::vector<std::shared_ptr<Sprite>> SpriteList, glm::vec3 MoveDirection)
-{
-	for (auto& sprite : SpriteList)
-	{
-		if (sprite.get() != this &&
-			sprite->ObjectFlagBits & ObjectFlags::Wall)
-		{
-			if (collider.CollidesWith(sprite->collider, MoveDirection))
-			{
-				MoveDirection = glm::vec3(0.0f);
-				break;
-			}
-		}
-	}
-
-	SpriteMesh->MeshPosition += MoveDirection;
-}
-
-void Sprite::Move(std::vector<std::shared_ptr<ColliderObject>> TileColliderList, glm::vec3 MoveDirection)
-{
-	for (auto& sprite : TileColliderList)
-	{
-		if (collider.CollidesWith(sprite->GetCollider(), MoveDirection))
-		{
-			MoveDirection = glm::vec3(0.0f);
-			break;
-		}
-	}
-	SpriteMesh->MeshPosition += MoveDirection;
 }
 
 void Sprite::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
 {
 	CurrentAni.Update();
-	SpriteMesh->properites.UVOffset = CurrentAni.GetCurrentFrame().GetUVOffset();
-	SpriteMesh->properites.UVScale = CurrentAni.GetCurrentFrame().GetUVScale();
+	ObjectMesh->properites.UVOffset = CurrentAni.GetCurrentFrame().GetUVOffset();
+	ObjectMesh->properites.UVScale = CurrentAni.GetCurrentFrame().GetUVScale();
 
-	SpriteMesh->Update(renderer, camera, light);
-	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[0].Position;
-	const glm::vec3 BottomRightVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[1].Position;
-	const glm::vec3 TopRightVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[2].Position;
-	const glm::vec3 TopLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[3].Position;
-	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
-
-	AnimationHandler();
+	Object2D::Update(renderer, camera, light);
 }
-
-void Sprite::AnimationHandler()
-{
-	int a = 34;
-}
-
-
-//void Sprite::Draw(VulkanRenderer& renderer, int currentFrame)
-//{
-//	///SpriteMesh.Draw(renderer, currentFrame);
-//}
 
 void Sprite::Destory(RendererManager& renderer)
 {
 	vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
-	SpriteMesh->Destory(renderer);
-}
-
-void Sprite::SetPosition2D(glm::vec2 Pos)
-{
-	SpriteMesh->SetPosition3D(glm::vec3(Pos, SpriteMesh->GetPosition3D().z));
-}
-
-void Sprite::SetPosition2D(float x, float y)
-{
-	SpriteMesh->SetPosition3D(glm::vec3(x, y, SpriteMesh->GetPosition3D().z));
-}
-
-void Sprite::SetPosition3D(glm::vec3 Pos)
-{
-	SpriteMesh->SetPosition3D(Pos);
-}
-
-void Sprite::SetPosition3D(float x, float y, float z)
-{
-	SpriteMesh->SetPosition3D(glm::vec3(x, y, z));
+	ObjectMesh->Destory(renderer);
 }

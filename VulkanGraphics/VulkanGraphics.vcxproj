@@ -179,6 +179,7 @@
     <ClCompile Include="NewBaseMesh.cpp" />
     <ClCompile Include="NewMesh.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Object2D.cpp" />
     <ClCompile Include="OrthographicCamera.cpp" />
     <ClCompile Include="Reflection2DPipeline.cpp" />
     <ClCompile Include="RendererHDRColorTexture.cpp" />
@@ -227,6 +228,8 @@
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\CollisionDebugShader.frag" />
+    <None Include="Shaders\CollisionDebugShader.vert" />
     <None Include="Shaders\DepthShader.frag" />
     <None Include="Shaders\DepthShader.vert" />
     <None Include="Shaders\DifferedRenderingShader.frag" />
@@ -284,6 +287,7 @@
     <ClInclude Include="NewBaseMesh.h" />
     <ClInclude Include="NewMesh.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Object2D.h" />
     <ClInclude Include="OrthographicCamera.h" />
     <ClInclude Include="Reflection2DPipeline.h" />
     <ClInclude Include="RendererHDRColorTexture.h" />

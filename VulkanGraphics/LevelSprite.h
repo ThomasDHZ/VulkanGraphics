@@ -1,9 +1,7 @@
 #pragma once
-#include "BoxCollider.h"
-#include "Mesh2D.h"
-#include "RendererManager.h"
-#include "ColliderObject.h"
-class LevelSprite
+#include "Object2D.h"
+
+class LevelSprite : public Object2D
 {
 private:
 	unsigned int LevelBoundsX = 16;
@@ -15,17 +13,10 @@ private:
 	std::vector<Vertex> VertexList;
 	std::vector<uint16_t> IndexList;
 
-	std::shared_ptr<Mesh2D> LevelMesh;
-
 	void LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
 public:
 	LevelSprite();
 	LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
 	~LevelSprite();
-
-	std::vector<std::shared_ptr<ColliderObject>> TileColliderList;
-
-	void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
-	void Destory(RendererManager& renderer);
 };
 

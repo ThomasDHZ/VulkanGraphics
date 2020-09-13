@@ -1,10 +1,10 @@
 #include "Water2D.h"
 
-Water2D::Water2D()
+Water2D::Water2D() : Sprite()
 {
 }
 
-Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const OrthographicCamera& camera, const std::shared_ptr<Texture> texture)
+Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const OrthographicCamera& camera, const std::shared_ptr<Texture> texture) : Sprite()
 {
 	CustomBuffer custom = {};
 	custom.ByteSize = sizeof(WaveProperites);
@@ -37,20 +37,20 @@ Water2D::~Water2D()
 
 void Water2D::DrawMessage(RendererManager& renderer)
 {
-	SpriteMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.underwater2DPipeline);
+	ObjectMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.underwater2DPipeline);
 }
 
 void Water2D::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
 {
-	SpriteMesh->Update(renderer, camera, light, static_cast<void*>(&waveprop));
-	const glm::vec3 BottomLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[0].Position;
-	const glm::vec3 BottomRightVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[1].Position;
-	const glm::vec3 TopRightVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[2].Position;
-	const glm::vec3 TopLeftVertex = SpriteMesh.get()->GetPosition3D() + SpriteMesh.get()->Vertexdata[3].Position;
+	ObjectMesh->Update(renderer, camera, light, static_cast<void*>(&waveprop));
+	const glm::vec3 BottomLeftVertex = ObjectMesh.get()->GetPosition3D() + ObjectMesh.get()->Vertexdata[0].Position;
+	const glm::vec3 BottomRightVertex = ObjectMesh.get()->GetPosition3D() + ObjectMesh.get()->Vertexdata[1].Position;
+	const glm::vec3 TopRightVertex = ObjectMesh.get()->GetPosition3D() + ObjectMesh.get()->Vertexdata[2].Position;
+	const glm::vec3 TopLeftVertex = ObjectMesh.get()->GetPosition3D() + ObjectMesh.get()->Vertexdata[3].Position;
 	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
 }
 
-void Water2D::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList)
+void Water2D::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList)
 {
 
 }

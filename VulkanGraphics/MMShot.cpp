@@ -30,14 +30,14 @@ MMShot::~MMShot()
 
 void MMShot::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
 {
-	SpriteMesh->MeshPosition.x += 0.1f;
+	ObjectMesh->MeshPosition.x += 0.1f;
 	Sprite::Update(renderer, camera, light);
-	if (SpriteMesh->GetPosition2D().x - SpriteSize.x> camera.GetVuewScreenSize().x + camera.GetPosition().x)
+	if (ObjectMesh->GetPosition2D().x - SpriteSize.x> camera.GetVuewScreenSize().x + camera.GetPosition().x)
 	{
 		Destory(renderer);
 	}
 }
 
-void MMShot::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList)
+void MMShot::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList)
 {
 }

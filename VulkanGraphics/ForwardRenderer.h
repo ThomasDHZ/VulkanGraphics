@@ -24,7 +24,7 @@ public:
 	//ReflectRendering2DPipeline reflectRenderer2DPipeline;
 	std::shared_ptr<SkyBoxPipeline> skyboxPipeline;
 	std::shared_ptr<DebugLightRenderingPipeline> DebugLightPipeline;
-	//CollisionDebugPipeline DebugCollisionPipeline;
+	std::shared_ptr<CollisionDebugPipeline> collisionDebugPipeline;
 	std::shared_ptr<WireFramePipeline> wireFramePipeline;
 
 	RendererDepthTexture DepthTexture;

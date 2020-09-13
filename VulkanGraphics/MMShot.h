@@ -13,6 +13,6 @@ public:
 	~MMShot();
 
 	void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light) override;
-	void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Sprite>> SpriteList) override;
+	void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList) override;
 };
 
