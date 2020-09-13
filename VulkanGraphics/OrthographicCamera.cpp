@@ -109,6 +109,11 @@ void OrthographicCamera::SetRotation(float rotation)
 	UpdateView();
 }
 
+void OrthographicCamera::SetZoom(float zoom)
+{
+	Zoom = zoom;
+}
+
 void OrthographicCamera::UpdateView()
 {
 	glm::mat4 transform = glm::translate(glm::mat4(1.0f), Position) * glm::rotate(glm::mat4(1.0f), glm::radians(Rotation), glm::vec3(0, 0, 1));

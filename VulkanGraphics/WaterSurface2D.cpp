@@ -37,17 +37,3 @@ void WaterSurface2D::DrawMessage(RendererManager& renderer)
 {
 	ObjectMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.reflection2DPipeline);
 }
-
-void WaterSurface2D::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
-{
-	ObjectMesh->Update(renderer, camera, light, static_cast<void*>(&waveprop));
-	const glm::vec3 BottomLeftVertex = ObjectMesh.get()->GetPosition3D() + ObjectMesh.get()->Vertexdata[0].Position;
-	const glm::vec3 BottomRightVertex = ObjectMesh.get()->GetPosition3D() + ObjectMesh.get()->Vertexdata[1].Position;
-	const glm::vec3 TopRightVertex = ObjectMesh.get()->GetPosition3D() + ObjectMesh.get()->Vertexdata[2].Position;
-	const glm::vec3 TopLeftVertex = ObjectMesh.get()->GetPosition3D() + ObjectMesh.get()->Vertexdata[3].Position;
-	collider = BoxCollider(TopLeftVertex.x, TopRightVertex.x, TopRightVertex.y, BottomRightVertex.y);
-}
-
-void WaterSurface2D::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList)
-{
-}

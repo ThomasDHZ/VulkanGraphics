@@ -20,7 +20,6 @@ public:
 
 	glm::ivec2 Velocity;
 	Animation2D CurrentAni;
-	BoxCollider collider;
 
 	Sprite();
 	Sprite(RendererManager& renderer, int renderBitFlags);

@@ -43,25 +43,18 @@ Coin::~Coin()
 
 void Coin::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList)
 {
-	//auto spriteList = SpriteList;
-	//spriteList.erase(std::remove_if(SpriteList.begin(), SpriteList.end(),
-	//		[](const std::shared_ptr<Sprite> spriteList)
-	//		{
-	//			 return spriteList->ObjectFlagBits & ObjectFlags::Collectible;
-	//		}));
+	for (auto obj : ObjectList)
+	{
+		if (dynamic_cast<MegaMan*>(obj.get()))
+		{
+			for (auto& collider : obj->ObjectColliderList)
+			{
+				if (collider->GetCollider().CollidesWith(ObjectColliderList[0]->GetCollider()))
+				{
+					Destory(renderer);
+				}
+			}
 
-
-	//for (auto sprite : SpriteList)
-	//{
-	//	if(dynamic_cast<MegaMan*>(sprite.get()))
-	//	{
-	//		for (auto spriteCollider : sprite->ObjectColliderList)
-	//		{
-	//			if (spriteCollider->GetCollider().CollidesWith(spriteCollider->GetCollider()))
-	//			{
-	//				Destory(renderer);
-	//			}
-	//		}
-	//	}
-	//}
+		}
+	}
 }

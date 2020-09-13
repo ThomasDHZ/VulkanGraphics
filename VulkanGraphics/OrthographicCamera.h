@@ -35,6 +35,7 @@ public:
 	void SetPosition(float x, float y);
 	void SetPosition(float x, float y, float z);
 	void SetRotation(float rotation);
+	void SetZoom(float zoom);
 
 	const glm::vec3& GetPosition() { return Position; }
 	float GetRotation() { return Rotation; }

@@ -24,10 +24,10 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
-	OrthoCamera = OrthographicCamera(glm::vec2(1920, 1080), 9.0f);
+	OrthoCamera = OrthographicCamera(glm::vec2(1920, 1080), 4.0f);
 	OrthoCamera2 = OrthographicCamera(glm::vec2(1920, 1080), 9.0f);
 
-	OrthoCamera.SetPosition(0.0f, 3.5f);
+	OrthoCamera.SetPosition(8.0f, 9.0f);
 
 	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
