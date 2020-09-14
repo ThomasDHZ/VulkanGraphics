@@ -10,6 +10,7 @@ Object2D::~Object2D()
 
 void Object2D::DrawMessage(RendererManager& renderer)
 {
+	ObjectMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.collisionDebugPipeline);
 	if (RenderBitFlags & RenderBitFlag::RenderOnMainPass)
 	{
 		ObjectMesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.renderer2DPipeline);

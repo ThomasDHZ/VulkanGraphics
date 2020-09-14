@@ -120,6 +120,7 @@ void OrthographicCamera::UpdateView()
 	ViewMatrix = glm::inverse(transform);
 
 	ProjectionMatrix = glm::ortho(-Aspect * Zoom, Aspect * Zoom, -1.0f * Zoom, 1.0f * Zoom, -1.0f, 1.0f);
+	ViewScreenSize = glm::vec2((Aspect * Zoom) * 2, (1.0f * Zoom) * 2);
 
 }
 

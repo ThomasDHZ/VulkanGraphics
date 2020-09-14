@@ -114,7 +114,7 @@ void NewMesh::CreateDescriptorPool(RendererManager& renderer) {
 
 void NewMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline->ShaderPipelineDescriptorLayout);
+    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

@@ -157,6 +157,7 @@
     <ClCompile Include="DebugLightRenderingPipeline.cpp" />
     <ClCompile Include="DeferredRenderer.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
+    <ClCompile Include="Enemy2D.cpp" />
     <ClCompile Include="ForwardRenderer.cpp" />
     <ClCompile Include="ForwardRenderingPipeline.cpp" />
     <ClCompile Include="Frame2D.cpp" />
@@ -265,6 +266,7 @@
     <ClInclude Include="DebugLightMesh.h" />
     <ClInclude Include="DebugLightRenderingPipeline.h" />
     <ClInclude Include="DeferredRenderer.h" />
+    <ClInclude Include="Enemy2D.h" />
     <ClInclude Include="ForwardRenderer.h" />
     <ClInclude Include="ForwardRenderingPipeline.h" />
     <ClInclude Include="Frame2D.h" />

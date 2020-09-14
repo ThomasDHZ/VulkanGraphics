@@ -54,7 +54,6 @@ void Coin::Collision(RendererManager& renderer, std::vector<std::shared_ptr<Obje
 					Destory(renderer);
 				}
 			}
-
 		}
 	}
 }

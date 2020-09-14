@@ -100,12 +100,6 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 		MegaManStateBitFlag &= ~MegaManStatesFlag::StateRunning;
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-	{
-		CurrentAni = ShootAni;
-		auto shot = std::make_shared<MMShot>(MMShot(renderer, textureManager, glm::vec2(ObjectMesh->GetPosition2D().x + 1.0f, ObjectMesh->GetPosition2D().y + 0.5f)));
-		SpriteList.emplace_back(shot);
-	}
 
 	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
 	{

@@ -115,9 +115,9 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 
 void Sprite::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
 {
-	CurrentAni.Update();
-	ObjectMesh->properites.UVOffset = CurrentAni.GetCurrentFrame().GetUVOffset();
-	ObjectMesh->properites.UVScale = CurrentAni.GetCurrentFrame().GetUVScale();
+	//CurrentAni.Update();
+	//ObjectMesh->properites.UVOffset = CurrentAni.GetCurrentFrame().GetUVOffset();
+	//ObjectMesh->properites.UVScale = CurrentAni.GetCurrentFrame().GetUVScale();
 
 	Object2D::Update(renderer, camera, light);
 }

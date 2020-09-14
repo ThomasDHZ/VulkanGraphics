@@ -11,6 +11,7 @@
 #include "WaterSurface2D.h"
 #include "Water2D.h"
 #include "MegaMan.h"
+#include "Enemy2D.h"
 
 VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 {  
@@ -23,6 +24,8 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.SpecularMap = "texture/SparkManSpecular.bmp";
 	SparkManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
+	SparkManTextures.DepthMap = "texture/SparkManAlpha.bmp";
+	SparkManTextures.ReflectionMap = "texture/SparkManAlpha.bmp";
 
 	OrthoCamera = OrthographicCamera(glm::vec2(1920, 1080), 4.0f);
 	OrthoCamera2 = OrthographicCamera(glm::vec2(1920, 1080), 9.0f);
@@ -30,12 +33,20 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	OrthoCamera.SetPosition(8.0f, 9.0f);
 
 	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
-	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
-	SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
+	//SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
+	//SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
+	//SpriteList.emplace_back(std::make_shared<Coin>(Coin(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
+	//SpriteList.emplace_back(std::make_shared<Enemy2D>(Enemy2D(renderer, gameManager.textureManager, glm::vec2(8.0f, 8.0f))));
 	//SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
 	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.textureRenderer.ColorTexture)));
-	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
+	//SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
+
+	mesh = NewMesh(renderer, gameManager.textureManager, MegaManVertices, MegaManIndices, SparkManTextures);
+	mesh.SetPosition3D(glm::vec3(5.0f, 8.0f, 0.0f));
+	//mesh.CreateDrawMessage(renderer, 1, renderer.forwardRenderer.collisionDebugPipeline);
+	mesh.CreateDrawMessage(renderer, 1, renderer.forwardRenderer.forwardRendereringPipeline);
+	mesh.CreateDrawMessage(renderer, 2, renderer.textureRenderer.forwardRendereringPipeline);
+	
 }
 
 VulkanGraphics2D::~VulkanGraphics2D()
@@ -146,6 +157,7 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 {
 
 	light.Update(renderer, camera);
+	mesh.Update(renderer, camera, light.light, nullptr);
 	for (int x= SpriteList.size() - 1; x > 0; x--)
 	{
  		if (SpriteList[x]->ObjectMesh->GetMeshDeletedFlag())
@@ -168,6 +180,13 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 			MM->ApplyGravity(SpriteList);
 		}
 		sprite->Collision(renderer, SpriteList);
+	}
+
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		//CurrentAni = ShootAni;
+		auto shot = std::make_shared<MMShot>(MMShot(renderer, gameManager.textureManager, glm::vec2(SpriteList[0]->GetPosition2D().x + 1.0f, SpriteList[0]->GetPosition2D().y + 0.5f)));
+		SpriteList.emplace_back(shot);
 	}
 }
 
