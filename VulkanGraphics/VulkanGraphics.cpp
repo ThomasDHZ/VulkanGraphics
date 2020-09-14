@@ -16,7 +16,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	renderer = RendererManager(Window.GetWindowPtr());
 	gameManager = GameManager(renderer);
 
-	ActiveCamera = &renderer.camera;
+	//ActiveCamera = &renderer.camera;
 
 	CubeMapLayout layout;
 	layout.Left = "texture/skybox/left.jpg";
@@ -252,8 +252,8 @@ void VulkanGraphics::MainLoop()
 		}
 
 		Window.Update();
-		mouse.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
-		keyboard.Update(Window.GetWindowPtr(), renderer.camera);
+	//	mouse.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
+		//keyboard.Update(Window.GetWindowPtr(), renderer.camera);
 		UpdateImGUI();
 		Update(renderer.DrawFrame);
 		renderer.Draw(Window.GetWindowPtr());

@@ -55,7 +55,7 @@ private:
 
     Light light;
 
-    NewMesh mesh;
+    Mesh mesh;
 
     void UpdateImGUI();
     void Update(uint32_t DrawFrame, OrthographicCamera& camera);

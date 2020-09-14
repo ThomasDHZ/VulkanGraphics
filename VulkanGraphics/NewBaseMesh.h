@@ -9,6 +9,8 @@
 #include "IndicesBuffer.h"
 #include "RendererBase.h"
 #include "RendererManager.h"
+#include "Camera.h"
+#include "OrthographicCamera.h"
 
 class NewBaseMesh
 {

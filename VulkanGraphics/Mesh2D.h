@@ -1,12 +1,11 @@
 #pragma once
-#include "BaseMesh.h"
 #include "Mesh.h"
 #include <map>
 #include "RendererColorTexture.h"
 #include "RendererManager.h"
-#include "NewMesh.h"
+#include "Mesh.h"
 
-class Mesh2D : public NewMesh
+class Mesh2D : public Mesh
 {
 private:
     void CreateDescriptorPool(RendererManager& renderer) override;

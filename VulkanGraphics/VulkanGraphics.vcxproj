@@ -173,12 +173,11 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Mesh2D.cpp" />
     <ClCompile Include="MegaMan.cpp" />
-    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MMShot.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
     <ClCompile Include="NewBaseMesh.cpp" />
-    <ClCompile Include="NewMesh.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Object2D.cpp" />
     <ClCompile Include="OrthographicCamera.cpp" />
@@ -282,12 +281,11 @@
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh2D.h" />
     <ClInclude Include="MegaMan.h" />
-    <ClInclude Include="Mesh.h" />
     <ClInclude Include="MMShot.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="NewBaseMesh.h" />
-    <ClInclude Include="NewMesh.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Object2D.h" />
     <ClInclude Include="OrthographicCamera.h" />

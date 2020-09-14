@@ -17,7 +17,7 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 
 	frameBuffer = FrameBufferMesh(*GetVulkanRendererBase(), *textureRenderer.ColorTexture.get(), frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
 
-	camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
+	//camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
 	//lightCamera = Camera(glm::vec3(0.5f, 1.0f, 0.3f));
 }
 

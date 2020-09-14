@@ -1,13 +1,5 @@
 #pragma once
-#include <vulkan/vulkan.h>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include "Vertex.h"
-#include "BaseMesh.h"
-#include "Camera.h"
-#include "CubeMapTexture.h"
-#include "OrthographicCamera.h"
+#include "NewBaseMesh.h"
 
 struct DirectionalLightStruct {
     alignas(16) glm::vec3 direction = glm::vec3(-0.2f, -1.0f, -0.3f);
@@ -55,7 +47,7 @@ struct MapBits
     alignas(4) int UseSkyBoxBit = 0;
 };
 
-struct Material 
+struct Material
 {
     alignas(16) glm::vec3 ambient;
     alignas(16) glm::vec3 diffuse;
@@ -98,36 +90,49 @@ struct UniformBufferObject {
     alignas(16) glm::mat4 proj;
 };
 
-class Mesh : public BaseMesh
+struct Empty
 {
-private:
+    alignas(4) float empty;
+};
+
+struct CustomBuffer
+{
+    unsigned int ByteSize;
+    VulkanUniformBuffer customBuffer;
+};
+
+class Mesh : public NewBaseMesh
+{
+protected:
+
     VulkanUniformBuffer uniformBuffer;
     VulkanUniformBuffer lightBuffer;
     VulkanUniformBuffer meshPropertiesBuffer;
+    CustomBuffer ExtendedMesProperitesBuffer;
 
-    void LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
-    void CreateUniformBuffers(VulkanRenderer& renderer);
-    void CreateDescriptorPool(VulkanRenderer& renderer);
-    void CreateDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, int cubemap, VkDescriptorSetLayout& descriptorSetLayout);
+    void LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
+    void CreateUniformBuffers(RendererManager& renderer);
+    virtual void CreateDescriptorPool(RendererManager& renderer);
+    virtual void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager);
     void CreateMaterialProperties();
-    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer);
+    void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
 
 public:
 
     std::string MeshName;
     MeshProperties properites;
 
-	glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 MeshScale = glm::vec3(1.0f);
-	float RotationAmount = 0.0f;
+    std::vector<Vertex> Vertexdata;
+    float RotationAmount = 0.0f;
 
     Mesh();
-    Mesh(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, MeshTextures textures, int cubemap, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+    Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata);
+    Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, CustomBuffer customBuffer);
+    Mesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures);
+    Mesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer);
     ~Mesh();
 
-    void Update(VulkanRenderer& renderer, Camera& camera, LightBufferObject Lightbuffer);
-    void Update(VulkanRenderer& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
-    void Destory(VulkanRenderer& renderer);
+    virtual void Update(RendererManager& renderer, Camera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
+    virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
+    virtual void Destory(RendererManager& renderer) override;
 };
-
