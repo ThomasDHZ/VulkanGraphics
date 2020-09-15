@@ -26,9 +26,9 @@ public:
 	~Sprite();
 
 	bool OnGroundCheck(std::vector<std::shared_ptr<Object2D>>& ObjectList);
-	void ApplyGravity(std::vector<std::shared_ptr<Object2D>>& ObjectList);
+	void ApplyGravity(std::vector<std::shared_ptr<Object2D>>& ObjectList, float dt);
 	void Move(std::vector<std::shared_ptr<Object2D>>& ObjectList, glm::vec3 MoveDirection);
 
-	virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light) override;
+	virtual void Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject light) override;
 	virtual void Destory(RendererManager& renderer) override;
 };

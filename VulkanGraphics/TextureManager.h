@@ -16,7 +16,8 @@ public:
 	~TextureManager();
 
 	std::shared_ptr<Texture> LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format);
-	std::shared_ptr<Texture> LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
+	std::shared_ptr<CubeMapTexture> LoadTexture(VulkanRenderer& renderer, std::string cubeMapList[6]);
+	std::shared_ptr<CubeMapTexture> LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
 	std::shared_ptr<Texture> LoadTexture(std::shared_ptr<Texture> texture);
 
 	void UnloadTexture(VulkanRenderer& renderer, unsigned int ID);

@@ -28,13 +28,13 @@ MMShot::~MMShot()
 {
 }
 
-void MMShot::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
+void MMShot::Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject light)
 {
-	ObjectMesh->MeshPosition.x += 0.1f;
-	Sprite::Update(renderer, camera, light);
+	ObjectMesh->MeshPosition.x += 7.0f * dt;
+	Sprite::Update(renderer, dt, camera, light);
 	if (ObjectMesh->GetPosition2D().x - SpriteSize.x > camera.GetViewScreenSize().x + camera.GetPosition().x)
 	{
-		Destory(renderer);
+		DestoryObjectFlag = true;
 	}
 }
 

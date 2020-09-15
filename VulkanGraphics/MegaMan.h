@@ -29,14 +29,19 @@ private:
 	Animation2D ShotJumpAni;
 	Animation2D ShotClimbAni;
 
+
 	int MegaManStateBitFlag = 0;
+	float OnGroundHeight = 0.0f;
+	bool JumpLimit = false;
+
+	static constexpr float JumpHeight = 1.0f;
 	static constexpr glm::vec2 SpriteSize = glm::vec2(1.0f, 1.0f);
 public:
 	MegaMan();
 	MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos);
 	~MegaMan();
 
-	void Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light, std::vector<std::shared_ptr<Object2D>>& SpriteList, std::shared_ptr<TextureManager>textureManager);
+	void Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, float dt, LightBufferObject light, std::vector<std::shared_ptr<Object2D>>& SpriteList, std::shared_ptr<TextureManager>textureManager);
 	void AnimationHandler() override;
 	void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList) override;
 };

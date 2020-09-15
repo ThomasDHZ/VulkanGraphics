@@ -83,6 +83,20 @@ void NewBaseMesh::LoadTextures(RendererManager& renderer, std::shared_ptr<Textur
     {
         ReflectionMapID = textures.RendererReflectionMap;
     }
+
+    if (!textures.CubeMap[0].empty() &&
+        !textures.CubeMap[1].empty() &&
+        !textures.CubeMap[2].empty() &&
+        !textures.CubeMap[3].empty() &&
+        !textures.CubeMap[4].empty() &&
+        !textures.CubeMap[5].empty())
+    {
+        CubeMapID = textureManager->LoadTexture(renderer, textures.CubeMap);
+    }
+    else if (textures.RendererReflectionMap)
+    {
+        CubeMapID = textures.RendererCubeMap;
+    }
 }
 
 void NewBaseMesh::CreateDescriptorPool(RendererManager& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)

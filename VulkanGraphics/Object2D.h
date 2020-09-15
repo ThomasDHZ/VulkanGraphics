@@ -24,10 +24,11 @@ class Object2D
 {
 private:
 protected:
-	static constexpr glm::vec3 Gravity = glm::vec3(0.0f, -0.01f, 0.0f);
+	static constexpr glm::vec3 Gravity = glm::vec3(0.0f, -1.50f, 0.0f);
 	int RenderBitFlags;
 
 	glm::vec2 UVOffset = glm::vec2(0.0f);
+
 
 	virtual void DrawMessage(RendererManager& renderer);
 public:
@@ -38,7 +39,7 @@ public:
 	~Object2D();
 
 	virtual void AnimationHandler();
-	virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer);
+	virtual void Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject Lightbuffer);
 	virtual void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList);
 	virtual void Destory(RendererManager& renderer);
 
@@ -48,6 +49,7 @@ public:
 	void SetPosition3D(float x, float y, float z);
 
 	int ObjectFlagBits;
+	bool DestoryObjectFlag = false;
 
 	glm::vec2 GetPosition2D() { return glm::vec2(ObjectMesh->GetPosition2D().x, ObjectMesh->GetPosition2D().y); }
 	glm::vec3 GetPosition3D() { return ObjectMesh->GetPosition3D(); }

@@ -111,11 +111,12 @@ protected:
     CustomBuffer ExtendedMesProperitesBuffer;
 
     void LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
-    void CreateUniformBuffers(RendererManager& renderer);
+    void CreateMaterialProperties();
+
+    virtual void CreateUniformBuffers(RendererManager& renderer);
     virtual void CreateDescriptorPool(RendererManager& renderer);
     virtual void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager);
-    void CreateMaterialProperties();
-    void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
+    virtual void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
 
 public:
 
@@ -126,6 +127,7 @@ public:
     float RotationAmount = 0.0f;
 
     Mesh();
+    Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata);
     Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata);
     Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, CustomBuffer customBuffer);
     Mesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures);

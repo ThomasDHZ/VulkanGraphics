@@ -39,10 +39,12 @@ void Enemy2D::Collision(RendererManager& renderer, std::vector<std::shared_ptr<O
 				if (collider->GetCollider().CollidesWith(ObjectColliderList[0]->GetCollider()))
 				{
 					HP--;
-					obj->Destory(renderer);
+					
+					obj->DestoryObjectFlag = true;
 					if (HP <= 0)
 					{
-						Destory(renderer);
+						DestoryObjectFlag = true;
+						break;
 					}
 				}
 			}

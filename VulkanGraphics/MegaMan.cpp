@@ -59,16 +59,18 @@ MegaMan::~MegaMan()
 {
 }
 
-void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light, std::vector<std::shared_ptr<Object2D>>& SpriteList, std::shared_ptr<TextureManager>textureManager)
+void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, float dt, LightBufferObject light, std::vector<std::shared_ptr<Object2D>>& SpriteList, std::shared_ptr<TextureManager>textureManager)
 {
-	//if (OnGroundCheck(TileColliderList))
-	//{
-	//	MegaManStateBitFlag |= MegaManStatesFlag::StateOnGround;
-	//}
-	//else
-	//{
-	//	MegaManStateBitFlag &= ~MegaManStatesFlag::StateOnGround;
-	//}
+	if (OnGroundCheck(SpriteList))
+	{
+		JumpLimit = false;
+		OnGroundHeight = ObjectColliderList[0]->GetCollider().Bottom;
+		MegaManStateBitFlag |= MegaManStatesFlag::StateOnGround;
+	}
+	else
+	{
+		MegaManStateBitFlag &= ~MegaManStatesFlag::StateOnGround;
+	}
 
 	glm::vec3 MoveDirection = glm::vec3(0.0f, 0.0f, 0.0f);
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS ||
@@ -77,20 +79,12 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 		{
 			ObjectMesh->properites.ReflectSprite = true;
-			MoveDirection = glm::vec3(-0.01f, 0.0f, 0.0f);
+			MoveDirection = glm::vec3(-5.00f, 0.0f, 0.0f) * dt;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
 			ObjectMesh->properites.ReflectSprite = false;
-			MoveDirection = glm::vec3(0.01f, 0.0f, 0.0f);
-		}
-		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		{
-			MoveDirection = glm::vec3(0.0f, -0.01f, 0.0f);
-		}
-		else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		{
-			MoveDirection = glm::vec3(0.0f, 0.01f, 0.0f);
+			MoveDirection = glm::vec3(5.0f, 0.0f, 0.0f) * dt;
 		}
 
 		MegaManStateBitFlag |= MegaManStatesFlag::StateRunning;
@@ -103,12 +97,24 @@ void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, Orthographic
 
 	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
 	{
-	//	MegaManStateBitFlag |= MegaManStatesFlag::StateJump;
-		ObjectMesh->MeshPosition.y += 0.1f;
+		MegaManStateBitFlag |= MegaManStatesFlag::StateJump;
+		if (OnGroundHeight + JumpHeight >= ObjectMesh->MeshPosition.y &&
+			!JumpLimit)
+		{
+			ObjectMesh->MeshPosition.y += 0.1f;
+		}
+		else
+		{
+			JumpLimit = true;
+		}
 	}
 
+	CurrentAni.Update();
+	ObjectMesh->properites.UVOffset = CurrentAni.GetCurrentFrame().GetUVOffset();
+	ObjectMesh->properites.UVScale = CurrentAni.GetCurrentFrame().GetUVScale();
+
 	Move(SpriteList, MoveDirection);
-	Sprite::Update(renderer, camera, light);
+	Sprite::Update(renderer, dt, camera, light);
 }
 
 void MegaMan::AnimationHandler()

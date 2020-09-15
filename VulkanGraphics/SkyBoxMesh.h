@@ -7,16 +7,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "SkyBoxPipeline.h"
-#include "BaseMesh.h"
+#include "Mesh.h"
 #include "Camera.h"
 #include "CubeMapTexture.h"
-
-struct SkyBoxPositionMatrix
-{
-	alignas(16) glm::mat4 view;
-	alignas(16) glm::mat4 projection;
-};
 
 const std::vector<SkyBoxVertex> SkyBoxVertices =
 {
@@ -63,23 +56,21 @@ const std::vector<SkyBoxVertex> SkyBoxVertices =
 	{{	 1.0f, -1.0f,  1.0f }}
 };
 
-class SkyBoxMesh : public BaseMesh
+class SkyBoxMesh : public Mesh
 {
 private:
-	VulkanUniformBuffer PositionMatrixBuffer;
 
-	void SetUpVertexBuffer(VulkanRenderer& renderer);
-	void SetUpUniformBuffers(VulkanRenderer& renderer);
-	void SetUpDescriptorPool(VulkanRenderer& renderer);
-	void SetUpDescriptorSets(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, int skyboxtexture, VkDescriptorSetLayout layout);
+	virtual void CreateUniformBuffers(RendererManager& renderer) override;
+	virtual void CreateDescriptorPool(RendererManager& renderer) override;
+	virtual void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager) override;
 
 public:
 	SkyBoxMesh();
-	SkyBoxMesh(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout layout, int skyboxtexture);
+	SkyBoxMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, MeshTextures textures);
 	~SkyBoxMesh();
 
-	void UpdateUniformBuffer(VulkanRenderer& renderer, Camera& camera);
-	void Destory(VulkanRenderer& renderer);
+	virtual void UpdateUniformBuffer(RendererManager& renderer, Camera& camera);
+	virtual void UpdateUniformBuffer(RendererManager& renderer, OrthographicCamera& camera);
 };
 
 

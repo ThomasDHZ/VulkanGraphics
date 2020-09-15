@@ -149,7 +149,7 @@
     <ClCompile Include="Animation2D.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="camera.cpp" />
-    <ClCompile Include="Coin.cpp" />
+    <ClCompile Include="EnergyTank.cpp" />
     <ClCompile Include="ColliderObject.cpp" />
     <ClCompile Include="CollisionDebugPipeline.cpp" />
     <ClCompile Include="Cube.cpp" />
@@ -168,6 +168,7 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="IndicesBuffer.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="LargeEnergy.cpp" />
     <ClCompile Include="Level2D.cpp" />
     <ClCompile Include="LevelSprite.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -258,7 +259,7 @@
     <ClInclude Include="Animation2D.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="Coin.h" />
+    <ClInclude Include="EnergyTank.h" />
     <ClInclude Include="ColliderObject.h" />
     <ClInclude Include="CollisionDebugPipeline.h" />
     <ClInclude Include="Cube.h" />
@@ -276,6 +277,7 @@
     <ClInclude Include="GameManager.h" />
     <ClInclude Include="IndicesBuffer.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="LargeEnergy.h" />
     <ClInclude Include="Level2D.h" />
     <ClInclude Include="LevelSprite.h" />
     <ClInclude Include="Light.h" />

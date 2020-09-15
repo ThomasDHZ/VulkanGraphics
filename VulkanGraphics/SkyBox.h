@@ -4,10 +4,13 @@
 class SkyBox
 {
 private:
-	std::shared_ptr<SkyBoxMesh> skyBoxMesh;
+
 public:
 	SkyBox();
-	SkyBox(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, VkDescriptorSetLayout& descriptorSetLayout, CubeMapLayout layout);
+	SkyBox(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, MeshTextures layout);
 	~SkyBox();
+
+	std::shared_ptr<SkyBoxMesh> skyBoxMesh;
+	void Update(RendererManager& renderer, OrthographicCamera& camera);
 };
 

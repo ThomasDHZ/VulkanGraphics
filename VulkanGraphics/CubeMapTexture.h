@@ -19,6 +19,7 @@ private:
     void CreateTextureSampler(VulkanRenderer& renderer);
 public:
 	CubeMapTexture();
-	CubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles, unsigned int textureID);
+	CubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles);
+	CubeMapTexture(VulkanRenderer& renderer, std::string CubeMapFiles[6]);
     ~CubeMapTexture();
 };

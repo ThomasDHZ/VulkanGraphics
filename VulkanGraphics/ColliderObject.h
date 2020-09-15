@@ -25,5 +25,6 @@ public:
 	void Update(glm::vec3 position);
 
 	BoxCollider GetCollider() { return Collider; }
+	CollidorType GetColliderType() { return Type; }
 };
 

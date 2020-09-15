@@ -12,7 +12,7 @@ public:
 	MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos);
 	~MMShot();
 
-	void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light) override;
+	void Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject light) override;
 	void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList) override;
 };
 

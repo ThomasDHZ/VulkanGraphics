@@ -3,7 +3,7 @@
 class Enemy2D : public Sprite
 {
 protected:
-	int HP = 10000;
+	int HP = 10;
 	static constexpr glm::vec2 SpriteSize = glm::vec2(1.0f, 1.0f);
 public:
 	Enemy2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos);

@@ -29,7 +29,7 @@ void Object2D::AnimationHandler()
 {
 }
 
-void Object2D::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer)
+void Object2D::Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject Lightbuffer)
 {
 	AnimationHandler();
 	ObjectMesh->Update(renderer, camera, Lightbuffer);

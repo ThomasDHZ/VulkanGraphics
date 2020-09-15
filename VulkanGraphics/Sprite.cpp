@@ -21,11 +21,14 @@ bool Sprite::OnGroundCheck(std::vector<std::shared_ptr<Object2D>>& ObjectList)
 	{
 		for (auto objCollider : obj->ObjectColliderList)
 		{
-			for (auto thisObjCollider : ObjectColliderList)
+			if (objCollider->GetColliderType() == CollidorType::LevelCollider)
 			{
-				if (thisObjCollider->GetCollider().CollidesWith(objCollider->GetCollider(), Gravity))
+				for (auto thisObjCollider : ObjectColliderList)
 				{
-					return true;
+					if (thisObjCollider->GetCollider().CollidesWith(objCollider->GetCollider(), Gravity))
+					{
+						return true;
+					}
 				}
 			}
 		}
@@ -33,9 +36,9 @@ bool Sprite::OnGroundCheck(std::vector<std::shared_ptr<Object2D>>& ObjectList)
 	return false;
 }
 
-void Sprite::ApplyGravity(std::vector<std::shared_ptr<Object2D>>& ObjectList)
+void Sprite::ApplyGravity(std::vector<std::shared_ptr<Object2D>>& ObjectList, float dt)
 {
-	glm::vec3 MoveDirection = Gravity;
+	glm::vec3 MoveDirection = Gravity * dt;
 	if (ObjectFlagBits & ObjectFlags::ApplyGravity)
 	{
 		for (auto& obj : ObjectList)
@@ -113,13 +116,9 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 	DrawMessage(renderer);
 }
 
-void Sprite::Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject light)
+void Sprite::Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject light)
 {
-	//CurrentAni.Update();
-	//ObjectMesh->properites.UVOffset = CurrentAni.GetCurrentFrame().GetUVOffset();
-	//ObjectMesh->properites.UVScale = CurrentAni.GetCurrentFrame().GetUVScale();
-
-	Object2D::Update(renderer, camera, light);
+	Object2D::Update(renderer, dt, camera, light);
 }
 
 void Sprite::Destory(RendererManager& renderer)

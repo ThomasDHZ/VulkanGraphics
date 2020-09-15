@@ -22,6 +22,7 @@ struct MeshTextures
     std::string AlphaMap;
     std::string EmissionMap;
     std::string ReflectionMap;
+    std::string CubeMap[6];
 
     std::shared_ptr<Texture> RendererDiffuseMap;
     std::shared_ptr<Texture> RendererSpecularMap;
@@ -30,6 +31,7 @@ struct MeshTextures
     std::shared_ptr<Texture> RendererAlphaMap;
     std::shared_ptr<Texture> RendererEmissionMap;
     std::shared_ptr<Texture> RendererReflectionMap;
+    std::shared_ptr<CubeMapTexture> RendererCubeMap;
 };
 
 class BaseMesh

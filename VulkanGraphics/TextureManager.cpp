@@ -32,10 +32,18 @@ std::shared_ptr<Texture> TextureManager::LoadTexture(VulkanRenderer& renderer, s
 	return Ptr;
 }
 
-std::shared_ptr<Texture>  TextureManager::LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList)
+std::shared_ptr<CubeMapTexture>  TextureManager::LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList)
 {
 	unsigned int TextureID = CreateNewTextureID();
-	auto a = std::make_shared<CubeMapTexture>(CubeMapTexture(renderer, cubeMapList, TextureID));
+	auto a = std::make_shared<CubeMapTexture>(CubeMapTexture(renderer, cubeMapList));
+	TextureList.emplace_back(a);
+	return a;
+}
+
+std::shared_ptr<CubeMapTexture>  TextureManager::LoadTexture(VulkanRenderer& renderer, std::string cubeMapList[6])
+{
+	unsigned int TextureID = CreateNewTextureID();
+	auto a = std::make_shared<CubeMapTexture>(CubeMapTexture(renderer, cubeMapList));
 	TextureList.emplace_back(a);
 	return a;
 }

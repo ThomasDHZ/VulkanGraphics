@@ -24,6 +24,7 @@
 #include "Sprite.h"
 #include "Level2D.h"
 #include "LevelSprite.h"
+#include "SkyBox.h"
 
 const std::vector<Vertex> MegaManVertices = {
     {{-0.5f, -0.5f, -0.01f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
@@ -55,7 +56,8 @@ private:
 
     Light light;
 
-    Mesh mesh;
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
 
     void UpdateImGUI();
     void Update(uint32_t DrawFrame, OrthographicCamera& camera);
