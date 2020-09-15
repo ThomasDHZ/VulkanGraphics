@@ -198,6 +198,10 @@ void NewBaseMesh::CreateDrawMessage(RendererManager& renderer, unsigned int Rend
     DrawMessageList.emplace_back(DrawMessagePtr);
 }
 
+void NewBaseMesh::Update(RendererManager& renderer)
+{
+}
+
 void NewBaseMesh::Destory(RendererManager& renderer)
 {
     MeshVertex.Destory(renderer);

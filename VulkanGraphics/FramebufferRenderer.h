@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RendererDepthTexture.h"
-#include "RendererHDRColorTexture.h"
 #include "RendererBase.h"
 
 class FramebufferRenderer : public RendererBase

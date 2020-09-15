@@ -5,7 +5,6 @@
 #include "ForwardRenderingPipeline.h"
 #include "SkyBoxPipeline.h"
 #include "WireFramePipeline.h"
-#include "FrameBufferMesh.h"
 #include "GUIDebugger.h"
 #include "ForwardRenderer.h"
 #include "TextureRenderer.h"
@@ -24,7 +23,6 @@ private:
 	bool framebufferResized = false;
 
 	GUIDebugger guiDebugger;
-	FramebufferRenderer frameBufferRenderer;
 	//Camera lightCamera;
 	//Camera camera;
 
@@ -53,8 +51,7 @@ public:
 	ForwardRenderer forwardRenderer;
 	TextureRenderer textureRenderer;
 	ShadowRenderer shadowRenderer;
-	FrameBufferMesh frameBuffer;
-
+	FramebufferRenderer frameBufferRenderer;
 
 	void RemoveDrawMessage(std::shared_ptr<RendererDrawMessage> mesh);
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }

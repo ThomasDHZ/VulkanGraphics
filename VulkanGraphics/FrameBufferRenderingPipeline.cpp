@@ -52,8 +52,8 @@ void FrameBufferRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer
 
 	VkPipelineShaderStageCreateInfo FrameBufferShaderStages[] = { FrameBufferVertShaderStageInfo, FrameBufferFragShaderStageInfo };
 
-	auto bindingDescription = Vertex2D::GetBindingDescription();
-	auto attributeDescriptions = Vertex2D::GetAttributeDescriptions();
+	auto bindingDescription = Vertex::GetBindingDescription();
+	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

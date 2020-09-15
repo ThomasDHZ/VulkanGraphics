@@ -48,6 +48,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	//SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
 	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.textureRenderer.ColorTexture)));
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
+	framebuffer = FrameBufferMesh(renderer, gameManager.textureManager, renderer.textureRenderer.ColorTexture);
 }
 
 VulkanGraphics2D::~VulkanGraphics2D()
@@ -91,8 +92,8 @@ void VulkanGraphics2D::UpdateImGUI()
 		//ImGui::SliderFloat("wavePeriod", &a->waveprop.wavePeriod, 0.0f, 60.0f);
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		ImGui::SliderFloat("Gamma", &renderer.frameBuffer.settings.Gamma, 0.0f, 10.0f);
-		ImGui::SliderFloat("HDR Value", &renderer.frameBuffer.settings.HDRValue, 0.0f, 10.0f);
+		//ImGui::SliderFloat("Gamma", &renderer.frameBuffer.settings.Gamma, 0.0f, 10.0f);
+		//ImGui::SliderFloat("HDR Value", &renderer.frameBuffer.settings.HDRValue, 0.0f, 10.0f);
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::SliderFloat3("dLight", &light.light.dLight.direction.x, -10.0f, 10.0f);
@@ -103,7 +104,7 @@ void VulkanGraphics2D::UpdateImGUI()
 		ImGui::SliderFloat3("pambient", &light.light.pLight.ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pdiffuse", &light.light.pLight.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);
-		ImGui::Image(renderer.textureRenderer.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		//ImGui::Image(renderer.textureRenderer.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
 
 		ImGui::Begin("MeshSettings");
@@ -160,6 +161,7 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 
+	framebuffer.Update(renderer);
 	light.Update(renderer, camera);
 	for (int x= SpriteList.size() - 1; x > 0; x--)
 	{
@@ -213,7 +215,7 @@ void VulkanGraphics2D::MainLoop()
 		//ShadowRenderPass();
 		if (renderer.currentFrame == 1)
 		{
-			Update(renderer.DrawFrame, OrthoCamera2);
+			Update(renderer.DrawFrame, OrthoCamera);
 			renderer.DrawToTextureRenderPass();
 		}
 		else
@@ -223,7 +225,7 @@ void VulkanGraphics2D::MainLoop()
 			renderer.MainRenderPass();
 			
 		}
-		//FrameBufferRenderPass();
+		renderer.FrameBufferRenderPass();
 		//renderer.Draw(Window.GetWindowPtr());
 		renderer.EndDraw(Window.GetWindowPtr());
 	}

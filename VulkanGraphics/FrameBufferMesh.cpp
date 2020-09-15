@@ -1,49 +1,44 @@
 #include "FrameBufferMesh.h"
-#include "Texture2D.h"
 
-FrameBufferMesh::FrameBufferMesh() : BaseMesh(RenderBitFlag::RenderOnFrameBufferPass | RenderBitFlag::RenderOnMainPass)
+FrameBufferMesh::FrameBufferMesh() : Mesh()
 {}
 
-FrameBufferMesh::FrameBufferMesh(VulkanRenderer& renderer, Texture FrameBufferImage, VkDescriptorSetLayout& descriptorSetLayout) : BaseMesh(RenderBitFlag::RenderOnFrameBufferPass)
+FrameBufferMesh::FrameBufferMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture> FrameBufferImage) : Mesh(renderer, FrameBufferVertices, FrameBufferIndices)
 {
-    texture = FrameBufferImage;
+    DiffuseMapID = FrameBufferImage;
 
-    VertexSize = FrameBufferVertices.size();
-    IndexSize = FrameBufferIndices.size();
-
-    CreateVertexBuffer(renderer, FrameBufferVertices);
-    CreateIndexBuffer(renderer, FrameBufferIndices);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, descriptorSetLayout);
+    CreateDescriptorSets(renderer, textureManager);
+    CreateDrawMessage(renderer, 0, renderer.frameBufferRenderer.frameBufferPipeline);
 }
 
 FrameBufferMesh::~FrameBufferMesh()
 {
 }
 
-void FrameBufferMesh::CreateUniformBuffers(VulkanRenderer& renderer)
+void FrameBufferMesh::CreateUniformBuffers(RendererManager& renderer)
 {
     frameBufferSettings = VulkanUniformBuffer(renderer, sizeof(FrameBufferSettings));
 }
 
-void FrameBufferMesh::CreateDescriptorPool(VulkanRenderer& renderer) {
+void FrameBufferMesh::CreateDescriptorPool(RendererManager& renderer) {
 
     std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-    BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+    NewBaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void FrameBufferMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout)
+void FrameBufferMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
+    NewBaseMesh::CreateDescriptorSets(renderer, renderer.frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = texture.GetTextureView();
-    imageInfo.sampler = texture.GetTextureSampler();
+    imageInfo.imageView = DiffuseMapID->GetTextureView();
+    imageInfo.sampler = DiffuseMapID->GetTextureSampler();
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -68,35 +63,16 @@ void FrameBufferMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescripto
         FrameBufferSettingsDescriptor.DescriptorBufferInfo = frameBufferSettingsInfo;
         DescriptorList.emplace_back(FrameBufferSettingsDescriptor);
 
-        BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
+        NewBaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
 }
 
-void FrameBufferMesh::UpdateUniformBuffer(VulkanRenderer& renderer)
+void FrameBufferMesh::Update(RendererManager& renderer)
 {
     frameBufferSettings.UpdateUniformBuffer(renderer, static_cast<void*>(&settings));
 }
 
-void FrameBufferMesh::UpdateSwapChain(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout, Texture FrameBufferImage)
-{
-    texture = FrameBufferImage;
-
-    vkDestroyDescriptorPool(renderer.Device, DescriptorPool, nullptr);
-    DescriptorPool = VK_NULL_HANDLE;
-
-    CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, descriptorSetLayout);
-}
-
-void FrameBufferMesh::Update(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout)
-{
-    CreateUniformBuffers(renderer);
-    CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, descriptorSetLayout);
-}
-
-void FrameBufferMesh::Destory(VulkanRenderer& renderer)
+void FrameBufferMesh::Destory(RendererManager& renderer)
 {
     frameBufferSettings.Destroy(renderer);
-    BaseMesh::Destory(renderer);
 }

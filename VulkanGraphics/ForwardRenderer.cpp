@@ -12,7 +12,6 @@ ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase(render
 {
     CreateRenderPass(renderer);
     DepthTexture = RendererDepthTexture(renderer);
-    HDRColorTexture = RendererHDRColorTexture(renderer);
     CreateRendererFramebuffers(renderer);
 
     forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass);
@@ -115,7 +114,6 @@ void ForwardRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 
 void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
-   HDRColorTexture.RecreateRendererTexture(renderer);
    DepthTexture.RecreateRendererTexture(renderer);
 
    forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
@@ -137,7 +135,6 @@ void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 
 void ForwardRenderer::Destroy(VulkanRenderer& renderer)
 {
-    HDRColorTexture.Delete(renderer);
     DepthTexture.Delete(renderer);
 
     forwardRendereringPipeline->Destroy(renderer);

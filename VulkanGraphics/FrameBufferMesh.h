@@ -1,18 +1,12 @@
 #pragma once
-#include <vulkan/vulkan.h>
-#include <vector>
-#include <iostream>
-#include <fstream>
-#include "Vertex.h"
-#include "BaseMesh.h"
+#include "Mesh.h"
 
-
-const std::vector<Vertex2D> FrameBufferVertices =
+const std::vector<Vertex> FrameBufferVertices =
 {
-    {{1.0f, 1.0f}, {1.0f, 1.0f}},
-    {{1.0f, -1.0f}, {1.0f, 0.0f}},
-    {{-1.0f, -1.0f}, {0.0f, 0.0f}},
-    {{-1.0f, 1.0f}, {0.0f, 1.0f}},
+    {{1.0f, 1.0f, 0.0f},   {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
+    {{1.0f, -1.0f, 0.0f},  {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
+    {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
+    {{-1.0f, 1.0f, 0.0f},  {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
 };
 
 const std::vector<uint16_t> FrameBufferIndices = {
@@ -25,27 +19,25 @@ struct FrameBufferSettings
     alignas(4) float HDRValue = 1.0f;
 };
 
-class FrameBufferMesh : public BaseMesh
+class FrameBufferMesh : public Mesh
 {
 private:
 
     VulkanUniformBuffer frameBufferSettings;
 
-    void CreateUniformBuffers(VulkanRenderer& renderer);
-    void CreateDescriptorPool(VulkanRenderer& renderer);
-    void CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
+    void CreateUniformBuffers(RendererManager& renderer) override;
+    void CreateDescriptorPool(RendererManager& renderer) override;
+    void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager) override;
 
 public:
 
     FrameBufferMesh();
-    FrameBufferMesh(VulkanRenderer& renderer, Texture FrameBufferImage, VkDescriptorSetLayout& descriptorSetLayout);
+    FrameBufferMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture> FrameBufferImage);
     ~FrameBufferMesh();
 
     FrameBufferSettings settings;
 
-    void UpdateUniformBuffer(VulkanRenderer& renderer);
-    void UpdateSwapChain(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout, Texture FrameBufferImage);
-    void Update(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
-    void Destory(VulkanRenderer& renderer);
+    void Update(RendererManager& renderer);
+    void Destory(RendererManager& renderer) override;
 };
 

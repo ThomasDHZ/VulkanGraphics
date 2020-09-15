@@ -56,6 +56,7 @@ public:
     ~NewBaseMesh();
 
     void CreateDrawMessage(RendererManager& renderer, unsigned int RendererID, std::shared_ptr<GraphicsPipeline> pipeline);
+    virtual void Update(RendererManager& renderer);
     virtual void Destory(RendererManager& renderer);
 
     void SetPosition2D(glm::vec2 Pos);

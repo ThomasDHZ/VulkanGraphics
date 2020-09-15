@@ -28,6 +28,5 @@ public:
 	std::shared_ptr<WireFramePipeline> wireFramePipeline;
 
 	RendererDepthTexture DepthTexture;
-	RendererHDRColorTexture HDRColorTexture;
 };
 

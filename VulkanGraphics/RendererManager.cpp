@@ -14,11 +14,6 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
 	frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
 	shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
-
-	frameBuffer = FrameBufferMesh(*GetVulkanRendererBase(), *textureRenderer.ColorTexture.get(), frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
-
-	//camera = Camera(glm::vec3(0.0f, 0.0f, 5.0f));
-	//lightCamera = Camera(glm::vec3(0.5f, 1.0f, 0.3f));
 }
 
 RendererManager::~RendererManager()
@@ -122,7 +117,7 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window)
 
 	InitializeCommandBuffers();
 
-	frameBuffer.UpdateSwapChain(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout, *textureRenderer.ColorTexture.get());
+	//frameBuffer.UpdateSwapChain(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout, *textureRenderer.ColorTexture.get());
 }
 
 uint32_t RendererManager::Draw(GLFWwindow* window)
@@ -155,7 +150,7 @@ uint32_t RendererManager::Draw(GLFWwindow* window)
 	//ShadowRenderPass();
 	DrawToTextureRenderPass();
 	MainRenderPass();
-	//FrameBufferRenderPass();
+	FrameBufferRenderPass();
 
 	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
 		throw std::runtime_error("failed to record command buffer!");
@@ -404,7 +399,13 @@ void RendererManager::FrameBufferRenderPass()
 	renderPassInfo.pClearValues = clearValues.data();
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	//forwardRenderer.Draw(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline, frameBuffer);
+	for (auto drawMessage : DrawMessageList)
+	{
+		if (drawMessage->RendererID == 0)
+		{
+			frameBufferRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
+		}
+	}
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
@@ -445,8 +446,6 @@ void RendererManager::DestoryVulkan()
 	textureRenderer.Destroy(*GetVulkanRendererBase());
 	frameBufferRenderer.Destroy(*GetVulkanRendererBase());
 	shadowRenderer.Destroy(*GetVulkanRendererBase());
-
-	frameBuffer.Destory(*GetVulkanRendererBase());
 
 	VulkanRenderer::Destory();
 }

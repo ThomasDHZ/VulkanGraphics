@@ -50,7 +50,8 @@ private:
     Mouse mouse;
     
     std::vector<std::shared_ptr<Object2D>> SpriteList;
- 
+    FrameBufferMesh framebuffer;
+
     OrthographicCamera OrthoCamera;
     OrthographicCamera OrthoCamera2;
 

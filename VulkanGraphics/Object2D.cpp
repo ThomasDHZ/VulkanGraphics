@@ -21,7 +21,7 @@ void Object2D::DrawMessage(RendererManager& renderer)
 	}
 	if (RenderBitFlags & RenderBitFlag::RenderOnTexturePass)
 	{
-		//ObjectMesh->CreateDrawMessage(renderer, 2, renderer.shadowRenderer.renderer2DPipeline);
+	//	ObjectMesh->CreateDrawMessage(renderer, 2, renderer.shadowRenderer.renderer2DPipeline);
 	}
 }
 

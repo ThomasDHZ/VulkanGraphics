@@ -198,9 +198,6 @@
     <ClCompile Include="CubeMapTexture.cpp">
       <Filter>Source Files\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="RendererHDRColorTexture.cpp">
-      <Filter>Source Files\Texture</Filter>
-    </ClCompile>
     <ClCompile Include="FramebufferRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -287,6 +284,9 @@
     </ClCompile>
     <ClCompile Include="LargeEnergy.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererHDRColorTexture.cpp">
+      <Filter>Source Files\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -532,9 +532,6 @@
     <ClInclude Include="CubeMapTexture.h">
       <Filter>Header Files\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="RendererHDRColorTexture.h">
-      <Filter>Header Files\Texture</Filter>
-    </ClInclude>
     <ClInclude Include="FramebufferRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -618,6 +615,9 @@
     </ClInclude>
     <ClInclude Include="LargeEnergy.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererHDRColorTexture.h">
+      <Filter>Header Files\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

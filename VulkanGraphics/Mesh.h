@@ -134,6 +134,7 @@ public:
     Mesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer);
     ~Mesh();
 
+    virtual void Update(RendererManager& renderer) override;
     virtual void Update(RendererManager& renderer, Camera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
     virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
     virtual void Destory(RendererManager& renderer) override;
