@@ -1,6 +1,6 @@
 #include "Keyboard.h"
 
-void Keyboard::Update(GLFWwindow* window, Camera& camera)
+void Keyboard::Update(GLFWwindow* window, PerspectiveCamera& camera)
 {
 	float currentFrame = glfwGetTime();
 	deltaTime = currentFrame - lastFrame;

@@ -182,6 +182,7 @@
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Object2D.cpp" />
     <ClCompile Include="OrthographicCamera.cpp" />
+    <ClCompile Include="PerspectiveCamera.cpp" />
     <ClCompile Include="Reflection2DPipeline.cpp" />
     <ClCompile Include="RendererHDRColorTexture.cpp" />
     <ClCompile Include="Rendering2DPipeline.cpp" />
@@ -290,6 +291,7 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="Object2D.h" />
     <ClInclude Include="OrthographicCamera.h" />
+    <ClInclude Include="PerspectiveCamera.h" />
     <ClInclude Include="Reflection2DPipeline.h" />
     <ClInclude Include="RendererHDRColorTexture.h" />
     <ClInclude Include="Rendering2DPipeline.h" />

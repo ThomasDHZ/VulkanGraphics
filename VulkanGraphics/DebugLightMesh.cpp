@@ -78,7 +78,7 @@ void DebugLightMesh::CreateDescriptorSets(RendererManager& renderer, std::shared
     }
 }
 
-void DebugLightMesh::Update(RendererManager& renderer, Camera& camera, MeshColor MeshColorBuffer)
+void DebugLightMesh::Update(RendererManager& renderer, PerspectiveCamera& camera, MeshColor MeshColorBuffer)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
@@ -121,6 +121,7 @@ void DebugLightMesh::UpdateUniformBuffer(RendererManager& renderer, UniformBuffe
 
 void DebugLightMesh::Destory(RendererManager& renderer)
 {
+    uniformBuffer.Destroy(renderer);
     meshColorBuffer.Destroy(renderer);
-    Mesh::Destory(renderer);
+    BaseMesh::Destory(renderer);
 }

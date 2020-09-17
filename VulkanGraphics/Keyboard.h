@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "OrthographicCamera.h"
 #include "VulkanRenderer.h"
+#include "PerspectiveCamera.h"
 
 class Keyboard
 {
@@ -12,6 +13,6 @@ private:
 
 public:
 
-	void Update(GLFWwindow* window, Camera& camera);
+	void Update(GLFWwindow* window, PerspectiveCamera& camera);
 	void UpdateOrtho(GLFWwindow* window, OrthographicCamera& camera);
 };

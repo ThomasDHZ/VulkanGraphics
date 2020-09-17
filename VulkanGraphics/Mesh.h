@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseMesh.h"
+#include "PerspectiveCamera.h"
 
 
 struct DirectionalLightStruct {
@@ -111,7 +112,7 @@ protected:
     VulkanUniformBuffer uniformBuffer;
     VulkanUniformBuffer lightBuffer;
     VulkanUniformBuffer meshPropertiesBuffer;
-    CustomBuffer ExtendedMesProperitesBuffer;
+    CustomBuffer ExtendedMeshProperitesBuffer;
 
     void LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
     void CreateMaterialProperties();
@@ -134,7 +135,7 @@ public:
     ~Mesh();
 
     virtual void Update(RendererManager& renderer) override;
-    virtual void Update(RendererManager& renderer, Camera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
+    virtual void Update(RendererManager& renderer, PerspectiveCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
     virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
     virtual void ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager);
     virtual void Destory(RendererManager& renderer) override;

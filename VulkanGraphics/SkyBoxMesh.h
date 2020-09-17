@@ -69,7 +69,7 @@ public:
 	SkyBoxMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, MeshTextures textures);
 	~SkyBoxMesh();
 
-	virtual void UpdateUniformBuffer(RendererManager& renderer, Camera& camera);
+	virtual void UpdateUniformBuffer(RendererManager& renderer, PerspectiveCamera& camera);
 	virtual void UpdateUniformBuffer(RendererManager& renderer, OrthographicCamera& camera);
 };
 

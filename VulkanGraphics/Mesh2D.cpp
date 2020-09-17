@@ -20,7 +20,7 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
     CustomBuffer EmptyBuffer;
     EmptyBuffer.ByteSize = sizeof(Empty);
 
-    ExtendedMesProperitesBuffer = EmptyBuffer;
+    ExtendedMeshProperitesBuffer = EmptyBuffer;
 
     CreateMaterialProperties();
     LoadTextures(renderer, textureManager, textures);
@@ -32,7 +32,7 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
 
 Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer) : Mesh(renderer, vertexdata, indicesdata, customBuffer)
 {
-    ExtendedMesProperitesBuffer = customBuffer;
+    ExtendedMeshProperitesBuffer = customBuffer;
 
     LoadTextures(renderer, textureManager, textures);
     LoadTiles(renderer, textureManager, textures);
@@ -116,9 +116,9 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
         meshPropertiesInfo.range = sizeof(MeshProperties);
 
         VkDescriptorBufferInfo emptyPropertiesInfo = {};
-        emptyPropertiesInfo.buffer = ExtendedMesProperitesBuffer.customBuffer.GetUniformBuffer(i);
+        emptyPropertiesInfo.buffer = ExtendedMeshProperitesBuffer.customBuffer.GetUniformBuffer(i);
         emptyPropertiesInfo.offset = 0;
-        emptyPropertiesInfo.range = ExtendedMesProperitesBuffer.ByteSize;
+        emptyPropertiesInfo.range = ExtendedMeshProperitesBuffer.ByteSize;
 
         std::vector<WriteDescriptorSetInfo> DescriptorList;
 

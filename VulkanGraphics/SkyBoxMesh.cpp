@@ -74,7 +74,7 @@ void SkyBoxMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr
 	}
 }
 
-void SkyBoxMesh::UpdateUniformBuffer(RendererManager& renderer, Camera& camera)
+void SkyBoxMesh::UpdateUniformBuffer(RendererManager& renderer, PerspectiveCamera& camera)
 {
 	UniformBufferObject positionMatrix = {};
 	positionMatrix.view = glm::mat4(glm::mat3(camera.GetViewMatrix()));

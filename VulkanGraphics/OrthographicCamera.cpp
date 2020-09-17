@@ -1,11 +1,11 @@
 #include "OrthographicCamera.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-OrthographicCamera::OrthographicCamera()
+OrthographicCamera::OrthographicCamera() : Camera()
 {
 }
 
-OrthographicCamera::OrthographicCamera(float width, float height)
+OrthographicCamera::OrthographicCamera(float width, float height) : Camera()
 {
 	Width = width;
 	Height = height;
@@ -19,7 +19,7 @@ OrthographicCamera::OrthographicCamera(float width, float height)
 	ViewMatrix = glm::mat4(1.0f);
 }
 
-OrthographicCamera::OrthographicCamera(glm::vec2 viewScreenSize)
+OrthographicCamera::OrthographicCamera(glm::vec2 viewScreenSize) : Camera()
 {
 	Width = viewScreenSize.x;
 	Height = viewScreenSize.y;
@@ -33,7 +33,7 @@ OrthographicCamera::OrthographicCamera(glm::vec2 viewScreenSize)
 	ViewMatrix = glm::mat4(1.0f);
 }
 
-OrthographicCamera::OrthographicCamera(float width, float height, float zoom)
+OrthographicCamera::OrthographicCamera(float width, float height, float zoom) : Camera()
 {
 	Width = width;
 	Height = height;
@@ -47,7 +47,7 @@ OrthographicCamera::OrthographicCamera(float width, float height, float zoom)
 	ViewMatrix = glm::mat4(1.0f);
 }
 
-OrthographicCamera::OrthographicCamera(glm::vec2 viewScreenSize, float zoom)
+OrthographicCamera::OrthographicCamera(glm::vec2 viewScreenSize, float zoom) : Camera()
 {
 	Width = viewScreenSize.x;
 	Height = viewScreenSize.y;

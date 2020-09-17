@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include <GLFW\glfw3.h>
 #include "VulkanRenderer.h"
+#include "PerspectiveCamera.h"
 
 class Mouse
 {
@@ -13,5 +14,5 @@ private:
 	double MouseYPos;
 
 public:
-	void Update(GLFWwindow* window, Camera& camera, VulkanRendererSettings settings);
+	void Update(GLFWwindow* window, PerspectiveCamera& camera, VulkanRendererSettings settings);
 };

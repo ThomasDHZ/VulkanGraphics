@@ -23,7 +23,7 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
     CustomBuffer EmptyBuffer;
     EmptyBuffer.ByteSize = sizeof(Empty);
 
-    ExtendedMesProperitesBuffer = EmptyBuffer;
+    ExtendedMeshProperitesBuffer = EmptyBuffer;
 
     CreateMaterialProperties();
     LoadTextures(renderer, textureManager, textures);
@@ -35,7 +35,7 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
 
 Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer) : BaseMesh(renderer, vertexdata, indicesdata)
 {
-    ExtendedMesProperitesBuffer = customBuffer;
+    ExtendedMeshProperitesBuffer = customBuffer;
 
     LoadTextures(renderer, textureManager, textures);
     LoadTiles(renderer, textureManager, textures);
@@ -92,7 +92,7 @@ void Mesh::CreateUniformBuffers(RendererManager& renderer)
     uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
     lightBuffer = VulkanUniformBuffer(renderer, sizeof(LightBufferObject));
     meshPropertiesBuffer = VulkanUniformBuffer(renderer, sizeof(MeshProperties));
-    ExtendedMesProperitesBuffer.customBuffer = VulkanUniformBuffer(renderer, ExtendedMesProperitesBuffer.ByteSize);
+    ExtendedMeshProperitesBuffer.customBuffer = VulkanUniformBuffer(renderer, ExtendedMeshProperitesBuffer.ByteSize);
 }
 
 void Mesh::CreateDescriptorPool(RendererManager& renderer) {
@@ -263,7 +263,7 @@ void Mesh::Update(RendererManager& renderer)
     BaseMesh::Update(renderer);
 }
 
-void Mesh::Update(RendererManager& renderer, Camera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo)
+void Mesh::Update(RendererManager& renderer, PerspectiveCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
@@ -316,13 +316,13 @@ void Mesh::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ub
     meshPropertiesBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&properites));
     if (!CustomBufferinfo == NULL)
     {
-        ExtendedMesProperitesBuffer.customBuffer.UpdateUniformBuffer(renderer, CustomBufferinfo);
+        ExtendedMeshProperitesBuffer.customBuffer.UpdateUniformBuffer(renderer, CustomBufferinfo);
     }
     else
     {
         Empty empty = {};
         empty.empty = 1.0f;
-        ExtendedMesProperitesBuffer.customBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&empty));
+        ExtendedMeshProperitesBuffer.customBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&empty));
     }
 }
 
@@ -331,6 +331,6 @@ void Mesh::Destory(RendererManager& renderer)
     uniformBuffer.Destroy(renderer);
     lightBuffer.Destroy(renderer);
     meshPropertiesBuffer.Destroy(renderer);
-    ExtendedMesProperitesBuffer.customBuffer.Destroy(renderer);
+    ExtendedMeshProperitesBuffer.customBuffer.Destroy(renderer);
     BaseMesh::Destory(renderer);
 }

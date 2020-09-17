@@ -52,7 +52,7 @@ private:
 	Keyboard keyboard;
 	Mouse mouse;
 
-    Camera* ActiveCamera;
+    PerspectiveCamera* ActiveCamera;
 
 
   

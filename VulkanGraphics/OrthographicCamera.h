@@ -2,15 +2,12 @@
 #include <glm/glm.hpp>
 #include "Camera.h"
 
-class OrthographicCamera
+class OrthographicCamera : public Camera
 {
 private:
-	float MovementSpeed = 5.0f;
+
 	float Zoom = 0.0f;
 
-	glm::mat4 ProjectionMatrix;
-	glm::mat4 ViewMatrix;
-	glm::vec2 ViewScreenSize;
 	glm::vec3 Position;
 
 	float Aspect;
@@ -39,8 +36,4 @@ public:
 
 	const glm::vec3& GetPosition() { return Position; }
 	float GetRotation() { return Rotation; }
-
-	const glm::vec2& GetViewScreenSize() { return ViewScreenSize; }
-	const glm::mat4& GetProjectionMatrix() { return ProjectionMatrix; }
-	const glm::mat4& GetViewMatrix() { return ViewMatrix; }
 };

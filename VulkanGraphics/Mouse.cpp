@@ -1,6 +1,6 @@
 #include "Mouse.h"
 
-void Mouse::Update(GLFWwindow* window, Camera& camera, VulkanRendererSettings settings)
+void Mouse::Update(GLFWwindow* window, PerspectiveCamera& camera, VulkanRendererSettings settings)
 {
 	if (!settings.TwoDMode)
 	{
