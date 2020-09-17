@@ -20,7 +20,6 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
     CustomBuffer EmptyBuffer;
     EmptyBuffer.ByteSize = sizeof(Empty);
 
-    Vertexdata = vertexdata;
     ExtendedMesProperitesBuffer = EmptyBuffer;
 
     CreateMaterialProperties();
@@ -33,7 +32,6 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
 
 Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer) : Mesh(renderer, vertexdata, indicesdata, customBuffer)
 {
-    Vertexdata = vertexdata;
     ExtendedMesProperitesBuffer = customBuffer;
 
     LoadTextures(renderer, textureManager, textures);
@@ -46,6 +44,12 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
 
 Mesh2D::~Mesh2D()
 {
+}
+
+void Mesh2D::ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager)
+{
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager);
 }
 
 void Mesh2D::CreateDescriptorPool(RendererManager& renderer) {
@@ -62,37 +66,37 @@ void Mesh2D::CreateDescriptorPool(RendererManager& renderer) {
     DescriptorPoolInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
-    NewBaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+    BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
 void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline->ShaderPipelineDescriptorLayout);
+    BaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.renderer2DPipeline->ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DiffuseMap.imageView = DiffuseMapID->GetTextureView();
-    DiffuseMap.sampler = DiffuseMapID->GetTextureSampler();
+    DiffuseMap.imageView = DiffuseTexture->GetTextureView();
+    DiffuseMap.sampler = DiffuseTexture->GetTextureSampler();
 
     VkDescriptorImageInfo SpecularMap = {};
     SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    SpecularMap.imageView = SpecularMapID->GetTextureView();
-    SpecularMap.sampler = SpecularMapID->GetTextureSampler();
+    SpecularMap.imageView = SpecularTexture->GetTextureView();
+    SpecularMap.sampler = SpecularTexture->GetTextureSampler();
 
     VkDescriptorImageInfo NormalMap = {};
     NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    NormalMap.imageView = NormalMapID->GetTextureView();
-    NormalMap.sampler = NormalMapID->GetTextureSampler();
+    NormalMap.imageView = NormalTexture->GetTextureView();
+    NormalMap.sampler = NormalTexture->GetTextureSampler();
 
     VkDescriptorImageInfo AlphaMap = {};
     AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    AlphaMap.imageView = AlphaMapID->GetTextureView();
-    AlphaMap.sampler = AlphaMapID->GetTextureSampler();
+    AlphaMap.imageView = AlphaTexture->GetTextureView();
+    AlphaMap.sampler = AlphaTexture->GetTextureSampler();
 
     VkDescriptorImageInfo EmissionMap = {};
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    EmissionMap.imageView = DiffuseMapID->GetTextureView();
-    EmissionMap.sampler = DiffuseMapID->GetTextureSampler();
+    EmissionMap.imageView = DiffuseTexture->GetTextureView();
+    EmissionMap.sampler = DiffuseTexture->GetTextureSampler();
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -181,6 +185,6 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
         emptyDescriptor.DescriptorBufferInfo = emptyPropertiesInfo;
         DescriptorList.emplace_back(emptyDescriptor);
 
-        NewBaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
+        BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
 }

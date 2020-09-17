@@ -1,38 +1,38 @@
 #include "DebugLightMesh.h"
 #include "Texture2D.h"
 
-DebugLightMesh::DebugLightMesh() : BaseMesh()
+DebugLightMesh::DebugLightMesh() : Mesh()
 {
 }
 
-DebugLightMesh::DebugLightMesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, VkDescriptorSetLayout& descriptorSetLayout, int renderBit) : BaseMesh(renderBit)
+DebugLightMesh::DebugLightMesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, int renderBit) : Mesh(renderer, CubeVertices, CubeIndices)
 {
-    VertexSize = vertexdata.size();
-    IndexSize = indicesdata.size();
-
-    CreateVertexBuffer(renderer, vertexdata);
-
-    if (IndexSize != 0)
-    {
-        CreateIndexBuffer(renderer, indicesdata);
-    }
 
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
-    CreateDescriptorSets(renderer, descriptorSetLayout);
+    CreateDescriptorSets(renderer, textureManager);
+
+    if (renderBit & RenderBitFlag::RenderOnMainPass)
+    {
+       CreateDrawMessage(renderer, 1, renderer.forwardRenderer.DebugLightPipeline);
+    }
+    if (renderBit & RenderBitFlag::RenderOnTexturePass)
+    {
+        CreateDrawMessage(renderer, 2, renderer.textureRenderer.DebugLightPipeline);
+    }
 }
 
 DebugLightMesh::~DebugLightMesh()
 {
 }
 
-void DebugLightMesh::CreateUniformBuffers(VulkanRenderer& renderer)
+void DebugLightMesh::CreateUniformBuffers(RendererManager& renderer)
 {
     uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
     meshColorBuffer = VulkanUniformBuffer(renderer, sizeof(MeshColor));
 }
 
-void DebugLightMesh::CreateDescriptorPool(VulkanRenderer& renderer) {
+void DebugLightMesh::CreateDescriptorPool(RendererManager& renderer) {
 
     std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
 
@@ -42,9 +42,9 @@ void DebugLightMesh::CreateDescriptorPool(VulkanRenderer& renderer) {
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
-void DebugLightMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout)
+void DebugLightMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager)
 {
-    BaseMesh::CreateDescriptorSets(renderer, descriptorSetLayout);
+    BaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.DebugLightPipeline->ShaderPipelineDescriptorLayout);
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -78,7 +78,7 @@ void DebugLightMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptor
     }
 }
 
-void DebugLightMesh::Update(VulkanRenderer& renderer, Camera& camera, MeshColor MeshColorBuffer)
+void DebugLightMesh::Update(RendererManager& renderer, Camera& camera, MeshColor MeshColorBuffer)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
@@ -99,7 +99,7 @@ void DebugLightMesh::Update(VulkanRenderer& renderer, Camera& camera, MeshColor 
     UpdateUniformBuffer(renderer, ubo, MeshColorBuffer);
 }
 
-void DebugLightMesh::Update(VulkanRenderer& renderer, OrthographicCamera& camera, MeshColor MeshColorBuffer)
+void DebugLightMesh::Update(RendererManager& renderer, OrthographicCamera& camera, MeshColor MeshColorBuffer)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
@@ -110,17 +110,17 @@ void DebugLightMesh::Update(VulkanRenderer& renderer, OrthographicCamera& camera
     ubo.proj[1][1] *= -1;
 
     UpdateUniformBuffer(renderer, ubo, MeshColorBuffer);
+    Mesh::UpdateUniformBuffer(renderer, ubo);
 }
 
-void DebugLightMesh::UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshColor MeshColorBuffer)
+void DebugLightMesh::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, MeshColor MeshColorBuffer)
 {
-    uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
     meshColorBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&MeshColorBuffer));
+    Mesh::UpdateUniformBuffer(renderer, ubo);
 }
 
-void DebugLightMesh::Destory(VulkanRenderer& renderer)
+void DebugLightMesh::Destory(RendererManager& renderer)
 {
-    uniformBuffer.Destroy(renderer);
     meshColorBuffer.Destroy(renderer);
-    BaseMesh::Destory(renderer);
+    Mesh::Destory(renderer);
 }

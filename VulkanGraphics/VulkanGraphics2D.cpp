@@ -39,7 +39,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 
 	OrthoCamera.SetPosition(8.0f, 9.0f);
 
-	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
+	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
 	SpriteList.emplace_back(std::make_shared<EnergyTank>(EnergyTank(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<EnergyTank>(EnergyTank(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
@@ -49,6 +49,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.textureRenderer.ColorTexture)));
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
 	framebuffer = FrameBufferMesh(renderer, gameManager.textureManager, renderer.textureRenderer.ColorTexture);
+	skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 }
 
 VulkanGraphics2D::~VulkanGraphics2D()
@@ -61,7 +62,7 @@ VulkanGraphics2D::~VulkanGraphics2D()
 	{
 		sprite->Destory(renderer);
 	}
-
+	framebuffer.Destory(renderer);
 	renderer.DestoryVulkan();
 	Window.CleanUp();
 }
@@ -92,8 +93,8 @@ void VulkanGraphics2D::UpdateImGUI()
 		//ImGui::SliderFloat("wavePeriod", &a->waveprop.wavePeriod, 0.0f, 60.0f);
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		//ImGui::SliderFloat("Gamma", &renderer.frameBuffer.settings.Gamma, 0.0f, 10.0f);
-		//ImGui::SliderFloat("HDR Value", &renderer.frameBuffer.settings.HDRValue, 0.0f, 10.0f);
+		ImGui::SliderFloat("Gamma", &framebuffer.settings.Gamma, 0.0f, 10.0f);
+		ImGui::SliderFloat("HDR Value", &framebuffer.settings.HDRValue, 0.0f, 10.0f);
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::SliderFloat3("dLight", &light.light.dLight.direction.x, -10.0f, 10.0f);
@@ -163,6 +164,7 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
 
 	framebuffer.Update(renderer);
 	light.Update(renderer, camera);
+	skybox.Update(renderer, camera);
 	for (int x= SpriteList.size() - 1; x > 0; x--)
 	{
  		if (SpriteList[x]->DestoryObjectFlag)

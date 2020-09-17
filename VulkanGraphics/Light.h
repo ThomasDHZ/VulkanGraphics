@@ -24,7 +24,7 @@ public:
 	LightBufferObject light;
 
 	Light();
-	Light(RendererManager& renderer, VkDescriptorSetLayout& descriptorSetLayout, int renderBit, glm::vec3 Pos);
+	Light(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, int renderBit, glm::vec3 Pos);
 	~Light();
 
 	void Update(RendererManager& renderer, OrthographicCamera& camera);

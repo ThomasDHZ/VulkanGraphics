@@ -50,7 +50,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
 	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
 	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
-	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
+//	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	//skybox = SkyBoxrenderer, gameManager.textureManager, layout);
 
 	light.light.pLight.position = glm::vec3(0.5f, 1.0f, 0.3f);

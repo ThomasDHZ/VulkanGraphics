@@ -38,6 +38,7 @@ public:
     FrameBufferSettings settings;
 
     void Update(RendererManager& renderer);
+    void ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager) override;
     void Destory(RendererManager& renderer) override;
 };
 

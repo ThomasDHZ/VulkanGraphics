@@ -7,12 +7,14 @@ SkyBoxMesh::SkyBoxMesh() : Mesh()
 {
 }
 
-SkyBoxMesh::SkyBoxMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, MeshTextures textures) : Mesh()
+SkyBoxMesh::SkyBoxMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, MeshTextures textures) : Mesh(renderer, SkyBoxVertices)
 {
 	LoadTextures(renderer, textureManager, textures);
 	CreateUniformBuffers(renderer);
 	CreateDescriptorPool(renderer);
 	CreateDescriptorSets(renderer, textureManager);
+	CreateDrawMessage(renderer, 1, renderer.forwardRenderer.skyboxPipeline);
+	CreateDrawMessage(renderer, 2, renderer.textureRenderer.skyboxPipeline);
 }
 
 SkyBoxMesh::~SkyBoxMesh()
@@ -31,17 +33,17 @@ void SkyBoxMesh::CreateDescriptorPool(RendererManager& renderer)
 	DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-	NewBaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+	BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
 void SkyBoxMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-	NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.skyboxPipeline->ShaderPipelineDescriptorLayout);
+	BaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.skyboxPipeline->ShaderPipelineDescriptorLayout);
 
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	imageInfo.imageView = CubeMapID->GetTextureView();
-	imageInfo.sampler = CubeMapID->GetTextureSampler();
+	imageInfo.imageView = SkyBoxTexture->GetTextureView();
+	imageInfo.sampler = SkyBoxTexture->GetTextureSampler();
 
 	for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
 	{

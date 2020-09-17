@@ -5,7 +5,7 @@ FrameBufferMesh::FrameBufferMesh() : Mesh()
 
 FrameBufferMesh::FrameBufferMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture> FrameBufferImage) : Mesh(renderer, FrameBufferVertices, FrameBufferIndices)
 {
-    DiffuseMapID = FrameBufferImage;
+    DiffuseTexture = FrameBufferImage;
 
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
@@ -28,17 +28,17 @@ void FrameBufferMesh::CreateDescriptorPool(RendererManager& renderer) {
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-    NewBaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+    BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
 void FrameBufferMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    NewBaseMesh::CreateDescriptorSets(renderer, renderer.frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
+    BaseMesh::CreateDescriptorSets(renderer, renderer.frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    imageInfo.imageView = DiffuseMapID->GetTextureView();
-    imageInfo.sampler = DiffuseMapID->GetTextureSampler();
+    imageInfo.imageView = DiffuseTexture->GetTextureView();
+    imageInfo.sampler = DiffuseTexture->GetTextureSampler();
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -63,7 +63,7 @@ void FrameBufferMesh::CreateDescriptorSets(RendererManager& renderer, std::share
         FrameBufferSettingsDescriptor.DescriptorBufferInfo = frameBufferSettingsInfo;
         DescriptorList.emplace_back(FrameBufferSettingsDescriptor);
 
-        NewBaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
+        BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
 }
 
@@ -72,7 +72,23 @@ void FrameBufferMesh::Update(RendererManager& renderer)
     frameBufferSettings.UpdateUniformBuffer(renderer, static_cast<void*>(&settings));
 }
 
+void FrameBufferMesh::ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager)
+{
+    vkDestroyDescriptorPool(renderer.Device, DescriptorPool, nullptr);
+    DescriptorPool = VK_NULL_HANDLE;
+
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager);
+
+    for (auto drawMessage : DrawMessageList)
+    {
+        renderer.RemoveDrawMessage(drawMessage);
+    }
+    CreateDrawMessage(renderer, 0, renderer.frameBufferRenderer.frameBufferPipeline);
+}
+
 void FrameBufferMesh::Destory(RendererManager& renderer)
 {
     frameBufferSettings.Destroy(renderer);
+    BaseMesh::Destory(renderer);
 }

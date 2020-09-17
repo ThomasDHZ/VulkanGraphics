@@ -18,4 +18,6 @@ public:
     Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures);
     Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer);
     ~Mesh2D();
+
+    virtual void ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager) override;
 };

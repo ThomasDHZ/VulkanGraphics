@@ -177,7 +177,7 @@
     <ClCompile Include="MMShot.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
-    <ClCompile Include="NewBaseMesh.cpp" />
+    <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Object2D.cpp" />
@@ -198,7 +198,6 @@
     <ClCompile Include="ImGui\imgui_impl_vulkan.cpp" />
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="RendererColorTexture.cpp" />
@@ -286,7 +285,7 @@
     <ClInclude Include="MMShot.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="CubeMapTexture.h" />
-    <ClInclude Include="NewBaseMesh.h" />
+    <ClInclude Include="BaseMesh.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Object2D.h" />
@@ -311,7 +310,6 @@
     <ClInclude Include="ImGui\imstb_rectpack.h" />
     <ClInclude Include="ImGui\imstb_textedit.h" />
     <ClInclude Include="ImGui\imstb_truetype.h" />
-    <ClInclude Include="BaseMesh.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="RendererBase.h" />
     <ClInclude Include="RendererColorTexture.h" />

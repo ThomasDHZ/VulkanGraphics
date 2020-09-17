@@ -1,25 +1,28 @@
 #include "Mesh.h"
 
 
-Mesh::Mesh() : NewBaseMesh()
+Mesh::Mesh() : BaseMesh()
 {
 }
 
-Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata) : NewBaseMesh(renderer, vertexdata, indicesdata)
+Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata) : BaseMesh(renderer, vertexdata)
 {
 }
 
-Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, CustomBuffer customBuffer) : NewBaseMesh(renderer, vertexdata, indicesdata)
+Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata) : BaseMesh(renderer, vertexdata, indicesdata)
+{
+}
+
+Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, CustomBuffer customBuffer) : BaseMesh(renderer, vertexdata, indicesdata)
 {
 
 }
 
-Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures) : NewBaseMesh(renderer, vertexdata, indicesdata)
+Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures) : BaseMesh(renderer, vertexdata, indicesdata)
 {
     CustomBuffer EmptyBuffer;
     EmptyBuffer.ByteSize = sizeof(Empty);
 
-    Vertexdata = vertexdata;
     ExtendedMesProperitesBuffer = EmptyBuffer;
 
     CreateMaterialProperties();
@@ -30,9 +33,8 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
     CreateDescriptorSets(renderer, textureManager);
 }
 
-Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer) : NewBaseMesh(renderer, vertexdata, indicesdata)
+Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer) : BaseMesh(renderer, vertexdata, indicesdata)
 {
-    Vertexdata = vertexdata;
     ExtendedMesProperitesBuffer = customBuffer;
 
     LoadTextures(renderer, textureManager, textures);
@@ -109,47 +111,47 @@ void Mesh::CreateDescriptorPool(RendererManager& renderer) {
     DescriptorPoolInfo[9].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     DescriptorPoolInfo[10].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
-    NewBaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
+    BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
 
 void Mesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    NewBaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout);
+    BaseMesh::CreateDescriptorSets(renderer, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo DiffuseMap = {};
     DiffuseMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DiffuseMap.imageView = DiffuseMapID->GetTextureView();
-    DiffuseMap.sampler = DiffuseMapID->GetTextureSampler();
+    DiffuseMap.imageView = DiffuseTexture->GetTextureView();
+    DiffuseMap.sampler = DiffuseTexture->GetTextureSampler();
 
     VkDescriptorImageInfo SpecularMap = {};
     SpecularMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    SpecularMap.imageView = SpecularMapID->GetTextureView();
-    SpecularMap.sampler = SpecularMapID->GetTextureSampler();
+    SpecularMap.imageView = SpecularTexture->GetTextureView();
+    SpecularMap.sampler = SpecularTexture->GetTextureSampler();
 
     VkDescriptorImageInfo NormalMap = {};
     NormalMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    NormalMap.imageView = NormalMapID->GetTextureView();
-    NormalMap.sampler = NormalMapID->GetTextureSampler();
+    NormalMap.imageView = NormalTexture->GetTextureView();
+    NormalMap.sampler = NormalTexture->GetTextureSampler();
 
     VkDescriptorImageInfo DisplacementMap = {};
     DisplacementMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    DisplacementMap.imageView = DepthMapID->GetTextureView();
-    DisplacementMap.sampler = DepthMapID->GetTextureSampler();
+    DisplacementMap.imageView = DepthTexture->GetTextureView();
+    DisplacementMap.sampler = DepthTexture->GetTextureSampler();
 
     VkDescriptorImageInfo AlphaMap = {};
     AlphaMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    AlphaMap.imageView = DiffuseMapID->GetTextureView();
-    AlphaMap.sampler = DiffuseMapID->GetTextureSampler();
+    AlphaMap.imageView = DiffuseTexture->GetTextureView();
+    AlphaMap.sampler = DiffuseTexture->GetTextureSampler();
 
     VkDescriptorImageInfo EmissionMap = {};
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    EmissionMap.imageView = DiffuseMapID->GetTextureView();
-    EmissionMap.sampler = DiffuseMapID->GetTextureSampler();
+    EmissionMap.imageView = DiffuseTexture->GetTextureView();
+    EmissionMap.sampler = DiffuseTexture->GetTextureSampler();
 
     VkDescriptorImageInfo ReflectionMap = {};
     ReflectionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    ReflectionMap.imageView = ReflectionMapID->GetTextureView();
-    ReflectionMap.sampler = ReflectionMapID->GetTextureSampler();
+    ReflectionMap.imageView = ReflectionTexture->GetTextureView();
+    ReflectionMap.sampler = ReflectionTexture->GetTextureSampler();
 
     //VkDescriptorImageInfo SkyBoxMap = {};
     //SkyBoxMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -252,13 +254,13 @@ void Mesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Textu
         LightDescriptor.DescriptorBufferInfo = LightInfo;
         DescriptorList.emplace_back(LightDescriptor);
 
-        NewBaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
+        BaseMesh::CreateDescriptorSetsData(renderer, DescriptorList);
     }
 }
 
 void Mesh::Update(RendererManager& renderer)
 {
-    NewBaseMesh::Update(renderer);
+    BaseMesh::Update(renderer);
 }
 
 void Mesh::Update(RendererManager& renderer, Camera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo)
@@ -296,6 +298,17 @@ void Mesh::Update(RendererManager& renderer, OrthographicCamera& camera, LightBu
     UpdateUniformBuffer(renderer, ubo, Lightbuffer, CustomBufferinfo);
 }
 
+void Mesh::ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager)
+{
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager);
+}
+
+void Mesh::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, void* CustomBufferinfo)
+{
+    uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
+}
+
 void Mesh::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo)
 {
     uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
@@ -319,5 +332,5 @@ void Mesh::Destory(RendererManager& renderer)
     lightBuffer.Destroy(renderer);
     meshPropertiesBuffer.Destroy(renderer);
     ExtendedMesProperitesBuffer.customBuffer.Destroy(renderer);
-    NewBaseMesh::Destory(renderer);
+    BaseMesh::Destory(renderer);
 }

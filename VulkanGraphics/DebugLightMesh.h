@@ -8,35 +8,66 @@
 #include "Camera.h"
 #include "Mesh.h"
 
+const std::vector<Vertex> CubeVertices =
+{
+	{{-0.5,-0.5,-0.5}, {0,-1,0}, {0,1}},
+	{{0.5,-0.5,-0.5}, {0,-1,0}, {1,1}},
+	{{0.5,-0.5,0.5}, {0,-1,0}, {1,0}},
+	{{-0.5,-0.5,0.5}, {0,-1,0}, {0,0}},
+	{{-0.5,0.5,-0.5}, {0,0,-1}, {0,0}},
+	{{0.5,0.5,-0.5}, {0,0,-1}, {1,0}},
+	{{0.5,-0.5,-0.5}, {0,0,-1}, {1,1}},
+	{{-0.5,-0.5,-0.5}, {0,0,-1}, {0,1}},
+	{{0.5,0.5,-0.5}, {1,0,0}, {0,0}},
+	{{0.5,0.5,0.5}, {1,0,0}, {1,0}},
+	{{0.5,-0.5,0.5}, {1,0,0}, {1,1}},
+	{{0.5,-0.5,-0.5}, {1,0,0}, {0,1}},
+	{{0.5,0.5,0.5}, {0,0,1}, {1,0}},
+	{{-0.5,0.5,0.5}, {0,0,1}, {0,0}},
+	{{-0.5,-0.5,0.5}, {0,0,1}, {0,1}},
+	{{0.5,-0.5,0.5}, {0,0,1}, {1,1}},
+	{{-0.5,0.5,0.5}, {-1,0,0}, {1,0}},
+	{{-0.5,0.5,-0.5}, {-1,0,0}, {0,0}},
+	{{-0.5,-0.5,-0.5}, {-1,0,0}, {0,1}},
+	{{-0.5,-0.5,0.5}, {-1,0,0}, {1,1}},
+	{{-0.5,0.5,-0.5}, {0,1,0}, {0,1}},
+	{{-0.5,0.5,0.5}, {0,1,0}, {0,0}},
+	{{0.5,0.5,0.5}, {0,1,0}, {1,0}},
+	{{0.5,0.5,-0.5}, {0,1,0}, {1,1}},
+};
+
+const std::vector<uint16_t> CubeIndices = {
+	0,1,2, 0,2,3,
+	4,5,6, 4,6,7,
+	8,9,10, 8,10,11,
+	12,13,14, 12,14,15,
+	16,17,18, 16,18,19,
+	20,21,22, 20,22,23,
+};
+
 struct MeshColor
 {
     alignas(16) glm::vec3 Color;
 };
 
-class DebugLightMesh : public BaseMesh
+class DebugLightMesh : public Mesh
 {
 private:
-    VulkanUniformBuffer uniformBuffer;
     VulkanUniformBuffer meshColorBuffer;
 
-    void CreateUniformBuffers(VulkanRenderer& renderer);
-    void CreateDescriptorPool(VulkanRenderer& renderer);
-    void CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout& descriptorSetLayout);
-    void UpdateUniformBuffer(VulkanRenderer& renderer, UniformBufferObject ubo, MeshColor meshColorBuffer);
+    virtual void CreateUniformBuffers(RendererManager& renderer) override;
+    virtual void CreateDescriptorPool(RendererManager& renderer) override;
+    virtual void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager) override;
+    virtual void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, MeshColor meshColorBuffer);
 
 public:
 
-    glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 MeshScale = glm::vec3(1.0f);
-    float RotationAmount = 0.0f;
-
     DebugLightMesh();
-    DebugLightMesh(VulkanRenderer& renderer, std::vector<Vertex> vertexdata, std::vector<uint16_t> indicesdata, VkDescriptorSetLayout& descriptorSetLayout, int renderBit);
+    DebugLightMesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, int renderBit);
     ~DebugLightMesh();
 
-    void Update(VulkanRenderer& renderer, Camera& camera, MeshColor meshColorBuffer);
-    void Update(VulkanRenderer& renderer, OrthographicCamera& camera, MeshColor meshColorBuffer);
-    void Destory(VulkanRenderer& renderer);
+    void Update(RendererManager& renderer, Camera& camera, MeshColor meshColorBuffer);
+    void Update(RendererManager& renderer, OrthographicCamera& camera, MeshColor meshColorBuffer);
+    virtual void Destory(RendererManager& renderer) override;
 };
 

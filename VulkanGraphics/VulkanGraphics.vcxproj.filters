@@ -144,9 +144,6 @@
     <ClCompile Include="DebugLightMesh.cpp">
       <Filter>Source Files\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="BaseMesh.cpp">
-      <Filter>Source Files\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="CollisionDebugPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
@@ -249,9 +246,6 @@
     <ClCompile Include="WaterSurface2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NewBaseMesh.cpp">
-      <Filter>Source Files\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -287,6 +281,9 @@
     </ClCompile>
     <ClCompile Include="RendererHDRColorTexture.cpp">
       <Filter>Source Files\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseMesh.cpp">
+      <Filter>Source Files\Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -469,9 +466,6 @@
     <ClInclude Include="GraphicsPipeline.h">
       <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
-    <ClInclude Include="BaseMesh.h">
-      <Filter>Header Files\Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="DebugLightMesh.h">
       <Filter>Header Files\Mesh</Filter>
     </ClInclude>
@@ -580,9 +574,6 @@
     <ClInclude Include="WaterSurface2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NewBaseMesh.h">
-      <Filter>Header Files\Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="VertexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -618,6 +609,9 @@
     </ClInclude>
     <ClInclude Include="RendererHDRColorTexture.h">
       <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseMesh.h">
+      <Filter>Header Files\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

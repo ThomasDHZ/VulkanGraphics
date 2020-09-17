@@ -56,6 +56,7 @@ private:
     OrthographicCamera OrthoCamera2;
 
     Light light;
+    SkyBox skybox;
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;

@@ -1,77 +1,105 @@
 #include "BaseMesh.h"
+#include "VulkanBufferManager.h"
+#include "RendererBase.h"
 
 BaseMesh::BaseMesh()
 {
 }
-BaseMesh::BaseMesh(int renderBitFlags)
+BaseMesh::BaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata)
 {
-    RenderBitFlags = renderBitFlags;
+    MeshVertex = VertexBuffer(renderer, Vertexdata);
+    MeshIndices = IndicesBuffer(renderer, Indicesdata);
 }
+BaseMesh::BaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata)
+{
+    MeshVertex = VertexBuffer(renderer, Vertexdata);
+}
+
 BaseMesh::~BaseMesh()
 {
 }
 
-void BaseMesh::CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex> vertexdata) {
-    VkDeviceSize bufferSize = sizeof(vertexdata[0]) * vertexdata.size();
+void BaseMesh::LoadTextures(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
+{
+    if (!textures.DiffuseMap.empty())
+    {
+        DiffuseTexture = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
+    }
+    else if (textures.RendererDiffuseMap)
+    {
+        DiffuseTexture = textures.RendererDiffuseMap;
+    }
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    if (textures.SpecularMap != DefaultTexture)
+    {
+        SpecularTexture = textureManager->LoadTexture(renderer, textures.SpecularMap, VK_FORMAT_R8G8B8A8_UNORM);
+    }
+    else if (textures.RendererSpecularMap)
+    {
+        SpecularTexture = textures.RendererSpecularMap;
+    }
 
-    void* data;
-    vkMapMemory(renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertexdata.data(), (size_t)bufferSize);
-    vkUnmapMemory(renderer.Device, stagingBufferMemory);
+    if (textures.NormalMap != DefaultTexture)
+    {
+        NormalTexture = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
+    }
+    else if (textures.RendererNormalMap)
+    {
+        NormalTexture = textures.RendererNormalMap;
+    }
 
-    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
+    if (textures.DepthMap != DefaultTexture)
+    {
+        DepthTexture = textureManager->LoadTexture(renderer, textures.DepthMap, VK_FORMAT_R8G8B8A8_UNORM);
+    }
+    else if (textures.RendererDepthMap)
+    {
+        DepthTexture = textures.RendererDepthMap;
+    }
 
-    VulkanBufferManager::CopyBuffer(renderer, stagingBuffer, VertexBuffer, bufferSize);
+    if (textures.AlphaMap != DefaultTexture)
+    {
+        AlphaTexture = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
+    }
+    else if (textures.RendererAlphaMap)
+    {
+        AlphaTexture = textures.RendererAlphaMap;
+    }
 
-    vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
-    vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
+    if (textures.EmissionMap != DefaultTexture)
+    {
+        EmissionTexture = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
+    }
+    else if (textures.RendererEmissionMap)
+    {
+        EmissionTexture = textures.RendererEmissionMap;
+    }
+
+    if (textures.ReflectionMap != DefaultTexture)
+    {
+        ReflectionTexture = textureManager->LoadTexture(renderer, textures.ReflectionMap, VK_FORMAT_R8G8B8A8_UNORM);
+    }
+    else if (textures.RendererReflectionMap)
+    {
+        ReflectionTexture = textures.RendererReflectionMap;
+    }
+
+    if (!textures.CubeMap[0].empty() &&
+        !textures.CubeMap[1].empty() &&
+        !textures.CubeMap[2].empty() &&
+        !textures.CubeMap[3].empty() &&
+        !textures.CubeMap[4].empty() &&
+        !textures.CubeMap[5].empty())
+    {
+        SkyBoxTexture = textureManager->LoadTexture(renderer, textures.CubeMap);
+    }
+    else if (textures.RendererReflectionMap)
+    {
+        SkyBoxTexture = textures.RendererCubeMap;
+    }
 }
 
-void BaseMesh::CreateVertexBuffer(VulkanRenderer& renderer, std::vector<Vertex2D> vertexdata) {
-    VkDeviceSize bufferSize = sizeof(vertexdata[0]) * vertexdata.size();
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertexdata.data(), (size_t)bufferSize);
-    vkUnmapMemory(renderer.Device, stagingBufferMemory);
-
-    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
-
-    VulkanBufferManager::CopyBuffer(renderer, stagingBuffer, VertexBuffer, bufferSize);
-
-    vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
-    vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
-}
-
-void BaseMesh::CreateIndexBuffer(VulkanRenderer& renderer, std::vector<uint16_t> indicesdata) {
-    VkDeviceSize bufferSize = sizeof(indicesdata[0]) * indicesdata.size();
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(renderer.Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indicesdata.data(), (size_t)bufferSize);
-    vkUnmapMemory(renderer.Device, stagingBufferMemory);
-
-    VulkanBufferManager::CreateBuffer(renderer, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, IndexBuffer, IndexBufferMemory);
-
-    VulkanBufferManager::CopyBuffer(renderer, stagingBuffer, IndexBuffer, bufferSize);
-
-    vkDestroyBuffer(renderer.Device, stagingBuffer, nullptr);
-    vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
-}
-
-void BaseMesh::CreateDescriptorPool(VulkanRenderer& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)
+void BaseMesh::CreateDescriptorPool(RendererManager& renderer, std::vector<DescriptorPoolSizeInfo> DescriptorPoolInfo)
 {
     std::vector<VkDescriptorPoolSize> DescriptorPoolList = {};
 
@@ -94,7 +122,7 @@ void BaseMesh::CreateDescriptorPool(VulkanRenderer& renderer, std::vector<Descri
     }
 }
 
-void BaseMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLayout layout)
+void BaseMesh::CreateDescriptorSets(RendererManager& renderer, VkDescriptorSetLayout layout)
 {
     std::vector<VkDescriptorSetLayout> layouts(renderer.SwapChain.GetSwapChainImageCount(), layout);
     VkDescriptorSetAllocateInfo allocInfo = {};
@@ -109,7 +137,7 @@ void BaseMesh::CreateDescriptorSets(VulkanRenderer& renderer, VkDescriptorSetLay
     }
 }
 
-void BaseMesh::CreateDescriptorSetsData(VulkanRenderer& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList)
+void BaseMesh::CreateDescriptorSetsData(RendererManager& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList)
 {
     std::vector<VkWriteDescriptorSet>  WriteDescriptorInfo = {};
 
@@ -136,25 +164,58 @@ void BaseMesh::CreateDescriptorSetsData(VulkanRenderer& renderer, std::vector<Wr
     vkUpdateDescriptorSets(renderer.Device, static_cast<uint32_t>(WriteDescriptorInfo.size()), WriteDescriptorInfo.data(), 0, nullptr);
 }
 
-void BaseMesh::Destory(VulkanRenderer& renderer)
+void BaseMesh::SetPosition2D(glm::vec2 Pos)
 {
-    if (VertexSize != 0)
-    {
-        vkDestroyDescriptorPool(renderer.Device, DescriptorPool, nullptr);
-        vkDestroyBuffer(renderer.Device, VertexBuffer, nullptr);
-        vkFreeMemory(renderer.Device, VertexBufferMemory, nullptr);
+    MeshPosition = glm::vec3(Pos, 0.0f);
+}
 
-        DescriptorPool = VK_NULL_HANDLE;
-        VertexBuffer = VK_NULL_HANDLE;
-        VertexBufferMemory = VK_NULL_HANDLE;
+void BaseMesh::SetPosition2D(float x, float y)
+{
+    MeshPosition = glm::vec3(x, y, 0.0f);
+}
+
+void BaseMesh::SetPosition3D(glm::vec3 Pos)
+{
+   MeshPosition = Pos;
+}
+
+void BaseMesh::SetPosition3D(float x, float y, float z)
+{
+    MeshPosition = glm::vec3(x, y, z);
+}
+
+void BaseMesh::CreateDrawMessage(RendererManager& renderer, unsigned int RendererID, std::shared_ptr<GraphicsPipeline> pipeline)
+{
+    RendererDrawMessage DrawMessage = {};
+    DrawMessage.RendererID = RendererID;
+    DrawMessage.MeshVertex = MeshVertex;
+    DrawMessage.MeshIndices = MeshIndices;
+    DrawMessage.DescriptorSets = DescriptorSets;
+    DrawMessage.pipeline = pipeline;
+    
+    std::shared_ptr<RendererDrawMessage> DrawMessagePtr = std::make_shared<RendererDrawMessage>(DrawMessage);
+    renderer.DrawMessageList.emplace_back(DrawMessagePtr);
+    DrawMessageList.emplace_back(DrawMessagePtr);
+}
+
+void BaseMesh::Update(RendererManager& renderer)
+{
+}
+
+
+void BaseMesh::Destory(RendererManager& renderer)
+{
+    MeshVertex.Destory(renderer);
+    MeshVertex.Destory(renderer);
+    MeshIndices.Destory(renderer);
+
+    vkDestroyDescriptorPool(renderer.Device, DescriptorPool, nullptr);
+    DescriptorPool = VK_NULL_HANDLE;
+
+    for (auto drawMessage : DrawMessageList)
+    {
+        renderer.RemoveDrawMessage(drawMessage);
     }
 
-    if (IndexSize != 0)
-    {
-        vkDestroyBuffer(renderer.Device, IndexBuffer, nullptr);
-        vkFreeMemory(renderer.Device, IndexBufferMemory, nullptr);
-
-        IndexBuffer = VK_NULL_HANDLE;
-        IndexBufferMemory = VK_NULL_HANDLE;
-    }
+    MeshDeletedFlag = true;
 }

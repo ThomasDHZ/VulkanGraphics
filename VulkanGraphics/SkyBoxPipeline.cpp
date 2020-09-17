@@ -58,8 +58,8 @@ void SkyBoxPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRend
 	VkPipelineVertexInputStateCreateInfo SkyBoxvertexInputInfo = {};
 	SkyBoxvertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-	auto SkyBoxbindingDescription = SkyBoxVertex::getBindingDescription();
-	auto SkyBoxattributeDescriptions = SkyBoxVertex::getAttributeDescriptions();
+	auto SkyBoxbindingDescription = Vertex::GetBindingDescription();
+	auto SkyBoxattributeDescriptions = Vertex::GetAttributeDescriptions();
 
 	SkyBoxvertexInputInfo.vertexBindingDescriptionCount = 1;
 	SkyBoxvertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(SkyBoxattributeDescriptions.size());

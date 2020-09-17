@@ -1,5 +1,6 @@
 #pragma once
-#include "NewBaseMesh.h"
+#include "BaseMesh.h"
+
 
 struct DirectionalLightStruct {
     alignas(16) glm::vec3 direction = glm::vec3(-0.2f, -1.0f, -0.3f);
@@ -101,8 +102,10 @@ struct CustomBuffer
     VulkanUniformBuffer customBuffer;
 };
 
-class Mesh : public NewBaseMesh
+class Mesh : public BaseMesh
 {
+private:
+
 protected:
 
     VulkanUniformBuffer uniformBuffer;
@@ -115,16 +118,12 @@ protected:
 
     virtual void CreateUniformBuffers(RendererManager& renderer);
     virtual void CreateDescriptorPool(RendererManager& renderer);
-    virtual void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager);
+    virtual void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager);
+    virtual void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, void* CustomBufferinfo = nullptr);
     virtual void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
 
 public:
-
-    std::string MeshName;
     MeshProperties properites;
-
-    std::vector<Vertex> Vertexdata;
-    float RotationAmount = 0.0f;
 
     Mesh();
     Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata);
@@ -137,5 +136,6 @@ public:
     virtual void Update(RendererManager& renderer) override;
     virtual void Update(RendererManager& renderer, Camera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
     virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
+    virtual void ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager);
     virtual void Destory(RendererManager& renderer) override;
 };
