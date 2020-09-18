@@ -17,9 +17,9 @@ Light::~Light()
 {
 }
 
-void Light::Update(RendererManager& renderer, OrthographicCamera& camera)
+void Light::Update(RendererManager& renderer, std::shared_ptr<Camera>& camera)
 {
-	light.viewPos = camera.GetPosition();
+	light.viewPos = static_cast<OrthographicCamera*>(camera.get())->GetPosition();
 
 	MeshColor color = {};
 	color.Color = glm::vec3(1.0f, 0.0f, 0.0f);

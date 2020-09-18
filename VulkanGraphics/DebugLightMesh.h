@@ -66,8 +66,7 @@ public:
     DebugLightMesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, int renderBit);
     ~DebugLightMesh();
 
-    void Update(RendererManager& renderer, PerspectiveCamera& camera, MeshColor meshColorBuffer);
-    void Update(RendererManager& renderer, OrthographicCamera& camera, MeshColor meshColorBuffer);
+    void Update(RendererManager& renderer, std::shared_ptr<Camera>& camera, MeshColor meshColorBuffer);
     virtual void Destory(RendererManager& renderer) override;
 };
 

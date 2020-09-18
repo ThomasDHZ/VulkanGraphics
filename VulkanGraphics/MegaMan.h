@@ -41,7 +41,7 @@ public:
 	MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos);
 	~MegaMan();
 
-	void Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, float dt, LightBufferObject light, std::vector<std::shared_ptr<Object2D>>& SpriteList, std::shared_ptr<TextureManager>textureManager);
+	void Update(GLFWwindow* window, RendererManager& renderer, std::shared_ptr<Camera>& camera, float dt, LightBufferObject light, std::vector<std::shared_ptr<Object2D>>& SpriteList, std::shared_ptr<TextureManager>textureManager);
 	void AnimationHandler() override;
 	void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList) override;
 };

@@ -78,35 +78,14 @@ void DebugLightMesh::CreateDescriptorSets(RendererManager& renderer, std::shared
     }
 }
 
-void DebugLightMesh::Update(RendererManager& renderer, PerspectiveCamera& camera, MeshColor MeshColorBuffer)
+void DebugLightMesh::Update(RendererManager& renderer, std::shared_ptr<Camera>& camera, MeshColor MeshColorBuffer)
 {
     UniformBufferObject ubo{};
     ubo.model = glm::mat4(1.0f);
     ubo.model = glm::translate(ubo.model, MeshPosition);
     ubo.model = glm::scale(ubo.model, MeshScale);
-    ubo.view = camera.GetViewMatrix();
-    ubo.proj = glm::perspective(glm::radians(camera.Zoom), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 10000.0f);
-    ubo.proj[1][1] *= -1;
-
-    if (RotationAmount != 0 &&
-        (MeshRotate.x != 0 ||
-            MeshRotate.y != 0 ||
-            MeshRotate.z != 0))
-    {
-        ubo.model = glm::rotate(ubo.model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-    }
-
-    UpdateUniformBuffer(renderer, ubo, MeshColorBuffer);
-}
-
-void DebugLightMesh::Update(RendererManager& renderer, OrthographicCamera& camera, MeshColor MeshColorBuffer)
-{
-    UniformBufferObject ubo{};
-    ubo.model = glm::mat4(1.0f);
-    ubo.model = glm::translate(ubo.model, MeshPosition);
-    ubo.model = glm::scale(ubo.model, MeshScale);
-    ubo.view = camera.GetViewMatrix();
-    ubo.proj = camera.GetProjectionMatrix();
+    ubo.view = camera->GetViewMatrix();
+    ubo.proj = camera->GetProjectionMatrix();
     ubo.proj[1][1] *= -1;
 
     UpdateUniformBuffer(renderer, ubo, MeshColorBuffer);

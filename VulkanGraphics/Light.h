@@ -27,7 +27,7 @@ public:
 	Light(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, int renderBit, glm::vec3 Pos);
 	~Light();
 
-	void Update(RendererManager& renderer, OrthographicCamera& camera);
+	void Update(RendererManager& renderer, std::shared_ptr<Camera>& camera);
 	void Destory(RendererManager& renderer);
 };
 

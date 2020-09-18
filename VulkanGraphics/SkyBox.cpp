@@ -13,7 +13,7 @@ SkyBox::~SkyBox()
 {
 }
 
-void SkyBox::Update(RendererManager& renderer, OrthographicCamera& camera)
+void SkyBox::Update(RendererManager& renderer, std::shared_ptr<Camera> camera)
 {
 	skyBoxMesh->UpdateUniformBuffer(renderer, camera);
 }

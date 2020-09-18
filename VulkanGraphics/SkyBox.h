@@ -11,6 +11,6 @@ public:
 	~SkyBox();
 
 	std::shared_ptr<SkyBoxMesh> skyBoxMesh;
-	void Update(RendererManager& renderer, OrthographicCamera& camera);
+	void Update(RendererManager& renderer, std::shared_ptr<Camera> camera);
 };
 

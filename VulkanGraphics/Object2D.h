@@ -39,7 +39,7 @@ public:
 	~Object2D();
 
 	virtual void AnimationHandler();
-	virtual void Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject Lightbuffer);
+	virtual void Update(RendererManager& renderer, float dt, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer);
 	virtual void Collision(RendererManager& renderer, std::vector<std::shared_ptr<Object2D>>& ObjectList);
 	virtual void Destory(RendererManager& renderer);
 

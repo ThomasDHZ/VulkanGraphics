@@ -34,10 +34,11 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.CubeMap[4] = "texture/skybox/back.jpg";
 	SparkManTextures.CubeMap[5] = "texture/skybox/front.jpg";
 
-	OrthoCamera = OrthographicCamera(glm::vec2(1920, 1080), 4.0f);
+	OrthoCamera = std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), 4.0f));
+	PCamera = std::make_shared<PerspectiveCamera>(PerspectiveCamera(glm::vec3(10.0f)));
 	OrthoCamera2 = OrthographicCamera(glm::vec2(1920, 1080), 9.0f);
 
-	OrthoCamera.SetPosition(8.0f, 9.0f);
+	OrthoCamera->SetPosition(8.0f, 9.0f);
 
 	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
@@ -156,12 +157,13 @@ void VulkanGraphics2D::UpdateImGUI()
 	ImGui::Render();
 }
 
-void VulkanGraphics2D::Update(uint32_t DrawFrame, OrthographicCamera& camera)
+void VulkanGraphics2D::Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera)
 {
 	float currentFrame = glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
 
+	camera->Update();
 	framebuffer.Update(renderer);
 	light.Update(renderer, camera);
 	//skybox.Update(renderer, camera);
@@ -209,7 +211,7 @@ void VulkanGraphics2D::MainLoop()
 		}
 
 		Window.Update();
-		//mouse.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
+		mouse.Update(Window.GetWindowPtr(), OrthoCamera);
 		keyboard.UpdateOrtho(Window.GetWindowPtr(), OrthoCamera);
 		UpdateImGUI();
 

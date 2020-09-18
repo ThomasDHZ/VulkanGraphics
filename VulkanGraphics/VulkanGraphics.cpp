@@ -147,7 +147,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	light.light.viewPos = ActiveCamera->Position;
+	light.light.viewPos = ActiveCamera->GetPosition();
 
 	MeshColor color = {};
 	color.Color = glm::vec3(1.0f, 1.0f, 1.0f);

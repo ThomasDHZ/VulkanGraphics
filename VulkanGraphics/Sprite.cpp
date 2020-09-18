@@ -116,7 +116,7 @@ void Sprite::SetUpSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 	DrawMessage(renderer);
 }
 
-void Sprite::Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject light)
+void Sprite::Update(RendererManager& renderer, float dt, std::shared_ptr<Camera> camera, LightBufferObject light)
 {
 	Object2D::Update(renderer, dt, camera, light);
 }

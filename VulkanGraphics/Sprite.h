@@ -29,6 +29,6 @@ public:
 	void ApplyGravity(std::vector<std::shared_ptr<Object2D>>& ObjectList, float dt);
 	void Move(std::vector<std::shared_ptr<Object2D>>& ObjectList, glm::vec3 MoveDirection);
 
-	virtual void Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject light) override;
+	virtual void Update(RendererManager& renderer, float dt, std::shared_ptr<Camera> camera, LightBufferObject light) override;
 	virtual void Destory(RendererManager& renderer) override;
 };

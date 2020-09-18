@@ -1,8 +1,9 @@
 #include "Mouse.h"
 
-void Mouse::Update(GLFWwindow* window, PerspectiveCamera& camera, VulkanRendererSettings settings)
+void Mouse::Update(GLFWwindow* window, std::shared_ptr<Camera> camera)
 {
-	if (!settings.TwoDMode)
+
+	if (auto PCamera = dynamic_cast<PerspectiveCamera*>(camera.get()))
 	{
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
@@ -20,7 +21,7 @@ void Mouse::Update(GLFWwindow* window, PerspectiveCamera& camera, VulkanRenderer
 			lastX = MouseXPos;
 			lastY = MouseYPos;
 
-			camera.ProcessMouseMovement(xoffset, yoffset);
+			PCamera->ProcessMouseMovement(xoffset, yoffset);
 		}
 		else
 		{

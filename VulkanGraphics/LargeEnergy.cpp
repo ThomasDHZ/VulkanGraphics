@@ -41,7 +41,7 @@ LargeEnergy::~LargeEnergy()
 {
 }
 
-void LargeEnergy::Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject light)
+void LargeEnergy::Update(RendererManager& renderer, float dt, std::shared_ptr<Camera> camera, LightBufferObject light)
 {
 	CurrentAni.Update();
 	ObjectMesh->properites.UVOffset = CurrentAni.GetCurrentFrame().GetUVOffset();

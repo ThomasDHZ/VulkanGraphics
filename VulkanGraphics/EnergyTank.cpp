@@ -41,7 +41,7 @@ EnergyTank::~EnergyTank()
 {
 }
 
-void EnergyTank::Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject light)
+void EnergyTank::Update(RendererManager& renderer, float dt, std::shared_ptr<Camera> camera, LightBufferObject light)
 {
 	CurrentAni.Update();
 ObjectMesh->properites.UVOffset = CurrentAni.GetCurrentFrame().GetUVOffset();

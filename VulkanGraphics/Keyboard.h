@@ -13,6 +13,5 @@ private:
 
 public:
 
-	void Update(GLFWwindow* window, PerspectiveCamera& camera);
-	void UpdateOrtho(GLFWwindow* window, OrthographicCamera& camera);
+	void UpdateOrtho(GLFWwindow* window, std::shared_ptr<Camera> camera);
 };

@@ -52,7 +52,8 @@ private:
     std::vector<std::shared_ptr<Object2D>> SpriteList;
     FrameBufferMesh framebuffer;
 
-    OrthographicCamera OrthoCamera;
+    std::shared_ptr<PerspectiveCamera> PCamera;
+    std::shared_ptr<OrthographicCamera> OrthoCamera;
     OrthographicCamera OrthoCamera2;
 
     Light light;
@@ -62,7 +63,7 @@ private:
     float lastFrame = 0.0f;
 
     void UpdateImGUI();
-    void Update(uint32_t DrawFrame, OrthographicCamera& camera);
+    void Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera);
 public:
     VulkanGraphics2D(int Width, int Height, const char* AppName);
     ~VulkanGraphics2D();

@@ -14,5 +14,5 @@ private:
 	double MouseYPos;
 
 public:
-	void Update(GLFWwindow* window, PerspectiveCamera& camera, VulkanRendererSettings settings);
+	void Update(GLFWwindow* window, std::shared_ptr<Camera> camera);
 };

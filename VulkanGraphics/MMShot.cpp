@@ -28,11 +28,11 @@ MMShot::~MMShot()
 {
 }
 
-void MMShot::Update(RendererManager& renderer, float dt, OrthographicCamera& camera, LightBufferObject light)
+void MMShot::Update(RendererManager& renderer, float dt, std::shared_ptr<Camera> camera, LightBufferObject light)
 {
 	ObjectMesh->MeshPosition.x += 7.0f * dt;
 	Sprite::Update(renderer, dt, camera, light);
-	if (ObjectMesh->GetPosition2D().x - SpriteSize.x > camera.GetViewScreenSize().x + camera.GetPosition().x)
+	if (ObjectMesh->GetPosition2D().x - SpriteSize.x > static_cast<OrthographicCamera*>(camera.get())->GetViewScreenSize().x + static_cast<OrthographicCamera*>(camera.get())->GetPosition().x)
 	{
 		DestoryObjectFlag = true;
 	}

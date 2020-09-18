@@ -26,7 +26,7 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	RenderBitFlags = RenderBitFlag::RenderOnMainPass;
 	ObjectFlagBits = ObjectFlags::None;
 
-	WaterCamera = OrthographicCamera(camera.Width, camera.Height);
+	WaterCamera = OrthographicCamera(glm::vec2(1920, 1080));
 	WaterCamera.SetPosition(StartPos);
 	SetUpSprite(renderer, textureManager, Water2DVertices, CoinTextures, StartPos, custom);
 }

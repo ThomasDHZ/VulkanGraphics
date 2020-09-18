@@ -135,8 +135,7 @@ public:
     ~Mesh();
 
     virtual void Update(RendererManager& renderer) override;
-    virtual void Update(RendererManager& renderer, PerspectiveCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
-    virtual void Update(RendererManager& renderer, OrthographicCamera& camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
+    virtual void Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
     virtual void ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager);
     virtual void Destory(RendererManager& renderer) override;
 };

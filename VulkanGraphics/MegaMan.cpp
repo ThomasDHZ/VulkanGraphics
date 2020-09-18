@@ -59,7 +59,7 @@ MegaMan::~MegaMan()
 {
 }
 
-void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, OrthographicCamera& camera, float dt, LightBufferObject light, std::vector<std::shared_ptr<Object2D>>& SpriteList, std::shared_ptr<TextureManager>textureManager)
+void MegaMan::Update(GLFWwindow* window, RendererManager& renderer, std::shared_ptr<Camera>& camera, float dt, LightBufferObject light, std::vector<std::shared_ptr<Object2D>>& SpriteList, std::shared_ptr<TextureManager>textureManager)
 {
 	if (OnGroundCheck(SpriteList))
 	{
