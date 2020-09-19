@@ -27,6 +27,10 @@ void Object2D::DrawMessage(RendererManager& renderer)
 	{
 			ObjectMesh->CreateDrawMessage(renderer, 4, renderer.bloomRenderer.renderer2DPipeline2);
 	}
+	if (RenderBitFlags & RenderBitFlag::RenderBloomPass1)
+	{
+	//	ObjectMesh->CreateDrawMessage(renderer, 5, renderer.bloomPass1Renderer.bloomPipeline);
+	}
 }
 
 void Object2D::AnimationHandler()

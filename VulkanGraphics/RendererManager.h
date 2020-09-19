@@ -12,6 +12,7 @@
 #include "ShadowRenderer.h"
 #include <chrono>
 #include "BloomRenderer.h"
+#include "BloomRenderer2.h"
 
 class RendererManager : public VulkanRenderer
 {
@@ -32,6 +33,7 @@ private:
 	void UpdateSwapChain(GLFWwindow* window);
 
 	void DrawToBloomTextureRenderPass();
+	void BloomPass1Pass();
 	void DrawToTextureRenderPass();
 	void MainRenderPass();
 	void FrameBufferRenderPass();
@@ -52,6 +54,7 @@ public:
 	std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 	ForwardRenderer forwardRenderer;
 	BloomRenderer bloomRenderer;
+	BloomRenderer2 bloomPass1Renderer;
 	TextureRenderer textureRenderer;
 	ShadowRenderer shadowRenderer;
 	FramebufferRenderer frameBufferRenderer;
