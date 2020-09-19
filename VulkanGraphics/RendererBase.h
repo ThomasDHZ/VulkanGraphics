@@ -38,7 +38,6 @@ public:
 	RendererBase(VulkanRenderer& renderer);
 	~RendererBase();
 
-	//void Draw(VulkanRenderer& renderer, GraphicsPipeline pipeline, const std::shared_ptr<BaseMesh> mesh);
 	void Draw(VulkanRenderer& renderer, std::shared_ptr<RendererDrawMessage>& drawMessage) const;
 	virtual void Destroy(VulkanRenderer& renderer);
 };

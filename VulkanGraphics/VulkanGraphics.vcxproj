@@ -147,6 +147,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animation2D.cpp" />
+    <ClCompile Include="BloomPipeline.cpp" />
+    <ClCompile Include="BloomRenderer.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="EnergyTank.cpp" />
@@ -186,6 +188,7 @@
     <ClCompile Include="Reflection2DPipeline.cpp" />
     <ClCompile Include="RendererHDRColorTexture.cpp" />
     <ClCompile Include="Rendering2DPipeline.cpp" />
+    <ClCompile Include="Rendering2DPipeline2.cpp" />
     <ClCompile Include="ShadowRenderer.cpp" />
     <ClCompile Include="ShadowRenderingPipeline.cpp" />
     <ClCompile Include="SkyBox.cpp" />
@@ -229,6 +232,8 @@
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\BloomShader.frag" />
+    <None Include="Shaders\BloomShader.vert" />
     <None Include="Shaders\CollisionDebugShader.frag" />
     <None Include="Shaders\CollisionDebugShader.vert" />
     <None Include="Shaders\DepthShader.frag" />
@@ -246,6 +251,8 @@
     <None Include="Shaders\ReflectShader2D.vert" />
     <None Include="Shaders\Shader2D.frag" />
     <None Include="Shaders\Shader2D.vert" />
+    <None Include="Shaders\Shader2D2.frag" />
+    <None Include="Shaders\Shader2D2.vert" />
     <None Include="Shaders\ShadowDebug.frag" />
     <None Include="Shaders\ShadowDebug.vert" />
     <None Include="Shaders\SkyboxShader.frag" />
@@ -257,6 +264,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation2D.h" />
+    <ClInclude Include="BloomPipeline.h" />
+    <ClInclude Include="BloomRenderer.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="EnergyTank.h" />
@@ -295,6 +304,7 @@
     <ClInclude Include="Reflection2DPipeline.h" />
     <ClInclude Include="RendererHDRColorTexture.h" />
     <ClInclude Include="Rendering2DPipeline.h" />
+    <ClInclude Include="Rendering2DPipeline2.h" />
     <ClInclude Include="ShadowRenderer.h" />
     <ClInclude Include="ShadowRenderingPipeline.h" />
     <ClInclude Include="SkyBox.h" />

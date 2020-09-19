@@ -288,6 +288,15 @@
     <ClCompile Include="PerspectiveCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BloomRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering2DPipeline2.cpp">
+      <Filter>Source Files\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="BloomPipeline.cpp">
+      <Filter>Source Files\Pipelines</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -363,6 +372,18 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\CollisionDebugShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader2D2.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader2D2.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\BloomShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\BloomShader.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -618,6 +639,15 @@
     </ClInclude>
     <ClInclude Include="PerspectiveCamera.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering2DPipeline2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomPipeline.h">
+      <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

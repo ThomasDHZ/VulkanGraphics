@@ -49,7 +49,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	//SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
 	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.textureRenderer.ColorTexture)));
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
-	framebuffer = FrameBufferMesh(renderer, gameManager.textureManager, renderer.textureRenderer.ColorTexture);
+	framebuffer = FrameBufferMesh(renderer, gameManager.textureManager, renderer.bloomRenderer.BloomTexture);
 	//skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 }
 
@@ -229,6 +229,7 @@ void VulkanGraphics2D::MainLoop()
 			renderer.MainRenderPass();
 			
 		}
+		renderer.DrawToBloomTextureRenderPass();
 		renderer.FrameBufferRenderPass();
 		//renderer.Draw(Window.GetWindowPtr());
 		renderer.EndDraw(Window.GetWindowPtr());

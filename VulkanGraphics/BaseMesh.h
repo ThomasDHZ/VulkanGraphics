@@ -20,7 +20,8 @@ enum RenderBitFlag
     RenderOnMainPass = 1 << 0,
     RenderOnTexturePass = 1 << 1,
     RenderOnFrameBufferPass = 1 << 2,
-    RenderShadow = 1 << 3
+    RenderShadow = 1 << 3,
+    RenderBloom = 1 << 4
 };
 struct MeshTextures
 {

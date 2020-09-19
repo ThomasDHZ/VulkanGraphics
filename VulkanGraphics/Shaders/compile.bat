@@ -16,11 +16,15 @@ C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe shader.vert -o vert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe shader.frag -o frag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D.vert -o Shader2DVert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D.frag -o Shader2DFrag.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D2.vert -o Shader2DVert2.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D2.frag -o Shader2DFrag2.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe ReflectShader2D.vert -o ReflectShader2DVert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe ReflectShader2D.frag -o ReflectShader2DFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe UnderWater2DShader.vert -o UnderWater2DShaderVert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe UnderWater2DShader.frag -o UnderWater2DShaderFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe CollisionDebugShader.vert -o CollisionDebugShaderVert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe CollisionDebugShader.frag -o CollisionDebugShaderFrag.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe BloomShader.vert -o BloomShaderVert.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe BloomShader.frag -o BloomShaderFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe EmptyShader.frag -o EmptyFrag.spv
 pause
