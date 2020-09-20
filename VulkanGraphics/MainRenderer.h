@@ -7,7 +7,7 @@
 #include "Rendering2DPipeline2.h"
 #include "TextureManager.h"
 
-class BloomRenderer : public RendererBase
+class MainRender : public RendererBase
 {
 private:
 	void CreateRenderPass(VulkanRenderer& renderer);
@@ -15,10 +15,10 @@ private:
 	void CreateRendererFramebuffers(VulkanRenderer& renderer, std::shared_ptr<RendererColorTexture> texture);
 
 public:
-	BloomRenderer();
-	BloomRenderer(VulkanRenderer& renderer);
-	BloomRenderer(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture>& texture);
-	~BloomRenderer();
+	MainRender();
+	MainRender(VulkanRenderer& renderer);
+	MainRender(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture>& texture);
+	~MainRender();
 
 	std::shared_ptr<Rendering2DPipeline2> renderer2DPipeline2;
 

@@ -4,6 +4,7 @@
 #include "RendererDepthTexture.h"
 #include "Rendering2DPipeline.h"
 #include "Reflection2DPipeline.h"
+#include "BloomPipeline.h"
 
 class TextureRenderer : public RendererBase
 {
@@ -23,6 +24,7 @@ public:
 	//Reflection2DPipeline reflection2DPipeline;
 	//CollisionDebugPipeline DebugCollisionPipeline;
 	std::shared_ptr<WireFramePipeline> wireFramePipeline;
+	std::shared_ptr<BloomPipeline> bloomPipeline;
 
 	std::shared_ptr<RendererColorTexture> ColorTexture;
 	RendererDepthTexture DepthTexture;

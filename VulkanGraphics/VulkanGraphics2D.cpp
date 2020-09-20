@@ -29,6 +29,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 	SparkManTextures.DepthMap = "texture/SparkManAlpha.bmp";
 	SparkManTextures.ReflectionMap = "texture/SparkManAlpha.bmp";
+	SparkManTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
 	SparkManTextures.CubeMap[0] = "texture/skybox/left.jpg";
 	SparkManTextures.CubeMap[1] = "texture/skybox/right.jpg";
 	SparkManTextures.CubeMap[2] = "texture/skybox/top.jpg";
@@ -51,7 +52,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	//SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
 	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.textureRenderer.ColorTexture)));
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
-	framebuffer = FrameBufferMesh(renderer, gameManager.textureManager, renderer.bloomRenderer.ColorTexture, renderer.bloomRenderer.BloomTexture);
+	framebuffer = FrameBufferMesh(renderer, gameManager.textureManager, renderer.mainRenderer.ColorTexture, renderer.mainRenderer.BloomTexture);
 	//skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 }
 
@@ -231,8 +232,7 @@ void VulkanGraphics2D::MainLoop()
 			renderer.MainRenderPass();
 			
 		}
-		renderer.DrawToBloomTextureRenderPass();
-	//	renderer.BloomPass1Pass();
+		renderer.BloomPass1Pass();
 		renderer.FrameBufferRenderPass();
 		//renderer.Draw(Window.GetWindowPtr());
 		renderer.EndDraw(Window.GetWindowPtr());

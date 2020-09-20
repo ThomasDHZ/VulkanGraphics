@@ -11,8 +11,8 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 	forwardRenderer = ForwardRenderer(*GetVulkanRendererBase());
 	InitializeGUIDebugger(window);
 
-	bloomRenderer = BloomRenderer(*GetVulkanRendererBase());
-	bloomPass1Renderer = BloomRenderer2(*GetVulkanRendererBase());
+	mainRenderer = MainRender(*GetVulkanRendererBase());
+	bloomPass1Renderer = TextureRenderer(*GetVulkanRendererBase());
 	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
 	frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
 	shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
@@ -358,7 +358,7 @@ void RendererManager::DrawToTextureRenderPass()
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::DrawToBloomTextureRenderPass()
+void RendererManager::MainRenderPass()
 {
 	std::array<VkClearValue, 3> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -367,8 +367,8 @@ void RendererManager::DrawToBloomTextureRenderPass()
 
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = bloomRenderer.RenderPass;
-	renderPassInfo.framebuffer = bloomRenderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderPass = mainRenderer.RenderPass;
+	renderPassInfo.framebuffer = mainRenderer.SwapChainFramebuffers[DrawFrame];
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -379,7 +379,7 @@ void RendererManager::DrawToBloomTextureRenderPass()
 	{
 		if (drawMessage->RendererID == 4)
 		{
-			bloomRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
+			mainRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
 		}
 	}
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
@@ -411,32 +411,32 @@ void RendererManager::BloomPass1Pass()
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
-void RendererManager::MainRenderPass()
-{
-	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	clearValues[1].depthStencil = { 1.0f, 0 };
-
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = forwardRenderer.RenderPass;
-	renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[DrawFrame];
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
-
-	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	for (auto drawMessage : DrawMessageList)
-{
-		if (drawMessage->RendererID == 1)
-		{
-			forwardRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
-		}
-	}
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
-	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
-}
+//void RendererManager::MainRenderPass()
+//{
+//	std::array<VkClearValue, 2> clearValues{};
+//	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+//	clearValues[1].depthStencil = { 1.0f, 0 };
+//
+//	VkRenderPassBeginInfo renderPassInfo{};
+//	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+//	renderPassInfo.renderPass = forwardRenderer.RenderPass;
+//	renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[DrawFrame];
+//	renderPassInfo.renderArea.offset = { 0, 0 };
+//	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+//	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+//	renderPassInfo.pClearValues = clearValues.data();
+//
+//	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+//	for (auto drawMessage : DrawMessageList)
+//{
+//		if (drawMessage->RendererID == 1)
+//		{
+//			forwardRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
+//		}
+//	}
+//	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
+//	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+//}
 
 void RendererManager::FrameBufferRenderPass()
 {
@@ -501,6 +501,8 @@ void RendererManager::DestoryVulkan()
 	textureRenderer.Destroy(*GetVulkanRendererBase());
 	frameBufferRenderer.Destroy(*GetVulkanRendererBase());
 	shadowRenderer.Destroy(*GetVulkanRendererBase());
+	mainRenderer.Destroy(*GetVulkanRendererBase());
+	bloomPass1Renderer.Destroy(*GetVulkanRendererBase());
 
 	VulkanRenderer::Destory();
 }

@@ -11,8 +11,7 @@
 #include "FramebufferRenderer.h"
 #include "ShadowRenderer.h"
 #include <chrono>
-#include "BloomRenderer.h"
-#include "BloomRenderer2.h"
+#include "MainRenderer.h"
 
 class RendererManager : public VulkanRenderer
 {
@@ -32,7 +31,7 @@ private:
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
 	void UpdateSwapChain(GLFWwindow* window);
 
-	void DrawToBloomTextureRenderPass();
+	//void DrawToBloomTextureRenderPass();
 	void BloomPass1Pass();
 	void DrawToTextureRenderPass();
 	void MainRenderPass();
@@ -53,8 +52,8 @@ public:
 
 	std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 	ForwardRenderer forwardRenderer;
-	BloomRenderer bloomRenderer;
-	BloomRenderer2 bloomPass1Renderer;
+	MainRender mainRenderer;
+	TextureRenderer bloomPass1Renderer;
 	TextureRenderer textureRenderer;
 	ShadowRenderer shadowRenderer;
 	FramebufferRenderer frameBufferRenderer;

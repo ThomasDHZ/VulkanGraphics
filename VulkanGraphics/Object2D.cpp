@@ -23,13 +23,13 @@ void Object2D::DrawMessage(RendererManager& renderer)
 	{
 	//	ObjectMesh->CreateDrawMessage(renderer, 2, renderer.shadowRenderer.renderer2DPipeline);
 	}
-	if (RenderBitFlags & RenderBitFlag::RenderBloom)
+	if (RenderBitFlags & RenderBitFlag::RenderMainPass)
 	{
-			ObjectMesh->CreateDrawMessage(renderer, 4, renderer.bloomRenderer.renderer2DPipeline2);
+			ObjectMesh->CreateDrawMessage(renderer, 4, renderer.mainRenderer.renderer2DPipeline2);
 	}
 	if (RenderBitFlags & RenderBitFlag::RenderBloomPass1)
 	{
-	//	ObjectMesh->CreateDrawMessage(renderer, 5, renderer.bloomPass1Renderer.bloomPipeline);
+		ObjectMesh->CreateDrawMessage(renderer, 5, renderer.bloomPass1Renderer.bloomPipeline);
 	}
 }
 

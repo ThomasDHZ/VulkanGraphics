@@ -1,27 +1,13 @@
-#include "BloomRenderer.h"
-
+#include "MainRenderer.h"
 #include <stdexcept>
 #include <array>
 #include "Vertex.h"
 
-BloomRenderer::BloomRenderer() : RendererBase()
+MainRender::MainRender() : RendererBase()
 {
 }
 
-BloomRenderer::BloomRenderer(VulkanRenderer& renderer) : RendererBase(renderer)
-{
-    CreateRenderPass(renderer);
-    DepthTexture = RendererDepthTexture(renderer);
-    ColorTexture = std::make_shared<RendererColorTexture>(renderer);
-    BloomTexture = std::make_shared<RendererColorTexture>(renderer);
-    CreateRendererFramebuffers(renderer);
-
-    renderer2DPipeline2 = std::make_shared<Rendering2DPipeline2>(renderer, RenderPass);
-
-    ImGui_ImplVulkan_AddTexture(ColorTexture->ImGuiDescriptorSet, ColorTexture->GetTextureSampler(), ColorTexture->GetTextureView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-}
-
-BloomRenderer::BloomRenderer(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture>& texture)
+MainRender::MainRender(VulkanRenderer& renderer) : RendererBase(renderer)
 {
     CreateRenderPass(renderer);
     DepthTexture = RendererDepthTexture(renderer);
@@ -34,11 +20,24 @@ BloomRenderer::BloomRenderer(VulkanRenderer& renderer, std::shared_ptr<TextureMa
     ImGui_ImplVulkan_AddTexture(ColorTexture->ImGuiDescriptorSet, ColorTexture->GetTextureSampler(), ColorTexture->GetTextureView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
-BloomRenderer::~BloomRenderer()
+MainRender::MainRender(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture>& texture)
+{
+    CreateRenderPass(renderer);
+    DepthTexture = RendererDepthTexture(renderer);
+    ColorTexture = std::make_shared<RendererColorTexture>(renderer);
+    BloomTexture = std::make_shared<RendererColorTexture>(renderer);
+    CreateRendererFramebuffers(renderer);
+
+    renderer2DPipeline2 = std::make_shared<Rendering2DPipeline2>(renderer, RenderPass);
+
+    ImGui_ImplVulkan_AddTexture(ColorTexture->ImGuiDescriptorSet, ColorTexture->GetTextureSampler(), ColorTexture->GetTextureView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+}
+
+MainRender::~MainRender()
 {
 }
 
-void BloomRenderer::CreateRenderPass(VulkanRenderer& renderer)
+void MainRender::CreateRenderPass(VulkanRenderer& renderer)
 {
     std::array<VkAttachmentDescription, 3> attchmentDescriptions = {};
 
@@ -113,7 +112,7 @@ void BloomRenderer::CreateRenderPass(VulkanRenderer& renderer)
     }
 }
 
-void BloomRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
+void MainRender::CreateRendererFramebuffers(VulkanRenderer& renderer)
 {
     SwapChainFramebuffers.resize(3);
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
@@ -139,7 +138,7 @@ void BloomRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
     }
 }
 
-void BloomRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer, std::shared_ptr<RendererColorTexture> texture)
+void MainRender::CreateRendererFramebuffers(VulkanRenderer& renderer, std::shared_ptr<RendererColorTexture> texture)
 {
     SwapChainFramebuffers.resize(3);
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
@@ -165,7 +164,7 @@ void BloomRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer, std::sh
     }
 }
 
-void BloomRenderer::UpdateSwapChain(VulkanRenderer& renderer)
+void MainRender::UpdateSwapChain(VulkanRenderer& renderer)
 {
     ColorTexture->RecreateRendererTexture(renderer);
     BloomTexture->RecreateRendererTexture(renderer);
@@ -181,7 +180,7 @@ void BloomRenderer::UpdateSwapChain(VulkanRenderer& renderer)
     CreateRendererFramebuffers(renderer);
 }
 
-void BloomRenderer::UpdateSwapChain(VulkanRenderer& renderer, std::shared_ptr<RendererColorTexture> texture)
+void MainRender::UpdateSwapChain(VulkanRenderer& renderer, std::shared_ptr<RendererColorTexture> texture)
 {
     ColorTexture->RecreateRendererTexture(renderer);
     BloomTexture->RecreateRendererTexture(renderer);
@@ -197,7 +196,7 @@ void BloomRenderer::UpdateSwapChain(VulkanRenderer& renderer, std::shared_ptr<Re
     CreateRendererFramebuffers(renderer, texture);
 }
 
-void BloomRenderer::Destroy(VulkanRenderer& renderer)
+void MainRender::Destroy(VulkanRenderer& renderer)
 {
     ColorTexture->Delete(renderer);
     BloomTexture->Delete(renderer);
