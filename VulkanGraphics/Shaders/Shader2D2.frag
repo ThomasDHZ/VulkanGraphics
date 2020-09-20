@@ -225,6 +225,5 @@ void main()
    result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
    //result = mix(result, texture(ReflectDiffuseMap, UV).rgb, 0.15f);
    FragColor = vec4(result, 1.0f);
-
-   BloomColor = vec4(texture(EmissionMap, UV).rgb, 1.0f);
+   BloomColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
 }

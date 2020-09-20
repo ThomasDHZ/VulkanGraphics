@@ -23,7 +23,7 @@ WaterSurface2D::WaterSurface2D(RendererManager& renderer, std::shared_ptr<Textur
 	CoinTextures.NormalMap = "texture/fn03a-default-noise-1024x720.jpg";
 	CoinTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
-	RenderBitFlags = RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass;
+	RenderBitFlags = RenderBitFlag::RenderOnMainPass;
 	ObjectFlagBits = ObjectFlags::None;
 
 	SetUpSprite(renderer, textureManager, Water2DVertices, CoinTextures, StartPos, custom);

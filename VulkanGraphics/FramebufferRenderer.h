@@ -19,6 +19,7 @@ public:
 	void Destroy(VulkanRenderer& renderer) override;
 
 	std::shared_ptr<FrameBufferRenderingPipeline> frameBufferPipeline;
+	std::shared_ptr<BloomPipeline> bloomPipeline;
 	RendererDepthTexture DepthTexture;
 };
 

@@ -47,11 +47,10 @@ MegaMan::MegaMan(RendererManager& renderer, std::shared_ptr<TextureManager>textu
 	MegaManTextures.DiffuseMap = "texture/MegaMan_diffuseOriginal.bmp";
 	MegaManTextures.SpecularMap = "texture/MegaMan_Specular.bmp";
 	MegaManTextures.NormalMap = "texture/MegaMan_Normal.bmp";
-	MegaManTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
 	MegaManTextures.AlphaMap = "texture/MegaMan_Alpha.bmp";
 
 	ObjectFlagBits = ObjectFlags::Player | ObjectFlags::ApplyGravity;
-	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass | RenderBitFlag::RenderBloomPass1;
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderBloom;
 
 	SetUpSprite(renderer, textureManager, MegaManVertices, MegaManTextures, StartPos);
 }

@@ -11,7 +11,7 @@ public:
 	RendererManager renderedr;
 
 	GameManager();
-	GameManager(VulkanRenderer& renderer);
+	GameManager(RendererManager& renderer);
 	~GameManager();
 };
 

@@ -21,8 +21,7 @@ enum RenderBitFlag
     RenderOnTexturePass = 1 << 1,
     RenderOnFrameBufferPass = 1 << 2,
     RenderShadow = 1 << 3,
-    RenderMainPass = 1 << 4,
-    RenderBloomPass1 = 1 << 5
+    RenderBloom = 1 << 4
 };
 struct MeshTextures
 {
@@ -61,7 +60,7 @@ protected:
 
     std::shared_ptr<Texture> DiffuseTexture;
     std::shared_ptr<Texture> SpecularTexture;
-
+    std::shared_ptr<Texture> NormalTexture;
     std::shared_ptr<Texture> DepthTexture;
     std::shared_ptr<Texture> AlphaTexture;
     std::shared_ptr<Texture> EmissionTexture;
@@ -82,7 +81,7 @@ protected:
     void CreateDescriptorSetsData(RendererManager& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 
 public:
-    std::shared_ptr<Texture> NormalTexture;
+
     std::string MeshName;
     glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 

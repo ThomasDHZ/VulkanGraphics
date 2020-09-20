@@ -30,10 +30,9 @@ LargeEnergy::LargeEnergy(RendererManager& renderer, std::shared_ptr<TextureManag
 	CoinTextures.SpecularMap = "texture/LargeEnergy_Specular.bmp";
 	CoinTextures.NormalMap = "texture/LargeEnergy_normal.bmp";
 	CoinTextures.AlphaMap = "texture/LargeEnergy_Alpha.bmp";
-	CoinTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
 
 	ObjectFlagBits = ObjectFlags::Collectible;
-	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass;
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass;
 
 	SetUpSprite(renderer, textureManager, SpriteVertices, CoinTextures, StartPos);
 }
