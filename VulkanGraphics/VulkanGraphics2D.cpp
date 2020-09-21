@@ -19,6 +19,8 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = RendererManager(Window.GetWindowPtr());
 	gameManager = GameManager(renderer);
+	/*
+	renderer.bloomRenderer.UpdateSwapChain(renderer, renderer.textureRenderer.ColorTexture);*/
 
 	MeshTextures SparkManTextures = {};
 	SparkManTextures.DiffuseMap = "texture/SparkMan_diffuseOriginal.bmp";
@@ -27,6 +29,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 	SparkManTextures.DepthMap = "texture/SparkManAlpha.bmp";
 	SparkManTextures.ReflectionMap = "texture/SparkManAlpha.bmp";
+	SparkManTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
 	SparkManTextures.CubeMap[0] = "texture/skybox/left.jpg";
 	SparkManTextures.CubeMap[1] = "texture/skybox/right.jpg";
 	SparkManTextures.CubeMap[2] = "texture/skybox/top.jpg";
@@ -47,9 +50,9 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SpriteList.emplace_back(std::make_shared<LargeEnergy>(LargeEnergy(renderer, gameManager.textureManager, glm::vec2(9.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Enemy2D>(Enemy2D(renderer, gameManager.textureManager, glm::vec2(8.0f, 10.0f))));
 	//SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.textureRenderer.ColorTexture)));
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.textureRenderer.ColorTexture)));
+	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.textureRenderer.ColorTexture)));
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
-	framebuffer = FrameBufferMesh(renderer, gameManager.textureManager, renderer.textureRenderer.ColorTexture);
+	framebuffer = FrameBufferMesh(renderer, gameManager.textureManager, renderer.mainRenderer.ColorTexture, renderer.mainRenderer.BloomTexture);
 	//skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 }
 
@@ -63,7 +66,7 @@ VulkanGraphics2D::~VulkanGraphics2D()
 	{
 		sprite->Destory(renderer);
 	}
-	framebuffer.Destory(renderer);
+//	framebuffer.Destory(renderer);
 	renderer.DestoryVulkan();
 	Window.CleanUp();
 }
@@ -94,8 +97,8 @@ void VulkanGraphics2D::UpdateImGUI()
 		//ImGui::SliderFloat("wavePeriod", &a->waveprop.wavePeriod, 0.0f, 60.0f);
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		ImGui::SliderFloat("Gamma", &framebuffer.settings.Gamma, 0.0f, 10.0f);
-		ImGui::SliderFloat("HDR Value", &framebuffer.settings.HDRValue, 0.0f, 10.0f);
+		//ImGui::SliderFloat("Gamma", &framebuffer.settings.Gamma, 0.0f, 10.0f);
+		//ImGui::SliderFloat("HDR Value", &framebuffer.settings.HDRValue, 0.0f, 10.0f);
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
 		ImGui::SliderFloat3("dLight", &light.light.dLight.direction.x, -10.0f, 10.0f);
@@ -229,8 +232,9 @@ void VulkanGraphics2D::MainLoop()
 			renderer.MainRenderPass();
 			
 		}
-
-		//renderer.FrameBufferRenderPass();
+		renderer.SceneRenderPass();
+		//renderer.BloomPass1Pass();
+		renderer.FrameBufferRenderPass();
 		//renderer.Draw(Window.GetWindowPtr());
 		renderer.EndDraw(Window.GetWindowPtr());
 	}

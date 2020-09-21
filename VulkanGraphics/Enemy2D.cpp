@@ -16,9 +16,10 @@ Enemy2D::Enemy2D(RendererManager& renderer, std::shared_ptr<TextureManager>textu
 	MegaManTextures.SpecularMap = "texture/MegaMan_Specular.bmp";
 	MegaManTextures.NormalMap = "texture/MegaMan_Normal.bmp";
 	MegaManTextures.AlphaMap = "texture/MegaMan_Alpha.bmp";
+	MegaManTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
 
 	ObjectFlagBits = ObjectFlags::Player | ObjectFlags::ApplyGravity;
-	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass;
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass;
 
 	SetUpSprite(renderer, textureManager, MegaManVertices, MegaManTextures, StartPos);
 }

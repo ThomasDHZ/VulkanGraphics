@@ -16,6 +16,7 @@ TextureRenderer::TextureRenderer(VulkanRenderer& renderer) : RendererBase(render
 
     forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass);
     renderer2DPipeline = std::make_shared <Rendering2DPipeline>(renderer, RenderPass);
+    bloomPipeline = std::make_shared <BloomPipeline>(renderer, RenderPass);
     //reflection2DPipeline = Reflection2DPipeline(renderer, RenderPass);
     skyboxPipeline = std::make_shared<SkyBoxPipeline>(renderer, RenderPass);
     DebugLightPipeline = std::make_shared<DebugLightRenderingPipeline>(renderer, RenderPass);
@@ -124,6 +125,7 @@ void TextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 
     forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
     renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+    bloomPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
    // reflection2DPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);
     skyboxPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
     DebugLightPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
@@ -145,6 +147,7 @@ void TextureRenderer::Destroy(VulkanRenderer& renderer)
     forwardRendereringPipeline->Destroy(renderer);
     renderer2DPipeline->Destroy(renderer);
    // reflection2DPipeline.Destroy(renderer);
+    bloomPipeline->Destroy(renderer);
     skyboxPipeline->Destroy(renderer);
     DebugLightPipeline->Destroy(renderer);
     wireFramePipeline->Destroy(renderer);

@@ -10,6 +10,7 @@ MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>texture
 	MegaManTextures.SpecularMap = "texture/container2_specular.png";
 	MegaManTextures.NormalMap = "texture/SparkMan_normal.bmp";
 	MegaManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
+	MegaManTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
 
 	const std::vector<Vertex> MegaManVertices =
 	{
@@ -19,7 +20,7 @@ MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>texture
 		{{0.0f, SpriteSize.y, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.14f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
 	};
 
-	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass;
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass ;
 
 	SetUpSprite(renderer, textureManager, MegaManVertices, MegaManTextures, StartPos);
 }

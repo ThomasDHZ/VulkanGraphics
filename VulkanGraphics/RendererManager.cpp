@@ -11,6 +11,8 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 	forwardRenderer = ForwardRenderer(*GetVulkanRendererBase());
 	InitializeGUIDebugger(window);
 
+	mainRenderer = MainRender(*GetVulkanRendererBase());
+	bloomPass1Renderer = TextureRenderer(*GetVulkanRendererBase());
 	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
 	frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
 	shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
@@ -358,6 +360,7 @@ void RendererManager::DrawToTextureRenderPass()
 
 void RendererManager::MainRenderPass()
 {
+
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
 	clearValues[1].depthStencil = { 1.0f, 0 };
@@ -373,7 +376,7 @@ void RendererManager::MainRenderPass()
 
 	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 	for (auto drawMessage : DrawMessageList)
-{
+	{
 		if (drawMessage->RendererID == 1)
 		{
 			forwardRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
@@ -382,6 +385,87 @@ void RendererManager::MainRenderPass()
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
+
+void RendererManager::SceneRenderPass()
+{
+
+	std::array<VkClearValue, 3> clearValues{};
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[2].depthStencil = { 1.0f, 0 };
+
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = mainRenderer.RenderPass;
+	renderPassInfo.framebuffer = mainRenderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	for (auto drawMessage : DrawMessageList)
+	{
+		if (drawMessage->RendererID == 4)
+		{
+			mainRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
+		}
+	}
+	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+}
+
+void RendererManager::BloomPass1Pass()
+{
+	std::array<VkClearValue, 2> clearValues{};
+	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = bloomPass1Renderer.RenderPass;
+	renderPassInfo.framebuffer = bloomPass1Renderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	for (auto drawMessage : DrawMessageList)
+	{
+		if (drawMessage->RendererID == 5)
+		{
+			bloomPass1Renderer.Draw(*GetVulkanRendererBase(), drawMessage);
+		}
+	}
+	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+}
+
+//void RendererManager::MainRenderPass()
+//{
+//	std::array<VkClearValue, 2> clearValues{};
+//	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+//	clearValues[1].depthStencil = { 1.0f, 0 };
+//
+//	VkRenderPassBeginInfo renderPassInfo{};
+//	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+//	renderPassInfo.renderPass = forwardRenderer.RenderPass;
+//	renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[DrawFrame];
+//	renderPassInfo.renderArea.offset = { 0, 0 };
+//	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+//	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+//	renderPassInfo.pClearValues = clearValues.data();
+//
+//	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+//	for (auto drawMessage : DrawMessageList)
+//{
+//		if (drawMessage->RendererID == 1)
+//		{
+//			forwardRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
+//		}
+//	}
+//	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
+//	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+//}
 
 void RendererManager::FrameBufferRenderPass()
 {
@@ -446,6 +530,8 @@ void RendererManager::DestoryVulkan()
 	textureRenderer.Destroy(*GetVulkanRendererBase());
 	frameBufferRenderer.Destroy(*GetVulkanRendererBase());
 	shadowRenderer.Destroy(*GetVulkanRendererBase());
+	mainRenderer.Destroy(*GetVulkanRendererBase());
+	bloomPass1Renderer.Destroy(*GetVulkanRendererBase());
 
 	VulkanRenderer::Destory();
 }

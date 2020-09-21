@@ -95,8 +95,8 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
 
     VkDescriptorImageInfo EmissionMap = {};
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    EmissionMap.imageView = DiffuseTexture->GetTextureView();
-    EmissionMap.sampler = DiffuseTexture->GetTextureSampler();
+    EmissionMap.imageView = EmissionTexture->GetTextureView();
+    EmissionMap.sampler = EmissionTexture->GetTextureSampler();
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {

@@ -145,8 +145,8 @@ void Mesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Textu
 
     VkDescriptorImageInfo EmissionMap = {};
     EmissionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    EmissionMap.imageView = DiffuseTexture->GetTextureView();
-    EmissionMap.sampler = DiffuseTexture->GetTextureSampler();
+    EmissionMap.imageView = EmissionTexture->GetTextureView();
+    EmissionMap.sampler = EmissionTexture->GetTextureSampler();
 
     VkDescriptorImageInfo ReflectionMap = {};
     ReflectionMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

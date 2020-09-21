@@ -9,7 +9,7 @@ LevelSprite::LevelSprite(RendererManager& renderer, std::shared_ptr<TextureManag
 	LoadTiles(renderer, textureManager, textures);
 	ObjectMesh = std::make_shared<Mesh2D>(Mesh2D(renderer, textureManager, VertexList, IndexList, textures));
 
-	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass;
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass;
 	DrawMessage(renderer);
 }
 

@@ -21,13 +21,13 @@ BaseMesh::~BaseMesh()
 
 void BaseMesh::LoadTextures(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
-    if (textures.RendererDiffuseMap)
-    {
-        DiffuseTexture = textures.RendererDiffuseMap;
-    }
-    else
+    if (!textures.DiffuseMap.empty())
     {
         DiffuseTexture = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
+    }
+    else if (textures.RendererDiffuseMap)
+    {
+        DiffuseTexture = textures.RendererDiffuseMap;
     }
 
     if (textures.SpecularMap != DefaultTexture)

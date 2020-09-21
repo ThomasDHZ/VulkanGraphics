@@ -3,10 +3,10 @@
 FrameBufferMesh::FrameBufferMesh() : Mesh()
 {}
 
-FrameBufferMesh::FrameBufferMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture> FrameBufferImage) : Mesh(renderer, FrameBufferVertices, FrameBufferIndices)
+FrameBufferMesh::FrameBufferMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture> FrameBufferImage, std::shared_ptr<Texture> BloomImage) : Mesh(renderer, FrameBufferVertices, FrameBufferIndices)
 {
     DiffuseTexture = FrameBufferImage;
-
+    EmissionTexture = BloomImage;
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
@@ -24,9 +24,10 @@ void FrameBufferMesh::CreateUniformBuffers(RendererManager& renderer)
 
 void FrameBufferMesh::CreateDescriptorPool(RendererManager& renderer) {
 
-    std::array<DescriptorPoolSizeInfo, 2>  DescriptorPoolInfo = {};
+    std::array<DescriptorPoolSizeInfo, 3>  DescriptorPoolInfo = {};
     DescriptorPoolInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    DescriptorPoolInfo[1].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    DescriptorPoolInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
     BaseMesh::CreateDescriptorPool(renderer, std::vector<DescriptorPoolSizeInfo>(DescriptorPoolInfo.begin(), DescriptorPoolInfo.end()));
 }
@@ -39,6 +40,11 @@ void FrameBufferMesh::CreateDescriptorSets(RendererManager& renderer, std::share
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     imageInfo.imageView = DiffuseTexture->GetTextureView();
     imageInfo.sampler = DiffuseTexture->GetTextureSampler();
+
+    VkDescriptorImageInfo BloomInfo{};
+    BloomInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    BloomInfo.imageView = EmissionTexture->GetTextureView();
+    BloomInfo.sampler = EmissionTexture->GetTextureSampler();
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -56,8 +62,15 @@ void FrameBufferMesh::CreateDescriptorSets(RendererManager& renderer, std::share
         DiffuseMapDescriptor.DescriptorImageInfo = imageInfo;
         DescriptorList.emplace_back(DiffuseMapDescriptor);
 
+        WriteDescriptorSetInfo BloomMapDescriptor;
+        BloomMapDescriptor.DstBinding = 1;
+        BloomMapDescriptor.DstSet = DescriptorSets[i];
+        BloomMapDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        BloomMapDescriptor.DescriptorImageInfo = BloomInfo;
+        DescriptorList.emplace_back(BloomMapDescriptor);
+
         WriteDescriptorSetInfo FrameBufferSettingsDescriptor;
-        FrameBufferSettingsDescriptor.DstBinding = 1;
+        FrameBufferSettingsDescriptor.DstBinding = 2;
         FrameBufferSettingsDescriptor.DstSet = DescriptorSets[i];
         FrameBufferSettingsDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         FrameBufferSettingsDescriptor.DescriptorBufferInfo = frameBufferSettingsInfo;

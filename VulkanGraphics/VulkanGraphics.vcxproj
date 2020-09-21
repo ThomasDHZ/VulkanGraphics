@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="Animation2D.cpp" />
     <ClCompile Include="BloomPipeline.cpp" />
+    <ClCompile Include="MainRenderer.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="EnergyTank.cpp" />
@@ -188,7 +189,6 @@
     <ClCompile Include="RendererHDRColorTexture.cpp" />
     <ClCompile Include="Rendering2DPipeline.cpp" />
     <ClCompile Include="Rendering2DPipeline2.cpp" />
-    <ClCompile Include="SceneRenderer.cpp" />
     <ClCompile Include="ShadowRenderer.cpp" />
     <ClCompile Include="ShadowRenderingPipeline.cpp" />
     <ClCompile Include="SkyBox.cpp" />
@@ -265,6 +265,7 @@
   <ItemGroup>
     <ClInclude Include="Animation2D.h" />
     <ClInclude Include="BloomPipeline.h" />
+    <ClInclude Include="MainRenderer.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="EnergyTank.h" />
@@ -304,7 +305,6 @@
     <ClInclude Include="RendererHDRColorTexture.h" />
     <ClInclude Include="Rendering2DPipeline.h" />
     <ClInclude Include="Rendering2DPipeline2.h" />
-    <ClInclude Include="SceneRenderer.h" />
     <ClInclude Include="ShadowRenderer.h" />
     <ClInclude Include="ShadowRenderingPipeline.h" />
     <ClInclude Include="SkyBox.h" />

@@ -17,23 +17,16 @@ private:
 public:
 	SceneRenderer();
 	SceneRenderer(VulkanRenderer& renderer);
+	SceneRenderer(VulkanRenderer& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture>& texture);
 	~SceneRenderer();
 
-	std::shared_ptr<ForwardRenderingPipeline> forwardRendereringPipeline;
-	std::shared_ptr<Reflection2DPipeline> reflection2DPipeline;
-	std::shared_ptr<Rendering2DPipeline> renderer2DPipeline;
-	std::shared_ptr<UnderWater2DPipeline> underwater2DPipeline;
-	//ReflectRendering2DPipeline reflectRenderer2DPipeline;
-	std::shared_ptr<SkyBoxPipeline> skyboxPipeline;
-	std::shared_ptr<DebugLightRenderingPipeline> DebugLightPipeline;
-	std::shared_ptr<CollisionDebugPipeline> collisionDebugPipeline;
-	std::shared_ptr<WireFramePipeline> wireFramePipeline;
+	std::shared_ptr<Rendering2DPipeline2> renderer2DPipeline2;
 
 	std::shared_ptr<RendererColorTexture> ColorTexture;
 	std::shared_ptr<RendererColorTexture> BloomTexture;
 	RendererDepthTexture DepthTexture;
 
 	void UpdateSwapChain(VulkanRenderer& renderer);
+	void UpdateSwapChain(VulkanRenderer& renderer, std::shared_ptr<RendererColorTexture> texture);
 	void Destroy(VulkanRenderer& renderer) override;
 };
-
