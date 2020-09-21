@@ -4,7 +4,7 @@ Water2D::Water2D() : Sprite()
 {
 }
 
-Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const OrthographicCamera& camera, const std::shared_ptr<Texture> texture) : Sprite()
+Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, glm::vec2 StartPos, glm::vec2 WaterSize, const std::shared_ptr<Camera>& camera, const std::shared_ptr<Texture> texture) : Sprite()
 {
 	CustomBuffer custom = {};
 	custom.ByteSize = sizeof(WaveProperites);
@@ -21,9 +21,10 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	CoinTextures.RendererDiffuseMap = texture;
 	CoinTextures.SpecularMap = "texture/SparkManAlpha.bmp";
 	CoinTextures.NormalMap = "texture/SparkManAlpha.bmp";
+	CoinTextures.EmissionMap = "texture/SparkManAlpha.bmp";
 	CoinTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
-	RenderBitFlags = RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass;
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass | RenderBitFlag::RenderBloomPass1;
 	ObjectFlagBits = ObjectFlags::None;
 
 	WaterCamera = OrthographicCamera(glm::vec2(1920, 1080));

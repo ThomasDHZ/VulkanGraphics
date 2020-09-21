@@ -294,7 +294,7 @@
     <ClCompile Include="BloomPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
-    <ClCompile Include="MainRenderer.cpp">
+    <ClCompile Include="SceneRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
@@ -646,7 +646,7 @@
     <ClInclude Include="BloomPipeline.h">
       <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
-    <ClInclude Include="MainRenderer.h">
+    <ClInclude Include="SceneRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>

@@ -25,7 +25,7 @@ void Object2D::DrawMessage(RendererManager& renderer)
 	}
 	if (RenderBitFlags & RenderBitFlag::RenderMainPass)
 	{
-			ObjectMesh->CreateDrawMessage(renderer, 4, renderer.mainRenderer.renderer2DPipeline2);
+			ObjectMesh->CreateDrawMessage(renderer, 4, renderer.sceneRenderer.renderer2DPipeline2);
 	}
 	if (RenderBitFlags & RenderBitFlag::RenderBloomPass1)
 	{

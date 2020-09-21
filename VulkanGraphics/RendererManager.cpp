@@ -11,7 +11,7 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 	forwardRenderer = ForwardRenderer(*GetVulkanRendererBase());
 	InitializeGUIDebugger(window);
 
-	mainRenderer = MainRender(*GetVulkanRendererBase());
+	sceneRenderer = SceneRenderer(*GetVulkanRendererBase());
 	bloomPass1Renderer = TextureRenderer(*GetVulkanRendererBase());
 	textureRenderer = TextureRenderer(*GetVulkanRendererBase());
 	frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
@@ -396,8 +396,8 @@ void RendererManager::SceneRenderPass()
 
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = mainRenderer.RenderPass;
-	renderPassInfo.framebuffer = mainRenderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderPass = sceneRenderer.RenderPass;
+	renderPassInfo.framebuffer = sceneRenderer.SwapChainFramebuffers[DrawFrame];
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -408,7 +408,7 @@ void RendererManager::SceneRenderPass()
 	{
 		if (drawMessage->RendererID == 4)
 		{
-			mainRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
+			sceneRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
 		}
 	}
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
@@ -530,7 +530,7 @@ void RendererManager::DestoryVulkan()
 	textureRenderer.Destroy(*GetVulkanRendererBase());
 	frameBufferRenderer.Destroy(*GetVulkanRendererBase());
 	shadowRenderer.Destroy(*GetVulkanRendererBase());
-	mainRenderer.Destroy(*GetVulkanRendererBase());
+	sceneRenderer.Destroy(*GetVulkanRendererBase());
 	bloomPass1Renderer.Destroy(*GetVulkanRendererBase());
 
 	VulkanRenderer::Destory();

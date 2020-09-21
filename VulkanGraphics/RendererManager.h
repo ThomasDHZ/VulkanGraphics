@@ -11,7 +11,7 @@
 #include "FramebufferRenderer.h"
 #include "ShadowRenderer.h"
 #include <chrono>
-#include "MainRenderer.h"
+#include "SceneRenderer.h"
 
 class RendererManager : public VulkanRenderer
 {
@@ -53,7 +53,7 @@ public:
 
 	std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 	ForwardRenderer forwardRenderer;
-	MainRender mainRenderer;
+	SceneRenderer sceneRenderer;
 	TextureRenderer bloomPass1Renderer;
 	TextureRenderer textureRenderer;
 	ShadowRenderer shadowRenderer;
