@@ -1,15 +1,15 @@
 #include "Rendering2DPipeline.h"
 #include "Vertex.h"
-#include <stdexcept>
+
 
 Rendering2DPipeline::Rendering2DPipeline() : GraphicsPipeline()
 {
 }
 
-Rendering2DPipeline::Rendering2DPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+Rendering2DPipeline::Rendering2DPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass, const VkPipelineColorBlendStateCreateInfo& ColorBlendingSettings, const RendererType rendererType) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
-    CreateShaderPipeLine(renderer, renderPass);
+    CreateShaderPipeLine(renderer, renderPass, ColorBlendingSettings, rendererType);
 }
 
 Rendering2DPipeline::~Rendering2DPipeline()
@@ -59,10 +59,26 @@ void Rendering2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass, const VkPipelineColorBlendStateCreateInfo& ColorBlendingSettings, const RendererType rendererType )
 {
-    auto vertShaderCode = ReadShaderFile("shaders/Shader2DVert.spv");
-    auto fragShaderCode = ReadShaderFile("shaders/Shader2DFrag.spv");
+    std::vector<char> vertShaderCode;
+    std::vector<char> fragShaderCode;
+    if (rendererType == RendererType::RT_SceneRenderer)
+    {
+        vertShaderCode = ReadShaderFile("shaders/Shader2DVert_BloomOutput.spv");
+        fragShaderCode = ReadShaderFile("shaders/Shader2DFrag_BloomOutput.spv");
+    }
+    else if (rendererType == RendererType::RT_ForwardRenderer ||
+             rendererType == RendererType::RT_TextureRenderer)
+    {
+        vertShaderCode = ReadShaderFile("shaders/Shader2DVert.spv");
+        fragShaderCode = ReadShaderFile("shaders/Shader2DFrag.spv");
+    }
+    else if (rendererType == RendererType::RT_ShadowRenderer)
+    {
+        vertShaderCode = ReadShaderFile("shaders/ShadowForwardRendererVert.spv");
+        fragShaderCode = ReadShaderFile("shaders/ShadowForwardRendererFrag.spv");
+    }
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);
@@ -145,27 +161,6 @@ void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const V
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.stencilTestEnable = VK_FALSE;
 
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = VK_TRUE;
-    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_SUBTRACT;
-
-    VkPipelineColorBlendStateCreateInfo colorBlending{};
-    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.logicOpEnable = VK_FALSE;
-    colorBlending.logicOp = VK_LOGIC_OP_COPY;
-    colorBlending.attachmentCount = 1;
-    colorBlending.pAttachments = &colorBlendAttachment;
-    colorBlending.blendConstants[0] = 0.0f;
-    colorBlending.blendConstants[1] = 0.0f;
-    colorBlending.blendConstants[2] = 0.0f;
-    colorBlending.blendConstants[3] = 0.0f;
-
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
@@ -186,7 +181,7 @@ void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const V
     pipelineInfo.pMultisampleState = &multisampling;
     // pipelineInfo.pDynamicState = &dynamic_state;
     pipelineInfo.pDepthStencilState = &depthStencil;
-    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pColorBlendState = &ColorBlendingSettings;
     pipelineInfo.layout = ShaderPipelineLayout;
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
@@ -200,7 +195,7 @@ void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const V
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void Rendering2DPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void Rendering2DPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass, const VkPipelineColorBlendStateCreateInfo& ColorBlendingSettings, const RendererType rendererType)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
@@ -208,5 +203,5 @@ void Rendering2DPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const
     ShaderPipeline = VK_NULL_HANDLE;
     ShaderPipelineLayout = VK_NULL_HANDLE;
 
-    CreateShaderPipeLine(renderer, renderPass);
+    CreateShaderPipeLine(renderer, renderPass, ColorBlendingSettings, rendererType);
 }

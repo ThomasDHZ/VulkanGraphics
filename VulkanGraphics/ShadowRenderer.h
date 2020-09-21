@@ -1,6 +1,7 @@
 #pragma once
 #include "RendererBase.h"
 #include "RendererDepthTexture.h"
+#include "ShadowForwardRendereringPipeline.h"
 
 class ShadowRenderer : public RendererBase
 {
@@ -16,6 +17,6 @@ public:
 	void UpdateSwapChain(VulkanRenderer& renderer);
 	void Destroy(VulkanRenderer& renderer) override;
 
-	std::shared_ptr<ForwardRenderingPipeline> forwardRendereringPipeline;
-	RendererDepthTexture DepthTexture;
+	std::shared_ptr<ShadowForwardRendereringPipeline> forwardRendereringPipeline;
+	std::shared_ptr<RendererDepthTexture> DepthTexture;
 };

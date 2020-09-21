@@ -5,6 +5,14 @@
 #include "Structs.h"
 #include "VulkanRenderer.h"
 
+enum RendererType
+{
+	RT_ForwardRenderer,
+	RT_SceneRenderer,
+	RT_TextureRenderer,
+	RT_ShadowRenderer
+};
+
 class GraphicsPipeline
 {
 protected:

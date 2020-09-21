@@ -13,6 +13,10 @@ RendererBase::~RendererBase()
 {
 }
 
+void RendererBase::SetUpColorBlendingSettings()
+{
+}
+
 void RendererBase::Draw(VulkanRenderer& renderer, std::shared_ptr<RendererDrawMessage>& drawMessage) const
 {
     VkBuffer vertexBuffers[] = { drawMessage->MeshVertex.GetVertexBuffer() };

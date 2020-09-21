@@ -13,10 +13,11 @@ ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase(render
     CreateRenderPass(renderer);
     DepthTexture = RendererDepthTexture(renderer);
     CreateRendererFramebuffers(renderer);
+    SetUpColorBlendingSettings();
 
     forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass);
     reflection2DPipeline = std::make_shared<Reflection2DPipeline>(renderer, RenderPass);
-    renderer2DPipeline = std::make_shared<Rendering2DPipeline>(renderer, RenderPass);
+    renderer2DPipeline = std::make_shared<Rendering2DPipeline>(Rendering2DPipeline(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer));
     underwater2DPipeline = std::make_shared<UnderWater2DPipeline>(renderer, RenderPass);
     skyboxPipeline = std::make_shared<SkyBoxPipeline>(renderer, RenderPass);
     DebugLightPipeline = std::make_shared<DebugLightRenderingPipeline>(renderer, RenderPass);
@@ -26,6 +27,31 @@ ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase(render
 
 ForwardRenderer::~ForwardRenderer()
 {
+}
+
+void ForwardRenderer::SetUpColorBlendingSettings()
+{
+    ColorBlendAttachment.resize(1);
+    ColorBlendAttachment[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    ColorBlendAttachment[0].blendEnable = VK_TRUE;
+    ColorBlendAttachment[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    ColorBlendAttachment[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    ColorBlendAttachment[0].colorBlendOp = VK_BLEND_OP_ADD;
+    ColorBlendAttachment[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    ColorBlendAttachment[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    ColorBlendAttachment[0].alphaBlendOp = VK_BLEND_OP_SUBTRACT;
+
+    VkPipelineColorBlendStateCreateInfo ColorBlending = {};
+    ColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    ColorBlending.logicOpEnable = VK_FALSE;
+    ColorBlending.logicOp = VK_LOGIC_OP_COPY;
+    ColorBlending.attachmentCount = static_cast<uint32_t>(ColorBlendAttachment.size());
+    ColorBlending.pAttachments = ColorBlendAttachment.data();
+    ColorBlending.blendConstants[0] = 0.0f;
+    ColorBlending.blendConstants[1] = 0.0f;
+    ColorBlending.blendConstants[2] = 0.0f;
+    ColorBlending.blendConstants[3] = 0.0f;
+    ColorBlendingSettings = ColorBlending;
 }
 
 void ForwardRenderer::CreateRenderPass(VulkanRenderer& renderer)
@@ -117,7 +143,7 @@ void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
    DepthTexture.RecreateRendererTexture(renderer);
 
    forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
-   renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+   renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer);
    reflection2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
    underwater2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
    skyboxPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);

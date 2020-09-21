@@ -1,24 +1,24 @@
-#include "Rendering2DPipeline2.h"
+#include "ShadowForwardRendereringPipeline.h"
 #include "Vertex.h"
+#include <stdexcept>
 
-
-Rendering2DPipeline2::Rendering2DPipeline2() : GraphicsPipeline()
+ShadowForwardRendereringPipeline::ShadowForwardRendereringPipeline() : GraphicsPipeline()
 {
 }
 
-Rendering2DPipeline2::Rendering2DPipeline2(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+ShadowForwardRendereringPipeline::ShadowForwardRendereringPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
     CreateShaderPipeLine(renderer, renderPass);
 }
 
-Rendering2DPipeline2::~Rendering2DPipeline2()
+ShadowForwardRendereringPipeline::~ShadowForwardRendereringPipeline()
 {
 }
 
-void Rendering2DPipeline2::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void ShadowForwardRendereringPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
-    std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
+    std::array<DescriptorSetLayoutBindingInfo, 11> LayoutBindingInfo = {};
 
     LayoutBindingInfo[0].Binding = 0;
     LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -45,24 +45,32 @@ void Rendering2DPipeline2::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     LayoutBindingInfo[5].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
     LayoutBindingInfo[6].Binding = 6;
-    LayoutBindingInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    LayoutBindingInfo[6].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     LayoutBindingInfo[6].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
     LayoutBindingInfo[7].Binding = 7;
-    LayoutBindingInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    LayoutBindingInfo[7].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     LayoutBindingInfo[7].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
     LayoutBindingInfo[8].Binding = 8;
-    LayoutBindingInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    LayoutBindingInfo[8].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     LayoutBindingInfo[8].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    LayoutBindingInfo[9].Binding = 9;
+    LayoutBindingInfo[9].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    LayoutBindingInfo[9].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    LayoutBindingInfo[10].Binding = 10;
+    LayoutBindingInfo[10].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    LayoutBindingInfo[10].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void Rendering2DPipeline2::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void ShadowForwardRendereringPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-    auto vertShaderCode = ReadShaderFile("shaders/Shader2DVert2.spv");
-    auto fragShaderCode = ReadShaderFile("shaders/Shader2DFrag2.spv");
+    auto vertShaderCode = ReadShaderFile("shaders/ShadowForwardRendererVert.spv");
+    auto fragShaderCode = ReadShaderFile("shaders/ShadowForwardRendererFrag.spv");
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);
@@ -145,32 +153,22 @@ void Rendering2DPipeline2::CreateShaderPipeLine(VulkanRenderer& renderer, const 
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.stencilTestEnable = VK_FALSE;
 
-    std::array<VkPipelineColorBlendAttachmentState, 2> colorBlendAttachment;
-
-    colorBlendAttachment[0].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment[0].blendEnable = VK_TRUE;
-    colorBlendAttachment[0].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    colorBlendAttachment[0].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    colorBlendAttachment[0].colorBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment[0].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment[0].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment[0].alphaBlendOp = VK_BLEND_OP_SUBTRACT;
-
-    colorBlendAttachment[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment[1].blendEnable = VK_TRUE;
-    colorBlendAttachment[1].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    colorBlendAttachment[1].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    colorBlendAttachment[1].colorBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment[1].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment[1].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment[1].alphaBlendOp = VK_BLEND_OP_SUBTRACT;
+    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    colorBlendAttachment.blendEnable = VK_TRUE;
+    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
     VkPipelineColorBlendStateCreateInfo colorBlending{};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = VK_LOGIC_OP_COPY;
-    colorBlending.attachmentCount = 2;
-    colorBlending.pAttachments = colorBlendAttachment.data();
+    colorBlending.attachmentCount = 1;
+    colorBlending.pAttachments = &colorBlendAttachment;
     colorBlending.blendConstants[0] = 0.0f;
     colorBlending.blendConstants[1] = 0.0f;
     colorBlending.blendConstants[2] = 0.0f;
@@ -210,7 +208,7 @@ void Rendering2DPipeline2::CreateShaderPipeLine(VulkanRenderer& renderer, const 
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void Rendering2DPipeline2::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void ShadowForwardRendereringPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

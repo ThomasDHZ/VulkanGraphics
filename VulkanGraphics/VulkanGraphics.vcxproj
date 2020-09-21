@@ -188,7 +188,7 @@
     <ClCompile Include="Reflection2DPipeline.cpp" />
     <ClCompile Include="RendererHDRColorTexture.cpp" />
     <ClCompile Include="Rendering2DPipeline.cpp" />
-    <ClCompile Include="Rendering2DPipeline2.cpp" />
+    <ClCompile Include="ShadowForwardRendereringPipeline.cpp" />
     <ClCompile Include="ShadowRenderer.cpp" />
     <ClCompile Include="ShadowRenderingPipeline.cpp" />
     <ClCompile Include="SkyBox.cpp" />
@@ -251,10 +251,12 @@
     <None Include="Shaders\ReflectShader2D.vert" />
     <None Include="Shaders\Shader2D.frag" />
     <None Include="Shaders\Shader2D.vert" />
-    <None Include="Shaders\Shader2D2.frag" />
-    <None Include="Shaders\Shader2D2.vert" />
+    <None Include="Shaders\Shader2D_BloomOutput.frag" />
+    <None Include="Shaders\Shader2D_BloomOutput.vert" />
     <None Include="Shaders\ShadowDebug.frag" />
     <None Include="Shaders\ShadowDebug.vert" />
+    <None Include="Shaders\ShadowForwardRendererShader.frag" />
+    <None Include="Shaders\ShadowForwardRendererShader.vert" />
     <None Include="Shaders\SkyboxShader.frag" />
     <None Include="Shaders\SkyboxShader.vert" />
     <None Include="Shaders\UnderWater2DShader.frag" />
@@ -304,7 +306,7 @@
     <ClInclude Include="Reflection2DPipeline.h" />
     <ClInclude Include="RendererHDRColorTexture.h" />
     <ClInclude Include="Rendering2DPipeline.h" />
-    <ClInclude Include="Rendering2DPipeline2.h" />
+    <ClInclude Include="ShadowForwardRendereringPipeline.h" />
     <ClInclude Include="ShadowRenderer.h" />
     <ClInclude Include="ShadowRenderingPipeline.h" />
     <ClInclude Include="SkyBox.h" />

@@ -6,12 +6,12 @@ ShadowRenderer::ShadowRenderer() : RendererBase()
 ShadowRenderer::ShadowRenderer(VulkanRenderer& renderer) : RendererBase(renderer)
 {
     CreateRenderPass(renderer);
-    DepthTexture = RendererDepthTexture(renderer);
+    DepthTexture = std::make_shared<RendererDepthTexture>(RendererDepthTexture(renderer));
     CreateRendererFramebuffers(renderer);
 
-    forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass);
+    forwardRendereringPipeline = std::make_shared<ShadowForwardRendereringPipeline>(renderer, RenderPass);
 
-    ImGui_ImplVulkan_AddTexture(DepthTexture.ImGuiDescriptorSet, DepthTexture.GetTextureSampler(), DepthTexture.GetTextureView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+    ImGui_ImplVulkan_AddTexture(DepthTexture->ImGuiDescriptorSet, DepthTexture->GetTextureSampler(), DepthTexture->GetTextureView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
 
 ShadowRenderer::~ShadowRenderer()
@@ -81,7 +81,7 @@ void ShadowRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
         fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         fbufCreateInfo.renderPass = RenderPass;
         fbufCreateInfo.attachmentCount = 1;
-        fbufCreateInfo.pAttachments = &DepthTexture.View;
+        fbufCreateInfo.pAttachments = &DepthTexture->View;
         fbufCreateInfo.width = renderer.SwapChain.GetSwapChainResolution().width;
         fbufCreateInfo.height = renderer.SwapChain.GetSwapChainResolution().height;
         fbufCreateInfo.layers = 1;
@@ -95,7 +95,7 @@ void ShadowRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
 
 void ShadowRenderer::UpdateSwapChain(VulkanRenderer& renderer)
 {
-    DepthTexture.RecreateRendererTexture(renderer);
+    DepthTexture->RecreateRendererTexture(renderer);
     forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
     for (auto& framebuffer : SwapChainFramebuffers)
     {
@@ -104,12 +104,12 @@ void ShadowRenderer::UpdateSwapChain(VulkanRenderer& renderer)
     }
     CreateRendererFramebuffers(renderer);
 
-    ImGui_ImplVulkan_AddTexture(DepthTexture.ImGuiDescriptorSet, DepthTexture.GetTextureSampler(), DepthTexture.GetTextureView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+    ImGui_ImplVulkan_AddTexture(DepthTexture->ImGuiDescriptorSet, DepthTexture->GetTextureSampler(), DepthTexture->GetTextureView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
 
 void ShadowRenderer::Destroy(VulkanRenderer& renderer)
 {
-    DepthTexture.Delete(renderer);
+    DepthTexture->Delete(renderer);
     forwardRendereringPipeline->Destroy(renderer);
     RendererBase::Destroy(renderer);
 }

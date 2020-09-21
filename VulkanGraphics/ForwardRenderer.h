@@ -2,10 +2,12 @@
 #include "RendererDepthTexture.h"
 #include "RendererHDRColorTexture.h"
 #include "RendererBase.h"
+#include "Rendering2DPipeline.h"
 
 class ForwardRenderer : public RendererBase
 {
 private:
+	void SetUpColorBlendingSettings() override;
 	void CreateRenderPass(VulkanRenderer& renderer);
 	void CreateRendererFramebuffers(VulkanRenderer& renderer);
 

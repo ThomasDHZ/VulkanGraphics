@@ -219,9 +219,6 @@
     <ClCompile Include="OrthographicCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering2DPipeline.cpp">
-      <Filter>Source Files\Pipelines</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh2D.cpp">
       <Filter>Source Files\Mesh</Filter>
     </ClCompile>
@@ -288,14 +285,17 @@
     <ClCompile Include="PerspectiveCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Rendering2DPipeline2.cpp">
-      <Filter>Source Files\Pipelines</Filter>
-    </ClCompile>
     <ClCompile Include="BloomPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
     <ClCompile Include="SceneRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowForwardRendereringPipeline.cpp">
+      <Filter>Source Files\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="Rendering2DPipeline.cpp">
+      <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -374,16 +374,22 @@
     <None Include="Shaders\CollisionDebugShader.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shaders\Shader2D2.frag">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\Shader2D2.vert">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="Shaders\BloomShader.frag">
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\BloomShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\ShadowForwardRendererShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\ShadowForwardRendererShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader2D_BloomOutput.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader2D_BloomOutput.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -592,9 +598,6 @@
     <ClInclude Include="Reflection2DPipeline.h">
       <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering2DPipeline.h">
-      <Filter>Header Files\Pipelines</Filter>
-    </ClInclude>
     <ClInclude Include="WaterSurface2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -640,13 +643,16 @@
     <ClInclude Include="PerspectiveCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rendering2DPipeline2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BloomPipeline.h">
       <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
     <ClInclude Include="SceneRenderer.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowForwardRendereringPipeline.h">
+      <Filter>Header Files\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="Rendering2DPipeline.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>

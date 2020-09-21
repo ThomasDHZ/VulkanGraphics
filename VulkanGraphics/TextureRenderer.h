@@ -9,6 +9,7 @@
 class TextureRenderer : public RendererBase
 {
 private:
+	void SetUpColorBlendingSettings() override;
 	void CreateRenderPass(VulkanRenderer& renderer);
 	void CreateRendererFramebuffers(VulkanRenderer& renderer);
 
