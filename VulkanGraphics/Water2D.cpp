@@ -24,7 +24,7 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	CoinTextures.EmissionMap = "texture/SparkManAlpha.bmp";
 	CoinTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 
-	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass | RenderBitFlag::RenderBloomPass1;
+	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass | RenderBitFlag::RenderEffectPass;
 	ObjectFlagBits = ObjectFlags::None;
 
 	WaterCamera = OrthographicCamera(glm::vec2(1920, 1080));

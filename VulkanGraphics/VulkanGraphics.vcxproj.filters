@@ -297,6 +297,9 @@
     <ClCompile Include="Rendering2DPipeline.cpp">
       <Filter>Source Files\Pipelines</Filter>
     </ClCompile>
+    <ClCompile Include="FrameBufferTextureRenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -653,6 +656,9 @@
       <Filter>Header Files\Pipelines</Filter>
     </ClInclude>
     <ClInclude Include="Rendering2DPipeline.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferTextureRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>

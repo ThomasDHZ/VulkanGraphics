@@ -12,6 +12,7 @@
 #include "ShadowRenderer.h"
 #include <chrono>
 #include "SceneRenderer.h"
+#include "FrameBufferTextureRenderer.h"
 
 class RendererManager : public VulkanRenderer
 {
@@ -32,11 +33,11 @@ private:
 	void UpdateSwapChain(GLFWwindow* window);
 
 	//void DrawToBloomTextureRenderPass();
-	void BloomPass1Pass();
 	void DrawToTextureRenderPass();
 	void MainRenderPass();
 	void SceneRenderPass();
 	void FrameBufferRenderPass();
+	void EffectRenderPass();
 	void ShadowRenderPass();
 protected:
 
@@ -54,10 +55,10 @@ public:
 	std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 	ForwardRenderer forwardRenderer;
 	SceneRenderer sceneRenderer;
-	TextureRenderer bloomPass1Renderer;
 	TextureRenderer textureRenderer;
 	ShadowRenderer shadowRenderer;
 	FramebufferRenderer frameBufferRenderer;
+	FrameBufferTextureRenderer EffectRenderer;
 
 	void RemoveDrawMessage(std::shared_ptr<RendererDrawMessage> mesh);
 	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }

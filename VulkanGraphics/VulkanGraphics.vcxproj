@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="Animation2D.cpp" />
     <ClCompile Include="BloomPipeline.cpp" />
+    <ClCompile Include="FrameBufferTextureRenderer.cpp" />
     <ClCompile Include="SceneRenderer.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="camera.cpp" />
@@ -267,6 +268,7 @@
   <ItemGroup>
     <ClInclude Include="Animation2D.h" />
     <ClInclude Include="BloomPipeline.h" />
+    <ClInclude Include="FrameBufferTextureRenderer.h" />
     <ClInclude Include="SceneRenderer.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="camera.h" />
