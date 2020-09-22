@@ -10,8 +10,7 @@ FrameBufferMesh::FrameBufferMesh(RendererManager& renderer, std::shared_ptr<Text
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
-    CreateDrawMessage(renderer, 0, renderer.frameBufferRenderer.frameBufferPipeline);
-    CreateDrawMessage(renderer, 5, renderer.frameBufferRenderer.frameBufferPipeline);
+    CreateDrawMessage(renderer, 5, renderer.EffectRenderer.frameBufferPipeline);
 }
 
 FrameBufferMesh::~FrameBufferMesh()
@@ -35,7 +34,7 @@ void FrameBufferMesh::CreateDescriptorPool(RendererManager& renderer) {
 
 void FrameBufferMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    BaseMesh::CreateDescriptorSets(renderer, renderer.frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
+    BaseMesh::CreateDescriptorSets(renderer, renderer.EffectRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;

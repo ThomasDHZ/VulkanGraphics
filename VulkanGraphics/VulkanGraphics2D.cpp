@@ -233,7 +233,7 @@ void VulkanGraphics2D::MainLoop()
 		}
 		renderer.SceneRenderPass();
 		renderer.EffectRenderPass();
-		//renderer.FrameBufferRenderPass();
+		renderer.FrameBufferRenderPass();
 		renderer.EndDraw(Window.GetWindowPtr());
 	}
 }

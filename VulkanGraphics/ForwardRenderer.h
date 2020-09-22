@@ -19,6 +19,7 @@ public:
 	void UpdateSwapChain(VulkanRenderer& renderer);
 	void Destroy(VulkanRenderer& renderer) override;
 
+	std::shared_ptr<FrameBufferRenderingPipeline> frameBufferPipeline;
 	std::shared_ptr<ForwardRenderingPipeline> forwardRendereringPipeline;
 	std::shared_ptr<Reflection2DPipeline> reflection2DPipeline;
 	std::shared_ptr<Rendering2DPipeline> renderer2DPipeline;

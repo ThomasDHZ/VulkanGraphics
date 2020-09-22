@@ -449,8 +449,8 @@ void RendererManager::EffectRenderPass()
 
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = forwardRenderer.RenderPass;
-	renderPassInfo.framebuffer = forwardRenderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderPass = EffectRenderer.RenderPass;
+	renderPassInfo.framebuffer = EffectRenderer.SwapChainFramebuffers[DrawFrame];
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -461,10 +461,9 @@ void RendererManager::EffectRenderPass()
 	{
 		if (drawMessage->RendererID == 5)
 		{
-			forwardRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
+			EffectRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
 		}
 	}
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
