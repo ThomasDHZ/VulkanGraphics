@@ -52,7 +52,7 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
 	framebuffer1 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture, renderer.sceneRenderer.BloomTexture, 5, renderer.EffectRenderer.bloomPipeline);
 	framebuffer2 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer.ColorTexture, 6, renderer.EffectRenderer.bloomPipeline2nd);
-	framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer2.ColorTexture);
+	framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, renderer.EffectRenderer2.ColorTexture);
 	//skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 }
 
