@@ -16,6 +16,9 @@ FrameBufferTextureRenderer::FrameBufferTextureRenderer(VulkanRenderer& renderer)
     CreateRendererFramebuffers(renderer);
     SetUpColorBlendingSettings();
 
+    bloomPipeline = std::make_shared<BloomPipeline>(renderer, RenderPass);
+    bloomPipeline2nd = std::make_shared<BloomPipeline2nd>(renderer, RenderPass);
+    underwater2DPipeline = std::make_shared<UnderWater2DPipeline>(renderer, RenderPass);
     frameBufferPipeline = std::make_shared<FrameBufferRenderingPipeline>(renderer, RenderPass);
     renderer2DPipeline = std::make_shared<Rendering2DPipeline>(Rendering2DPipeline(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_TextureRenderer));
 

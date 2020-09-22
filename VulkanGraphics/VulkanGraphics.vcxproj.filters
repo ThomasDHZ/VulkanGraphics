@@ -300,6 +300,9 @@
     <ClCompile Include="FrameBufferTextureRenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="BloomPipeline2nd.cpp">
+      <Filter>Source Files\Pipelines</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SkyboxShader.frag">
@@ -393,6 +396,12 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\Shader2D_BloomOutput.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\BloomShader2ndPass.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\BloomShader2ndPass.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -660,6 +669,9 @@
     </ClInclude>
     <ClInclude Include="FrameBufferTextureRenderer.h">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomPipeline2nd.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

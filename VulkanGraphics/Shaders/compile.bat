@@ -28,5 +28,7 @@ C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe CollisionDebugShader.vert -o CollisionDeb
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe CollisionDebugShader.frag -o CollisionDebugShaderFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe BloomShader.vert -o BloomShaderVert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe BloomShader.frag -o BloomShaderFrag.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe BloomShader2ndPass.vert -o BloomShader2ndPassVert.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe BloomShader2ndPass.frag -o BloomShader2ndPassFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe EmptyShader.frag -o EmptyFrag.spv
 pause

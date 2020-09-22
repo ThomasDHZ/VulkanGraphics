@@ -1,23 +1,23 @@
-#include "BloomPipeline.h"
+#include "BloomPipeline2nd.h"
 #include "Vertex.h"
 
-BloomPipeline::BloomPipeline() : GraphicsPipeline()
+BloomPipeline2nd::BloomPipeline2nd() : GraphicsPipeline()
 {
 }
 
-BloomPipeline::BloomPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+BloomPipeline2nd::BloomPipeline2nd(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
-	CreateDescriptorSetLayout(renderer);
-	CreateShaderPipeLine(renderer, renderPass);
+    CreateDescriptorSetLayout(renderer);
+    CreateShaderPipeLine(renderer, renderPass);
 }
 
-BloomPipeline::~BloomPipeline()
+BloomPipeline2nd::~BloomPipeline2nd()
 {
 }
 
-void BloomPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void BloomPipeline2nd::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 {
-	std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
+    std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
 
     LayoutBindingInfo[0].Binding = 0;
     LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -31,13 +31,13 @@ void BloomPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     LayoutBindingInfo[2].DescriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     LayoutBindingInfo[2].StageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
+    GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void BloomPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void BloomPipeline2nd::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-	auto vertShaderCode = ReadShaderFile("shaders/BloomShaderVert.spv");
-	auto fragShaderCode = ReadShaderFile("shaders/BloomShaderFrag.spv");
+    auto vertShaderCode = ReadShaderFile("shaders/BloomShader2ndPassVert.spv");
+    auto fragShaderCode = ReadShaderFile("shaders/BloomShader2ndPassFrag.spv");
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);
@@ -175,13 +175,13 @@ void BloomPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRende
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void BloomPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void BloomPipeline2nd::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
 {
-	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
-	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
+    vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
+    vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
 
-	ShaderPipeline = VK_NULL_HANDLE;
-	ShaderPipelineLayout = VK_NULL_HANDLE;
+    ShaderPipeline = VK_NULL_HANDLE;
+    ShaderPipelineLayout = VK_NULL_HANDLE;
 
-	CreateShaderPipeLine(renderer, renderPass);
+    CreateShaderPipeLine(renderer, renderPass);
 }

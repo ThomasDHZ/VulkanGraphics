@@ -16,6 +16,7 @@ RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
 	frameBufferRenderer = FramebufferRenderer(*GetVulkanRendererBase());
 	shadowRenderer = ShadowRenderer(*GetVulkanRendererBase());
 	EffectRenderer = FrameBufferTextureRenderer(*GetVulkanRendererBase());
+	EffectRenderer2 = FrameBufferTextureRenderer(*GetVulkanRendererBase());
 }
 
 RendererManager::~RendererManager()
@@ -462,6 +463,32 @@ void RendererManager::EffectRenderPass()
 		if (drawMessage->RendererID == 5)
 		{
 			EffectRenderer.Draw(*GetVulkanRendererBase(), drawMessage);
+		}
+	}
+	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+}
+
+void RendererManager::EffectRenderPass2()
+{
+	std::array<VkClearValue, 2> clearValues{};
+	clearValues[0].color = { 1.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[1].depthStencil = { 1.0f, 0 };
+
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = EffectRenderer2.RenderPass;
+	renderPassInfo.framebuffer = EffectRenderer2.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
+
+	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	for (auto drawMessage : DrawMessageList)
+	{
+		if (drawMessage->RendererID == 6)
+		{
+			EffectRenderer2.Draw(*GetVulkanRendererBase(), drawMessage);
 		}
 	}
 	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);

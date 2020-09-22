@@ -13,6 +13,7 @@ layout(location = 0) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 
 void main() {
+
     vec3 hdrColor =  texture(FrameBufferTexture, fragTexCoord).rgb + texture(BloomTexture, fragTexCoord).rgb;
     vec3 result = vec3(1.0) - exp(-hdrColor * settings.HDRValue);
     vec3 color = pow(result, vec3(1.0/settings.Gamma));

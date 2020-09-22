@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="Animation2D.cpp" />
     <ClCompile Include="BloomPipeline.cpp" />
+    <ClCompile Include="BloomPipeline2nd.cpp" />
     <ClCompile Include="FrameBufferTextureRenderer.cpp" />
     <ClCompile Include="SceneRenderer.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
@@ -235,6 +236,8 @@
   <ItemGroup>
     <None Include="Shaders\BloomShader.frag" />
     <None Include="Shaders\BloomShader.vert" />
+    <None Include="Shaders\BloomShader2ndPass.frag" />
+    <None Include="Shaders\BloomShader2ndPass.vert" />
     <None Include="Shaders\CollisionDebugShader.frag" />
     <None Include="Shaders\CollisionDebugShader.vert" />
     <None Include="Shaders\DepthShader.frag" />
@@ -268,6 +271,7 @@
   <ItemGroup>
     <ClInclude Include="Animation2D.h" />
     <ClInclude Include="BloomPipeline.h" />
+    <ClInclude Include="BloomPipeline2nd.h" />
     <ClInclude Include="FrameBufferTextureRenderer.h" />
     <ClInclude Include="SceneRenderer.h" />
     <ClInclude Include="BoxCollider.h" />

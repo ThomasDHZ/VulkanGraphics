@@ -48,9 +48,11 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SpriteList.emplace_back(std::make_shared<LargeEnergy>(LargeEnergy(renderer, gameManager.textureManager, glm::vec2(9.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Enemy2D>(Enemy2D(renderer, gameManager.textureManager, glm::vec2(8.0f, 10.0f))));
 	//SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.sceneRenderer.BloomTexture)));
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.sceneRenderer.BloomTexture)));
+	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.sceneRenderer.BloomTexture)));
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
-	framebuffer = FrameBufferMesh(renderer, gameManager.textureManager, renderer.textureRenderer.ColorTexture, renderer.textureRenderer.ColorTexture);
+	framebuffer1 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture, renderer.sceneRenderer.BloomTexture, 5, renderer.EffectRenderer.bloomPipeline);
+	framebuffer2 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer.ColorTexture, 6, renderer.EffectRenderer.bloomPipeline2nd);
+	framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer2.ColorTexture);
 	//skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 }
 
@@ -64,7 +66,7 @@ VulkanGraphics2D::~VulkanGraphics2D()
 	{
 		sprite->Destory(renderer);
 	}
-	framebuffer.Destory(renderer);
+	framebuffer1.Destory(renderer);
 	renderer.DestoryVulkan();
 	Window.CleanUp();
 }
@@ -108,6 +110,7 @@ void VulkanGraphics2D::UpdateImGUI()
 		ImGui::SliderFloat3("pdiffuse", &light.light.pLight.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);
 		ImGui::Image(renderer.EffectRenderer.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::Image(renderer.EffectRenderer2.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		//ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
 
@@ -166,7 +169,10 @@ void VulkanGraphics2D::Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera
 	lastFrame = currentFrame;
 
 	camera->Update();
-	framebuffer.Update(renderer);
+	framebuffer1.Update(renderer);
+	framebuffer2.Update(renderer);
+	framebuffer3.Update(renderer);
+
 	light.Update(renderer, camera);
 	//skybox.Update(renderer, camera);
 	for (int x= SpriteList.size() - 1; x > 0; x--)
@@ -233,6 +239,7 @@ void VulkanGraphics2D::MainLoop()
 		}
 		renderer.SceneRenderPass();
 		renderer.EffectRenderPass();
+		renderer.EffectRenderPass2();
 		renderer.FrameBufferRenderPass();
 		renderer.EndDraw(Window.GetWindowPtr());
 	}

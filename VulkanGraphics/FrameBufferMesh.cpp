@@ -10,7 +10,18 @@ FrameBufferMesh::FrameBufferMesh(RendererManager& renderer, std::shared_ptr<Text
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
-    CreateDrawMessage(renderer, 5, renderer.EffectRenderer.frameBufferPipeline);
+    CreateDrawMessage(renderer, 0, renderer.frameBufferRenderer.frameBufferPipeline);
+}
+
+FrameBufferMesh::FrameBufferMesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::shared_ptr<Texture> FrameBufferImage, std::shared_ptr<Texture> BloomImage, int effectRenderer, std::shared_ptr<GraphicsPipeline> shader) : Mesh(renderer, FrameBufferVertices, FrameBufferIndices)
+{
+    DiffuseTexture = FrameBufferImage;
+    EmissionTexture = BloomImage;
+    CreateUniformBuffers(renderer);
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager);
+    CreateDrawMessage(renderer, effectRenderer, shader);
+ 
 }
 
 FrameBufferMesh::~FrameBufferMesh()
@@ -34,7 +45,7 @@ void FrameBufferMesh::CreateDescriptorPool(RendererManager& renderer) {
 
 void FrameBufferMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager)
 {
-    BaseMesh::CreateDescriptorSets(renderer, renderer.EffectRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
+    BaseMesh::CreateDescriptorSets(renderer, renderer.frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout);
 
     VkDescriptorImageInfo imageInfo{};
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
