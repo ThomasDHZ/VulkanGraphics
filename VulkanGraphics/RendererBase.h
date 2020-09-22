@@ -29,7 +29,7 @@ struct RendererDrawMessage
 class RendererBase
 {
 protected:
-	std::vector<VkPipelineColorBlendAttachmentState> ColorBlendAttachment;
+	std::shared_ptr<std::vector<VkPipelineColorBlendAttachmentState>> ColorBlendAttachment;
 	VkPipelineColorBlendStateCreateInfo ColorBlendingSettings;
 
 	virtual void SetUpColorBlendingSettings();

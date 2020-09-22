@@ -257,6 +257,8 @@
     <None Include="Shaders\Shader2D.vert" />
     <None Include="Shaders\Shader2D_BloomOutput.frag" />
     <None Include="Shaders\Shader2D_BloomOutput.vert" />
+    <None Include="Shaders\Shader2D_Shadow.frag" />
+    <None Include="Shaders\Shader2D_Shadow.vert" />
     <None Include="Shaders\ShadowDebug.frag" />
     <None Include="Shaders\ShadowDebug.vert" />
     <None Include="Shaders\ShadowForwardRendererShader.frag" />

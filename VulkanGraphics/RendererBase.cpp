@@ -7,6 +7,7 @@ RendererBase::RendererBase()
 
 RendererBase::RendererBase(VulkanEngine& renderer)
 {
+    ColorBlendAttachment = std::make_shared<std::vector<VkPipelineColorBlendAttachmentState>>();
 }
 
 RendererBase::~RendererBase()

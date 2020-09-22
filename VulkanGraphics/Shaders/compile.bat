@@ -20,6 +20,8 @@ C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D.vert -o Shader2DVert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D.frag -o Shader2DFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D_BloomOutput.vert -o Shader2DVert_BloomOutput.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D_BloomOutput.frag -o Shader2DFrag_BloomOutput.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D_Shadow.vert -o Shader2DVert_Shadow.spv
+C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe Shader2D_Shadow.frag -o Shader2DFrag_Shadow.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe ReflectShader2D.vert -o ReflectShader2DVert.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe ReflectShader2D.frag -o ReflectShader2DFrag.spv
 C:/VulkanSDK/1.2.141.2/Bin32/glslc.exe UnderWater2DShader.vert -o UnderWater2DShaderVert.spv

@@ -224,6 +224,13 @@ void VulkanGraphics2D::MainLoop()
 		{
 			CompareVulkanSettings = renderer.Settings;
 			renderer.UpdateSwapChain(Window.GetWindowPtr());
+
+			framebuffer1.Destory(renderer);
+			framebuffer1 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, renderer.sceneRenderer.ColorTexture);
+			framebuffer2.Destory(renderer);
+			framebuffer2 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, renderer.sceneRenderer.ColorTexture);
+			framebuffer3.Destory(renderer);
+			framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, renderer.sceneRenderer.ColorTexture);
 		}
 
 		Window.Update();

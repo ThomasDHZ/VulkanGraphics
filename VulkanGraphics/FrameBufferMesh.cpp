@@ -21,7 +21,6 @@ FrameBufferMesh::FrameBufferMesh(RendererManager& renderer, std::shared_ptr<Text
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
     CreateDrawMessage(renderer, effectRenderer, shader);
- 
 }
 
 FrameBufferMesh::~FrameBufferMesh()

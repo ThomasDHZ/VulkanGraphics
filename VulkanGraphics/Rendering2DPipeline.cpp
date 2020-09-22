@@ -76,8 +76,8 @@ void Rendering2DPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkR
     }
     else if (rendererType == RendererType::RT_ShadowRenderer)
     {
-        vertShaderCode = ReadShaderFile("shaders/ShadowForwardRendererVert.spv");
-        fragShaderCode = ReadShaderFile("shaders/ShadowForwardRendererFrag.spv");
+        vertShaderCode = ReadShaderFile("shaders/Shader2DVert_Shadow.spv");
+        fragShaderCode = ReadShaderFile("shaders/Shader2DFrag_Shadow.spv");
     }
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);

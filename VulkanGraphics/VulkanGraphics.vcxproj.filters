@@ -410,6 +410,12 @@
     <None Include="Shaders\BloomShader2ndPass.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Shaders\Shader2D_Shadow.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader2D_Shadow.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">

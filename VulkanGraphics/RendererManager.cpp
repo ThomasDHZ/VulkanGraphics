@@ -114,6 +114,7 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window)
 	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
 
 	forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	sceneRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());

@@ -10,7 +10,7 @@ ShadowRenderer::ShadowRenderer(VulkanEngine& renderer) : RendererBase(renderer)
     CreateRendererFramebuffers(renderer);
 
     forwardRendereringPipeline = std::make_shared<ShadowForwardRendereringPipeline>(renderer, RenderPass);
-    renderer2DPipeline = std::make_shared<Rendering2DPipeline>(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer);
+    renderer2DPipeline = std::make_shared<Rendering2DPipeline>(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ShadowRenderer);
     ImGui_ImplVulkan_AddTexture(DepthTexture->ImGuiDescriptorSet, DepthTexture->GetTextureSampler(), DepthTexture->GetTextureView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
 
@@ -121,7 +121,7 @@ void ShadowRenderer::UpdateSwapChain(VulkanEngine& renderer)
 {
     DepthTexture->RecreateRendererTexture(renderer);
     forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
-    renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer);
+    renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ShadowRenderer);
     for (auto& framebuffer : SwapChainFramebuffers)
     {
         vkDestroyFramebuffer(renderer.Device, framebuffer, nullptr);
