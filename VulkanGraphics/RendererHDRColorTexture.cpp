@@ -4,7 +4,7 @@ RendererHDRColorTexture::RendererHDRColorTexture() : Texture()
 {
 }
 
-RendererHDRColorTexture::RendererHDRColorTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkRenderedTexture)
+RendererHDRColorTexture::RendererHDRColorTexture(VulkanEngine& renderer) : Texture(renderer, TextureType::vkRenderedTexture)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);
@@ -16,7 +16,7 @@ RendererHDRColorTexture::~RendererHDRColorTexture()
 }
 
 
-void RendererHDRColorTexture::CreateTextureImage(VulkanRenderer& renderer)
+void RendererHDRColorTexture::CreateTextureImage(VulkanEngine& renderer)
 {
     VkImageCreateInfo TextureInfo = {};
     TextureInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -34,7 +34,7 @@ void RendererHDRColorTexture::CreateTextureImage(VulkanRenderer& renderer)
     Texture::CreateTextureImage(renderer, TextureInfo);
 }
 
-void RendererHDRColorTexture::CreateTextureView(VulkanRenderer& renderer)
+void RendererHDRColorTexture::CreateTextureView(VulkanEngine& renderer)
 {
     VkImageViewCreateInfo TextureImageViewInfo = {};
     TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -51,7 +51,7 @@ void RendererHDRColorTexture::CreateTextureView(VulkanRenderer& renderer)
     Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void RendererHDRColorTexture::CreateTextureSampler(VulkanRenderer& renderer)
+void RendererHDRColorTexture::CreateTextureSampler(VulkanEngine& renderer)
 {
     VkSamplerCreateInfo TextureImageSamplerInfo = {};
     TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -70,7 +70,7 @@ void RendererHDRColorTexture::CreateTextureSampler(VulkanRenderer& renderer)
     Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }
 
-void RendererHDRColorTexture::RecreateRendererTexture(VulkanRenderer& renderer)
+void RendererHDRColorTexture::RecreateRendererTexture(VulkanEngine& renderer)
 {
     Texture::Delete(renderer);
     CreateTextureImage(renderer);

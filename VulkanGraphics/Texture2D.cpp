@@ -4,7 +4,7 @@ Texture2D::Texture2D() : Texture()
 {
 }
 
-Texture2D::Texture2D(VulkanRenderer& renderer, VkFormat format, std::string TextureLocation, unsigned int textureID) : Texture(renderer, TextureLocation, textureID, TextureType::vkTexture2D, format)
+Texture2D::Texture2D(VulkanEngine& renderer, VkFormat format, std::string TextureLocation, unsigned int textureID) : Texture(renderer, TextureLocation, textureID, TextureType::vkTexture2D, format)
 {
 	CreateTextureView(renderer, format);
 	CreateTextureSampler(renderer);
@@ -15,7 +15,7 @@ Texture2D::~Texture2D()
 {
 }
 
-void Texture2D::CreateTextureView(VulkanRenderer& renderer, VkFormat format)
+void Texture2D::CreateTextureView(VulkanEngine& renderer, VkFormat format)
 {
 	VkImageViewCreateInfo TextureImageViewInfo = {};
 	TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -31,7 +31,7 @@ void Texture2D::CreateTextureView(VulkanRenderer& renderer, VkFormat format)
 	Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void Texture2D::CreateTextureSampler(VulkanRenderer& renderer)
+void Texture2D::CreateTextureSampler(VulkanEngine& renderer)
 {
 	VkSamplerCreateInfo TextureImageSamplerInfo = {};
 	TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

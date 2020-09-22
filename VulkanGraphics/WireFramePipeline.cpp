@@ -6,7 +6,7 @@ WireFramePipeline::WireFramePipeline() : GraphicsPipeline()
 {
 }
 
-WireFramePipeline::WireFramePipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+WireFramePipeline::WireFramePipeline(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
     CreateShaderPipeLine(renderer, renderPass);
@@ -16,7 +16,7 @@ WireFramePipeline::~WireFramePipeline()
 {
 }
 
-void WireFramePipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void WireFramePipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
     std::array<DescriptorSetLayoutBindingInfo, 11> LayoutBindingInfo = {};
 
@@ -67,7 +67,7 @@ void WireFramePipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void WireFramePipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void WireFramePipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     auto vertShaderCode = ReadShaderFile("shaders/WireFrameShaderVert.spv");
     auto fragShaderCode = ReadShaderFile("shaders/WireFrameShaderFrag.spv");
@@ -202,7 +202,7 @@ void WireFramePipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkR
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void WireFramePipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void WireFramePipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

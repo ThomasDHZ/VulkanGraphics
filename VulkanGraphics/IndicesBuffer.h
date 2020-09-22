@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan\vulkan_core.h>
 #include <vector>
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 
 class IndicesBuffer
 {
@@ -13,10 +13,10 @@ private:
 public:
 
 	IndicesBuffer();
-	IndicesBuffer(VulkanRenderer& renderer, const std::vector<uint16_t>& indicesdata);
+	IndicesBuffer(VulkanEngine& renderer, const std::vector<uint16_t>& indicesdata);
 	~IndicesBuffer();
 
-	void Destory(VulkanRenderer& renderer);
+	void Destory(VulkanEngine& renderer);
 
 	unsigned int GetIndiceCount() { return IndiceCount; }
 	VkBuffer GetIndiceBuffer() { return indiceBuffer; }

@@ -64,25 +64,39 @@ void Mesh::CreateMaterialProperties()
 void Mesh::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
 {
 
-    if (!textures.DiffuseMap.empty())
+    if (textures.DiffuseMap != DefaultTexture)
     {
         properites.UseDiffuseMapBit = 1;
     }
-    if (!textures.SpecularMap.empty())
+
+    if (textures.SpecularMap != DefaultTexture)
     {
         properites.UseSpecularMapBit = 1;
     }
-    if (!textures.NormalMap.empty())
+
+    if (textures.NormalMap != DefaultTexture)
     {
         properites.UseNormalMapBit = 1;
     }
-    if (!textures.AlphaMap.empty())
+
+    if (textures.DepthMap != DefaultTexture)
+    {
+        properites.UseDepthMapBit = 1;
+    }
+
+    if (textures.AlphaMap != DefaultTexture)
     {
         properites.UseAlphaMapBit = 1;
     }
-    if (!textures.EmissionMap.empty())
+
+    if (textures.EmissionMap != DefaultTexture)
     {
         properites.UseEmissionMapBit = 1;
+    }
+
+    if (textures.ReflectionMap != DefaultTexture)
+    {
+        properites.UseReflectionMapBit = 1;
     }
 
 }

@@ -1,11 +1,11 @@
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include <set>
 
-VulkanRenderer::VulkanRenderer()
+VulkanEngine::VulkanEngine()
 {
 }
 
-VulkanRenderer::VulkanRenderer(GLFWwindow* window)
+VulkanEngine::VulkanEngine(GLFWwindow* window)
 {
 	bool DebuggerAvalible = false;
 	uint32_t LayerCount;
@@ -135,11 +135,11 @@ VulkanRenderer::VulkanRenderer(GLFWwindow* window)
 	InitializeSyncObjects();
 }
 
-VulkanRenderer::~VulkanRenderer()
+VulkanEngine::~VulkanEngine()
 {
 }
 
-VkFormat VulkanRenderer::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
+VkFormat VulkanEngine::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
 	for (VkFormat format : candidates) {
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(PhysicalDevice, format, &props);
@@ -155,7 +155,7 @@ VkFormat VulkanRenderer::findSupportedFormat(const std::vector<VkFormat>& candid
 	throw std::runtime_error("failed to find supported format!");
 }
 
-VkFormat VulkanRenderer::findDepthFormat()
+VkFormat VulkanEngine::findDepthFormat()
 {
 	return findSupportedFormat(
 		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
@@ -164,7 +164,7 @@ VkFormat VulkanRenderer::findDepthFormat()
 	);
 }
 
-std::vector<const char*> VulkanRenderer::getRequiredExtensions() {
+std::vector<const char*> VulkanEngine::getRequiredExtensions() {
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -175,7 +175,7 @@ std::vector<const char*> VulkanRenderer::getRequiredExtensions() {
 	return extensions;
 }
 
-bool VulkanRenderer::isDeviceSuitable(VkPhysicalDevice GPUDevice)
+bool VulkanEngine::isDeviceSuitable(VkPhysicalDevice GPUDevice)
 {
 	FindQueueFamilies(GPUDevice, Surface);
 
@@ -213,7 +213,7 @@ bool VulkanRenderer::isDeviceSuitable(VkPhysicalDevice GPUDevice)
 		   supportedFeatures.samplerAnisotropy;
 }
 
-bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice)
+bool VulkanEngine::checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice)
 {
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(GPUDevice, nullptr, &extensionCount, nullptr);
@@ -230,7 +230,7 @@ bool VulkanRenderer::checkDeviceExtensionSupport(VkPhysicalDevice GPUDevice)
 	return requiredExtensions.empty();
 }
 
-void VulkanRenderer::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface)
+void VulkanEngine::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfaceKHR Surface)
 {
 	uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, &queueFamilyCount, nullptr);
@@ -261,7 +261,7 @@ void VulkanRenderer::FindQueueFamilies(VkPhysicalDevice PhysicalDevice, VkSurfac
 	}
 }
 
-void VulkanRenderer::Destory()
+void VulkanEngine::Destory()
 {
 	SwapChain.Destroy(Device);
 
@@ -285,7 +285,7 @@ void VulkanRenderer::Destory()
 	vkDestroyInstance(Instance, nullptr);
 }
 
-void VulkanRenderer::InitializeCommandBuffers()
+void VulkanEngine::InitializeCommandBuffers()
 {
 	RenderCommandBuffer.resize(SwapChain.GetSwapChainImageCount());
 
@@ -309,7 +309,7 @@ void VulkanRenderer::InitializeCommandBuffers()
 	}
 }
 
-void VulkanRenderer::InitializeSyncObjects()
+void VulkanEngine::InitializeSyncObjects()
 {
 	vulkanSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);

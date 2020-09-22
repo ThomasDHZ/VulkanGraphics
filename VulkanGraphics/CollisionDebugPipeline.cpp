@@ -5,7 +5,7 @@ CollisionDebugPipeline::CollisionDebugPipeline() : GraphicsPipeline()
 {
 }
 
-CollisionDebugPipeline::CollisionDebugPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+CollisionDebugPipeline::CollisionDebugPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
 	CreateDescriptorSetLayout(renderer);
 	CreateShaderPipeLine(renderer, renderPass);
@@ -15,7 +15,7 @@ CollisionDebugPipeline::~CollisionDebugPipeline()
 {
 }
 
-void CollisionDebugPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void CollisionDebugPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
 	std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
 
@@ -58,7 +58,7 @@ void CollisionDebugPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 	GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void CollisionDebugPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void CollisionDebugPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
 	auto vertShaderCode = ReadShaderFile("shaders/CollisionDebugShaderVert.spv");
 	auto fragShaderCode = ReadShaderFile("shaders/CollisionDebugShaderFrag.spv");
@@ -181,7 +181,7 @@ void CollisionDebugPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, cons
 	vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void CollisionDebugPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void CollisionDebugPipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
 	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

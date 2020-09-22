@@ -1,5 +1,5 @@
 #pragma once
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include "VulkanDebugger.h"
 #include "VulkanSwapChain.h"
 #include "ForwardRenderingPipeline.h"
@@ -14,7 +14,7 @@
 #include "SceneRenderer.h"
 #include "FrameBufferTextureRenderer.h"
 
-class RendererManager : public VulkanRenderer
+class RendererManager : public VulkanEngine
 {
 	friend class VulkanGraphics;
 	friend class VulkanGraphics2D;
@@ -63,5 +63,5 @@ public:
 	FrameBufferTextureRenderer EffectRenderer2;
 
 	void RemoveDrawMessage(std::shared_ptr<RendererDrawMessage> mesh);
-	VulkanRenderer* GetVulkanRendererBase() { return static_cast<VulkanRenderer*>(this); }
+	VulkanEngine* GetVulkanRendererBase() { return static_cast<VulkanEngine*>(this); }
 };

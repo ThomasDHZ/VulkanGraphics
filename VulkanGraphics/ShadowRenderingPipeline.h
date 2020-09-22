@@ -4,14 +4,14 @@
 class ShadowRenderingPipeline : public GraphicsPipeline
 {
 private:
-	void CreateDescriptorSetLayout(VulkanRenderer& renderer);
-	void CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
+	void CreateDescriptorSetLayout(VulkanEngine& renderer);
+	void CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass);
 public:
 	ShadowRenderingPipeline();
-	ShadowRenderingPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass);
+	ShadowRenderingPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass);
 	~ShadowRenderingPipeline();
 
-	void UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
+	void UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass);
 };
 
 

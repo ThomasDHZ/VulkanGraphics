@@ -3,7 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include "GraphicsPipeline.h"
 #include "VertexBuffer.h"
 #include "IndicesBuffer.h"
@@ -38,10 +38,10 @@ public:
 	std::vector<VkFramebuffer> SwapChainFramebuffers;
 
 	RendererBase();
-	RendererBase(VulkanRenderer& renderer);
+	RendererBase(VulkanEngine& renderer);
 	~RendererBase();
 
-	void Draw(VulkanRenderer& renderer, std::shared_ptr<RendererDrawMessage>& drawMessage) const;
-	virtual void Destroy(VulkanRenderer& renderer);
+	void Draw(VulkanEngine& renderer, std::shared_ptr<RendererDrawMessage>& drawMessage) const;
+	virtual void Destroy(VulkanEngine& renderer);
 };
 

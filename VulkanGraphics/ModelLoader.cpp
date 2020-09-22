@@ -4,7 +4,7 @@ ModelLoader::ModelLoader()
 {
 }
 
-ModelLoader::ModelLoader(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath)
+ModelLoader::ModelLoader(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath)
 {
 	LoadModel(renderer, textureManager, FilePath);
 }
@@ -13,7 +13,7 @@ ModelLoader::~ModelLoader()
 {
 }
 
-void ModelLoader::LoadModel(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath)
+void ModelLoader::LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath)
 {
 	Assimp::Importer ModelImporter;
 
@@ -27,7 +27,7 @@ void ModelLoader::LoadModel(VulkanRenderer& renderer, std::shared_ptr<TextureMan
 	ProcessNode(renderer, textureManager, FilePath, Scene->mRootNode, Scene);
 }
 
-void ModelLoader::ProcessNode(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiNode* node, const aiScene* scene)
+void ModelLoader::ProcessNode(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiNode* node, const aiScene* scene)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -94,7 +94,7 @@ std::vector<uint16_t> ModelLoader::LoadIndices(aiMesh* mesh)
 	return IndexList;
 }
 
-std::vector<Texture2D> ModelLoader::LoadTextures(VulkanRenderer& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
+std::vector<Texture2D> ModelLoader::LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<Texture2D> TextureList;
 

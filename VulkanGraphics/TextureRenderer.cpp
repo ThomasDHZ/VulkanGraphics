@@ -7,7 +7,7 @@ TextureRenderer::TextureRenderer() : RendererBase()
 {
 }
 
-TextureRenderer::TextureRenderer(VulkanRenderer& renderer) : RendererBase(renderer)
+TextureRenderer::TextureRenderer(VulkanEngine& renderer) : RendererBase(renderer)
 {
     CreateRenderPass(renderer);
     DepthTexture = RendererDepthTexture(renderer);
@@ -55,7 +55,7 @@ void TextureRenderer::SetUpColorBlendingSettings()
     ColorBlendingSettings = ColorBlending;
 }
 
-void TextureRenderer::CreateRenderPass(VulkanRenderer& renderer)
+void TextureRenderer::CreateRenderPass(VulkanEngine& renderer)
 {
     std::array<VkAttachmentDescription, 2> attchmentDescriptions = {};
 
@@ -119,7 +119,7 @@ void TextureRenderer::CreateRenderPass(VulkanRenderer& renderer)
     }
 }
 
-void TextureRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
+void TextureRenderer::CreateRendererFramebuffers(VulkanEngine& renderer)
 {
     SwapChainFramebuffers.resize(3);
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
@@ -144,7 +144,7 @@ void TextureRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
     }
 }
 
-void TextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
+void TextureRenderer::UpdateSwapChain(VulkanEngine& renderer)
 {
     ColorTexture->RecreateRendererTexture(renderer);
     DepthTexture.RecreateRendererTexture(renderer);
@@ -165,7 +165,7 @@ void TextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
     CreateRendererFramebuffers(renderer);
 }
 
-void TextureRenderer::Destroy(VulkanRenderer& renderer)
+void TextureRenderer::Destroy(VulkanEngine& renderer)
 {
     ColorTexture->Delete(renderer);
     DepthTexture.Delete(renderer);

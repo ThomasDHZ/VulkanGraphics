@@ -6,7 +6,7 @@ ShadowForwardRendereringPipeline::ShadowForwardRendereringPipeline() : GraphicsP
 {
 }
 
-ShadowForwardRendereringPipeline::ShadowForwardRendereringPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+ShadowForwardRendereringPipeline::ShadowForwardRendereringPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
     CreateShaderPipeLine(renderer, renderPass);
@@ -16,7 +16,7 @@ ShadowForwardRendereringPipeline::~ShadowForwardRendereringPipeline()
 {
 }
 
-void ShadowForwardRendereringPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void ShadowForwardRendereringPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
     std::array<DescriptorSetLayoutBindingInfo, 11> LayoutBindingInfo = {};
 
@@ -67,7 +67,7 @@ void ShadowForwardRendereringPipeline::CreateDescriptorSetLayout(VulkanRenderer&
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void ShadowForwardRendereringPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void ShadowForwardRendereringPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     auto vertShaderCode = ReadShaderFile("shaders/ShadowForwardRendererVert.spv");
     auto fragShaderCode = ReadShaderFile("shaders/ShadowForwardRendererFrag.spv");
@@ -208,7 +208,7 @@ void ShadowForwardRendereringPipeline::CreateShaderPipeLine(VulkanRenderer& rend
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void ShadowForwardRendereringPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void ShadowForwardRendereringPipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

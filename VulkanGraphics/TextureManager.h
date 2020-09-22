@@ -1,5 +1,5 @@
 #pragma once
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include "Texture2D.h"
 #include "CubeMapTexture.h"
 class TextureManager
@@ -12,16 +12,16 @@ private:
 
 public:
 	TextureManager();
-	TextureManager(VulkanRenderer& renderer);
+	TextureManager(VulkanEngine& renderer);
 	~TextureManager();
 
-	std::shared_ptr<Texture> LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format);
-	std::shared_ptr<CubeMapTexture> LoadTexture(VulkanRenderer& renderer, std::string cubeMapList[6]);
-	std::shared_ptr<CubeMapTexture> LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList);
+	std::shared_ptr<Texture> LoadTexture(VulkanEngine& renderer, std::string TextureLocation, VkFormat format);
+	std::shared_ptr<CubeMapTexture> LoadTexture(VulkanEngine& renderer, std::string cubeMapList[6]);
+	std::shared_ptr<CubeMapTexture> LoadTexture(VulkanEngine& renderer, CubeMapLayout cubeMapList);
 	std::shared_ptr<Texture> LoadTexture(std::shared_ptr<Texture> texture);
 
-	void UnloadTexture(VulkanRenderer& renderer, unsigned int ID);
-	void UnloadAllTextures(VulkanRenderer& renderer);
+	void UnloadTexture(VulkanEngine& renderer, unsigned int ID);
+	void UnloadAllTextures(VulkanEngine& renderer);
 	void UpdateIMGUIVRAM();
 
 	bool GetTextureByName(std::string name);

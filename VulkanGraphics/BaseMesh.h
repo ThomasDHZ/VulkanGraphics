@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "Vertex.h"
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include "Structs.h"
 #include "GraphicsPipeline.h"
 #include "VertexBuffer.h"

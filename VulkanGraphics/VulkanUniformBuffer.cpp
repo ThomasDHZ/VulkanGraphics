@@ -4,7 +4,7 @@ VulkanUniformBuffer::VulkanUniformBuffer()
 {
 }
 
-VulkanUniformBuffer::VulkanUniformBuffer(VulkanRenderer& renderer, VkDeviceSize bufferSize)
+VulkanUniformBuffer::VulkanUniformBuffer(VulkanEngine& renderer, VkDeviceSize bufferSize)
 {
 	BufferSize = bufferSize;
 	CreateUniformBuffers(renderer);
@@ -14,7 +14,7 @@ VulkanUniformBuffer::~VulkanUniformBuffer()
 {
 }
 
-void VulkanUniformBuffer::CreateUniformBuffers(VulkanRenderer& renderer)
+void VulkanUniformBuffer::CreateUniformBuffers(VulkanEngine& renderer)
 {
 	UniformBuffers.resize(renderer.SwapChain.GetSwapChainImageCount());
 	UniformBuffersMemory.resize(renderer.SwapChain.GetSwapChainImageCount());
@@ -24,7 +24,7 @@ void VulkanUniformBuffer::CreateUniformBuffers(VulkanRenderer& renderer)
 	}
 }
 
-void VulkanUniformBuffer::UpdateUniformBuffer(VulkanRenderer& renderer, void* UniformObjectData)
+void VulkanUniformBuffer::UpdateUniformBuffer(VulkanEngine& renderer, void* UniformObjectData)
 {
 	void* UniformData;
 	vkMapMemory(renderer.Device, UniformBuffersMemory[renderer.DrawFrame], 0, BufferSize, 0, &UniformData);
@@ -32,7 +32,7 @@ void VulkanUniformBuffer::UpdateUniformBuffer(VulkanRenderer& renderer, void* Un
 	vkUnmapMemory(renderer.Device, UniformBuffersMemory[renderer.DrawFrame]);
 }
 
-void VulkanUniformBuffer::Destroy(VulkanRenderer& renderer)
+void VulkanUniformBuffer::Destroy(VulkanEngine& renderer)
 {
 	for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
 	{

@@ -1,12 +1,12 @@
 #pragma once
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include <stdexcept>
 
 static class VulkanBufferManager
 {
 public:
 
-	static void CreateBuffer(VulkanRenderer& renderer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+	static void CreateBuffer(VulkanEngine& renderer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
 	{
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -33,7 +33,7 @@ public:
 		vkBindBufferMemory(renderer.Device, buffer, bufferMemory, 0);
 	}
 
-	static	VkCommandBuffer beginSingleTimeCommands(VulkanRenderer& renderer)
+	static	VkCommandBuffer beginSingleTimeCommands(VulkanEngine& renderer)
 	{
 		VkCommandBufferAllocateInfo allocInfo = {};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -73,7 +73,7 @@ public:
 		return commandBuffer;
 	}
 
-	static void endSingleTimeCommands(VulkanRenderer& renderer, VkCommandBuffer commandBuffer)
+	static void endSingleTimeCommands(VulkanEngine& renderer, VkCommandBuffer commandBuffer)
 	{
 		vkEndCommandBuffer(commandBuffer);
 
@@ -103,7 +103,7 @@ public:
 		vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 	}
 
-	static void CopyBuffer(VulkanRenderer& renderer, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+	static void CopyBuffer(VulkanEngine& renderer, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
 	{
 		VkCommandBuffer commandBuffer = beginSingleTimeCommands(renderer);
 
@@ -114,7 +114,7 @@ public:
 		endSingleTimeCommands(renderer, commandBuffer);
 	}
 
-	static uint32_t FindMemoryType(VulkanRenderer& renderer, uint32_t typeFilter, VkMemoryPropertyFlags properties)
+	static uint32_t FindMemoryType(VulkanEngine& renderer, uint32_t typeFilter, VkMemoryPropertyFlags properties)
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(renderer.PhysicalDevice, &memProperties);

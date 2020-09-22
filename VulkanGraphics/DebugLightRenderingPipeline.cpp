@@ -5,7 +5,7 @@ DebugLightRenderingPipeline::DebugLightRenderingPipeline() : GraphicsPipeline()
 {
 }
 
-DebugLightRenderingPipeline::DebugLightRenderingPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+DebugLightRenderingPipeline::DebugLightRenderingPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
 	CreateDescriptorSetLayout(renderer);
 	CreateShaderPipeLine(renderer, renderPass);
@@ -15,7 +15,7 @@ DebugLightRenderingPipeline::~DebugLightRenderingPipeline()
 {
 }
 
-void DebugLightRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void DebugLightRenderingPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
 	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
 
@@ -30,7 +30,7 @@ void DebugLightRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& rend
 	GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void DebugLightRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void DebugLightRenderingPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
 	auto vertShaderCode = ReadShaderFile("shaders/FlatShaderVert.spv");
 	auto fragShaderCode = ReadShaderFile("shaders/FlatShaderFrag.spv");
@@ -159,7 +159,7 @@ void DebugLightRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer,
 	vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void DebugLightRenderingPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void DebugLightRenderingPipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
 	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

@@ -8,7 +8,7 @@ SkyBoxPipeline::SkyBoxPipeline() : GraphicsPipeline()
 {
 }
 
-SkyBoxPipeline::SkyBoxPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+SkyBoxPipeline::SkyBoxPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
 	CreateDescriptorSetLayout(renderer);
 	CreateShaderPipeLine(renderer, renderPass);
@@ -18,7 +18,7 @@ SkyBoxPipeline::~SkyBoxPipeline()
 {
 }
 
-void SkyBoxPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void SkyBoxPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
 	std::array<DescriptorSetLayoutBindingInfo, 2> LayoutBindingInfo = {};
 
@@ -33,7 +33,7 @@ void SkyBoxPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 	GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void SkyBoxPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void SkyBoxPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
 	auto SkyBoxvertShaderCode = ReadShaderFile("Shaders/SkyBoxVert.spv");
 	auto SkyBoxfragShaderCode = ReadShaderFile("Shaders/SkyBoxFrag.spv");
@@ -157,7 +157,7 @@ void SkyBoxPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRend
 	vkDestroyShaderModule(renderer.Device, SkyBoxvertShaderModule, nullptr);
 }
 
-void SkyBoxPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void SkyBoxPipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
 	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

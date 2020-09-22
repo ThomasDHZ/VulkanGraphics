@@ -4,14 +4,14 @@
 class RendererColorTexture : public Texture
 {
 private:
-    void CreateTextureImage(VulkanRenderer& renderer);
-    void CreateTextureView(VulkanRenderer& renderer);
-    void CreateTextureSampler(VulkanRenderer& renderer);
+    void CreateTextureImage(VulkanEngine& renderer);
+    void CreateTextureView(VulkanEngine& renderer);
+    void CreateTextureSampler(VulkanEngine& renderer);
 public:
     RendererColorTexture();
-    RendererColorTexture(VulkanRenderer& renderer);
+    RendererColorTexture(VulkanEngine& renderer);
     ~RendererColorTexture();
 
-    void RecreateRendererTexture(VulkanRenderer& renderer);
+    void RecreateRendererTexture(VulkanEngine& renderer);
 };
 

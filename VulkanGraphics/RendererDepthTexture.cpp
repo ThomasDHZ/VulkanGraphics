@@ -4,7 +4,7 @@ RendererDepthTexture::RendererDepthTexture() : Texture()
 {
 }
 
-RendererDepthTexture::RendererDepthTexture(VulkanRenderer& renderer) : Texture(renderer, TextureType::vkRenderedTexture)
+RendererDepthTexture::RendererDepthTexture(VulkanEngine& renderer) : Texture(renderer, TextureType::vkRenderedTexture)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);
@@ -15,7 +15,7 @@ RendererDepthTexture::~RendererDepthTexture()
 {
 }
 
-void RendererDepthTexture::CreateTextureImage(VulkanRenderer& renderer)
+void RendererDepthTexture::CreateTextureImage(VulkanEngine& renderer)
 {
     VkImageCreateInfo TextureInfo{};
     TextureInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -35,7 +35,7 @@ void RendererDepthTexture::CreateTextureImage(VulkanRenderer& renderer)
     Texture::CreateTextureImage(renderer, TextureInfo);
 }
 
-void RendererDepthTexture::CreateTextureView(VulkanRenderer& renderer)
+void RendererDepthTexture::CreateTextureView(VulkanEngine& renderer)
 {
     VkImageViewCreateInfo TextureImageViewInfo{};
     TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -56,7 +56,7 @@ void RendererDepthTexture::CreateTextureView(VulkanRenderer& renderer)
     Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void RendererDepthTexture::CreateTextureSampler(VulkanRenderer& renderer)
+void RendererDepthTexture::CreateTextureSampler(VulkanEngine& renderer)
 {
     VkSamplerCreateInfo TextureImageSamplerInfo = {};
     TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -75,7 +75,7 @@ void RendererDepthTexture::CreateTextureSampler(VulkanRenderer& renderer)
     Texture::CreateTextureSampler(renderer, TextureImageSamplerInfo);
 }
 
-void RendererDepthTexture::RecreateRendererTexture(VulkanRenderer& renderer)
+void RendererDepthTexture::RecreateRendererTexture(VulkanEngine& renderer)
 {
     Texture::Delete(renderer);
     CreateTextureImage(renderer);

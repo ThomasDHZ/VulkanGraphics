@@ -2,11 +2,11 @@
 #include <set>
 #include "Mesh2D.h"
 
-RendererManager::RendererManager() : VulkanRenderer()
+RendererManager::RendererManager() : VulkanEngine()
 {
 }
 
-RendererManager::RendererManager(GLFWwindow* window) : VulkanRenderer(window)
+RendererManager::RendererManager(GLFWwindow* window) : VulkanEngine(window)
 {
 	forwardRenderer = ForwardRenderer(*GetVulkanRendererBase());
 	InitializeGUIDebugger(window);
@@ -117,6 +117,8 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window)
 	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
 	shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	EffectRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	EffectRenderer2.UpdateSwapChain(*GetVulkanRendererBase());
 
 	InitializeCommandBuffers();
 
@@ -496,30 +498,27 @@ void RendererManager::EffectRenderPass2()
 
 void RendererManager::ShadowRenderPass()
 {
-	//std::array<VkClearValue, 1> clearValues{};
-	//clearValues[0].depthStencil = { 1.0f, 0 };
+	std::array<VkClearValue, 1> clearValues{};
+	clearValues[0].depthStencil = { 1.0f, 0 };
 
-	//VkRenderPassBeginInfo renderPassInfo{};
-	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	//renderPassInfo.renderPass = shadowRenderer.RenderPass;
-	//renderPassInfo.framebuffer = shadowRenderer.SwapChainFramebuffers[DrawFrame];
-	//renderPassInfo.renderArea.offset = { 0, 0 };
-	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	//renderPassInfo.pClearValues = clearValues.data();
+	VkRenderPassBeginInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = shadowRenderer.RenderPass;
+	renderPassInfo.framebuffer = shadowRenderer.SwapChainFramebuffers[DrawFrame];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
+	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+	renderPassInfo.pClearValues = clearValues.data();
 
-	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	//for (auto mesh : ObjectMesh)
-	//{
-	//	if (mesh->RenderBitFlags & RenderBitFlag::RenderShadow)
-	//	{
-	//		if (dynamic_cast<Mesh*>(mesh.get()))
-	//		{
-	//			forwardRenderer.Draw(*GetVulkanRendererBase(), shadowRenderer.forwardRendereringPipeline, mesh);
-	//		}
-	//	}
-	//}
-	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
+	vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	for (auto drawMessage : DrawMessageList)
+	{
+		if (drawMessage->RendererID == 7)
+		{
+			EffectRenderer2.Draw(*GetVulkanRendererBase(), drawMessage);
+		}
+	}
+	vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
 }
 
 void RendererManager::DestoryVulkan()
@@ -531,8 +530,10 @@ void RendererManager::DestoryVulkan()
 	frameBufferRenderer.Destroy(*GetVulkanRendererBase());
 	shadowRenderer.Destroy(*GetVulkanRendererBase());
 	sceneRenderer.Destroy(*GetVulkanRendererBase());
-
-	VulkanRenderer::Destory();
+	EffectRenderer.Destroy(*GetVulkanRendererBase());
+	EffectRenderer2.Destroy(*GetVulkanRendererBase());
+	
+	VulkanEngine::Destory();
 }
 
 void RendererManager::RemoveDrawMessage(std::shared_ptr<RendererDrawMessage> mesh)

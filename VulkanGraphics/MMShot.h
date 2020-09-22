@@ -4,7 +4,7 @@
 class MMShot : public Sprite
 {
 private:
-	static constexpr glm::vec2 SpriteSize = glm::vec2(0.25f, 0.25f);
+	static constexpr glm::vec2 SpriteSize = glm::vec2(0.15f, 0.15f);
 	Animation2D StandAni;
 	Animation2D RunAni;
 public:

@@ -5,7 +5,7 @@ BloomPipeline2nd::BloomPipeline2nd() : GraphicsPipeline()
 {
 }
 
-BloomPipeline2nd::BloomPipeline2nd(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+BloomPipeline2nd::BloomPipeline2nd(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
     CreateShaderPipeLine(renderer, renderPass);
@@ -15,9 +15,9 @@ BloomPipeline2nd::~BloomPipeline2nd()
 {
 }
 
-void BloomPipeline2nd::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void BloomPipeline2nd::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
-    std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
+    std::array<DescriptorSetLayoutBindingInfo, 3> LayoutBindingInfo = {};
 
     LayoutBindingInfo[0].Binding = 0;
     LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -34,7 +34,7 @@ void BloomPipeline2nd::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void BloomPipeline2nd::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void BloomPipeline2nd::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     auto vertShaderCode = ReadShaderFile("shaders/BloomShader2ndPassVert.spv");
     auto fragShaderCode = ReadShaderFile("shaders/BloomShader2ndPassFrag.spv");
@@ -175,7 +175,7 @@ void BloomPipeline2nd::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRe
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void BloomPipeline2nd::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void BloomPipeline2nd::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

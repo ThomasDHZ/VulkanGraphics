@@ -14,12 +14,12 @@ struct CubeMapLayout
 class CubeMapTexture : public Texture
 {
 private:
-    void LoadTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles);
-    void CreateTextureView(VulkanRenderer& renderer);
-    void CreateTextureSampler(VulkanRenderer& renderer);
+    void LoadTexture(VulkanEngine& renderer, CubeMapLayout CubeMapFiles);
+    void CreateTextureView(VulkanEngine& renderer);
+    void CreateTextureSampler(VulkanEngine& renderer);
 public:
 	CubeMapTexture();
-	CubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles);
-	CubeMapTexture(VulkanRenderer& renderer, std::string CubeMapFiles[6]);
+	CubeMapTexture(VulkanEngine& renderer, CubeMapLayout CubeMapFiles);
+	CubeMapTexture(VulkanEngine& renderer, std::string CubeMapFiles[6]);
     ~CubeMapTexture();
 };

@@ -4,10 +4,10 @@
 class SpriteTexture2D : public Texture
 {
 private:
-    void CreateTextureView(VulkanRenderer& renderer, VkFormat format);
-    void CreateTextureSampler(VulkanRenderer& renderer);
+    void CreateTextureView(VulkanEngine& renderer, VkFormat format);
+    void CreateTextureSampler(VulkanEngine& renderer);
 public:
     SpriteTexture2D();
-    SpriteTexture2D(VulkanRenderer& renderer, VkFormat format, std::string TextureLocation, unsigned int textureID);
+    SpriteTexture2D(VulkanEngine& renderer, VkFormat format, std::string TextureLocation, unsigned int textureID);
     ~SpriteTexture2D();
 };

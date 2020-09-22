@@ -1,6 +1,6 @@
 #pragma once
 #include "RendererManager.h"
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include "TextureManager.h"
 class GameManager
 {
@@ -11,7 +11,7 @@ public:
 	RendererManager renderedr;
 
 	GameManager();
-	GameManager(VulkanRenderer& renderer);
+	GameManager(VulkanEngine& renderer);
 	~GameManager();
 };
 

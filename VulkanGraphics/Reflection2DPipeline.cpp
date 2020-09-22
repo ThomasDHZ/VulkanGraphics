@@ -6,7 +6,7 @@ Reflection2DPipeline::Reflection2DPipeline() : GraphicsPipeline()
 {
 }
 
-Reflection2DPipeline::Reflection2DPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+Reflection2DPipeline::Reflection2DPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
     CreateShaderPipeLine(renderer, renderPass);
@@ -16,7 +16,7 @@ Reflection2DPipeline::~Reflection2DPipeline()
 {
 }
 
-void Reflection2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void Reflection2DPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
     std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
 
@@ -59,7 +59,7 @@ void Reflection2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void Reflection2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void Reflection2DPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     auto vertShaderCode = ReadShaderFile("shaders/ReflectShader2DVert.spv");
     auto fragShaderCode = ReadShaderFile("shaders/ReflectShader2DFrag.spv");
@@ -200,7 +200,7 @@ void Reflection2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const 
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void Reflection2DPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void Reflection2DPipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

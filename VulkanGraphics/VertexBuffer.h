@@ -2,7 +2,7 @@
 #include <vulkan\vulkan_core.h>
 #include <vector>
 #include "Vertex.h"
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 
 class VertexBuffer
 {
@@ -14,10 +14,10 @@ private:
 public:
 
 	VertexBuffer();
-	VertexBuffer(VulkanRenderer& renderer, const std::vector<Vertex>& vertexdata);
+	VertexBuffer(VulkanEngine& renderer, const std::vector<Vertex>& vertexdata);
 	~VertexBuffer();
 
-	void Destory(VulkanRenderer& renderer);
+	void Destory(VulkanEngine& renderer);
 
 	unsigned int GetVertexCount() { return VertexCount; }
 	VkBuffer GetVertexBuffer() { return vertexBuffer; }

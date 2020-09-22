@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include "Structs.h"
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 
 enum RendererType
 {
@@ -17,11 +17,11 @@ class GraphicsPipeline
 {
 protected:
 	std::vector<char> ReadShaderFile(const std::string& filename);
-	VkShaderModule CreateShaderModule(VulkanRenderer& renderer, const std::vector<char>& code);
+	VkShaderModule CreateShaderModule(VulkanEngine& renderer, const std::vector<char>& code);
 
-	void CreateDescriptorSetLayout(VulkanRenderer& renderer, std::vector<DescriptorSetLayoutBindingInfo> LayoutBindingInfo);
-	void CreatePipeLineLayout(VulkanRenderer& renderer, VkPipelineLayoutCreateInfo PipelineLayoutInfo);
-	void CreatePipeLine(VulkanRenderer& renderer, VkGraphicsPipelineCreateInfo PipeLineInfo);
+	void CreateDescriptorSetLayout(VulkanEngine& renderer, std::vector<DescriptorSetLayoutBindingInfo> LayoutBindingInfo);
+	void CreatePipeLineLayout(VulkanEngine& renderer, VkPipelineLayoutCreateInfo PipelineLayoutInfo);
+	void CreatePipeLine(VulkanEngine& renderer, VkGraphicsPipelineCreateInfo PipeLineInfo);
 
 public:
 	VkPipelineLayout ShaderPipelineLayout;
@@ -29,10 +29,10 @@ public:
 	VkDescriptorSetLayout ShaderPipelineDescriptorLayout;
 
 	GraphicsPipeline();
-	GraphicsPipeline(VulkanRenderer& renderer);
+	GraphicsPipeline(VulkanEngine& renderer);
 	~GraphicsPipeline();
 
-	void UpdateSwapChain(VulkanRenderer& renderer);
-	void Destroy(VulkanRenderer& renderer);
+	void UpdateSwapChain(VulkanEngine& renderer);
+	void Destroy(VulkanEngine& renderer);
 };
 

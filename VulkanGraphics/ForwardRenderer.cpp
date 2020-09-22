@@ -8,7 +8,7 @@ ForwardRenderer::ForwardRenderer() : RendererBase()
 {
 }
 
-ForwardRenderer::ForwardRenderer(VulkanRenderer& renderer) : RendererBase(renderer)
+ForwardRenderer::ForwardRenderer(VulkanEngine& renderer) : RendererBase(renderer)
 {
     CreateRenderPass(renderer);
     DepthTexture = RendererDepthTexture(renderer);
@@ -55,7 +55,7 @@ void ForwardRenderer::SetUpColorBlendingSettings()
     ColorBlendingSettings = ColorBlending;
 }
 
-void ForwardRenderer::CreateRenderPass(VulkanRenderer& renderer)
+void ForwardRenderer::CreateRenderPass(VulkanEngine& renderer)
 {
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = VK_FORMAT_B8G8R8A8_UNORM;
@@ -115,7 +115,7 @@ void ForwardRenderer::CreateRenderPass(VulkanRenderer& renderer)
 }
 
 
-void ForwardRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
+void ForwardRenderer::CreateRendererFramebuffers(VulkanEngine& renderer)
 {
     SwapChainFramebuffers.resize(renderer.SwapChain.GetSwapChainImageViews().size());
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageViews().size(); i++) {
@@ -139,7 +139,7 @@ void ForwardRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
     }
 }
 
-void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
+void ForwardRenderer::UpdateSwapChain(VulkanEngine& renderer)
 {
    DepthTexture.RecreateRendererTexture(renderer);
 
@@ -160,7 +160,7 @@ void ForwardRenderer::UpdateSwapChain(VulkanRenderer& renderer)
    CreateRendererFramebuffers(renderer);
 }
 
-void ForwardRenderer::Destroy(VulkanRenderer& renderer)
+void ForwardRenderer::Destroy(VulkanEngine& renderer)
 {
     DepthTexture.Delete(renderer);
 

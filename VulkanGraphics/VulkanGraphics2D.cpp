@@ -27,7 +27,6 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
 	SparkManTextures.DepthMap = "texture/SparkManAlpha.bmp";
 	SparkManTextures.ReflectionMap = "texture/SparkManAlpha.bmp";
-	SparkManTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
 	SparkManTextures.CubeMap[0] = "texture/skybox/left.jpg";
 	SparkManTextures.CubeMap[1] = "texture/skybox/right.jpg";
 	SparkManTextures.CubeMap[2] = "texture/skybox/top.jpg";
@@ -40,6 +39,13 @@ VulkanGraphics2D::VulkanGraphics2D(int Width, int Height, const char* AppName)
 	OrthoCamera2 = OrthographicCamera(glm::vec2(1920, 1080), 9.0f);
 
 	OrthoCamera->SetPosition(8.0f, 9.0f);
+
+	//MeshTextures meshTextures = {};
+	//meshTextures.DiffuseMap = "texture/container2.png";
+	//meshTextures.SpecularMap = "texture/container2_specular.png";
+	//meshTextures. = "texture/container2_specular.png";
+
+	//mesh = Mesh(renderer, gameManager, vertices, indices,)
 
 	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
@@ -67,6 +73,8 @@ VulkanGraphics2D::~VulkanGraphics2D()
 		sprite->Destory(renderer);
 	}
 	framebuffer1.Destory(renderer);
+	framebuffer2.Destory(renderer);
+	framebuffer3.Destory(renderer);
 	renderer.DestoryVulkan();
 	Window.CleanUp();
 }
@@ -111,7 +119,7 @@ void VulkanGraphics2D::UpdateImGUI()
 		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);
 		ImGui::Image(renderer.EffectRenderer.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::Image(renderer.EffectRenderer2.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
-		//ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::Image(renderer.shadowRenderer.DepthTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
 
 		ImGui::Begin("MeshSettings");

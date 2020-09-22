@@ -6,7 +6,7 @@ ForwardRenderingPipeline::ForwardRenderingPipeline() : GraphicsPipeline()
 {
 }
 
-ForwardRenderingPipeline::ForwardRenderingPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+ForwardRenderingPipeline::ForwardRenderingPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
 	CreateDescriptorSetLayout(renderer);
 	CreateShaderPipeLine(renderer, renderPass);
@@ -16,7 +16,7 @@ ForwardRenderingPipeline::~ForwardRenderingPipeline()
 {
 }
 
-void ForwardRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void ForwardRenderingPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
     std::array<DescriptorSetLayoutBindingInfo, 11> LayoutBindingInfo = {};
 
@@ -67,7 +67,7 @@ void ForwardRenderingPipeline::CreateDescriptorSetLayout(VulkanRenderer& rendere
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void ForwardRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void ForwardRenderingPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     auto vertShaderCode = ReadShaderFile("shaders/ForwardRendererVert.spv");
     auto fragShaderCode = ReadShaderFile("shaders/ForwardRendererFrag.spv");
@@ -208,7 +208,7 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, co
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void ForwardRenderingPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void ForwardRenderingPipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

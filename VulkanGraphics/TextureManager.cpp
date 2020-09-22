@@ -4,7 +4,7 @@ TextureManager::TextureManager()
 {
 }
 
-TextureManager::TextureManager(VulkanRenderer& renderer)
+TextureManager::TextureManager(VulkanEngine& renderer)
 {
 }
 
@@ -17,7 +17,7 @@ unsigned int TextureManager::CreateNewTextureID()
 	return IDNum++;
 }
 
-std::shared_ptr<Texture> TextureManager::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format)
+std::shared_ptr<Texture> TextureManager::LoadTexture(VulkanEngine& renderer, std::string TextureLocation, VkFormat format)
 {
 	unsigned int TextureID = 0;
 	std::shared_ptr<Texture> Ptr;
@@ -32,7 +32,7 @@ std::shared_ptr<Texture> TextureManager::LoadTexture(VulkanRenderer& renderer, s
 	return Ptr;
 }
 
-std::shared_ptr<CubeMapTexture>  TextureManager::LoadTexture(VulkanRenderer& renderer, CubeMapLayout cubeMapList)
+std::shared_ptr<CubeMapTexture>  TextureManager::LoadTexture(VulkanEngine& renderer, CubeMapLayout cubeMapList)
 {
 	unsigned int TextureID = CreateNewTextureID();
 	auto a = std::make_shared<CubeMapTexture>(CubeMapTexture(renderer, cubeMapList));
@@ -40,7 +40,7 @@ std::shared_ptr<CubeMapTexture>  TextureManager::LoadTexture(VulkanRenderer& ren
 	return a;
 }
 
-std::shared_ptr<CubeMapTexture>  TextureManager::LoadTexture(VulkanRenderer& renderer, std::string cubeMapList[6])
+std::shared_ptr<CubeMapTexture>  TextureManager::LoadTexture(VulkanEngine& renderer, std::string cubeMapList[6])
 {
 	unsigned int TextureID = CreateNewTextureID();
 	auto a = std::make_shared<CubeMapTexture>(CubeMapTexture(renderer, cubeMapList));
@@ -57,14 +57,14 @@ std::shared_ptr<Texture>  TextureManager::LoadTexture(std::shared_ptr<Texture> t
 	return texture;
 }
 
-void TextureManager::UnloadTexture(VulkanRenderer& renderer, unsigned int ID)
+void TextureManager::UnloadTexture(VulkanEngine& renderer, unsigned int ID)
 {
 	auto texture = GetTextureByID(ID);
 	texture->Delete(renderer);
 	//TextureList.erase(texture);
 }
 
-void TextureManager::UnloadAllTextures(VulkanRenderer& renderer)
+void TextureManager::UnloadAllTextures(VulkanEngine& renderer)
 {
 	for (auto& texture : TextureList)
 	{

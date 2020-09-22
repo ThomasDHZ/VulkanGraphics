@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <string>
 #include <stb_image.h>
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include "VulkanBufferManager.h"
 #include "ImGui/imgui_impl_vulkan.h"
 
@@ -24,13 +24,13 @@ protected:
     VkImage Image = VK_NULL_HANDLE;
     VkSampler Sampler = VK_NULL_HANDLE;
 
-    void TransitionImageLayout(VulkanRenderer& renderer, VkImageLayout oldLayout, VkImageLayout newLayout);
-    void CopyBufferToImage(VulkanRenderer& renderer, VkBuffer buffer);
+    void TransitionImageLayout(VulkanEngine& renderer, VkImageLayout oldLayout, VkImageLayout newLayout);
+    void CopyBufferToImage(VulkanEngine& renderer, VkBuffer buffer);
 
-    virtual void LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format);
-    virtual void CreateTextureImage(VulkanRenderer& renderer, VkImageCreateInfo TextureInfo);
-    virtual void CreateTextureView(VulkanRenderer& renderer, VkImageViewCreateInfo TextureImageViewInfo);
-    virtual void CreateTextureSampler(VulkanRenderer& renderer, VkSamplerCreateInfo TextureImageSamplerInfo);
+    virtual void LoadTexture(VulkanEngine& renderer, std::string TextureLocation, VkFormat format);
+    virtual void CreateTextureImage(VulkanEngine& renderer, VkImageCreateInfo TextureInfo);
+    virtual void CreateTextureView(VulkanEngine& renderer, VkImageViewCreateInfo TextureImageViewInfo);
+    virtual void CreateTextureSampler(VulkanEngine& renderer, VkSamplerCreateInfo TextureImageSamplerInfo);
 
 public:
     VkImageView View = VK_NULL_HANDLE;
@@ -44,13 +44,13 @@ public:
     int Height;
 
     Texture();
-    Texture(VulkanRenderer& renderer, std::string TextureLocation, unsigned int textureID, TextureType textureType, VkFormat format);
-    Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType, VkFormat format);
-    Texture(VulkanRenderer& renderer, unsigned int textureID, TextureType textureType);
-    Texture(VulkanRenderer& renderer, TextureType textureType);
+    Texture(VulkanEngine& renderer, std::string TextureLocation, unsigned int textureID, TextureType textureType, VkFormat format);
+    Texture(VulkanEngine& renderer, std::string TextureLocation, TextureType textureType, VkFormat format);
+    Texture(VulkanEngine& renderer, unsigned int textureID, TextureType textureType);
+    Texture(VulkanEngine& renderer, TextureType textureType);
     ~Texture();
 
-    virtual void Delete(VulkanRenderer& renderer);
+    virtual void Delete(VulkanEngine& renderer);
 
     VkImageView GetTextureView() { return View; }
     VkSampler GetTextureSampler() { return Sampler; }

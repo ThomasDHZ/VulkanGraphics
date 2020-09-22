@@ -1,6 +1,6 @@
 #pragma once
 #include <vulkan\vulkan_core.h>
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include "VulkanBufferManager.h"
 
 class VulkanUniformBuffer
@@ -10,13 +10,13 @@ private:
 	std::vector<VkBuffer> UniformBuffers;
 	std::vector<VkDeviceMemory> UniformBuffersMemory;
 
-	void CreateUniformBuffers(VulkanRenderer& renderer);
+	void CreateUniformBuffers(VulkanEngine& renderer);
 public:
 	VulkanUniformBuffer();
-	VulkanUniformBuffer(VulkanRenderer& renderer, VkDeviceSize bufferSize);
+	VulkanUniformBuffer(VulkanEngine& renderer, VkDeviceSize bufferSize);
 	~VulkanUniformBuffer();
 
-	void UpdateUniformBuffer(VulkanRenderer& renderer, void* UniformObjectData);
-	void Destroy(VulkanRenderer& renderer);
+	void UpdateUniformBuffer(VulkanEngine& renderer, void* UniformObjectData);
+	void Destroy(VulkanEngine& renderer);
 	VkBuffer GetUniformBuffer(int currentImage) { return UniformBuffers[currentImage]; };
 };

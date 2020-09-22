@@ -8,7 +8,7 @@ FrameBufferTextureRenderer::FrameBufferTextureRenderer() : RendererBase()
 {
 }
 
-FrameBufferTextureRenderer::FrameBufferTextureRenderer(VulkanRenderer& renderer) : RendererBase(renderer)
+FrameBufferTextureRenderer::FrameBufferTextureRenderer(VulkanEngine& renderer) : RendererBase(renderer)
 {
     CreateRenderPass(renderer);
     ColorTexture = std::make_shared<RendererColorTexture>(RendererColorTexture(renderer));
@@ -18,7 +18,6 @@ FrameBufferTextureRenderer::FrameBufferTextureRenderer(VulkanRenderer& renderer)
 
     bloomPipeline = std::make_shared<BloomPipeline>(renderer, RenderPass);
     bloomPipeline2nd = std::make_shared<BloomPipeline2nd>(renderer, RenderPass);
-    underwater2DPipeline = std::make_shared<UnderWater2DPipeline>(renderer, RenderPass);
     frameBufferPipeline = std::make_shared<FrameBufferRenderingPipeline>(renderer, RenderPass);
     renderer2DPipeline = std::make_shared<Rendering2DPipeline>(Rendering2DPipeline(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_TextureRenderer));
 
@@ -54,7 +53,7 @@ void FrameBufferTextureRenderer::SetUpColorBlendingSettings()
     ColorBlendingSettings = ColorBlending;
 }
 
-void FrameBufferTextureRenderer::CreateRenderPass(VulkanRenderer& renderer)
+void FrameBufferTextureRenderer::CreateRenderPass(VulkanEngine& renderer)
 {
     std::array<VkAttachmentDescription, 2> attchmentDescriptions = {};
 
@@ -119,7 +118,7 @@ void FrameBufferTextureRenderer::CreateRenderPass(VulkanRenderer& renderer)
     std::cout << &RenderPass << std::endl; 
 }
 
-void FrameBufferTextureRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
+void FrameBufferTextureRenderer::CreateRendererFramebuffers(VulkanEngine& renderer)
 {
     SwapChainFramebuffers.resize(renderer.SwapChain.GetSwapChainImageViews().size());
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageViews().size(); i++) {
@@ -143,11 +142,15 @@ void FrameBufferTextureRenderer::CreateRendererFramebuffers(VulkanRenderer& rend
     }
 }
 
-void FrameBufferTextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
+void FrameBufferTextureRenderer::UpdateSwapChain(VulkanEngine& renderer)
 {
     ColorTexture->RecreateRendererTexture(renderer);
     DepthTexture->RecreateRendererTexture(renderer);
+
     frameBufferPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+    bloomPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+    bloomPipeline2nd->UpdateGraphicsPipeLine(renderer, RenderPass);
+    renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_TextureRenderer);
 
     for (auto& framebuffer : SwapChainFramebuffers)
     {
@@ -157,9 +160,13 @@ void FrameBufferTextureRenderer::UpdateSwapChain(VulkanRenderer& renderer)
     CreateRendererFramebuffers(renderer);
 }
 
-void FrameBufferTextureRenderer::Destroy(VulkanRenderer& renderer)
+void FrameBufferTextureRenderer::Destroy(VulkanEngine& renderer)
 {
     frameBufferPipeline->Destroy(renderer);
+    bloomPipeline->Destroy(renderer);
+    bloomPipeline2nd->Destroy(renderer);
+    renderer2DPipeline->Destroy(renderer);
+
     ColorTexture->Delete(renderer);
     DepthTexture->Delete(renderer);
     RendererBase::Destroy(renderer);

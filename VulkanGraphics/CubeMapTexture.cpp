@@ -4,14 +4,14 @@ CubeMapTexture::CubeMapTexture() : Texture()
 {
 }
 
-CubeMapTexture::CubeMapTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, 0, TextureType::vkTextureCube)
+CubeMapTexture::CubeMapTexture(VulkanEngine& renderer, CubeMapLayout CubeMapFiles) : Texture(renderer, 0, TextureType::vkTextureCube)
 {
 	LoadTexture(renderer, CubeMapFiles);
 	CreateTextureView(renderer);
 	CreateTextureSampler(renderer);
 }
 
-CubeMapTexture::CubeMapTexture(VulkanRenderer& renderer, std::string CubeMapFiles[6]) : Texture(renderer, 0, TextureType::vkTextureCube)
+CubeMapTexture::CubeMapTexture(VulkanEngine& renderer, std::string CubeMapFiles[6]) : Texture(renderer, 0, TextureType::vkTextureCube)
 {
 	CubeMapLayout cubeMapfiles;
 	cubeMapfiles.Left = CubeMapFiles[0];
@@ -30,7 +30,7 @@ CubeMapTexture::~CubeMapTexture()
 {
 }
 
-void CubeMapTexture::LoadTexture(VulkanRenderer& renderer, CubeMapLayout CubeMapFiles)
+void CubeMapTexture::LoadTexture(VulkanEngine& renderer, CubeMapLayout CubeMapFiles)
 {
 	std::vector<unsigned char*> textureData;
 	int texChannels;
@@ -83,7 +83,7 @@ void CubeMapTexture::LoadTexture(VulkanRenderer& renderer, CubeMapLayout CubeMap
 	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
-void CubeMapTexture::CreateTextureView(VulkanRenderer& renderer)
+void CubeMapTexture::CreateTextureView(VulkanEngine& renderer)
 {
 	VkImageViewCreateInfo TextureImageViewInfo = {};
 	TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -99,7 +99,7 @@ void CubeMapTexture::CreateTextureView(VulkanRenderer& renderer)
 	Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void CubeMapTexture::CreateTextureSampler(VulkanRenderer& renderer)
+void CubeMapTexture::CreateTextureSampler(VulkanEngine& renderer)
 {
 	VkSamplerCreateInfo TextureImageSamplerInfo = {};
 	TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

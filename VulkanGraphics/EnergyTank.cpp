@@ -29,7 +29,6 @@ EnergyTank::EnergyTank(RendererManager& renderer, std::shared_ptr<TextureManager
 	CoinTextures.SpecularMap = "texture/EnergyTank_Specular.bmp";
 	CoinTextures.NormalMap = "texture/EnergyTank_normal.bmp";
 	CoinTextures.AlphaMap = "texture/EnergyTank_Alpha.bmp";
-	CoinTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
 
 	ObjectFlagBits = ObjectFlags::Collectible;
 	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass;

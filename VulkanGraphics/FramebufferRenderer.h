@@ -8,16 +8,16 @@ class FramebufferRenderer : public RendererBase
 {
 private:
 	void SetUpColorBlendingSettings() override;
-	void CreateRenderPass(VulkanRenderer& renderer);
-	void CreateRendererFramebuffers(VulkanRenderer& renderer);
+	void CreateRenderPass(VulkanEngine& renderer);
+	void CreateRendererFramebuffers(VulkanEngine& renderer);
 
 public:
 	FramebufferRenderer();
-	FramebufferRenderer(VulkanRenderer& renderer);
+	FramebufferRenderer(VulkanEngine& renderer);
 	~FramebufferRenderer();
 
-	void UpdateSwapChain(VulkanRenderer& renderer);
-	void Destroy(VulkanRenderer& renderer) override;
+	void UpdateSwapChain(VulkanEngine& renderer);
+	void Destroy(VulkanEngine& renderer) override;
 
 	std::shared_ptr<FrameBufferRenderingPipeline> frameBufferPipeline;
 	RendererDepthTexture DepthTexture;

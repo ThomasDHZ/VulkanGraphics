@@ -10,12 +10,12 @@ class TextureRenderer : public RendererBase
 {
 private:
 	void SetUpColorBlendingSettings() override;
-	void CreateRenderPass(VulkanRenderer& renderer);
-	void CreateRendererFramebuffers(VulkanRenderer& renderer);
+	void CreateRenderPass(VulkanEngine& renderer);
+	void CreateRendererFramebuffers(VulkanEngine& renderer);
 
 public:
 	TextureRenderer();
-	TextureRenderer(VulkanRenderer& renderer);
+	TextureRenderer(VulkanEngine& renderer);
 	~TextureRenderer();
 
 	std::shared_ptr<ForwardRenderingPipeline> forwardRendereringPipeline;
@@ -30,7 +30,7 @@ public:
 	std::shared_ptr<RendererColorTexture> ColorTexture;
 	RendererDepthTexture DepthTexture;
 
-	void UpdateSwapChain(VulkanRenderer& renderer);
-	void Destroy(VulkanRenderer& renderer) override;
+	void UpdateSwapChain(VulkanEngine& renderer);
+	void Destroy(VulkanEngine& renderer) override;
 };
 

@@ -3,14 +3,14 @@ ShadowRenderer::ShadowRenderer() : RendererBase()
 {
 }
 
-ShadowRenderer::ShadowRenderer(VulkanRenderer& renderer) : RendererBase(renderer)
+ShadowRenderer::ShadowRenderer(VulkanEngine& renderer) : RendererBase(renderer)
 {
     CreateRenderPass(renderer);
     DepthTexture = std::make_shared<RendererDepthTexture>(RendererDepthTexture(renderer));
     CreateRendererFramebuffers(renderer);
 
     forwardRendereringPipeline = std::make_shared<ShadowForwardRendereringPipeline>(renderer, RenderPass);
-
+    renderer2DPipeline = std::make_shared<Rendering2DPipeline>(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer);
     ImGui_ImplVulkan_AddTexture(DepthTexture->ImGuiDescriptorSet, DepthTexture->GetTextureSampler(), DepthTexture->GetTextureView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
 
@@ -18,7 +18,31 @@ ShadowRenderer::~ShadowRenderer()
 {
 }
 
-void ShadowRenderer::CreateRenderPass(VulkanRenderer& renderer)
+void ShadowRenderer::SetUpColorBlendingSettings()
+{
+    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    colorBlendAttachment.blendEnable = VK_TRUE;
+    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+    VkPipelineColorBlendStateCreateInfo colorBlending{};
+    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlending.logicOpEnable = VK_FALSE;
+    colorBlending.logicOp = VK_LOGIC_OP_COPY;
+    colorBlending.attachmentCount = 1;
+    colorBlending.pAttachments = &colorBlendAttachment;
+    colorBlending.blendConstants[0] = 0.0f;
+    colorBlending.blendConstants[1] = 0.0f;
+    colorBlending.blendConstants[2] = 0.0f;
+    colorBlending.blendConstants[3] = 0.0f;
+}
+
+void ShadowRenderer::CreateRenderPass(VulkanEngine& renderer)
 {
     VkAttachmentDescription attachmentDescription{};
     attachmentDescription.format = VK_FORMAT_D32_SFLOAT;
@@ -72,7 +96,7 @@ void ShadowRenderer::CreateRenderPass(VulkanRenderer& renderer)
     }
 }
 
-void ShadowRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
+void ShadowRenderer::CreateRendererFramebuffers(VulkanEngine& renderer)
 {
     SwapChainFramebuffers.resize(3);
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
@@ -93,10 +117,11 @@ void ShadowRenderer::CreateRendererFramebuffers(VulkanRenderer& renderer)
     }
 }
 
-void ShadowRenderer::UpdateSwapChain(VulkanRenderer& renderer)
+void ShadowRenderer::UpdateSwapChain(VulkanEngine& renderer)
 {
     DepthTexture->RecreateRendererTexture(renderer);
     forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+    renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer);
     for (auto& framebuffer : SwapChainFramebuffers)
     {
         vkDestroyFramebuffer(renderer.Device, framebuffer, nullptr);
@@ -107,9 +132,10 @@ void ShadowRenderer::UpdateSwapChain(VulkanRenderer& renderer)
     ImGui_ImplVulkan_AddTexture(DepthTexture->ImGuiDescriptorSet, DepthTexture->GetTextureSampler(), DepthTexture->GetTextureView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
 }
 
-void ShadowRenderer::Destroy(VulkanRenderer& renderer)
+void ShadowRenderer::Destroy(VulkanEngine& renderer)
 {
     DepthTexture->Delete(renderer);
     forwardRendereringPipeline->Destroy(renderer);
+    renderer2DPipeline->Destroy(renderer);
     RendererBase::Destroy(renderer);
 }

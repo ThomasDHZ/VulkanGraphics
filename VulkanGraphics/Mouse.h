@@ -1,7 +1,7 @@
 #pragma once
 #include "Camera.h"
 #include <GLFW\glfw3.h>
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include "PerspectiveCamera.h"
 
 class Mouse

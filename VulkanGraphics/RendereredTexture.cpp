@@ -4,7 +4,7 @@ RendereredTexture::RendereredTexture() : Texture()
 {
 }
 
-RendereredTexture::RendereredTexture(VulkanRenderer& renderer, unsigned int textureID) : Texture(renderer, textureID, TextureType::vkTexture2D)
+RendereredTexture::RendereredTexture(VulkanEngine& renderer, unsigned int textureID) : Texture(renderer, textureID, TextureType::vkTexture2D)
 {
     CreateTextureImage(renderer);
     CreateTextureView(renderer);
@@ -15,7 +15,7 @@ RendereredTexture::~RendereredTexture()
 {
 }
 
-void RendereredTexture::CreateTextureImage(VulkanRenderer& renderer)
+void RendereredTexture::CreateTextureImage(VulkanEngine& renderer)
 {
     VkImageCreateInfo TextureInfo = {};
     TextureInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -33,7 +33,7 @@ void RendereredTexture::CreateTextureImage(VulkanRenderer& renderer)
     Texture::CreateTextureImage(renderer, TextureInfo);
 }
 
-void RendereredTexture::CreateTextureView(VulkanRenderer& renderer)
+void RendereredTexture::CreateTextureView(VulkanEngine& renderer)
 {
     VkImageViewCreateInfo TextureImageViewInfo = {};
     TextureImageViewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -49,7 +49,7 @@ void RendereredTexture::CreateTextureView(VulkanRenderer& renderer)
     Texture::CreateTextureView(renderer, TextureImageViewInfo);
 }
 
-void RendereredTexture::CreateTextureSampler(VulkanRenderer& renderer)
+void RendereredTexture::CreateTextureSampler(VulkanEngine& renderer)
 {
     VkSamplerCreateInfo TextureImageSamplerInfo = {};
     TextureImageSamplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

@@ -19,10 +19,6 @@ void Object2D::DrawMessage(RendererManager& renderer)
 	{
 		ObjectMesh->CreateDrawMessage(renderer, 2, renderer.textureRenderer.renderer2DPipeline);
 	}
-	if (RenderBitFlags & RenderBitFlag::RenderOnTexturePass)
-	{
-	//	ObjectMesh->CreateDrawMessage(renderer, 2, renderer.shadowRenderer.renderer2DPipeline);
-	}
 	if (RenderBitFlags & RenderBitFlag::RenderMainPass)
 	{
 		ObjectMesh->CreateDrawMessage(renderer, 4, renderer.sceneRenderer.renderer2DPipeline2);
@@ -30,6 +26,10 @@ void Object2D::DrawMessage(RendererManager& renderer)
 	if (RenderBitFlags & RenderBitFlag::RenderEffectPass)
 	{
 		ObjectMesh->CreateDrawMessage(renderer, 5, renderer.forwardRenderer.renderer2DPipeline);
+	}
+	if (RenderBitFlags & RenderBitFlag::RenderShadow)
+	{
+		ObjectMesh->CreateDrawMessage(renderer, 7, renderer.shadowRenderer.renderer2DPipeline);
 	}
 }
 

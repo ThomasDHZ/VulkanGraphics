@@ -4,13 +4,13 @@
 class BloomPipeline : public GraphicsPipeline
 {
 private:
-	void CreateDescriptorSetLayout(VulkanRenderer& renderer);
-	void CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
+	void CreateDescriptorSetLayout(VulkanEngine& renderer);
+	void CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass);
 public:
 	BloomPipeline();
-	BloomPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass);
+	BloomPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass);
 	~BloomPipeline();
 
-	void UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
+	void UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass);
 };
 

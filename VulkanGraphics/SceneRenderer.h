@@ -10,12 +10,12 @@ class SceneRenderer : public RendererBase
 {
 private:
     void SetUpColorBlendingSettings() override;
-	void CreateRenderPass(VulkanRenderer& renderer);
-	void CreateRendererFramebuffers(VulkanRenderer& renderer);
+	void CreateRenderPass(VulkanEngine& renderer);
+	void CreateRendererFramebuffers(VulkanEngine& renderer);
 
 public:
 	SceneRenderer();
-	SceneRenderer(VulkanRenderer& renderer);
+	SceneRenderer(VulkanEngine& renderer);
 	~SceneRenderer();
 
 	std::shared_ptr<Rendering2DPipeline> renderer2DPipeline2;
@@ -24,6 +24,6 @@ public:
 	std::shared_ptr<RendererColorTexture> BloomTexture;
 	RendererDepthTexture DepthTexture;
 
-	void UpdateSwapChain(VulkanRenderer& renderer);
-	void Destroy(VulkanRenderer& renderer) override;
+	void UpdateSwapChain(VulkanEngine& renderer);
+	void Destroy(VulkanEngine& renderer) override;
 };

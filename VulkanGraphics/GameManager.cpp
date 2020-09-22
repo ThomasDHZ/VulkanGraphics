@@ -4,7 +4,7 @@ GameManager::GameManager()
 {
 }
 
-GameManager::GameManager(VulkanRenderer& renderer)
+GameManager::GameManager(VulkanEngine& renderer)
 {
 	textureManager = std::make_unique<TextureManager>(renderer);
 }

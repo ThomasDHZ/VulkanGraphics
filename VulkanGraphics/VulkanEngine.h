@@ -32,7 +32,7 @@ struct VulkanRendererSettings
 			TwoDMode != OtherSettings.TwoDMode);
 	}
 };
-class VulkanRenderer
+class VulkanEngine
 {
 private:
 protected:
@@ -76,9 +76,9 @@ protected:
 
 	void Destory();
 public:
-	VulkanRenderer();
-	VulkanRenderer(GLFWwindow* window);
-	~VulkanRenderer();
+	VulkanEngine();
+	VulkanEngine(GLFWwindow* window);
+	~VulkanEngine();
 
 	VkInstance Instance = VK_NULL_HANDLE;
 	VkDevice Device = VK_NULL_HANDLE;

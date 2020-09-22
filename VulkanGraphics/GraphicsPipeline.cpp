@@ -18,7 +18,7 @@ GraphicsPipeline::GraphicsPipeline()
 
 }
 
-GraphicsPipeline::GraphicsPipeline(VulkanRenderer& renderer)
+GraphicsPipeline::GraphicsPipeline(VulkanEngine& renderer)
 {
 
 }
@@ -46,7 +46,7 @@ std::vector<char> GraphicsPipeline::ReadShaderFile(const std::string& filename)
 	return buffer;
 }
 
-VkShaderModule GraphicsPipeline::CreateShaderModule(VulkanRenderer& renderer, const std::vector<char>& code)
+VkShaderModule GraphicsPipeline::CreateShaderModule(VulkanEngine& renderer, const std::vector<char>& code)
 {
 	VkShaderModuleCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -61,7 +61,7 @@ VkShaderModule GraphicsPipeline::CreateShaderModule(VulkanRenderer& renderer, co
 	return shaderModule;
 }
 
-void GraphicsPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer, std::vector<DescriptorSetLayoutBindingInfo> LayoutBindingInfo)
+void GraphicsPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer, std::vector<DescriptorSetLayoutBindingInfo> LayoutBindingInfo)
 {
 
 	std::vector<VkDescriptorSetLayoutBinding> LayoutBindingList = {};
@@ -88,7 +88,7 @@ void GraphicsPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer, std::
 	}
 }
 
-void GraphicsPipeline::CreatePipeLineLayout(VulkanRenderer& renderer, VkPipelineLayoutCreateInfo PipelineLayoutInfo)
+void GraphicsPipeline::CreatePipeLineLayout(VulkanEngine& renderer, VkPipelineLayoutCreateInfo PipelineLayoutInfo)
 {
 	if (vkCreatePipelineLayout(renderer.Device, &PipelineLayoutInfo, nullptr, &ShaderPipelineLayout) != VK_SUCCESS)
 	{
@@ -96,14 +96,14 @@ void GraphicsPipeline::CreatePipeLineLayout(VulkanRenderer& renderer, VkPipeline
 	}
 }
 
-void GraphicsPipeline::CreatePipeLine(VulkanRenderer& renderer, VkGraphicsPipelineCreateInfo PipeLineInfo)
+void GraphicsPipeline::CreatePipeLine(VulkanEngine& renderer, VkGraphicsPipelineCreateInfo PipeLineInfo)
 {
 	if (vkCreateGraphicsPipelines(renderer.Device, VK_NULL_HANDLE, 1, &PipeLineInfo, nullptr, &ShaderPipeline) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
 }
 
-void GraphicsPipeline::UpdateSwapChain(VulkanRenderer& renderer)
+void GraphicsPipeline::UpdateSwapChain(VulkanEngine& renderer)
 {
 	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
@@ -112,7 +112,7 @@ void GraphicsPipeline::UpdateSwapChain(VulkanRenderer& renderer)
 	ShaderPipelineLayout = VK_NULL_HANDLE;
 }
 
-void GraphicsPipeline::Destroy(VulkanRenderer& renderer)
+void GraphicsPipeline::Destroy(VulkanEngine& renderer)
 {
 	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

@@ -5,7 +5,7 @@ BloomPipeline::BloomPipeline() : GraphicsPipeline()
 {
 }
 
-BloomPipeline::BloomPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+BloomPipeline::BloomPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
 	CreateDescriptorSetLayout(renderer);
 	CreateShaderPipeLine(renderer, renderPass);
@@ -15,9 +15,9 @@ BloomPipeline::~BloomPipeline()
 {
 }
 
-void BloomPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void BloomPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
-	std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
+	std::array<DescriptorSetLayoutBindingInfo, 3> LayoutBindingInfo = {};
 
     LayoutBindingInfo[0].Binding = 0;
     LayoutBindingInfo[0].DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -34,7 +34,7 @@ void BloomPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
 	GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void BloomPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void BloomPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
 	auto vertShaderCode = ReadShaderFile("shaders/BloomShaderVert.spv");
 	auto fragShaderCode = ReadShaderFile("shaders/BloomShaderFrag.spv");
@@ -175,7 +175,7 @@ void BloomPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRende
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void BloomPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void BloomPipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
 	vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
 	vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

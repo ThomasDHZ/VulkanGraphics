@@ -2,7 +2,7 @@
 #include <GLFW\glfw3.h>
 #include "Camera.h"
 #include "OrthographicCamera.h"
-#include "VulkanRenderer.h"
+#include "VulkanEngine.h"
 #include "PerspectiveCamera.h"
 
 class Keyboard

@@ -6,17 +6,19 @@
 class ShadowRenderer : public RendererBase
 {
 private:
-	void CreateRenderPass(VulkanRenderer& renderer);
-	void CreateRendererFramebuffers(VulkanRenderer& renderer);
+	void SetUpColorBlendingSettings() override;
+	void CreateRenderPass(VulkanEngine& renderer);
+	void CreateRendererFramebuffers(VulkanEngine& renderer);
 
 public:
 	ShadowRenderer();
-	ShadowRenderer(VulkanRenderer& renderer);
+	ShadowRenderer(VulkanEngine& renderer);
 	~ShadowRenderer();
 
-	void UpdateSwapChain(VulkanRenderer& renderer);
-	void Destroy(VulkanRenderer& renderer) override;
+	void UpdateSwapChain(VulkanEngine& renderer);
+	void Destroy(VulkanEngine& renderer) override;
 
 	std::shared_ptr<ShadowForwardRendereringPipeline> forwardRendereringPipeline;
+	std::shared_ptr<Rendering2DPipeline> renderer2DPipeline;
 	std::shared_ptr<RendererDepthTexture> DepthTexture;
 };

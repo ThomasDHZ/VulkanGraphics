@@ -4,14 +4,14 @@
 class RendereredTexture : public Texture
 {
 private:
-    void CreateTextureImage(VulkanRenderer& renderer);
-    void CreateTextureView(VulkanRenderer& renderer);
-    void CreateTextureSampler(VulkanRenderer& renderer);
+    void CreateTextureImage(VulkanEngine& renderer);
+    void CreateTextureView(VulkanEngine& renderer);
+    void CreateTextureSampler(VulkanEngine& renderer);
 public:
     RendereredTexture();
-    RendereredTexture(VulkanRenderer& renderer, unsigned int textureID);
+    RendereredTexture(VulkanEngine& renderer, unsigned int textureID);
     ~RendereredTexture();
 
-    void RecreateRendererTexture(VulkanRenderer& renderer);
+    void RecreateRendererTexture(VulkanEngine& renderer);
 };
 

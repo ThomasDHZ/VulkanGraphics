@@ -6,7 +6,7 @@ UnderWater2DPipeline::UnderWater2DPipeline() : GraphicsPipeline()
 {
 }
 
-UnderWater2DPipeline::UnderWater2DPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
+UnderWater2DPipeline::UnderWater2DPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
     CreateShaderPipeLine(renderer, renderPass);
@@ -16,7 +16,7 @@ UnderWater2DPipeline::~UnderWater2DPipeline()
 {
 }
 
-void UnderWater2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void UnderWater2DPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
     std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
 
@@ -59,7 +59,7 @@ void UnderWater2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void UnderWater2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void UnderWater2DPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     auto vertShaderCode = ReadShaderFile("shaders/UnderWater2DShaderVert.spv");
     auto fragShaderCode = ReadShaderFile("shaders/UnderWater2DShaderFrag.spv");
@@ -188,7 +188,7 @@ void UnderWater2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const 
 	vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void UnderWater2DPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass)
+void UnderWater2DPipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);

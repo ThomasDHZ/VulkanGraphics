@@ -6,18 +6,18 @@ MMShot::MMShot() : Sprite()
 MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos) : Sprite()
 {
 	MeshTextures MegaManTextures = {};
-	MegaManTextures.DiffuseMap = "texture/MegaMan_diffuseOriginal.bmp";
-	MegaManTextures.SpecularMap = "texture/container2_specular.png";
-	MegaManTextures.NormalMap = "texture/SparkMan_normal.bmp";
-	MegaManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
-	MegaManTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
+	MegaManTextures.DiffuseMap = "texture/MegaManShot_diffuseOriginal.bmp";
+	MegaManTextures.SpecularMap = "texture/MegaManShot_Specular.bmp";
+	MegaManTextures.NormalMap = "texture/MegaManShot_normal.bmp";
+	MegaManTextures.AlphaMap = "texture/MegaManShot_alpha.bmp";
+	MegaManTextures.EmissionMap = "texture/MegaManShot_diffuseOriginal.bmp";
 
 	const std::vector<Vertex> MegaManVertices =
 	{
-		{{0.0f, 0.0f, 0.0f},				 {0.0f, 0.0f, 1.0f}, {0.14f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+		{{0.0f, 0.0f, 0.0f},				 {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
 		{{SpriteSize.x, 0.0f, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
 		{{SpriteSize.x, SpriteSize.y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-		{{0.0f, SpriteSize.y, 0.0f},		 {0.0f, 0.0f, 1.0f}, {0.14f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
+		{{0.0f, SpriteSize.y, 0.0f},		 {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
 	};
 
 	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass ;

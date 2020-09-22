@@ -5,7 +5,7 @@ IndicesBuffer::IndicesBuffer()
 {
 }
 
-IndicesBuffer::IndicesBuffer(VulkanRenderer& renderer, const std::vector<uint16_t>& indicesdata)
+IndicesBuffer::IndicesBuffer(VulkanEngine& renderer, const std::vector<uint16_t>& indicesdata)
 {
     IndiceCount = indicesdata.size();
 
@@ -32,7 +32,7 @@ IndicesBuffer::~IndicesBuffer()
 {
 }
 
-void IndicesBuffer::Destory(VulkanRenderer& renderer)
+void IndicesBuffer::Destory(VulkanEngine& renderer)
 {
     if (IndiceCount != VK_NULL_HANDLE)
     {

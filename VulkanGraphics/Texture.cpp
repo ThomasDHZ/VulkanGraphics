@@ -8,7 +8,7 @@ Texture::Texture()
 	Height = 0;
 }
 
-Texture::Texture(VulkanRenderer& renderer, std::string TextureLocation, unsigned int textureID, TextureType textureType, VkFormat format)
+Texture::Texture(VulkanEngine& renderer, std::string TextureLocation, unsigned int textureID, TextureType textureType, VkFormat format)
 {
 	TextureID = textureID;
 	TypeOfTexture = textureType;
@@ -17,7 +17,7 @@ Texture::Texture(VulkanRenderer& renderer, std::string TextureLocation, unsigned
 	LoadTexture(renderer, TextureLocation, format);
 }
 
-Texture::Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureType textureType, VkFormat format)
+Texture::Texture(VulkanEngine& renderer, std::string TextureLocation, TextureType textureType, VkFormat format)
 {
 	TypeOfTexture = textureType;
 	FileName = TextureLocation;
@@ -25,13 +25,13 @@ Texture::Texture(VulkanRenderer& renderer, std::string TextureLocation, TextureT
 	LoadTexture(renderer, TextureLocation, format);
 }
 
-Texture::Texture(VulkanRenderer& renderer, unsigned int textureID, TextureType textureType)
+Texture::Texture(VulkanEngine& renderer, unsigned int textureID, TextureType textureType)
 {
 	TextureID = textureID;
 	TypeOfTexture = textureType;
 }
 
-Texture::Texture(VulkanRenderer& renderer, TextureType textureType)
+Texture::Texture(VulkanEngine& renderer, TextureType textureType)
 {
 	TypeOfTexture = textureType;
 }
@@ -40,7 +40,7 @@ Texture::~Texture()
 {
 }
 
-void Texture::TransitionImageLayout(VulkanRenderer& renderer, VkImageLayout oldLayout, VkImageLayout newLayout)
+void Texture::TransitionImageLayout(VulkanEngine& renderer, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
 	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(renderer);
 	
@@ -91,7 +91,7 @@ void Texture::TransitionImageLayout(VulkanRenderer& renderer, VkImageLayout oldL
 	VulkanBufferManager::endSingleTimeCommands(renderer, commandBuffer);
 }
 
-void Texture::CopyBufferToImage(VulkanRenderer& renderer, VkBuffer buffer)
+void Texture::CopyBufferToImage(VulkanEngine& renderer, VkBuffer buffer)
 {
 	VkCommandBuffer commandBuffer = VulkanBufferManager::beginSingleTimeCommands(renderer);
 
@@ -118,7 +118,7 @@ void Texture::CopyBufferToImage(VulkanRenderer& renderer, VkBuffer buffer)
 	VulkanBufferManager::endSingleTimeCommands(renderer, commandBuffer);
 }
 
-void Texture::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation, VkFormat format)
+void Texture::LoadTexture(VulkanEngine& renderer, std::string TextureLocation, VkFormat format)
 {
 	int ColorChannels;
 	stbi_uc* pixels = stbi_load(TextureLocation.c_str(), &Width, &Height, &ColorChannels, STBI_rgb_alpha);
@@ -158,7 +158,7 @@ void Texture::LoadTexture(VulkanRenderer& renderer, std::string TextureLocation,
 	vkFreeMemory(renderer.Device, stagingBufferMemory, nullptr);
 }
 
-void Texture::CreateTextureImage(VulkanRenderer& renderer, VkImageCreateInfo TextureInfo)
+void Texture::CreateTextureImage(VulkanEngine& renderer, VkImageCreateInfo TextureInfo)
 {
 	if (vkCreateImage(renderer.Device, &TextureInfo, nullptr, &Image)) {
 		throw std::runtime_error("Failed to create Image.");
@@ -179,14 +179,14 @@ void Texture::CreateTextureImage(VulkanRenderer& renderer, VkImageCreateInfo Tex
 	vkBindImageMemory(renderer.Device, Image, Memory, 0);
 }
 
-void Texture::CreateTextureView(VulkanRenderer& renderer, VkImageViewCreateInfo TextureImageViewInfo)
+void Texture::CreateTextureView(VulkanEngine& renderer, VkImageViewCreateInfo TextureImageViewInfo)
 {
 	if (vkCreateImageView(renderer.Device, &TextureImageViewInfo, nullptr, &View)) {
 		throw std::runtime_error("Failed to create Image View.");
 	}
 }
 
-void Texture::CreateTextureSampler(VulkanRenderer& renderer, VkSamplerCreateInfo TextureImageSamplerInfo)
+void Texture::CreateTextureSampler(VulkanEngine& renderer, VkSamplerCreateInfo TextureImageSamplerInfo)
 {
 	if (vkCreateSampler(renderer.Device, &TextureImageSamplerInfo, nullptr, &Sampler))
 	{
@@ -194,7 +194,7 @@ void Texture::CreateTextureSampler(VulkanRenderer& renderer, VkSamplerCreateInfo
 	}
 }
 
-void Texture::Delete(VulkanRenderer& renderer)
+void Texture::Delete(VulkanEngine& renderer)
 {
 	vkDestroyImageView(renderer.Device, View, nullptr);
 	vkDestroyImage(renderer.Device, Image, nullptr);

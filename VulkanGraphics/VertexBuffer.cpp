@@ -5,7 +5,7 @@ VertexBuffer::VertexBuffer()
 {
 }
 
-VertexBuffer::VertexBuffer(VulkanRenderer& renderer, const std::vector<Vertex>& vertexdata)
+VertexBuffer::VertexBuffer(VulkanEngine& renderer, const std::vector<Vertex>& vertexdata)
 {
     VertexCount = vertexdata.size();
 
@@ -32,7 +32,7 @@ VertexBuffer::~VertexBuffer()
 {
 }
 
-void VertexBuffer::Destory(VulkanRenderer& renderer)
+void VertexBuffer::Destory(VulkanEngine& renderer)
 {
     if (VertexCount != VK_NULL_HANDLE)
     {

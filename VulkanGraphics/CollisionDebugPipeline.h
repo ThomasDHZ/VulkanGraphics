@@ -4,13 +4,13 @@
 class CollisionDebugPipeline : public GraphicsPipeline
 {
 private:
-	void CreateDescriptorSetLayout(VulkanRenderer& renderer);
-	void CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
+	void CreateDescriptorSetLayout(VulkanEngine& renderer);
+	void CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass);
 public:
 	CollisionDebugPipeline();
-	CollisionDebugPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass);
+	CollisionDebugPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass);
 	~CollisionDebugPipeline();
 
-	void UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass);
+	void UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass);
 };
 

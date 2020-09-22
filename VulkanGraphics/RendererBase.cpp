@@ -5,7 +5,7 @@ RendererBase::RendererBase()
 {
 }
 
-RendererBase::RendererBase(VulkanRenderer& renderer)
+RendererBase::RendererBase(VulkanEngine& renderer)
 {
 }
 
@@ -17,7 +17,7 @@ void RendererBase::SetUpColorBlendingSettings()
 {
 }
 
-void RendererBase::Draw(VulkanRenderer& renderer, std::shared_ptr<RendererDrawMessage>& drawMessage) const
+void RendererBase::Draw(VulkanEngine& renderer, std::shared_ptr<RendererDrawMessage>& drawMessage) const
 {
     VkBuffer vertexBuffers[] = { drawMessage->MeshVertex.GetVertexBuffer() };
     VkDeviceSize offsets[] = { 0 };
@@ -38,7 +38,7 @@ void RendererBase::Draw(VulkanRenderer& renderer, std::shared_ptr<RendererDrawMe
     }
 }
 
-void RendererBase::Destroy(VulkanRenderer& renderer)
+void RendererBase::Destroy(VulkanEngine& renderer)
 {
     vkDestroyRenderPass(renderer.Device, RenderPass, nullptr);
     RenderPass = VK_NULL_HANDLE;

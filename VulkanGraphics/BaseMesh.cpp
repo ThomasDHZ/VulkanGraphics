@@ -30,59 +30,58 @@ void BaseMesh::LoadTextures(RendererManager& renderer, std::shared_ptr<TextureMa
         DiffuseTexture = textureManager->LoadTexture(renderer, textures.DiffuseMap, VK_FORMAT_R8G8B8A8_SRGB);
     }
     
-
-    if (textures.SpecularMap != DefaultTexture)
-    {
-        SpecularTexture = textureManager->LoadTexture(renderer, textures.SpecularMap, VK_FORMAT_R8G8B8A8_UNORM);
-    }
-    else if (textures.RendererSpecularMap)
+    if (textures.RendererSpecularMap)
     {
         SpecularTexture = textures.RendererSpecularMap;
     }
-
-    if (textures.NormalMap != DefaultTexture)
+    else
     {
-        NormalTexture = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
+        SpecularTexture = textureManager->LoadTexture(renderer, textures.SpecularMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
-    else if (textures.RendererNormalMap)
+
+    if (textures.RendererNormalMap)
     {
         NormalTexture = textures.RendererNormalMap;
     }
-
-    if (textures.DepthMap != DefaultTexture)
+    else
     {
-        DepthTexture = textureManager->LoadTexture(renderer, textures.DepthMap, VK_FORMAT_R8G8B8A8_UNORM);
+        NormalTexture = textureManager->LoadTexture(renderer, textures.NormalMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
-    else if (textures.RendererDepthMap)
+
+    if (textures.RendererDepthMap)
     {
         DepthTexture = textures.RendererDepthMap;
     }
-
-    if (textures.AlphaMap != DefaultTexture)
+    else
     {
-        AlphaTexture = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
+        DepthTexture = textureManager->LoadTexture(renderer, textures.DepthMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
-    else if (textures.RendererAlphaMap)
+
+    if (textures.RendererAlphaMap)
     {
         AlphaTexture = textures.RendererAlphaMap;
     }
-
-    if (textures.EmissionMap != DefaultTexture)
+    else
     {
-        EmissionTexture = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
+        AlphaTexture = textureManager->LoadTexture(renderer, textures.AlphaMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
-    else if (textures.RendererEmissionMap)
+
+    if (textures.RendererEmissionMap)
     {
         EmissionTexture = textures.RendererEmissionMap;
     }
-
-    if (textures.ReflectionMap != DefaultTexture)
+    else
     {
-        ReflectionTexture = textureManager->LoadTexture(renderer, textures.ReflectionMap, VK_FORMAT_R8G8B8A8_UNORM);
+        EmissionTexture = textureManager->LoadTexture(renderer, textures.EmissionMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
-    else if (textures.RendererReflectionMap)
+
+    if (textures.RendererReflectionMap)
     {
         ReflectionTexture = textures.RendererReflectionMap;
+    }
+    else
+    {
+        ReflectionTexture = textureManager->LoadTexture(renderer, textures.ReflectionMap, VK_FORMAT_R8G8B8A8_UNORM);
     }
 
     if (!textures.CubeMap[0].empty() &&

@@ -6,7 +6,7 @@ Rendering2DPipeline::Rendering2DPipeline() : GraphicsPipeline()
 {
 }
 
-Rendering2DPipeline::Rendering2DPipeline(VulkanRenderer& renderer, const VkRenderPass& renderPass, const VkPipelineColorBlendStateCreateInfo& ColorBlendingSettings, const RendererType rendererType) : GraphicsPipeline(renderer)
+Rendering2DPipeline::Rendering2DPipeline(VulkanEngine& renderer, const VkRenderPass& renderPass, const VkPipelineColorBlendStateCreateInfo& ColorBlendingSettings, const RendererType rendererType) : GraphicsPipeline(renderer)
 {
     CreateDescriptorSetLayout(renderer);
     CreateShaderPipeLine(renderer, renderPass, ColorBlendingSettings, rendererType);
@@ -16,7 +16,7 @@ Rendering2DPipeline::~Rendering2DPipeline()
 {
 }
 
-void Rendering2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
+void Rendering2DPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 {
     std::array<DescriptorSetLayoutBindingInfo, 9> LayoutBindingInfo = {};
 
@@ -59,7 +59,7 @@ void Rendering2DPipeline::CreateDescriptorSetLayout(VulkanRenderer& renderer)
     GraphicsPipeline::CreateDescriptorSetLayout(renderer, std::vector<DescriptorSetLayoutBindingInfo>(LayoutBindingInfo.begin(), LayoutBindingInfo.end()));
 }
 
-void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass, const VkPipelineColorBlendStateCreateInfo& ColorBlendingSettings, const RendererType rendererType )
+void Rendering2DPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass, const VkPipelineColorBlendStateCreateInfo& ColorBlendingSettings, const RendererType rendererType )
 {
     std::vector<char> vertShaderCode;
     std::vector<char> fragShaderCode;
@@ -195,7 +195,7 @@ void Rendering2DPipeline::CreateShaderPipeLine(VulkanRenderer& renderer, const V
     vkDestroyShaderModule(renderer.Device, vertShaderModule, nullptr);
 }
 
-void Rendering2DPipeline::UpdateGraphicsPipeLine(VulkanRenderer& renderer, const VkRenderPass& renderPass, const VkPipelineColorBlendStateCreateInfo& ColorBlendingSettings, const RendererType rendererType)
+void Rendering2DPipeline::UpdateGraphicsPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass, const VkPipelineColorBlendStateCreateInfo& ColorBlendingSettings, const RendererType rendererType)
 {
     vkDestroyPipeline(renderer.Device, ShaderPipeline, nullptr);
     vkDestroyPipelineLayout(renderer.Device, ShaderPipelineLayout, nullptr);
