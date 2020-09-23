@@ -247,8 +247,8 @@
     <None Include="Shaders\EmptyShader.frag" />
     <None Include="Shaders\FlatShader.frag" />
     <None Include="Shaders\FlatShader.vert" />
-    <None Include="Shaders\ForwardRendererShader.frag" />
-    <None Include="Shaders\ForwardRendererShader.vert" />
+    <None Include="Shaders\Shader3D.frag" />
+    <None Include="Shaders\Shader3D.vert" />
     <None Include="Shaders\FrameBufferShader.frag" />
     <None Include="Shaders\FrameBufferShader.vert" />
     <None Include="Shaders\ReflectShader2D.frag" />
@@ -259,6 +259,10 @@
     <None Include="Shaders\Shader2D_BloomOutput.vert" />
     <None Include="Shaders\Shader2D_Shadow.frag" />
     <None Include="Shaders\Shader2D_Shadow.vert" />
+    <None Include="Shaders\Shader3D_Bloom.frag" />
+    <None Include="Shaders\Shader3D_Bloom.vert" />
+    <None Include="Shaders\Shader3D_Shadow.frag" />
+    <None Include="Shaders\Shader3D_Shadow.vert" />
     <None Include="Shaders\ShadowDebug.frag" />
     <None Include="Shaders\ShadowDebug.vert" />
     <None Include="Shaders\ShadowForwardRendererShader.frag" />

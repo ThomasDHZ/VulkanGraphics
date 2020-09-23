@@ -16,7 +16,8 @@ SceneRenderer::SceneRenderer(VulkanEngine& renderer) : RendererBase(renderer)
     CreateRendererFramebuffers(renderer);
     SetUpColorBlendingSettings();
 
-    renderer2DPipeline2 = std::make_shared<Rendering2DPipeline>(Rendering2DPipeline(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_SceneRenderer));
+    renderer3DPipeline = std::make_shared<ForwardRenderingPipeline>(ForwardRenderingPipeline(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_SceneRenderer));
+    renderer2DPipeline = std::make_shared<Rendering2DPipeline>(Rendering2DPipeline(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_SceneRenderer));
 
     ImGui_ImplVulkan_AddTexture(ColorTexture->ImGuiDescriptorSet, ColorTexture->GetTextureSampler(), ColorTexture->GetTextureView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
@@ -171,7 +172,8 @@ void SceneRenderer::UpdateSwapChain(VulkanEngine& renderer)
     BloomTexture->RecreateRendererTexture(renderer);
     DepthTexture.RecreateRendererTexture(renderer);
 
-    renderer2DPipeline2->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_SceneRenderer);
+    renderer3DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_SceneRenderer);
+    renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_SceneRenderer);
 
     for (auto& framebuffer : SwapChainFramebuffers)
     {
@@ -187,7 +189,8 @@ void SceneRenderer::Destroy(VulkanEngine& renderer)
     BloomTexture->Delete(renderer);
     DepthTexture.Delete(renderer);
 
-    renderer2DPipeline2->Destroy(renderer);
+    renderer3DPipeline->Destroy(renderer);
+    renderer2DPipeline->Destroy(renderer);
 
     RendererBase::Destroy(renderer);
 }

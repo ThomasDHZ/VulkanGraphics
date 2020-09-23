@@ -77,11 +77,8 @@ void SkyBoxMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr
 void SkyBoxMesh::UpdateUniformBuffer(RendererManager& renderer, std::shared_ptr<Camera> camera)
 {
 	UniformBufferObject ubo{};
-	ubo.model = glm::mat4(1.0f);
-	ubo.model = glm::translate(ubo.model, MeshPosition);
-	ubo.model = glm::scale(ubo.model, MeshScale);
-	ubo.view = camera->GetViewMatrix();
-	ubo.proj = camera->GetProjectionMatrix();
+	ubo.view = glm::mat4(glm::mat3(camera->GetViewMatrix()));
+	ubo.proj = glm::perspective(glm::radians(camera->GetZoom()), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;
 
 	uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));

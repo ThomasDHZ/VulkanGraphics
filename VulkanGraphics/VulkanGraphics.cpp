@@ -256,6 +256,5 @@ void VulkanGraphics::MainLoop()
 		//keyboard.Update(Window.GetWindowPtr(), renderer.camera);
 		UpdateImGUI();
 		Update(renderer.DrawFrame);
-		renderer.Draw(Window.GetWindowPtr());
 	}
 }

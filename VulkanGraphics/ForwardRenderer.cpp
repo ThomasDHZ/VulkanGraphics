@@ -16,7 +16,7 @@ ForwardRenderer::ForwardRenderer(VulkanEngine& renderer) : RendererBase(renderer
     SetUpColorBlendingSettings();
 
     frameBufferPipeline = std::make_shared<FrameBufferRenderingPipeline>(renderer, RenderPass);
-    forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass);
+    forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer);
     reflection2DPipeline = std::make_shared<Reflection2DPipeline>(renderer, RenderPass);
     renderer2DPipeline = std::make_shared<Rendering2DPipeline>(Rendering2DPipeline(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer));
     underwater2DPipeline = std::make_shared<UnderWater2DPipeline>(renderer, RenderPass);
@@ -144,7 +144,7 @@ void ForwardRenderer::UpdateSwapChain(VulkanEngine& renderer)
 {
    DepthTexture.RecreateRendererTexture(renderer);
 
-   forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+   forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer);
    renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_ForwardRenderer);
    reflection2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
    underwater2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);

@@ -94,6 +94,7 @@ void RendererManager::InitializeGUIDebugger(GLFWwindow* window)
 
 void RendererManager::UpdateSwapChain(GLFWwindow* window)
 {
+
 	int width = 0, height = 0;
 	glfwGetFramebufferSize(window, &width, &height);
 	while (width == 0 || height == 0) {
@@ -122,114 +123,7 @@ void RendererManager::UpdateSwapChain(GLFWwindow* window)
 	EffectRenderer2.UpdateSwapChain(*GetVulkanRendererBase());
 
 	InitializeCommandBuffers();
-
-	//frameBuffer.UpdateSwapChain(*GetVulkanRendererBase(), frameBufferRenderer.frameBufferPipeline->ShaderPipelineDescriptorLayout, *textureRenderer.ColorTexture.get());
-}
-
-uint32_t RendererManager::Draw(GLFWwindow* window)
-{
-	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-
-	VkResult result = vkAcquireNextImageKHR(Device, SwapChain.GetSwapChain(), UINT64_MAX, vulkanSemaphores[currentFrame].ImageAcquiredSemaphore, VK_NULL_HANDLE, &DrawFrame);
-
-	if (result == VK_ERROR_OUT_OF_DATE_KHR)
-	{
-		UpdateSwapChain(window);
-	}
-	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-		throw std::runtime_error("failed to acquire swap chain image!");
-	}
-
-	if (imagesInFlight[DrawFrame] != VK_NULL_HANDLE) {
-		vkWaitForFences(Device, 1, &imagesInFlight[DrawFrame], VK_TRUE, UINT64_MAX);
-	}
-	imagesInFlight[DrawFrame] = inFlightFences[currentFrame];
-
-	VkCommandBufferBeginInfo CommandBufferInfo = {};
-	CommandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-
-	if (vkBeginCommandBuffer(RenderCommandBuffer[DrawFrame], &CommandBufferInfo) != VK_SUCCESS) {
-		throw std::runtime_error("failed to begin recording command buffer!");
-	}
-
-	//ShadowRenderPass();
-	DrawToTextureRenderPass();
-	MainRenderPass();
-	FrameBufferRenderPass();
-
-	if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
-		throw std::runtime_error("failed to record command buffer!");
-	}
-
-	//if (vkBeginCommandBuffer(RenderCommandBuffer[DrawFrame], &CommandBufferInfo) != VK_SUCCESS) {
-	//	throw std::runtime_error("failed to begin recording command buffer!");
-	//}
-
-	//std::array<VkClearValue, 2> clearValues{};
-	//clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//clearValues[1].depthStencil = { 1.0f, 0 };
-
-	//VkRenderPassBeginInfo renderPassInfo{};
-	//renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	//renderPassInfo.renderPass = forwardRenderer2.RenderPass;
-	//renderPassInfo.framebuffer = forwardRenderer2.SwapChainFramebuffers[DrawFrame];
-	//renderPassInfo.renderArea.offset = { 0, 0 };
-	//renderPassInfo.renderArea.extent = SwapChain.GetSwapChainResolution();
-	//renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	//renderPassInfo.pClearValues = clearValues.data();
-
-	//vkCmdBeginRenderPass(RenderCommandBuffer[DrawFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-	//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), RenderCommandBuffer[DrawFrame]);
-	//vkCmdEndRenderPass(RenderCommandBuffer[DrawFrame]);
-
-	//if (vkEndCommandBuffer(RenderCommandBuffer[DrawFrame]) != VK_SUCCESS) {
-	//	throw std::runtime_error("failed to record command buffer!");
-	//}
-
-
-	VkSemaphore waitSemaphores[] = { vulkanSemaphores[currentFrame].ImageAcquiredSemaphore };
-	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-	VkSemaphore signalSemaphores[] = { vulkanSemaphores[currentFrame].RenderCompleteSemaphore };
-
-	VkSubmitInfo submitInfo{};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.waitSemaphoreCount = 1;
-	submitInfo.pWaitSemaphores = waitSemaphores;
-	submitInfo.pWaitDstStageMask = waitStages;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &RenderCommandBuffer[DrawFrame];
-	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = signalSemaphores;
-
-	vkResetFences(Device, 1, &inFlightFences[currentFrame]);
-
-	if (vkQueueSubmit(GraphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
-		throw std::runtime_error("failed to submit draw command buffer!");
-	}
-
-	VkSwapchainKHR swapChains[] = { SwapChain.GetSwapChain() };
-
-	VkPresentInfoKHR presentInfo{};
-	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = signalSemaphores;
-	presentInfo.swapchainCount = 1;
-	presentInfo.pSwapchains = swapChains;
-	presentInfo.pImageIndices = &DrawFrame;
-
-	result = vkQueuePresentKHR(PresentQueue, &presentInfo);
-
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
-	{
-		framebufferResized = false;
-		UpdateSwapChain(window);
-	}
-	else if (result != VK_SUCCESS) {
-		throw std::runtime_error("failed to present swap chain image!");
-	}
-
-	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+	UpdateSwapChainFlag = true;
 }
 
 void RendererManager::StartDraw(GLFWwindow* window)
@@ -366,7 +260,7 @@ void RendererManager::MainRenderPass()
 {
 
 	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+	clearValues[0].color = { 0.0f, 0.0f, 1.0f, 1.0f };
 	clearValues[1].depthStencil = { 1.0f, 0 };
 
 	VkRenderPassBeginInfo renderPassInfo{};

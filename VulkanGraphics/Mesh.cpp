@@ -167,10 +167,10 @@ void Mesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Textu
     ReflectionMap.imageView = ReflectionTexture->GetTextureView();
     ReflectionMap.sampler = ReflectionTexture->GetTextureSampler();
 
-    //VkDescriptorImageInfo SkyBoxMap = {};
-    //SkyBoxMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    //SkyBoxMap.imageView = textureManager->GetTextureByID(cubemap)->GetTextureView();
-    //SkyBoxMap.sampler = textureManager->GetTextureByID(cubemap)->GetTextureSampler();
+    VkDescriptorImageInfo SkyBoxMap = {};
+    SkyBoxMap.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    SkyBoxMap.imageView = SkyBoxTexture->GetTextureView();
+    SkyBoxMap.sampler = SkyBoxTexture->GetTextureSampler();
 
     for (size_t i = 0; i < renderer.SwapChain.GetSwapChainImageCount(); i++)
     {
@@ -247,12 +247,12 @@ void Mesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Textu
         ReflectionMapDescriptor.DescriptorImageInfo = ReflectionMap;
         DescriptorList.emplace_back(ReflectionMapDescriptor);
 
-        //WriteDescriptorSetInfo SkyBoxDescriptor;
-        //SkyBoxDescriptor.DstBinding = 8;
-        //SkyBoxDescriptor.DstSet = DescriptorSets[i];
-        //SkyBoxDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        //SkyBoxDescriptor.DescriptorImageInfo = SkyBoxMap;
-        //DescriptorList.emplace_back(SkyBoxDescriptor);
+        WriteDescriptorSetInfo SkyBoxDescriptor;
+        SkyBoxDescriptor.DstBinding = 8;
+        SkyBoxDescriptor.DstSet = DescriptorSets[i];
+        SkyBoxDescriptor.DescriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        SkyBoxDescriptor.DescriptorImageInfo = SkyBoxMap;
+        DescriptorList.emplace_back(SkyBoxDescriptor);
 
         WriteDescriptorSetInfo  MeshPropertiesDescriptor;
         MeshPropertiesDescriptor.DstBinding = 9;

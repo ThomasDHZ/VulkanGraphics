@@ -15,7 +15,7 @@ TextureRenderer::TextureRenderer(VulkanEngine& renderer) : RendererBase(renderer
     CreateRendererFramebuffers(renderer);
     SetUpColorBlendingSettings();
 
-    forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass);
+    forwardRendereringPipeline = std::make_shared<ForwardRenderingPipeline>(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_TextureRenderer);
     renderer2DPipeline = std::make_shared <Rendering2DPipeline>(Rendering2DPipeline(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_TextureRenderer));
     bloomPipeline = std::make_shared <BloomPipeline>(renderer, RenderPass);
     //reflection2DPipeline = Reflection2DPipeline(renderer, RenderPass);
@@ -151,7 +151,7 @@ void TextureRenderer::UpdateSwapChain(VulkanEngine& renderer)
     ColorTexture->RecreateRendererTexture(renderer);
     DepthTexture.RecreateRendererTexture(renderer);
 
-    forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
+    forwardRendereringPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_TextureRenderer);
     renderer2DPipeline->UpdateGraphicsPipeLine(renderer, RenderPass, ColorBlendingSettings, RendererType::RT_TextureRenderer);
     bloomPipeline->UpdateGraphicsPipeLine(renderer, RenderPass);
    // reflection2DPipeline.UpdateGraphicsPipeLine(renderer, RenderPass);

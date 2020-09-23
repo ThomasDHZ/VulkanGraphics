@@ -18,7 +18,8 @@ public:
 	SceneRenderer(VulkanEngine& renderer);
 	~SceneRenderer();
 
-	std::shared_ptr<Rendering2DPipeline> renderer2DPipeline2;
+	std::shared_ptr<ForwardRenderingPipeline> renderer3DPipeline;
+	std::shared_ptr<Rendering2DPipeline> renderer2DPipeline;
 
 	std::shared_ptr<RendererColorTexture> ColorTexture;
 	std::shared_ptr<RendererColorTexture> BloomTexture;

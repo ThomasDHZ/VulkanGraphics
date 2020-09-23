@@ -23,16 +23,14 @@ private:
 
 	size_t currentFrame = 0;
 	bool framebufferResized = false;
+	bool UpdateSwapChainFlag = false;
 
 	GUIDebugger guiDebugger;
-	//Camera lightCamera;
-	//Camera camera;
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
 	void UpdateSwapChain(GLFWwindow* window);
 
-	//void DrawToBloomTextureRenderPass();
 	void DrawToTextureRenderPass();
 	void MainRenderPass();
 	void SceneRenderPass();
@@ -42,7 +40,6 @@ private:
 	void ShadowRenderPass();
 protected:
 
-	uint32_t Draw(GLFWwindow* window);
 	void StartDraw(GLFWwindow* window);
 	void EndDraw(GLFWwindow* window);
 	void DestoryVulkan();

@@ -329,12 +329,6 @@
     <None Include="Shaders\FrameBufferShader.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shaders\ForwardRendererShader.vert">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shaders\ForwardRendererShader.frag">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="Shaders\ShadowDebug.frag">
       <Filter>Shader</Filter>
     </None>
@@ -414,6 +408,24 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="Shaders\Shader2D_Shadow.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader3D.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader3D.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader3D_Bloom.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader3D_Bloom.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader3D_Shadow.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Shader3D_Shadow.vert">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
