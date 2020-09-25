@@ -92,40 +92,6 @@ void RendererManager::InitializeGUIDebugger(GLFWwindow* window)
 	guiDebugger = GUIDebugger(init_info, window, forwardRenderer.RenderPass);
 }
 
-void RendererManager::UpdateSwapChain(GLFWwindow* window)
-{
-
-	int width = 0, height = 0;
-	glfwGetFramebufferSize(window, &width, &height);
-	while (width == 0 || height == 0) {
-		glfwGetFramebufferSize(window, &width, &height);
-		glfwWaitEvents();
-	}
-
-	vkDeviceWaitIdle(Device);
-
-	for (auto imageView : SwapChain.GetSwapChainImageViews())
-	{
-		vkDestroyImageView(Device, imageView, nullptr);
-	}
-
-	vkDestroyCommandPool(Device, RenderCommandPool, nullptr);
-	vkDestroySwapchainKHR(Device, SwapChain.GetSwapChain(), nullptr);
-
-	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
-
-	forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	sceneRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	EffectRenderer.UpdateSwapChain(*GetVulkanRendererBase());
-	EffectRenderer2.UpdateSwapChain(*GetVulkanRendererBase());
-
-	InitializeCommandBuffers();
-	UpdateSwapChainFlag = true;
-}
-
 void RendererManager::StartDraw(GLFWwindow* window)
 {
 	vkWaitForFences(Device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -134,7 +100,7 @@ void RendererManager::StartDraw(GLFWwindow* window)
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR)
 	{
-		UpdateSwapChain(window);
+		UpdateSwapChainFlag = true;
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 		throw std::runtime_error("failed to acquire swap chain image!");
@@ -221,7 +187,7 @@ void RendererManager::EndDraw(GLFWwindow* window)
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
 	{
 		framebufferResized = false;
-		UpdateSwapChain(window);
+		UpdateSwapChainFlag = true;
 	}
 	else if (result != VK_SUCCESS) {
 		throw std::runtime_error("failed to present swap chain image!");

@@ -8,7 +8,10 @@ BaseMesh::BaseMesh()
 BaseMesh::BaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata)
 {
     MeshVertex = VertexBuffer(renderer, Vertexdata);
-    MeshIndices = IndicesBuffer(renderer, Indicesdata);
+    if (Indicesdata.size() != 0)
+    {
+        MeshIndices = IndicesBuffer(renderer, Indicesdata);
+    }
 }
 BaseMesh::BaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata)
 {

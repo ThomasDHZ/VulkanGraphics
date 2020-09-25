@@ -95,10 +95,13 @@ void FrameBufferMesh::Update(RendererManager& renderer)
     frameBufferSettings.UpdateUniformBuffer(renderer, static_cast<void*>(&settings));
 }
 
-void FrameBufferMesh::ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager)
+void FrameBufferMesh::ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::shared_ptr<Texture> FrameBufferImage, std::shared_ptr<Texture> BloomImage)
 {
     vkDestroyDescriptorPool(renderer.Device, DescriptorPool, nullptr);
     DescriptorPool = VK_NULL_HANDLE;
+
+    DiffuseTexture = FrameBufferImage;
+    EmissionTexture = BloomImage;
 
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
@@ -108,6 +111,24 @@ void FrameBufferMesh::ScreenResizeUpdate(RendererManager& renderer, std::shared_
         renderer.RemoveDrawMessage(drawMessage);
     }
     CreateDrawMessage(renderer, 0, renderer.frameBufferRenderer.frameBufferPipeline);
+}
+
+void FrameBufferMesh::ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::shared_ptr<Texture> FrameBufferImage, std::shared_ptr<Texture> BloomImage, int effectRenderer, std::shared_ptr<GraphicsPipeline> shader)
+{
+    vkDestroyDescriptorPool(renderer.Device, DescriptorPool, nullptr);
+    DescriptorPool = VK_NULL_HANDLE;
+
+    DiffuseTexture = FrameBufferImage;
+    EmissionTexture = BloomImage;
+
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager);
+
+    for (auto drawMessage : DrawMessageList)
+    {
+        renderer.RemoveDrawMessage(drawMessage);
+    }
+    CreateDrawMessage(renderer, effectRenderer, shader);
 }
 
 void FrameBufferMesh::Destory(RendererManager& renderer)

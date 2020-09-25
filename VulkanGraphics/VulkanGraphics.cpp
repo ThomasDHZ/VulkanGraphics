@@ -10,51 +10,71 @@
 #include <stb_image.h>
 #include "ImGui/imgui_impl_vulkan.h"
 
+#include "Sprite.h"
+#include "EnergyTank.h"
+#include "LargeEnergy.h"
+#include "WaterSurface2D.h"
+#include "Water2D.h"
+#include "MegaMan.h"
+#include "Enemy2D.h"
+#include "LevelSprite.h"
+
 VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 {
 	Window = VulkanWindow(Width, Height, AppName);
 	renderer = RendererManager(Window.GetWindowPtr());
 	gameManager = GameManager(renderer);
 
-	//ActiveCamera = &renderer.camera;
+	MeshTextures SparkManTextures = {};
+	SparkManTextures.DiffuseMap = "texture/SparkMan_diffuseOriginal.bmp";
+	SparkManTextures.SpecularMap = "texture/SparkManSpecular.bmp";
+	SparkManTextures.NormalMap = "texture/SparkMan_normal.bmp";
+	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
+	SparkManTextures.DepthMap = "texture/SparkManAlpha.bmp";
+	SparkManTextures.ReflectionMap = "texture/SparkManAlpha.bmp";
+	SparkManTextures.CubeMap[0] = "texture/skybox/left.jpg";
+	SparkManTextures.CubeMap[1] = "texture/skybox/right.jpg";
+	SparkManTextures.CubeMap[2] = "texture/skybox/top.jpg";
+	SparkManTextures.CubeMap[3] = "texture/skybox/bottom.jpg";
+	SparkManTextures.CubeMap[4] = "texture/skybox/back.jpg";
+	SparkManTextures.CubeMap[5] = "texture/skybox/front.jpg";
 
-	CubeMapLayout layout;
-	layout.Left = "texture/skybox/left.jpg";
-	layout.Right = "texture/skybox/right.jpg";
-	layout.Top = "texture/skybox/top.jpg";
-	layout.Bottom = "texture/skybox/bottom.jpg";
-	layout.Back = "texture/skybox/back.jpg";
-	layout.Front = "texture/skybox/front.jpg";
+	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), 4.0f)));
+	CameraList.emplace_back(std::make_shared<PerspectiveCamera>(PerspectiveCamera(glm::vec3(0.0f))));
 
-	gameManager.textureManager->LoadTexture(*renderer.GetVulkanRendererBase(), layout);
-	//gameManager.textureManager->LoadTexture(renderer.textureRenderer.ColorTexture);
-	//gameManager.textureManager->LoadTexture(renderer.textureRenderer.DepthTexture);
-
-	modelLoader = ModelLoader(*renderer.GetVulkanRendererBase(), gameManager.textureManager, FileSystem::getPath("VulkanGraphics/Models/nano_textured/nanosuit.obj"));
+	CameraList[0]->SetPosition(8.0f, 9.0f);
+	ActiveCamera = CameraList[cameraIndex];
 
 	MeshTextures meshTextures = {};
-	meshTextures.DiffuseMap = "texture/brick_diffuseOriginal.bmp";
+	meshTextures.DiffuseMap = "texture/matrix.jpg";
 	meshTextures.SpecularMap = "texture/container2_specular.png";
 	meshTextures.NormalMap = "texture/brick_normal.bmp";
 	meshTextures.DepthMap = "texture/brick_height.bmp";
 	meshTextures.ReflectionMap = "texture/container2_specular.png";
+	meshTextures.EmissionMap = "texture/matrix.jpg";
+	meshTextures.CubeMap[0] = "texture/skybox/left.jpg";
+	meshTextures.CubeMap[1] = "texture/skybox/right.jpg";
+	meshTextures.CubeMap[2] = "texture/skybox/top.jpg";
+	meshTextures.CubeMap[3] = "texture/skybox/bottom.jpg";
+	meshTextures.CubeMap[4] = "texture/skybox/back.jpg";
+	meshTextures.CubeMap[5] = "texture/skybox/front.jpg";
 
-	MeshTextures meshTextures2 = {};
-	meshTextures2.DiffuseMap = "texture/bricks2.jpg";
-	meshTextures2.SpecularMap = "texture/container2_specular.png";
-	meshTextures2.NormalMap = "texture/bricks2_normal.jpg";
-	meshTextures2.DepthMap = "texture/bricks2_disp.jpg";
-	meshTextures2.ReflectionMap = "texture/container2_specular.png";
+	mesh = Mesh(renderer, gameManager.textureManager, CalcVertex(), cubeindices, meshTextures);
+	mesh.CreateDrawMessage(renderer, 4, renderer.sceneRenderer.renderer3DPipeline);
 
-	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
-	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
-	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
-	obj.emplace_back(renderer, gameManager.textureManager, CalcVertex(), indices, meshTextures, 0, renderer.forwardRenderer.forwardRendereringPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderShadow | RenderBitFlag::RenderOnTexturePass);
-//	light = Light(renderer, renderer.forwardRenderer.DebugLightPipeline->ShaderPipelineDescriptorLayout, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
-	//skybox = SkyBoxrenderer, gameManager.textureManager, layout);
-
-	light.light.pLight.position = glm::vec3(0.5f, 1.0f, 0.3f);
-
+	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
+	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
+	SpriteList.emplace_back(std::make_shared<EnergyTank>(EnergyTank(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
+	SpriteList.emplace_back(std::make_shared<EnergyTank>(EnergyTank(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
+	SpriteList.emplace_back(std::make_shared<LargeEnergy>(LargeEnergy(renderer, gameManager.textureManager, glm::vec2(9.0f, 8.0f))));
+	SpriteList.emplace_back(std::make_shared<Enemy2D>(Enemy2D(renderer, gameManager.textureManager, glm::vec2(8.0f, 10.0f))));
+	/*SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.sceneRenderer.BloomTexture)));
+	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.sceneRenderer.BloomTexture)));*/
+	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
+	framebuffer1 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture, renderer.sceneRenderer.BloomTexture, 5, renderer.EffectRenderer.bloomPipeline);
+	framebuffer2 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer.ColorTexture, 6, renderer.EffectRenderer.bloomPipeline2nd);
+	framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, renderer.EffectRenderer2.ColorTexture);
+	skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -62,11 +82,16 @@ VulkanGraphics::~VulkanGraphics()
 	vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
 
 	gameManager.textureManager->UnloadAllTextures(*renderer.GetVulkanRendererBase());
-	//for (auto mesh : renderer.ObjectMesh)
-	//{
-	//	mesh->Destory(*renderer.GetVulkanRendererBase());
-	//}
-
+	mesh.Destory(renderer);
+	skybox.Destory(renderer);
+	light.Destory(renderer);
+	for (auto sprite : SpriteList)
+	{
+		sprite->Destory(renderer);
+	}
+	framebuffer1.Destory(renderer);
+	framebuffer2.Destory(renderer);
+	framebuffer3.Destory(renderer);
 	renderer.DestoryVulkan();
 	Window.CleanUp();
 }
@@ -77,29 +102,52 @@ void VulkanGraphics::UpdateImGUI()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 	{
+		alignas(16) glm::vec3 WaterColor = glm::vec3(0.7f, 0.0, 0.4f);
+		alignas(8) glm::vec2 Distortion_scale = glm::vec2(.389f, .053f);
+		alignas(4) float intensity = 00.3f;
+		alignas(4)float speed = 0.085f;
+		alignas(4) float waveAmp = 0.238f;
+		alignas(4) float waveSpeed = 4.0f;
+		alignas(4) float wavePeriod = 2.423f;
+
 
 		ImGui::Begin("Settings");
+		//auto a = static_cast<WaterSurface2D*>(SpriteList[3].get());
+		//ImGui::SliderFloat3("water color", &a->waveprop.WaterColor.x, 0.0f, 1.0f);
+		//ImGui::SliderFloat2("Distortion_scale", &a->waveprop.Distortion_scale.x, 0.0f, 1.0f);
+		//ImGui::SliderFloat("intensity", &a->waveprop.intensity, 0.0f, 1.0f);
+		//ImGui::SliderFloat("speed", &a->waveprop.speed, 0.0f, 1.0f);
+		//ImGui::SliderFloat("waveAmp", &a->waveprop.waveAmp, 0.0f, 1.0f);
+		//ImGui::SliderFloat("waveSpeed", &a->waveprop.waveSpeed, 0.0f, 1.0f);
+		//ImGui::SliderFloat("wavePeriod", &a->waveprop.wavePeriod, 0.0f, 60.0f);
+
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		//ImGui::SliderFloat("Gamma", &renderer.frameBuffer.settings.Gamma, 0.0f, 10.0f);
-		//ImGui::SliderFloat("HDR Value", &renderer.frameBuffer.settings.HDRValue, 0.0f, 10.0f);
+		//ImGui::SliderFloat("Gamma", &framebuffer.settings.Gamma, 0.0f, 10.0f);
+		//ImGui::SliderFloat("HDR Value", &framebuffer.settings.HDRValue, 0.0f, 10.0f);
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
 		ImGui::Checkbox("Show Light Debug Meshes", &renderer.Settings.ShowDebugLightMesh);
-		ImGui::Checkbox("Show SkyBox", &renderer.Settings.ShowSkyBox);
-		//ImGui::Checkbox("Switch Camara", &SwatchCamara);
-		ImGui::SliderFloat3("Light", &light.light.pLight.position.x, -10.0f, 10.0f);
-		ImGui::SliderFloat3("ambient", &light.light.pLight.ambient.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("diffuse", &light.light.pLight.diffuse.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("specular", &light.light.pLight.specular.x, 0.0f, 1.0f);
-		//ImGui::Image(renderer.textureRenderer.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
-		//ImGui::Image(renderer.shadowRenderer.DepthTexture.ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::SliderFloat3("dLight", &light.light.dLight.direction.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("dambient", &light.light.dLight.ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("ddiffuse", &light.light.dLight.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("dspecular", &light.light.dLight.specular.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pLight", &light.light.pLight.position.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("pambient", &light.light.pLight.ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pdiffuse", &light.light.pLight.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);
+		//ImGui::Image(renderer.EffectRenderer.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		//ImGui::Image(renderer.EffectRenderer2.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		//ImGui::Image(renderer.shadowRenderer.DepthTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
 
 		ImGui::Begin("MeshSettings");
+		ImGui::SliderInt("Camera", &cameraIndex, 0, CameraList.size() - 1);
+		ActiveCamera = CameraList[cameraIndex];
+
 		if (ImGui::TreeNode("MeshList"))
 		{
-			ImGui::Columns(2, "tree", true);
+			//ImGui::Columns(2, "tree", true);
 
-			//for (int x = 0; x < renderer.MeshList.size(); x++)
+			//for (int x = 0; x < renderer.ObjectMesh.size(); x++)
 			//{
 			//	bool open1 = ImGui::TreeNode((void*)(intptr_t)x, "Mesh%d", x);
 			//	ImGui::NextColumn();
@@ -107,31 +155,33 @@ void VulkanGraphics::UpdateImGUI()
 			//	ImGui::NextColumn();
 			//	if (open1)
 			//	{
+
 			//		ImGui::NextColumn();
-			//		ImGui::SliderFloat("shininess", &renderer.MeshList[x].properites.material.shininess, 0.0, 255.0f);
-			//		ImGui::SliderFloat("reflectivness", &renderer.MeshList[x].properites.material.reflectivness, 0.0f, 1.0f);
-			//		ImGui::SliderFloat("heightScale", &renderer.MeshList[x].properites.heightScale, -1.0, 1.0f);
-			//		ImGui::SliderFloat("Layers", &renderer.MeshList[x].properites.minLayers, 0.0, 50.0f);
-			//		ImGui::SliderFloat("maxLayers", &renderer.MeshList[x].properites.maxLayers, 0.0, 5000.0f);
-			//		ImGui::SliderInt("Diffuse", &renderer.MeshList[x].properites.UseDiffuseMapBit, 0.0, 1.0f);
-			//		ImGui::SliderInt("Specular", &renderer.MeshList[x].properites.UseSpecularMapBit, 0.0, 1.0f);
-			//		ImGui::SliderInt("Normal", &renderer.MeshList[x].properites.UseNormalMapBit, 0.0, 1.0f);
-			//		ImGui::SliderInt("Depth", &renderer.MeshList[x].properites.UseDepthMapBit, 0.0, 1.0f);
-			//		ImGui::SliderInt("Alpha", &renderer.MeshList[x].properites.UseAlphaMapBit, 0.0, 1.0f);
-			//		ImGui::SliderInt("Emission", &renderer.MeshList[x].properites.UseEmissionMapBit, 0.0, 1.0f);
-			//		ImGui::SliderInt("Reflection", &renderer.MeshList[x].properites.UseReflectionMapBit, 0.0, 1.0f);
-			//		ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.MeshList[x].DiffuseMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-			//		ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.MeshList[x].SpecularMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-			//		ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.MeshList[x].NormalMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-			//		ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.MeshList[x].DepthMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
-			//		ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.MeshList[x].ReflectionMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//		if (const auto mesh = dynamic_cast<Mesh2D*>(renderer.ObjectMesh[x].get()))
+			//		{
+			//			ImGui::SliderFloat2("shininess", &mesh->properites.UVOffset.x, 0.0, 1.0f);
+			//			ImGui::SliderFloat("shininess", &mesh->properites.material.shininess, 0.0, 255.0f);
+			//			ImGui::SliderFloat("reflectivness", &mesh->properites.material.reflectivness, 0.0f, 1.0f);
+			//			ImGui::SliderFloat("heightScale", &mesh->properites.heightScale, -1.0, 1.0f);
+			//			ImGui::SliderFloat("Layers", &mesh->properites.minLayers, 0.0, 50.0f);
+			//			ImGui::SliderFloat("maxLayers", &mesh->properites.maxLayers, 0.0, 5000.0f);
+			//			ImGui::SliderInt("Diffuse", &mesh->properites.UseDiffuseMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Specular", &mesh->properites.UseSpecularMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Normal", &mesh->properites.UseNormalMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Depth", &mesh->properites.UseDepthMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Alpha", &mesh->properites.UseAlphaMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Emission", &mesh->properites.UseEmissionMapBit, 0.0, 1.0f);
+			//			ImGui::SliderInt("Reflection", &mesh->properites.UseReflectionMapBit, 0.0, 1.0f);
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->DiffuseMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->SpecularMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->NormalMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->DepthMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//			ImGui::Image(gameManager.textureManager->GetTextureByID(renderer.ObjectMesh[x]->ReflectionMapID).ImGuiDescriptorSet, ImVec2(80.0f, 80.0f));
+			//		}
 			//		ImGui::NextColumn();
 			//		ImGui::TreePop();
 			//	}
 			//}
-
-			ImGui::Columns(1);
-			ImGui::TreePop();
 		}
 		ImGui::End();
 		gameManager.textureManager->UpdateIMGUIVRAM();
@@ -140,36 +190,133 @@ void VulkanGraphics::UpdateImGUI()
 	ImGui::Render();
 }
 
-void VulkanGraphics::Update(uint32_t DrawFrame)
+void VulkanGraphics::Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera)
 {
-	static auto startTime = std::chrono::high_resolution_clock::now();
+	float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
 
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+	camera->Update();
+	framebuffer1.Update(renderer);
+	framebuffer2.Update(renderer);
+	framebuffer3.Update(renderer);
 
-	light.light.viewPos = ActiveCamera->GetPosition();
+	mesh.MeshPosition = glm::vec3(1.0f, 10.0f, 0.0f);
+	mesh.Update(renderer, camera, light.light);
+	skybox.Update(renderer, camera);
+	light.Update(renderer, camera);
+	for (int x = SpriteList.size() - 1; x > 0; x--)
+	{
+		if (SpriteList[x]->DestoryObjectFlag)
+		{
+			SpriteList[x]->Destory(renderer);
+			SpriteList.erase(SpriteList.begin() + x);
+		}
+	}
+	for (auto& sprite : SpriteList)
+	{
+		if (auto MM = dynamic_cast<MegaMan*>(sprite.get()))
+		{
+			MM->Update(Window.GetWindowPtr(), renderer, camera, deltaTime, light.light, SpriteList, gameManager.textureManager);
+		}
+		else
+		{
+			sprite->Update(renderer, deltaTime, camera, light.light);
+		}
+		if (auto MM = dynamic_cast<Sprite*>(sprite.get()))
+		{
+			MM->ApplyGravity(SpriteList, deltaTime);
+		}
+		sprite->Collision(renderer, SpriteList);
+	}
 
-	MeshColor color = {};
-	color.Color = glm::vec3(1.0f, 1.0f, 1.0f);
+	if (glfwGetKey(Window.GetWindowPtr(), GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		//CurrentAni = ShootAni;
+		auto shot = std::make_shared<MMShot>(MMShot(renderer, gameManager.textureManager, glm::vec2(SpriteList[0]->GetPosition2D().x + 1.0f, SpriteList[0]->GetPosition2D().y + 0.5f)));
+		SpriteList.emplace_back(shot);
+	}
+}
 
+void VulkanGraphics::Draw()
+{
+	renderer.StartDraw(Window.GetWindowPtr());
+	if (renderer.UpdateSwapChainFlag)
+	{
+		ScreenResizeUpdate();
+	}
 
-	//for (auto mesh : renderer.ObjectMesh)
-	//{
-	//	if (auto b = dynamic_cast<DebugLightMesh*>(mesh.get()))
-	//	{
-	//		b->Update(renderer, *ActiveCamera, color);
-	//	}
-	//	if (auto a = dynamic_cast<Mesh*>(mesh.get()))
-	//	{
-	//		a->Update(renderer, *ActiveCamera, light.light);
-	//	}
-	//	if (auto c = dynamic_cast<SkyBoxMesh*>(mesh.get()))
-	//	{
-	//		c->UpdateUniformBuffer(renderer, renderer.camera);
-	//	}
-	//}
+	renderer.ShadowRenderPass();
+	if (renderer.currentFrame == 1)
+	{
+		Update(renderer.DrawFrame, ActiveCamera);
+		renderer.DrawToTextureRenderPass();
+	}
+	else
+	{
+		Update(renderer.DrawFrame, ActiveCamera);
+		renderer.MainRenderPass();
+	}
+	//renderer.SceneRenderPass();
+	//renderer.EffectRenderPass();
+	//renderer.EffectRenderPass2();
+	//renderer.FrameBufferRenderPass();
+	renderer.EndDraw(Window.GetWindowPtr());
+	
+	if (renderer.UpdateSwapChainFlag)
+	{
+		ScreenResizeUpdate();
+	}
+}
 
-	//renderer.frameBuffer.UpdateUniformBuffer(renderer);
+void VulkanGraphics::ScreenResizeUpdate()
+{
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(renderer.Device);
+
+	for (auto imageView : renderer.SwapChain.GetSwapChainImageViews())
+	{
+		vkDestroyImageView(renderer.Device, imageView, nullptr);
+	}
+
+	vkDestroyCommandPool(renderer.Device, renderer.RenderCommandPool, nullptr);
+	vkDestroySwapchainKHR(renderer.Device, renderer.SwapChain.GetSwapChain(), nullptr);
+
+	renderer.SwapChain.UpdateSwapChain(Window.GetWindowPtr(), renderer.Device, renderer.PhysicalDevice, renderer.Surface);
+
+	renderer.forwardRenderer.UpdateSwapChain(renderer);
+	renderer.sceneRenderer.UpdateSwapChain(renderer);
+	renderer.textureRenderer.UpdateSwapChain(renderer);
+	renderer.frameBufferRenderer.UpdateSwapChain(renderer);
+	renderer.shadowRenderer.UpdateSwapChain(renderer);
+	renderer.EffectRenderer.UpdateSwapChain(renderer);
+	renderer.EffectRenderer2.UpdateSwapChain(renderer);
+
+	renderer.InitializeCommandBuffers();
+
+	framebuffer1.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture, renderer.sceneRenderer.BloomTexture, 5, renderer.EffectRenderer.bloomPipeline);
+	framebuffer2.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer.ColorTexture, 6, renderer.EffectRenderer.bloomPipeline2nd);
+	framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, renderer.EffectRenderer2.ColorTexture);
+
+	renderer.UpdateSwapChainFlag = false;
+}
+
+void VulkanGraphics::MainLoop()
+{
+	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
+	{
+		Window.Update();
+		mouse.Update(Window.GetWindowPtr(), ActiveCamera);
+		keyboard.UpdateOrtho(Window.GetWindowPtr(), ActiveCamera);
+		UpdateImGUI();
+		Draw();
+	}
 }
 
 std::vector<Vertex> VulkanGraphics::CalcVertex()
@@ -239,22 +386,4 @@ std::vector<Vertex> VulkanGraphics::CalcVertex()
 		{{pos3.x, pos3.y, pos3.z}, {nm.x, nm.y, nm.z}, {uv3.x, uv3.y}, {tangent2.x, tangent2.y, tangent2.z}, {bitangent2.x, bitangent2.y, bitangent2.z}},
 		{{pos4.x, pos4.y, pos4.z}, {nm.x, nm.y, nm.z}, {uv4.x, uv4.y}, {tangent2.x, tangent2.y, tangent2.z}, {bitangent2.x, bitangent2.y, bitangent2.z}}
 	};
-}
-
-void VulkanGraphics::MainLoop()
-{
-	while (!glfwWindowShouldClose(Window.GetWindowPtr()))
-	{
-		if (CompareVulkanSettings != renderer.Settings)
-		{
-			CompareVulkanSettings = renderer.Settings;
-			renderer.UpdateSwapChain(Window.GetWindowPtr());
-		}
-
-		Window.Update();
-	//	mouse.Update(Window.GetWindowPtr(), renderer.camera, renderer.Settings);
-		//keyboard.Update(Window.GetWindowPtr(), renderer.camera);
-		UpdateImGUI();
-		Update(renderer.DrawFrame);
-	}
 }

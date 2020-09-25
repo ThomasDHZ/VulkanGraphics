@@ -12,5 +12,6 @@ public:
 
 	std::shared_ptr<SkyBoxMesh> skyBoxMesh;
 	void Update(RendererManager& renderer, std::shared_ptr<Camera> camera);
+	void Destory(RendererManager& renderer);
 };
 

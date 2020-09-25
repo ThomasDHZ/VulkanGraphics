@@ -1,4 +1,5 @@
 #pragma once
+#include "Object.h"
 #include "BoxCollider.h"
 #include "Mesh2D.h"
 #include "RendererManager.h"
@@ -20,7 +21,7 @@ enum ObjectFlags
 	ApplyGravity = 0x10
 };
 
-class Object2D
+class Object2D : public Object
 {
 private:
 protected:

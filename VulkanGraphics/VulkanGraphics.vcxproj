@@ -216,7 +216,7 @@
     <ClCompile Include="TextureRenderer.cpp" />
     <ClCompile Include="UnderWater2DPipeline.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
-    <ClCompile Include="VulkanGraphics2D.cpp" />
+    <ClCompile Include="VulkanGraphics.cpp" />
     <ClCompile Include="VulkanEngine.cpp" />
     <ClCompile Include="VulkanUniformBuffer.cpp" />
     <ClCompile Include="Water2D.cpp" />
@@ -230,7 +230,6 @@
     <ClCompile Include="RendererManager.cpp" />
     <ClCompile Include="VulkanSwapChain.cpp" />
     <ClCompile Include="VulkanDebugger.cpp" />
-    <ClCompile Include="VulkanGraphics.cpp" />
     <ClCompile Include="VulkanWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -346,7 +345,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="TextureRenderer.h" />
-    <ClInclude Include="VulkanGraphics2D.h" />
+    <ClInclude Include="VulkanGraphics.h" />
     <ClInclude Include="VulkanEngine.h" />
     <ClInclude Include="VulkanUniformBuffer.h" />
     <ClInclude Include="Water2D.h" />
@@ -362,7 +361,6 @@
     <ClInclude Include="VulkanSwapChain.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VulkanDebugger.h" />
-    <ClInclude Include="VulkanGraphics.h" />
     <ClInclude Include="VulkanWindow.h" />
   </ItemGroup>
   <ItemGroup>

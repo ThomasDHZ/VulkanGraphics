@@ -19,6 +19,10 @@
 #include "Object.h"
 #include "Light.h"
 #include "SkyBox.h"
+#include <chrono>
+#include <map>
+#include "Object2D.h"
+
 
 const std::vector<Vertex> vertices =
 {
@@ -36,6 +40,50 @@ const std::vector<uint16_t> indices =
 
 
 
+//
+//const std::vector<Vertex> cubevertices =
+//{
+//	{{-0.5,-0.5,-0.5}, {0,-1,0}, {0,1}},
+//	{{0.5,-0.5,-0.5}, {0,-1,0}, {1,1}},
+//	{{0.5,-0.5,0.5}, {0,-1,0}, {1,0}},
+//	{{-0.5,-0.5,0.5}, {0,-1,0}, {0,0}},
+//	{{-0.5,0.5,-0.5}, {0,0,-1}, {0,0}},
+//	{{0.5,0.5,-0.5}, {0,0,-1}, {1,0}},
+//	{{0.5,-0.5,-0.5}, {0,0,-1}, {1,1}},
+//	{{-0.5,-0.5,-0.5}, {0,0,-1}, {0,1}},
+//	{{0.5,0.5,-0.5}, {1,0,0}, {0,0}},
+//	{{0.5,0.5,0.5}, {1,0,0}, {1,0}},
+//	{{0.5,-0.5,0.5}, {1,0,0}, {1,1}},
+//	{{0.5,-0.5,-0.5}, {1,0,0}, {0,1}},
+//	{{0.5,0.5,0.5}, {0,0,1}, {1,0}},
+//	{{-0.5,0.5,0.5}, {0,0,1}, {0,0}},
+//	{{-0.5,-0.5,0.5}, {0,0,1}, {0,1}},
+//	{{0.5,-0.5,0.5}, {0,0,1}, {1,1}},
+//	{{-0.5,0.5,0.5}, {-1,0,0}, {1,0}},
+//	{{-0.5,0.5,-0.5}, {-1,0,0}, {0,0}},
+//	{{-0.5,-0.5,-0.5}, {-1,0,0}, {0,1}},
+//	{{-0.5,-0.5,0.5}, {-1,0,0}, {1,1}},
+//	{{-0.5,0.5,-0.5}, {0,1,0}, {0,1}},
+//	{{-0.5,0.5,0.5}, {0,1,0}, {0,0}},
+//	{{0.5,0.5,0.5}, {0,1,0}, {1,0}},
+//	{{0.5,0.5,-0.5}, {0,1,0}, {1,1}},
+//};
+
+const std::vector<uint16_t> cubeindices = {
+
+};
+
+const std::vector<Vertex> MegaManVertices = {
+    {{-0.5f, -0.5f, -0.01f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+    {{0.5f, -0.5f,  -0.01f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+    {{0.5f, 0.5f,  -0.01f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+    {{-0.5f, 0.5f,  -0.01f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}}
+};
+
+const std::vector<uint16_t> MegaManIndices = {
+    0, 1, 2, 2, 3, 0
+};
+
 class VulkanGraphics
 {
 private:
@@ -43,29 +91,35 @@ private:
     RendererManager renderer;
     GameManager gameManager;
 
-	ModelLoader modelLoader;
+    VulkanRendererSettings CompareVulkanSettings;
 
-	VulkanRendererSettings CompareVulkanSettings;
+    Keyboard keyboard;
+    Mouse mouse;
 
-    std::vector<Texture> TextureList;
+    std::vector<std::shared_ptr<Object2D>> SpriteList;
+    FrameBufferMesh framebuffer1;
+    FrameBufferMesh framebuffer2;
+    FrameBufferMesh framebuffer3;
 
-	Keyboard keyboard;
-	Mouse mouse;
+    Mesh mesh;
 
-    PerspectiveCamera* ActiveCamera;
+    int cameraIndex = 0;
+    std::shared_ptr<Camera> ActiveCamera;
+    std::vector<std::shared_ptr<Camera>> CameraList;
 
-
-  
-    std::vector<Object> obj;
     Light light;
     SkyBox skybox;
-	//std::vector<Model> ModelList;
+
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
 
     void UpdateImGUI();
-	void Update(uint32_t DrawFrame);
+    void Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera);
+    void Draw();
+    void ScreenResizeUpdate();
     std::vector<Vertex> CalcVertex();
 public:
-	VulkanGraphics(int Width, int Height, const char* AppName);
-	~VulkanGraphics();
-	void MainLoop();
+    VulkanGraphics(int Width, int Height, const char* AppName);
+    ~VulkanGraphics();
+    void MainLoop();
 };

@@ -17,3 +17,8 @@ void SkyBox::Update(RendererManager& renderer, std::shared_ptr<Camera> camera)
 {
 	skyBoxMesh->UpdateUniformBuffer(renderer, camera);
 }
+
+void SkyBox::Destory(RendererManager& renderer)
+{
+	skyBoxMesh->Destory(renderer);
+}

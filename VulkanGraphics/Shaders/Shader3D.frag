@@ -290,5 +290,5 @@ void main()
         result = mix(result, Reflected, meshProperties.material.reflectivness);
     }
 
-    FragColor = vec4(texture(DiffuseMap, UV).rgb, 1.0f);
+    FragColor = vec4(result, 1.0);
 }

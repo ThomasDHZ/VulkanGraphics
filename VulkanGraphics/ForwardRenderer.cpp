@@ -165,6 +165,7 @@ void ForwardRenderer::Destroy(VulkanEngine& renderer)
 {
     DepthTexture.Delete(renderer);
 
+    frameBufferPipeline->Destroy(renderer);
     forwardRendereringPipeline->Destroy(renderer);
     renderer2DPipeline->Destroy(renderer);
     reflection2DPipeline->Destroy(renderer);

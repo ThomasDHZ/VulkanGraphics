@@ -70,6 +70,7 @@ public:
 	~SkyBoxMesh();
 
 	virtual void UpdateUniformBuffer(RendererManager& renderer, std::shared_ptr<Camera> camera);
+	virtual void Destory(RendererManager& renderer) override;
 };
 
 

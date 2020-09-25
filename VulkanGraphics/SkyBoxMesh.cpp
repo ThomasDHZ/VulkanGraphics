@@ -83,3 +83,9 @@ void SkyBoxMesh::UpdateUniformBuffer(RendererManager& renderer, std::shared_ptr<
 
 	uniformBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&ubo));
 }
+
+void SkyBoxMesh::Destory(RendererManager& renderer)
+{
+	uniformBuffer.Destroy(renderer);
+	BaseMesh::Destory(renderer);
+}
