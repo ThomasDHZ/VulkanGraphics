@@ -149,6 +149,7 @@
     <ClCompile Include="Animation2D.cpp" />
     <ClCompile Include="BloomPipeline.cpp" />
     <ClCompile Include="BloomPipeline2nd.cpp" />
+    <ClCompile Include="BloomRenderPass.cpp" />
     <ClCompile Include="FrameBufferTextureRenderer.cpp" />
     <ClCompile Include="SceneRenderer.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
@@ -277,6 +278,7 @@
     <ClInclude Include="Animation2D.h" />
     <ClInclude Include="BloomPipeline.h" />
     <ClInclude Include="BloomPipeline2nd.h" />
+    <ClInclude Include="BloomRenderPass.h" />
     <ClInclude Include="FrameBufferTextureRenderer.h" />
     <ClInclude Include="SceneRenderer.h" />
     <ClInclude Include="BoxCollider.h" />

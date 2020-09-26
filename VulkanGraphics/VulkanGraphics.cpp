@@ -136,7 +136,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);
 		//ImGui::Image(renderer.EffectRenderer.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		//ImGui::Image(renderer.EffectRenderer2.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
-		//ImGui::Image(renderer.shadowRenderer.DepthTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::Image(renderer.shadowRenderer.DepthTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
 
 		ImGui::Begin("MeshSettings");
@@ -257,10 +257,10 @@ void VulkanGraphics::Draw()
 		Update(renderer.DrawFrame, ActiveCamera);
 		renderer.MainRenderPass();
 	}
-	//renderer.SceneRenderPass();
-	//renderer.EffectRenderPass();
-	//renderer.EffectRenderPass2();
-	//renderer.FrameBufferRenderPass();
+	renderer.SceneRenderPass();
+	renderer.EffectRenderPass();
+	renderer.EffectRenderPass2();
+	renderer.FrameBufferRenderPass();
 	renderer.EndDraw(Window.GetWindowPtr());
 	
 	if (renderer.UpdateSwapChainFlag)
@@ -295,13 +295,15 @@ void VulkanGraphics::ScreenResizeUpdate()
 	renderer.textureRenderer.UpdateSwapChain(renderer);
 	renderer.frameBufferRenderer.UpdateSwapChain(renderer);
 	renderer.shadowRenderer.UpdateSwapChain(renderer);
-	renderer.EffectRenderer.UpdateSwapChain(renderer);
-	renderer.EffectRenderer2.UpdateSwapChain(renderer);
 
 	renderer.InitializeCommandBuffers();
 
+
+	renderer.EffectRenderer.UpdateSwapChain(renderer);
+	renderer.EffectRenderer2.UpdateSwapChain(renderer);
 	framebuffer1.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture, renderer.sceneRenderer.BloomTexture, 5, renderer.EffectRenderer.bloomPipeline);
 	framebuffer2.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer.ColorTexture, 6, renderer.EffectRenderer.bloomPipeline2nd);
+
 	framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, renderer.EffectRenderer2.ColorTexture);
 
 	renderer.UpdateSwapChainFlag = false;

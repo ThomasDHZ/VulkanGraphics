@@ -29,6 +29,7 @@ private:
 
 	void InitializeGUIDebugger(GLFWwindow* window);
 	//void CMDBuffer(FrameBufferMesh frameBuffer, SkyBoxMesh skybox, std::vector<Mesh>& MeshList);
+	void UpdateSwapChain(GLFWwindow* window);
 
 	void DrawToTextureRenderPass();
 	void MainRenderPass();

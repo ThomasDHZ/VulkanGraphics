@@ -49,6 +49,12 @@
     <Filter Include="Source Files\Vulkan">
       <UniqueIdentifier>{74a661b3-4d9e-4d69-a3f3-724e28d8f09b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\EffectRenderPass">
+      <UniqueIdentifier>{78962093-53ce-4e79-a772-f54ff7363ae1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\EffectRenderPasses">
+      <UniqueIdentifier>{7f4fb501-034b-4dbd-9666-47edf93f8347}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -304,6 +310,9 @@
       <Filter>Source Files\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="VulkanGraphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BloomRenderPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -689,6 +698,9 @@
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="VulkanGraphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomRenderPass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
