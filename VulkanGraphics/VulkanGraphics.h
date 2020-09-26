@@ -22,6 +22,7 @@
 #include <chrono>
 #include <map>
 #include "Object2D.h"
+#include "BloomRenderPass.h"
 
 
 const std::vector<Vertex> vertices =
@@ -97,8 +98,7 @@ private:
     Mouse mouse;
 
     std::vector<std::shared_ptr<Object2D>> SpriteList;
-    FrameBufferMesh framebuffer1;
-    FrameBufferMesh framebuffer2;
+    BloomRenderPass bloomRenderPass;
     FrameBufferMesh framebuffer3;
 
     Mesh mesh;

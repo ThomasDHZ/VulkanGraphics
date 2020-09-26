@@ -71,9 +71,9 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	/*SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.sceneRenderer.BloomTexture)));
 	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.sceneRenderer.BloomTexture)));*/
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
-	framebuffer1 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture, renderer.sceneRenderer.BloomTexture, 5, renderer.EffectRenderer.bloomPipeline);
-	framebuffer2 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer.ColorTexture, 6, renderer.EffectRenderer.bloomPipeline2nd);
-	framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, renderer.EffectRenderer2.ColorTexture);
+
+	bloomRenderPass = BloomRenderPass(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
+	framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
 	skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 }
 
@@ -89,8 +89,7 @@ VulkanGraphics::~VulkanGraphics()
 	{
 		sprite->Destory(renderer);
 	}
-	framebuffer1.Destory(renderer);
-	framebuffer2.Destory(renderer);
+	bloomRenderPass.Destory(renderer);
 	framebuffer3.Destory(renderer);
 	renderer.DestoryVulkan();
 	Window.CleanUp();
@@ -134,8 +133,8 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::SliderFloat3("pambient", &light.light.pLight.ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pdiffuse", &light.light.pLight.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);
-		//ImGui::Image(renderer.EffectRenderer.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
-		//ImGui::Image(renderer.EffectRenderer2.ColorTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
+		ImGui::Image(bloomRenderPass.GetIMGuiImagePass1(), ImVec2(400.0f, 255.0f));
+		ImGui::Image(bloomRenderPass.GetIMGuiImagePass2(), ImVec2(400.0f, 255.0f));
 		ImGui::Image(renderer.shadowRenderer.DepthTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
 
@@ -197,8 +196,7 @@ void VulkanGraphics::Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera)
 	lastFrame = currentFrame;
 
 	camera->Update();
-	framebuffer1.Update(renderer);
-	framebuffer2.Update(renderer);
+	bloomRenderPass.Update(renderer);
 	framebuffer3.Update(renderer);
 
 	mesh.MeshPosition = glm::vec3(1.0f, 10.0f, 0.0f);
@@ -258,8 +256,7 @@ void VulkanGraphics::Draw()
 		renderer.MainRenderPass();
 	}
 	renderer.SceneRenderPass();
-	renderer.EffectRenderPass();
-	renderer.EffectRenderPass2();
+	bloomRenderPass.Draw(renderer);
 	renderer.FrameBufferRenderPass();
 	renderer.EndDraw(Window.GetWindowPtr());
 	
@@ -299,12 +296,8 @@ void VulkanGraphics::ScreenResizeUpdate()
 	renderer.InitializeCommandBuffers();
 
 
-	renderer.EffectRenderer.UpdateSwapChain(renderer);
-	renderer.EffectRenderer2.UpdateSwapChain(renderer);
-	framebuffer1.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture, renderer.sceneRenderer.BloomTexture, 5, renderer.EffectRenderer.bloomPipeline);
-	framebuffer2.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer.ColorTexture, 6, renderer.EffectRenderer.bloomPipeline2nd);
-
-	framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, renderer.EffectRenderer2.ColorTexture);
+	bloomRenderPass.UpdateSwapChain(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
+	framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
 
 	renderer.UpdateSwapChainFlag = false;
 }

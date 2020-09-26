@@ -9,12 +9,18 @@ BloomRenderPass::BloomRenderPass(RendererManager& renderer, std::shared_ptr<Text
 	BloomRenderer = FrameBufferTextureRenderer(renderer);
 	BloomRenderer2 = FrameBufferTextureRenderer(renderer);
 
-	BloomFrameBuffer = FrameBufferMesh(renderer,  textureManager, FrameBufferImage, FrameBufferImage, 5, renderer.EffectRenderer.bloomPipeline);
-	BloomFrameBuffer2 = FrameBufferMesh(renderer, textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer.ColorTexture, 6, renderer.EffectRenderer.bloomPipeline2nd);
+	BloomFrameBuffer = FrameBufferMesh(renderer,  textureManager, FrameBufferImage, FrameBufferImage, 5, BloomRenderer.bloomPipeline);
+	BloomFrameBuffer2 = FrameBufferMesh(renderer, textureManager, BloomRenderer.ColorTexture, BloomRenderer.ColorTexture, 6, BloomRenderer.bloomPipeline2nd);
 }
 
 BloomRenderPass::~BloomRenderPass()
 {
+}
+
+void BloomRenderPass::Update(RendererManager& renderer)
+{
+	BloomFrameBuffer.Update(renderer);
+	BloomFrameBuffer2.Update(renderer);
 }
 
 void BloomRenderPass::Draw(RendererManager& renderer)
@@ -28,8 +34,8 @@ void BloomRenderPass::UpdateSwapChain(RendererManager& renderer, std::shared_ptr
 	BloomRenderer.UpdateSwapChain(renderer);
 	BloomRenderer2.UpdateSwapChain(renderer);
 
-	BloomFrameBuffer.ScreenResizeUpdate(renderer, textureManager, FrameBufferImage, FrameBufferImage, 5, renderer.EffectRenderer.bloomPipeline);
-	BloomFrameBuffer2.ScreenResizeUpdate(renderer, textureManager, renderer.EffectRenderer.ColorTexture, renderer.EffectRenderer.ColorTexture, 6, renderer.EffectRenderer.bloomPipeline2nd);
+	BloomFrameBuffer.ScreenResizeUpdate(renderer, textureManager, FrameBufferImage, FrameBufferImage, 5, BloomRenderer.bloomPipeline);
+	BloomFrameBuffer2.ScreenResizeUpdate(renderer, textureManager, BloomRenderer.ColorTexture, BloomRenderer.ColorTexture, 6, BloomRenderer.bloomPipeline2nd);
 }
 
 void BloomRenderPass::Destory(RendererManager& renderer)

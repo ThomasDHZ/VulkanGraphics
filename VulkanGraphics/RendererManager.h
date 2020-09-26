@@ -35,8 +35,6 @@ private:
 	void MainRenderPass();
 	void SceneRenderPass();
 	void FrameBufferRenderPass();
-	void EffectRenderPass();
-	void EffectRenderPass2();
 	void ShadowRenderPass();
 protected:
 
@@ -56,8 +54,6 @@ public:
 	TextureRenderer textureRenderer;
 	ShadowRenderer shadowRenderer;
 	FramebufferRenderer frameBufferRenderer;
-	FrameBufferTextureRenderer EffectRenderer;
-	FrameBufferTextureRenderer EffectRenderer2;
 
 	void RemoveDrawMessage(std::shared_ptr<RendererDrawMessage> mesh);
 	VulkanEngine* GetVulkanRendererBase() { return static_cast<VulkanEngine*>(this); }

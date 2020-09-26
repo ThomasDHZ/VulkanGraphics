@@ -19,10 +19,13 @@ class BloomRenderPass
 		BloomRenderPass(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture> FrameBufferImage);
 		~BloomRenderPass();
 
+		void Update(RendererManager& renderer);
 		void Draw(RendererManager& renderer);
 		void UpdateSwapChain(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, std::shared_ptr<Texture> FrameBufferImage);
 		void Destory(RendererManager& renderer);
 
 		std::shared_ptr<Texture> OutputBloomImage() { return BloomRenderer2.ColorTexture; }
+		VkDescriptorSet GetIMGuiImagePass1() { return BloomRenderer.ColorTexture->ImGuiDescriptorSet; }
+		VkDescriptorSet GetIMGuiImagePass2() { return BloomRenderer2.ColorTexture->ImGuiDescriptorSet; }
 };
 
