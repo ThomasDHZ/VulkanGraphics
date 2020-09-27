@@ -39,10 +39,10 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	SparkManTextures.CubeMap[4] = "texture/skybox/back.jpg";
 	SparkManTextures.CubeMap[5] = "texture/skybox/front.jpg";
 
-	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), 4.0f)));
+	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(8.0f, 9.0f), 4.0f)));
+	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(8.0f, 12.0f), 4.0f)));
+	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(10.0f, 12.0f), 4.0f)));
 	CameraList.emplace_back(std::make_shared<PerspectiveCamera>(PerspectiveCamera(glm::vec3(0.0f))));
-
-	CameraList[0]->SetPosition(8.0f, 9.0f);
 	ActiveCamera = CameraList[cameraIndex];
 
 	MeshTextures meshTextures = {};
@@ -68,8 +68,9 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	SpriteList.emplace_back(std::make_shared<EnergyTank>(EnergyTank(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<LargeEnergy>(LargeEnergy(renderer, gameManager.textureManager, glm::vec2(9.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Enemy2D>(Enemy2D(renderer, gameManager.textureManager, glm::vec2(8.0f, 10.0f))));
-	/*SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.sceneRenderer.BloomTexture)));
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), OrthoCamera, renderer.sceneRenderer.BloomTexture)));*/
+	/*SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.sceneRenderer.BloomTexture)));*/
+	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), CameraList[1])));
+	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), CameraList[2])));
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
 
 	bloomRenderPass = BloomRenderPass(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
@@ -133,7 +134,13 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::SliderFloat3("pambient", &light.light.pLight.ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pdiffuse", &light.light.pLight.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);
-		ImGui::Image(bloomRenderPass.GetIMGuiImagePass1(), ImVec2(400.0f, 255.0f));
+		for (auto& sprite : SpriteList)
+		{
+			if (auto spriteTextureRenderer = dynamic_cast<TextureRenderedSprite*>(sprite.get()))
+			{
+				ImGui::Image(spriteTextureRenderer->GetIMGuiImage(), ImVec2(400.0f, 255.0f));
+			}
+		}
 		ImGui::Image(bloomRenderPass.GetIMGuiImagePass2(), ImVec2(400.0f, 255.0f));
 		ImGui::Image(renderer.shadowRenderer.DepthTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
@@ -238,31 +245,45 @@ void VulkanGraphics::Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera)
 
 void VulkanGraphics::Draw()
 {
-	renderer.StartDraw(Window.GetWindowPtr());
-	if (renderer.UpdateSwapChainFlag)
 	{
-		ScreenResizeUpdate();
-	}
+		for (auto& sprite : SpriteList)
+		{
+			if (auto spriteTextureRenderer = dynamic_cast<TextureRenderedSprite*>(sprite.get()))
+			{
+				renderer.StartDraw(Window.GetWindowPtr());
+				if (renderer.UpdateSwapChainFlag)
+				{
+					ScreenResizeUpdate();
+				}
 
-	renderer.ShadowRenderPass();
-	if (renderer.currentFrame == 1)
-	{
-		Update(renderer.DrawFrame, ActiveCamera);
-		renderer.DrawToTextureRenderPass();
+				Update(renderer.DrawFrame, static_cast<Water2D*>(sprite.get())->WaterCamera);
+				spriteTextureRenderer->RendererUpdate(renderer);
+
+				renderer.EndDraw(Window.GetWindowPtr());
+				if (renderer.UpdateSwapChainFlag)
+				{
+					ScreenResizeUpdate();
+				}
+			}
+		}
 	}
-	else
 	{
+		renderer.StartDraw(Window.GetWindowPtr());
+		if (renderer.UpdateSwapChainFlag)
+		{
+			ScreenResizeUpdate();
+		}
 		Update(renderer.DrawFrame, ActiveCamera);
 		renderer.MainRenderPass();
-	}
-	renderer.SceneRenderPass();
-	bloomRenderPass.Draw(renderer);
-	renderer.FrameBufferRenderPass();
-	renderer.EndDraw(Window.GetWindowPtr());
-	
-	if (renderer.UpdateSwapChainFlag)
-	{
-		ScreenResizeUpdate();
+		renderer.ShadowRenderPass();
+		renderer.SceneRenderPass();
+		bloomRenderPass.Draw(renderer);
+		renderer.FrameBufferRenderPass();
+		renderer.EndDraw(Window.GetWindowPtr());
+		if (renderer.UpdateSwapChainFlag)
+		{
+			ScreenResizeUpdate();
+		}
 	}
 }
 
@@ -295,7 +316,13 @@ void VulkanGraphics::ScreenResizeUpdate()
 
 	renderer.InitializeCommandBuffers();
 
-
+	for (auto& sprite : SpriteList)
+	{
+		if (auto spriteTextureRenderer = dynamic_cast<TextureRenderedSprite*>(sprite.get()))
+		{
+			spriteTextureRenderer->UpdateSwapChain(renderer);
+		}
+	}
 	bloomRenderPass.UpdateSwapChain(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
 	framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
 

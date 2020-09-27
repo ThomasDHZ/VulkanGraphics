@@ -150,6 +150,7 @@
     <ClCompile Include="BloomPipeline.cpp" />
     <ClCompile Include="BloomPipeline2nd.cpp" />
     <ClCompile Include="BloomRenderPass.cpp" />
+    <ClCompile Include="FrameBufferRenderPass.cpp" />
     <ClCompile Include="FrameBufferTextureRenderer.cpp" />
     <ClCompile Include="SceneRenderer.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
@@ -214,7 +215,9 @@
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="TextureRenderedSprite.cpp" />
     <ClCompile Include="TextureRenderer.cpp" />
+    <ClCompile Include="TextureRenderPass.cpp" />
     <ClCompile Include="UnderWater2DPipeline.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VulkanGraphics.cpp" />
@@ -279,6 +282,7 @@
     <ClInclude Include="BloomPipeline.h" />
     <ClInclude Include="BloomPipeline2nd.h" />
     <ClInclude Include="BloomRenderPass.h" />
+    <ClInclude Include="FrameBufferRenderPass.h" />
     <ClInclude Include="FrameBufferTextureRenderer.h" />
     <ClInclude Include="SceneRenderer.h" />
     <ClInclude Include="BoxCollider.h" />
@@ -325,6 +329,8 @@
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="SpriteTexture2D.h" />
     <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="TextureRenderedSprite.h" />
+    <ClInclude Include="TextureRenderPass.h" />
     <ClInclude Include="UnderWater2DPipeline.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VulkanBufferManager.h" />

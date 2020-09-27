@@ -49,11 +49,11 @@
     <Filter Include="Source Files\Vulkan">
       <UniqueIdentifier>{74a661b3-4d9e-4d69-a3f3-724e28d8f09b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\EffectRenderPass">
-      <UniqueIdentifier>{78962093-53ce-4e79-a772-f54ff7363ae1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\EffectRenderPasses">
+    <Filter Include="Header Files\RenderPass">
       <UniqueIdentifier>{7f4fb501-034b-4dbd-9666-47edf93f8347}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\RenderPass">
+      <UniqueIdentifier>{78962093-53ce-4e79-a772-f54ff7363ae1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -313,6 +313,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BloomRenderPass.cpp">
+      <Filter>Source Files\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBufferRenderPass.cpp">
+      <Filter>Source Files\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRenderPass.cpp">
+      <Filter>Source Files\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureRenderedSprite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -670,9 +679,6 @@
     <ClInclude Include="FrameBufferTextureRenderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="BloomPipeline2nd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VulkanWindow.h">
       <Filter>Header Files\Vulkan</Filter>
     </ClInclude>
@@ -701,6 +707,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BloomRenderPass.h">
+      <Filter>Header Files\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="BloomPipeline2nd.h">
+      <Filter>Header Files\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferRenderPass.h">
+      <Filter>Header Files\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRenderPass.h">
+      <Filter>Header Files\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRenderedSprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
