@@ -61,8 +61,8 @@ void Reflection2DPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 
 void Reflection2DPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
-    auto vertShaderCode = ReadShaderFile("shaders/ReflectShader2DVert.spv");
-    auto fragShaderCode = ReadShaderFile("shaders/ReflectShader2DFrag.spv");
+    auto vertShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/ReflectShader2DVert.spv");
+    auto fragShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/ReflectShader2DFrag.spv");
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);

@@ -14,7 +14,7 @@
 #include "TextureManager.h"
 #include "VulkanUniformBuffer.h"
 
-const  std::string DefaultTexture = "texture/DefaultTexture.bmp";
+const  std::string DefaultTexture = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/DefaultTexture.bmp";
 enum RenderBitFlag
 {
     RenderOnMainPass = 1 << 0,

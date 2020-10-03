@@ -26,18 +26,18 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	gameManager = GameManager(renderer);
 
 	MeshTextures SparkManTextures = {};
-	SparkManTextures.DiffuseMap = "texture/SparkMan_diffuseOriginal.bmp";
-	SparkManTextures.SpecularMap = "texture/SparkManSpecular.bmp";
-	SparkManTextures.NormalMap = "texture/SparkMan_normal.bmp";
-	SparkManTextures.AlphaMap = "texture/SparkManAlpha.bmp";
-	SparkManTextures.DepthMap = "texture/SparkManAlpha.bmp";
-	SparkManTextures.ReflectionMap = "texture/SparkManAlpha.bmp";
-	SparkManTextures.CubeMap[0] = "texture/skybox/left.jpg";
-	SparkManTextures.CubeMap[1] = "texture/skybox/right.jpg";
-	SparkManTextures.CubeMap[2] = "texture/skybox/top.jpg";
-	SparkManTextures.CubeMap[3] = "texture/skybox/bottom.jpg";
-	SparkManTextures.CubeMap[4] = "texture/skybox/back.jpg";
-	SparkManTextures.CubeMap[5] = "texture/skybox/front.jpg";
+	SparkManTextures.DiffuseMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkMan_diffuseOriginal.bmp";
+	SparkManTextures.SpecularMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManSpecular.bmp";
+	SparkManTextures.NormalMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkMan_normal.bmp";
+	SparkManTextures.AlphaMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManAlpha.bmp";
+	SparkManTextures.DepthMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManAlpha.bmp";
+	SparkManTextures.ReflectionMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManAlpha.bmp";
+	SparkManTextures.CubeMap[0] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/left.jpg";
+	SparkManTextures.CubeMap[1] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/right.jpg";
+	SparkManTextures.CubeMap[2] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/top.jpg";
+	SparkManTextures.CubeMap[3] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/bottom.jpg";
+	SparkManTextures.CubeMap[4] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg";
+	SparkManTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
 
 	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(8.0f, 9.0f), 4.0f)));
 	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(8.0f, 12.0f), 4.0f)));
@@ -46,20 +46,20 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	ActiveCamera = CameraList[cameraIndex];
 
 	MeshTextures meshTextures = {};
-	meshTextures.DiffuseMap = "texture/matrix.jpg";
-	meshTextures.SpecularMap = "texture/container2_specular.png";
-	meshTextures.NormalMap = "texture/brick_normal.bmp";
-	meshTextures.DepthMap = "texture/brick_height.bmp";
-	meshTextures.ReflectionMap = "texture/container2_specular.png";
-	meshTextures.EmissionMap = "texture/matrix.jpg";
-	meshTextures.CubeMap[0] = "texture/skybox/left.jpg";
-	meshTextures.CubeMap[1] = "texture/skybox/right.jpg";
-	meshTextures.CubeMap[2] = "texture/skybox/top.jpg";
-	meshTextures.CubeMap[3] = "texture/skybox/bottom.jpg";
-	meshTextures.CubeMap[4] = "texture/skybox/back.jpg";
-	meshTextures.CubeMap[5] = "texture/skybox/front.jpg";
+	meshTextures.DiffuseMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/container2.png";
+	meshTextures.SpecularMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png";
+	meshTextures.NormalMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/brick_normal.bmp";
+	meshTextures.DepthMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/brick_height.bmp";
+	meshTextures.ReflectionMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/container2_specular.png";
+	meshTextures.EmissionMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/matrix.jpg";
+	meshTextures.CubeMap[0] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/left.jpg";
+	meshTextures.CubeMap[1] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/right.jpg";
+	meshTextures.CubeMap[2] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/top.jpg";
+	meshTextures.CubeMap[3] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/bottom.jpg";
+	meshTextures.CubeMap[4] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg";
+	meshTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
 
-	mesh = Mesh(renderer, gameManager.textureManager, CalcVertex(), cubeindices, meshTextures);
+	mesh = Mesh(renderer, gameManager.textureManager, MegaManVertices, MegaManIndices, meshTextures);
 	mesh.CreateDrawMessage(renderer, 4, renderer.sceneRenderer.renderer3DPipeline);
 
 	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
@@ -69,8 +69,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	SpriteList.emplace_back(std::make_shared<LargeEnergy>(LargeEnergy(renderer, gameManager.textureManager, glm::vec2(9.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<Enemy2D>(Enemy2D(renderer, gameManager.textureManager, glm::vec2(8.0f, 10.0f))));
 	/*SpriteList.emplace_back(std::make_shared<WaterSurface2D>(WaterSurface2D(renderer, gameManager.textureManager, glm::vec2(-10.0f, 3.0f), glm::vec2(10.0f, 10.0f), renderer.sceneRenderer.BloomTexture)));*/
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), CameraList[1])));
-	SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), CameraList[2])));
+	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), CameraList[1])));
+	//SpriteList.emplace_back(std::make_shared<Water2D>(Water2D(renderer, gameManager.textureManager, glm::vec2(-6.5f, 4.0f), glm::vec2(18.0f, 4.5f * 2), CameraList[2])));
 	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
 
 	bloomRenderPass = BloomRenderPass(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
@@ -309,9 +309,9 @@ void VulkanGraphics::ScreenResizeUpdate()
 	renderer.SwapChain.UpdateSwapChain(Window.GetWindowPtr(), renderer.Device, renderer.PhysicalDevice, renderer.Surface);
 
 	renderer.forwardRenderer.UpdateSwapChain(renderer);
-	renderer.sceneRenderer.UpdateSwapChain(renderer);
-	renderer.textureRenderer.UpdateSwapChain(renderer);
-	renderer.frameBufferRenderer.UpdateSwapChain(renderer);
+	//renderer.sceneRenderer.UpdateSwapChain(renderer);
+	//renderer.textureRenderer.UpdateSwapChain(renderer);
+	//renderer.frameBufferRenderer.UpdateSwapChain(renderer);
 	renderer.shadowRenderer.UpdateSwapChain(renderer);
 
 	renderer.InitializeCommandBuffers();

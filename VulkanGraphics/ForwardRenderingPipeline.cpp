@@ -75,19 +75,19 @@ void ForwardRenderingPipeline::CreateShaderPipeLine(VulkanEngine& renderer, cons
     std::vector<char> fragShaderCode;
     if (rendererType == RendererType::RT_SceneRenderer)
     {
-        vertShaderCode = ReadShaderFile("shaders/Shader3DVert_Bloom.spv");
-        fragShaderCode = ReadShaderFile("shaders/Shader3DFrag_Bloom.spv");
+        vertShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/Shader3DVert_Bloom.spv");
+        fragShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/Shader3DFrag_Bloom.spv");
     }
     else if (rendererType == RendererType::RT_ForwardRenderer ||
         rendererType == RendererType::RT_TextureRenderer)
     {
-        vertShaderCode = ReadShaderFile("shaders/Shader3DVert.spv");
-        fragShaderCode = ReadShaderFile("shaders/Shader3DFrag.spv");
+        vertShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/Shader3DVert.spv");
+        fragShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/Shader3DFrag.spv");
     }
     else if (rendererType == RendererType::RT_ShadowRenderer)
     {
-        vertShaderCode = ReadShaderFile("shaders/Shader3DVert_Shadow.spv");
-        fragShaderCode = ReadShaderFile("shaders/Shader3DFrag_Shadow.spv");
+        vertShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/Shader3DVert_Shadow.spv");
+        fragShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/Shader3DFrag_Shadow.spv");
     }
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);

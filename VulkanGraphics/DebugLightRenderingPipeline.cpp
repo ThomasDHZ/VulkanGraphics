@@ -32,8 +32,8 @@ void DebugLightRenderingPipeline::CreateDescriptorSetLayout(VulkanEngine& render
 
 void DebugLightRenderingPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
-	auto vertShaderCode = ReadShaderFile("shaders/FlatShaderVert.spv");
-	auto fragShaderCode = ReadShaderFile("shaders/FlatShaderFrag.spv");
+	auto vertShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/FlatShaderVert.spv");
+	auto fragShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/FlatShaderFrag.spv");
 
 	VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
 	VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);

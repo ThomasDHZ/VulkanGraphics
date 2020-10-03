@@ -6,11 +6,11 @@ MMShot::MMShot() : Sprite()
 MMShot::MMShot(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, glm::vec2 StartPos) : Sprite()
 {
 	MeshTextures MegaManTextures = {};
-	MegaManTextures.DiffuseMap = "texture/MegaManShot_diffuseOriginal.bmp";
-	MegaManTextures.SpecularMap = "texture/MegaManShot_Specular.bmp";
-	MegaManTextures.NormalMap = "texture/MegaManShot_normal.bmp";
-	MegaManTextures.AlphaMap = "texture/MegaManShot_alpha.bmp";
-	MegaManTextures.EmissionMap = "texture/MegaManShot_diffuseOriginal.bmp";
+	MegaManTextures.DiffuseMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaManShot_diffuseOriginal.bmp";
+	MegaManTextures.SpecularMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaManShot_Specular.bmp";
+	MegaManTextures.NormalMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaManShot_normal.bmp";
+	MegaManTextures.AlphaMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaManShot_alpha.bmp";
+	MegaManTextures.EmissionMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaManShot_diffuseOriginal.bmp";
 
 	const std::vector<Vertex> MegaManVertices =
 	{

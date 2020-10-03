@@ -61,8 +61,8 @@ void UnderWater2DPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 
 void UnderWater2DPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
-    auto vertShaderCode = ReadShaderFile("shaders/UnderWater2DShaderVert.spv");
-    auto fragShaderCode = ReadShaderFile("shaders/UnderWater2DShaderFrag.spv");
+    auto vertShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/UnderWater2DShaderVert.spv");
+    auto fragShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/UnderWater2DShaderFrag.spv");
 
 	VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
 	VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);

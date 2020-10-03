@@ -108,11 +108,12 @@ layout(location = 3) in mat3 TBN;
 
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 BloomColor;
-void RemoveAlphaPixels()
+
+void RemoveAlphaPixels(vec2 UV)
 {
     if((textureSize(AlphaMap, 0).x > 1 &&
-        texture(AlphaMap, TexCoords).r == 0) ||
-        texture(DiffuseMap, TexCoords).a == 0)
+        texture(AlphaMap, UV).r == 0) ||
+        texture(DiffuseMap, UV).a == 0)
    {
         discard;
    }
@@ -245,52 +246,33 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
 void main()
 {           
-   //  RemoveAlphaPixels();
+    vec2 UV = TexCoords + meshProperties.UVOffset;
+    if(meshProperties.ReflectSprite == 1.0f)
+    {
+        UV.x = 1.0f - UV.x;
+    }
+    UV *= meshProperties.UVScale;
 
-    vec3 ambient = vec3(1.0f, 0.0f, 0.0f);
-    vec3 diffuse = vec3(1.0f, 0.0f, 0.0f);
-    vec3 specular = vec3(1.0f, 0.0f, 0.0f);
-    vec3 result = vec3(1.0f, 0.0f, 0.0f);
+    RemoveAlphaPixels(UV);
+
     vec3 V = light.viewPos;
     vec3 N = Normal;
-    vec2 UV = TexCoords + meshProperties.UVOffset;
 
+    vec3 TangentLightDirection = TBN * light.dLight.direction;
     vec3 TangentLightPos = TBN * light.pLight.position;
     vec3 TangentViewPos  = TBN * light.viewPos;
     vec3 TangentFragPos  = TBN * FragPos;
-    
-     if (meshProperties.UseDepthMapBit  == 1)
-        {
-        V = normalize(TangentViewPos - TangentFragPos);
 
-            UV = ParallaxMapping(UV,  V);       
-            if(UV.x > 1.0 || UV.y > 1.0 || UV.x < 0.0 || UV.y < 0.0)
-            {
-                discard;
-            }
-       }
-        if (meshProperties.UseNormalMapBit  == 1)
-        {
-            N = texture(normalMap, UV).rgb;
-            N = normalize(N * 2.0 - 1.0);   
-        }
-
-		result = PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
-
-
-    vec3 I = normalize(FragPos - light.viewPos);
-    vec3 R = reflect(I, normalize(N));
-    vec3 Reflected = texture(SkyBox, R).rgb;
-    if (meshProperties.UseReflectionMapBit  == 1)
+    if (meshProperties.UseNormalMapBit  == 1)
     {
-        result = mix(result, Reflected, texture(ReflectionMap, UV).r);
-    }
-    else
-    {
-        result = mix(result, Reflected, meshProperties.material.reflectivness);
-    }
+        N = texture(normalMap, UV).rgb;
+        N = normalize(N * 2.0 - 1.0);   
+   }
 
-    FragColor = vec4(result, 1.0);
+   vec3 result = DirectionalLight( V,  N,  UV, light.dLight);
+   result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
+   //result = mix(result, texture(ReflectDiffuseMap, UV).rgb, 0.15f);
+   FragColor = vec4(result, 1.0f);
 
    if(meshProperties.UseEmissionMapBit == 1)
    {
@@ -298,6 +280,6 @@ void main()
    }
    else
    {
-      BloomColor = vec4(vec3(0.0f, 0.0f, 0.0f), 1.0f);
+      BloomColor = vec4(vec3(0.0f, 0.0f, 0.0f), 0.0f);
    }
 }

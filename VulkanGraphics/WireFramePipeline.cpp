@@ -69,8 +69,8 @@ void WireFramePipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 
 void WireFramePipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
-    auto vertShaderCode = ReadShaderFile("shaders/WireFrameShaderVert.spv");
-    auto fragShaderCode = ReadShaderFile("shaders/WireFrameShaderFrag.spv");
+    auto vertShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/WireFrameShaderVert.spv");
+    auto fragShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/WireFrameShaderFrag.spv");
 
     VkShaderModule vertShaderModule = CreateShaderModule(renderer, vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(renderer, fragShaderCode);

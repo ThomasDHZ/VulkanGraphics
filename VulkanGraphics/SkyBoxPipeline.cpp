@@ -35,8 +35,8 @@ void SkyBoxPipeline::CreateDescriptorSetLayout(VulkanEngine& renderer)
 
 void SkyBoxPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
-	auto SkyBoxvertShaderCode = ReadShaderFile("Shaders/SkyBoxVert.spv");
-	auto SkyBoxfragShaderCode = ReadShaderFile("Shaders/SkyBoxFrag.spv");
+	auto SkyBoxvertShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Shaders/SkyBoxVert.spv");
+	auto SkyBoxfragShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Shaders/SkyBoxFrag.spv");
 
 	VkShaderModule SkyBoxvertShaderModule = CreateShaderModule(renderer, SkyBoxvertShaderCode);
 	VkShaderModule SkyBoxfragShaderModule = CreateShaderModule(renderer, SkyBoxfragShaderCode);

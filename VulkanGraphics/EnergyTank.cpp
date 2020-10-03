@@ -25,10 +25,10 @@ EnergyTank::EnergyTank(RendererManager& renderer, std::shared_ptr<TextureManager
 	CurrentAni = EnergyTankFlicker;
 
 	MeshTextures CoinTextures = {};
-	CoinTextures.DiffuseMap = "texture/EnergyTank_diffuseOriginal.bmp";
-	CoinTextures.SpecularMap = "texture/EnergyTank_Specular.bmp";
-	CoinTextures.NormalMap = "texture/EnergyTank_normal.bmp";
-	CoinTextures.AlphaMap = "texture/EnergyTank_Alpha.bmp";
+	CoinTextures.DiffuseMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/EnergyTank_diffuseOriginal.bmp";
+	CoinTextures.SpecularMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/EnergyTank_Specular.bmp";
+	CoinTextures.NormalMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/EnergyTank_normal.bmp";
+	CoinTextures.AlphaMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/EnergyTank_Alpha.bmp";
 
 	ObjectFlagBits = ObjectFlags::Collectible;
 	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass;

@@ -12,11 +12,11 @@ Enemy2D::Enemy2D(RendererManager& renderer, std::shared_ptr<TextureManager>textu
 	};
 
 	MeshTextures MegaManTextures = {};
-	MegaManTextures.DiffuseMap = "texture/MegaMan_diffuseOriginal.bmp";
-	MegaManTextures.SpecularMap = "texture/MegaMan_Specular.bmp";
-	MegaManTextures.NormalMap = "texture/MegaMan_Normal.bmp";
-	MegaManTextures.AlphaMap = "texture/MegaMan_Alpha.bmp";
-	MegaManTextures.EmissionMap = "texture/MegaMan_Emission.bmp";
+	MegaManTextures.DiffuseMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaMan_diffuseOriginal.bmp";
+	MegaManTextures.SpecularMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaMan_Specular.bmp";
+	MegaManTextures.NormalMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaMan_Normal.bmp";
+	MegaManTextures.AlphaMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaMan_Alpha.bmp";
+	MegaManTextures.EmissionMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/MegaMan_Emission.bmp";
 
 	ObjectFlagBits = ObjectFlags::Player | ObjectFlags::ApplyGravity;
 	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass;

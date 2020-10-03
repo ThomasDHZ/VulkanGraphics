@@ -3,6 +3,15 @@
 FrameBufferMesh::FrameBufferMesh() : Mesh()
 {}
 
+FrameBufferMesh::FrameBufferMesh(RendererManager & renderer, std::shared_ptr<TextureManager> textureManager, std::shared_ptr<Texture> FrameBufferImage) : Mesh(renderer, FrameBufferVertices, FrameBufferIndices)
+{
+    DiffuseTexture = FrameBufferImage;
+    CreateUniformBuffers(renderer);
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager);
+    CreateDrawMessage(renderer, 0, renderer.frameBufferRenderer.frameBufferPipeline);
+}
+
 FrameBufferMesh::FrameBufferMesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, std::shared_ptr<Texture> FrameBufferImage, std::shared_ptr<Texture> BloomImage) : Mesh(renderer, FrameBufferVertices, FrameBufferIndices)
 {
     DiffuseTexture = FrameBufferImage;

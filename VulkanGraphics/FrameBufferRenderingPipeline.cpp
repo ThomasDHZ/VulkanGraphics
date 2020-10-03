@@ -36,8 +36,8 @@ void FrameBufferRenderingPipeline::CreateDescriptorSetLayout(VulkanEngine& rende
 
 void FrameBufferRenderingPipeline::CreateShaderPipeLine(VulkanEngine& renderer, const VkRenderPass& renderPass)
 {
-	auto FrameBufferVertShaderCode = ReadShaderFile("shaders/FrameBufferVert.spv");
-	auto FrameBufferFrageShaderCode = ReadShaderFile("shaders/FrameBufferFrag.spv");
+	auto FrameBufferVertShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/FrameBufferVert.spv");
+	auto FrameBufferFrageShaderCode = ReadShaderFile("C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/shaders/FrameBufferFrag.spv");
 
 	VkShaderModule FrameBufferVertShaderModule = CreateShaderModule(renderer, FrameBufferVertShaderCode);
 	VkShaderModule FrameBufferFragShaderModule = CreateShaderModule(renderer, FrameBufferFrageShaderCode);

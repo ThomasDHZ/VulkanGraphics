@@ -26,10 +26,10 @@ LargeEnergy::LargeEnergy(RendererManager& renderer, std::shared_ptr<TextureManag
 	CurrentAni = LargeEnergyFlicker;
 
 	MeshTextures CoinTextures = {};
-	CoinTextures.DiffuseMap = "texture/LargeEnergy_diffuseOriginal.bmp";
-	CoinTextures.SpecularMap = "texture/LargeEnergy_Specular.bmp";
-	CoinTextures.NormalMap = "texture/LargeEnergy_normal.bmp";
-	CoinTextures.AlphaMap = "texture/LargeEnergy_Alpha.bmp";
+	CoinTextures.DiffuseMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/LargeEnergy_diffuseOriginal.bmp";
+	CoinTextures.SpecularMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/LargeEnergy_Specular.bmp";
+	CoinTextures.NormalMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/LargeEnergy_normal.bmp";
+	CoinTextures.AlphaMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/LargeEnergy_Alpha.bmp";
 
 	ObjectFlagBits = ObjectFlags::Collectible;
 	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass;
