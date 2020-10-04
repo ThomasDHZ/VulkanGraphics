@@ -136,3 +136,23 @@ void OrthographicCamera::Update()
 	ViewScreenSize = glm::vec2((Aspect * Zoom) * 2, (1.0f * Zoom) * 2);
 }
 
+void OrthographicCamera::UpdateScreenSize(glm::vec2& ScreenSize)
+{
+	Width = ScreenSize.x;
+	Height = ScreenSize.y;
+	Aspect = Width / Height;
+
+	ViewScreenSize = ScreenSize;
+	ProjectionMatrix = glm::ortho(-Aspect * Zoom, Aspect * Zoom, -1.0f * Zoom, 1.0f * Zoom, -1.0f, 1.0f);
+}
+
+void OrthographicCamera::UpdateScreenSize(int NewWidth, int NewHeight)
+{
+	Width = NewWidth;
+	Height = NewHeight;
+	Aspect = Width / Height;
+
+	ViewScreenSize = glm::vec2((float)NewWidth, (float)NewHeight);
+	ProjectionMatrix = glm::ortho(-Aspect * Zoom, Aspect * Zoom, -1.0f * Zoom, 1.0f * Zoom, -1.0f, 1.0f);
+}
+

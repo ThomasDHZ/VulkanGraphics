@@ -55,6 +55,8 @@ public:
 	ShadowRenderer shadowRenderer;
 	FramebufferRenderer frameBufferRenderer;
 
+	void ScreenResizeUpdate(GLFWwindow* window);
+
 	void RemoveDrawMessage(std::shared_ptr<RendererDrawMessage> mesh);
 	VulkanEngine* GetVulkanRendererBase() { return static_cast<VulkanEngine*>(this); }
 };

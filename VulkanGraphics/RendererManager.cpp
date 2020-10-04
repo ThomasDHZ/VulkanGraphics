@@ -1,6 +1,7 @@
 #include "RendererManager.h"
 #include <set>
 #include "Mesh2D.h"
+#include "TextureRenderedSprite.h"
 
 RendererManager::RendererManager() : VulkanEngine()
 {
@@ -371,6 +372,38 @@ void RendererManager::DestoryVulkan()
 	sceneRenderer.Destroy(*GetVulkanRendererBase());
 	
 	VulkanEngine::Destory();
+}
+
+void RendererManager::ScreenResizeUpdate(GLFWwindow* window)
+{
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(window, &width, &height);
+	while (width == 0 || height == 0) {
+		glfwGetFramebufferSize(window, &width, &height);
+		glfwWaitEvents();
+	}
+
+	vkDeviceWaitIdle(Device);
+
+	for (auto imageView : SwapChain.GetSwapChainImageViews())
+	{
+		vkDestroyImageView(Device, imageView, nullptr);
+	}
+
+	vkDestroyCommandPool(Device, RenderCommandPool, nullptr);
+	vkDestroySwapchainKHR(Device, SwapChain.GetSwapChain(), nullptr);
+
+	SwapChain.UpdateSwapChain(window, Device, PhysicalDevice, Surface);
+
+	forwardRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	sceneRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	textureRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	frameBufferRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+	shadowRenderer.UpdateSwapChain(*GetVulkanRendererBase());
+
+	InitializeCommandBuffers();
+
+	UpdateSwapChainFlag = false;
 }
 
 void RendererManager::RemoveDrawMessage(std::shared_ptr<RendererDrawMessage> mesh)

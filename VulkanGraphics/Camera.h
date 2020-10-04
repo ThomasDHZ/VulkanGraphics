@@ -33,6 +33,8 @@ public:
     ~Camera();
 
     virtual void Update();
+    virtual void UpdateScreenSize(int NewWidth, int NewHeight);
+    virtual void UpdateScreenSize(glm::vec2& ScreenSize);
     virtual void ProcessKeyboard(Camera_Movement direction, float deltaTime);
 
     void SetPosition(const glm::vec2& position);

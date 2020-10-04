@@ -16,5 +16,7 @@ public:
 	OrthographicCamera(glm::vec2 viewScreenSize, glm::vec3 position, float zoom);
 
 	void Update() override;
+	void UpdateScreenSize(glm::vec2& ScreenSize) override;
+	void UpdateScreenSize(int NewWidth, int NewHeight) override;
 	void ProcessKeyboard(Camera_Movement direction, float deltaTime) override;
 };

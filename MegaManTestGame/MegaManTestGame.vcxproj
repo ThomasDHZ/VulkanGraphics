@@ -91,7 +91,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -105,7 +105,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -119,7 +119,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -134,7 +134,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -150,7 +150,25 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\VulkanGraphics\Enemy2D.cpp" />
+    <ClCompile Include="..\VulkanGraphics\EnergyTank.cpp" />
+    <ClCompile Include="..\VulkanGraphics\LargeEnergy.cpp" />
+    <ClCompile Include="..\VulkanGraphics\MegaMan.cpp" />
+    <ClCompile Include="..\VulkanGraphics\MMShot.cpp" />
+    <ClCompile Include="..\VulkanGraphics\VulkanGraphics.cpp" />
+    <ClCompile Include="..\VulkanGraphics\Water2D.cpp" />
+    <ClCompile Include="..\VulkanGraphics\WaterSurface2D.cpp" />
     <ClCompile Include="Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\VulkanGraphics\Enemy2D.h" />
+    <ClInclude Include="..\VulkanGraphics\EnergyTank.h" />
+    <ClInclude Include="..\VulkanGraphics\LargeEnergy.h" />
+    <ClInclude Include="..\VulkanGraphics\MegaMan.h" />
+    <ClInclude Include="..\VulkanGraphics\MMShot.h" />
+    <ClInclude Include="..\VulkanGraphics\VulkanGraphics.h" />
+    <ClInclude Include="..\VulkanGraphics\Water2D.h" />
+    <ClInclude Include="..\VulkanGraphics\WaterSurface2D.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

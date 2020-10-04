@@ -42,7 +42,6 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(8.0f, 9.0f), 4.0f)));
 	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(8.0f, 12.0f), 4.0f)));
 	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(10.0f, 12.0f), 4.0f)));
-	CameraList.emplace_back(std::make_shared<PerspectiveCamera>(PerspectiveCamera(glm::vec3(0.0f))));
 	ActiveCamera = CameraList[cameraIndex];
 
 	MeshTextures meshTextures = {};
@@ -59,9 +58,6 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	meshTextures.CubeMap[4] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg";
 	meshTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
 
-	mesh = Mesh(renderer, gameManager.textureManager, MegaManVertices, MegaManIndices, meshTextures);
-	mesh.CreateDrawMessage(renderer, 4, renderer.sceneRenderer.renderer3DPipeline);
-
 	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
 	SpriteList.emplace_back(std::make_shared<EnergyTank>(EnergyTank(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
@@ -75,7 +71,6 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	bloomRenderPass = BloomRenderPass(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
 	framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
-	skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -83,8 +78,6 @@ VulkanGraphics::~VulkanGraphics()
 	vkDeviceWaitIdle(renderer.GetVulkanRendererBase()->Device);
 
 	gameManager.textureManager->UnloadAllTextures(*renderer.GetVulkanRendererBase());
-	mesh.Destory(renderer);
-	skybox.Destory(renderer);
 	light.Destory(renderer);
 	for (auto sprite : SpriteList)
 	{
@@ -206,9 +199,6 @@ void VulkanGraphics::Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera)
 	bloomRenderPass.Update(renderer);
 	framebuffer3.Update(renderer);
 
-	mesh.MeshPosition = glm::vec3(1.0f, 10.0f, 0.0f);
-	mesh.Update(renderer, camera, light.light);
-	skybox.Update(renderer, camera);
 	light.Update(renderer, camera);
 	for (int x = SpriteList.size() - 1; x > 0; x--)
 	{
@@ -289,32 +279,10 @@ void VulkanGraphics::Draw()
 
 void VulkanGraphics::ScreenResizeUpdate()
 {
-	int width = 0, height = 0;
-	glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
-	while (width == 0 || height == 0) {
-		glfwGetFramebufferSize(Window.GetWindowPtr(), &width, &height);
-		glfwWaitEvents();
-	}
 
-	vkDeviceWaitIdle(renderer.Device);
-
-	for (auto imageView : renderer.SwapChain.GetSwapChainImageViews())
-	{
-		vkDestroyImageView(renderer.Device, imageView, nullptr);
-	}
-
-	vkDestroyCommandPool(renderer.Device, renderer.RenderCommandPool, nullptr);
-	vkDestroySwapchainKHR(renderer.Device, renderer.SwapChain.GetSwapChain(), nullptr);
-
-	renderer.SwapChain.UpdateSwapChain(Window.GetWindowPtr(), renderer.Device, renderer.PhysicalDevice, renderer.Surface);
-
-	renderer.forwardRenderer.UpdateSwapChain(renderer);
-	//renderer.sceneRenderer.UpdateSwapChain(renderer);
-	//renderer.textureRenderer.UpdateSwapChain(renderer);
-	//renderer.frameBufferRenderer.UpdateSwapChain(renderer);
-	renderer.shadowRenderer.UpdateSwapChain(renderer);
-
-	renderer.InitializeCommandBuffers();
+	renderer.ScreenResizeUpdate(Window.GetWindowPtr());
+	bloomRenderPass.UpdateSwapChain(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
+	framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
 
 	for (auto& sprite : SpriteList)
 	{
@@ -323,10 +291,14 @@ void VulkanGraphics::ScreenResizeUpdate()
 			spriteTextureRenderer->UpdateSwapChain(renderer);
 		}
 	}
-	bloomRenderPass.UpdateSwapChain(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
-	framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
 
-	renderer.UpdateSwapChainFlag = false;
+	int NewWidth = 0;
+	int NewHeight = 0;
+	glfwGetFramebufferSize(Window.GetWindowPtr(), &NewWidth, &NewHeight);
+	for (auto& camera : CameraList)
+	{
+		camera->UpdateScreenSize(NewWidth, NewHeight);
+	}
 }
 
 void VulkanGraphics::MainLoop()

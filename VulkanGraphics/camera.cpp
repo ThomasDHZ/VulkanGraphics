@@ -12,6 +12,10 @@ void Camera::Update()
 {
 }
 
+void Camera::UpdateScreenSize(int NewWidth, int NewHeight)
+{
+}
+
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
 
@@ -40,4 +44,8 @@ void Camera::SetPosition(float x, float y, float z)
 void Camera::SetZoom(float zoom)
 {
     Zoom = zoom;
+}
+
+void Camera::UpdateScreenSize(glm::vec2& ScreenSize)
+{
 }
