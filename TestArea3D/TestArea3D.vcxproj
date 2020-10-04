@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{436f0ac6-d45a-4363-bc6f-fbf918ac5f97}</ProjectGuid>
-    <RootNamespace>MegaManTestGame</RootNamespace>
+    <ProjectGuid>{9915f9cd-fd2a-4bbc-9fb3-5fae2a6d66ac}</ProjectGuid>
+    <RootNamespace>TestArea3D</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -72,26 +72,29 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)VulkanGraphics;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)VulkanGraphics;C:\Users\ZZT\Documents\Visual Studio 2019\stb-master;C:\VulkanSDK\1.1.130.0\Include;C:\Users\ZZT\Documents\Visual Studio 2019\glm;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.1.130.0\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)VulkanGraphics;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)VulkanGraphics;C:\Users\ZZT\Documents\Visual Studio 2019\stb-master;C:\VulkanSDK\1.1.130.0\Include;C:\Users\ZZT\Documents\Visual Studio 2019\glm;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.1.130.0\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)VulkanGraphics;C:\VulkanSDK\1.2.141.2\Include;C:\Users\dotha\Documents\Visual Studio 2019\glm;C:\Users\dotha\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\include;C:\Users\dotha\Documents\Visual Studio 2019\stb-master;C:\Users\dotha\Documents\Visual Studio 2019\tinyobjloader-master;C:\Users\dotha\Documents\Visual Studio 2019\Assimp\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\dotha\Documents\Visual Studio 2019\Assimp\lib;C:\VulkanSDK\1.2.141.2\Lib;C:\Users\dotha\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\lib-vc2019;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\dotha\Documents\Visual Studio 2019\Assimp\include;C:\Users\dotha\Documents\Visual Studio 2019\tinyobjloader-master;C:\Users\dotha\Documents\Visual Studio 2019\stb-master;C:\Users\dotha\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\include;C:\Users\dotha\Documents\Visual Studio 2019\glm;C:\VulkanSDK\1.2.141.2\Include;$(SolutionDir)VulkanGraphics;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\dotha\Documents\Visual Studio 2019\Assimp\lib;C:\Users\dotha\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.2.141.2\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)VulkanGraphics;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)VulkanGraphics;C:\Users\ZZT\Documents\Visual Studio 2019\stb-master;C:\VulkanSDK\1.1.130.0\Include;C:\Users\ZZT\Documents\Visual Studio 2019\glm;C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\ZZT\Documents\Visual Studio 2019\glfw-3.3.bin.WIN64\lib-vc2019;C:\VulkanSDK\1.1.130.0\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -105,7 +108,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -119,7 +122,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -134,7 +137,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -145,30 +148,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="TestArea.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\MegaManTestGame\Main.cpp" />
+    <ClCompile Include="TestArea.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\VulkanGraphics\VulkanGraphics.vcxproj">
       <Project>{790d6c84-478c-47ae-b2f4-6e3e7cf8feb3}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\VulkanGraphics\Enemy2D.cpp" />
-    <ClCompile Include="..\VulkanGraphics\EnergyTank.cpp" />
-    <ClCompile Include="..\VulkanGraphics\LargeEnergy.cpp" />
-    <ClCompile Include="..\VulkanGraphics\MegaMan.cpp" />
-    <ClCompile Include="..\VulkanGraphics\MMShot.cpp" />
-    <ClCompile Include="..\VulkanGraphics\VulkanGraphics.cpp" />
-    <ClCompile Include="..\VulkanGraphics\Water2D.cpp" />
-    <ClCompile Include="..\VulkanGraphics\WaterSurface2D.cpp" />
-    <ClCompile Include="Main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\VulkanGraphics\Enemy2D.h" />
-    <ClInclude Include="..\VulkanGraphics\EnergyTank.h" />
-    <ClInclude Include="..\VulkanGraphics\LargeEnergy.h" />
-    <ClInclude Include="..\VulkanGraphics\MegaMan.h" />
-    <ClInclude Include="..\VulkanGraphics\MMShot.h" />
-    <ClInclude Include="..\VulkanGraphics\VulkanGraphics.h" />
-    <ClInclude Include="..\VulkanGraphics\Water2D.h" />
-    <ClInclude Include="..\VulkanGraphics\WaterSurface2D.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

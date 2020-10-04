@@ -18,11 +18,11 @@ Water2D::Water2D(RendererManager& renderer, std::shared_ptr<TextureManager> text
 	};
 
 	MeshTextures CoinTextures = {};
-	CoinTextures.DiffuseMap = "texture/SparkManAlpha.bmp";
-	CoinTextures.SpecularMap = "texture/SparkManAlpha.bmp";
-	CoinTextures.NormalMap = "texture/SparkManAlpha.bmp";
-	CoinTextures.EmissionMap = "texture/SparkManAlpha.bmp";
-	CoinTextures.AlphaMap = "texture/SparkManAlpha.bmp";
+	CoinTextures.DiffuseMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManAlpha.bmp";
+	CoinTextures.SpecularMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManAlpha.bmp";
+	CoinTextures.NormalMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManAlpha.bmp";
+	CoinTextures.EmissionMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManAlpha.bmp";
+	CoinTextures.AlphaMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManAlpha.bmp";
 
 	RenderBitFlags = RenderBitFlag::RenderOnTexturePass | RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderMainPass | RenderBitFlag::RenderEffectPass;
 	ObjectFlagBits = ObjectFlags::None;
