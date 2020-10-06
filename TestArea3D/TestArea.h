@@ -9,7 +9,6 @@
 #include "VulkanWindow.h"
 #include "GUIDebugger.h"
 #include "Camera.h"
-#include "ModelLoader.h"
 #include "Model.h"
 #include "Keyboard.h"
 #include "Mouse.h"
@@ -107,7 +106,11 @@ private:
     std::shared_ptr<Camera> ActiveCamera;
     std::vector<std::shared_ptr<Camera>> CameraList;
 
+
     Light light;
+
+    Model mesh;
+    SkyBox skybox;
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;

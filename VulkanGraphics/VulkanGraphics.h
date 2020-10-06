@@ -8,7 +8,6 @@
 #include "VulkanWindow.h"
 #include "GUIDebugger.h"
 #include "Camera.h"
-#include "ModelLoader.h"
 #include "Model.h"
 #include "Keyboard.h"
 #include "Mouse.h"

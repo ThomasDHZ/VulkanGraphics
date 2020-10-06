@@ -1,6 +1,6 @@
 #include "PerspectiveCamera.h"
 
-PerspectiveCamera::PerspectiveCamera(glm::vec2& ScreenSize, glm::vec3& position) : Camera()
+PerspectiveCamera::PerspectiveCamera(glm::vec2 ScreenSize, glm::vec3 position) : Camera()
 {
     Width = ScreenSize.x;
     Height = ScreenSize.y;

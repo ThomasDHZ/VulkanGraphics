@@ -13,6 +13,7 @@
 #include "CubeMapTexture.h"
 #include "TextureManager.h"
 #include "VulkanUniformBuffer.h"
+#include "Bone.h"
 
 const  std::string DefaultTexture = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/DefaultTexture.bmp";
 enum RenderBitFlag
@@ -46,6 +47,13 @@ struct MeshTextures
     std::shared_ptr<CubeMapTexture> RendererCubeMap;
 };
 
+struct MeshData
+{
+    std::vector<Vertex> VertexList;
+    std::vector<uint16_t> IndexList;
+    std::vector<Bone> BoneList;
+    MeshTextures TextureList;
+};
 
 class BaseMesh
 {
@@ -87,6 +95,7 @@ public:
     glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
     BaseMesh();
+    BaseMesh(RendererManager& renderer, const MeshData& meshData);
     BaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata);
     BaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata);
     ~BaseMesh();

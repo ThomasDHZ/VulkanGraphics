@@ -5,6 +5,16 @@
 BaseMesh::BaseMesh()
 {
 }
+
+BaseMesh::BaseMesh(RendererManager& renderer, const MeshData& meshData)
+{
+    MeshVertex = VertexBuffer(renderer, meshData.VertexList);
+    if (meshData.IndexList.size() != 0)
+    {
+        MeshIndices = IndicesBuffer(renderer, meshData.IndexList);
+    }
+}
+
 BaseMesh::BaseMesh(RendererManager& renderer, const std::vector<Vertex>& Vertexdata, const std::vector<uint16_t>& Indicesdata)
 {
     MeshVertex = VertexBuffer(renderer, Vertexdata);

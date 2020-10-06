@@ -20,6 +20,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	renderer = RendererManager(Window.GetWindowPtr());
 	gameManager = GameManager(renderer);
 
+
 	MeshTextures SparkManTextures = {};
 	SparkManTextures.DiffuseMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkMan_diffuseOriginal.bmp";
 	SparkManTextures.SpecularMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/SparkManSpecular.bmp";
@@ -34,9 +35,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	SparkManTextures.CubeMap[4] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg";
 	SparkManTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
 
-	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(8.0f, 9.0f), 4.0f)));
-	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(8.0f, 12.0f), 4.0f)));
-	CameraList.emplace_back(std::make_shared<OrthographicCamera>(OrthographicCamera(glm::vec2(1920, 1080), glm::vec2(10.0f, 12.0f), 4.0f)));
+	CameraList.emplace_back(std::make_shared<PerspectiveCamera>(PerspectiveCamera(glm::vec2(1920, 1080), glm::vec3(8.0f, 9.0f, 0.0f))));
 	ActiveCamera = CameraList[cameraIndex];
 
 	MeshTextures meshTextures = {};
@@ -54,7 +53,10 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	meshTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
 
 	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
-	SpriteList.emplace_back(std::make_shared<LevelSprite>(LevelSprite(renderer, gameManager.textureManager, SparkManTextures)));
+	mesh = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/TestAnimModel/model.dae");
+	//mesh.ModelRotate = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 
 	bloomRenderPass = BloomRenderPass(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
 	framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
@@ -66,10 +68,8 @@ VulkanGraphics::~VulkanGraphics()
 
 	gameManager.textureManager->UnloadAllTextures(*renderer.GetVulkanRendererBase());
 	light.Destory(renderer);
-	for (auto sprite : SpriteList)
-	{
-		sprite->Destory(renderer);
-	}
+	mesh.Destroy(renderer);
+	skybox.Destory(renderer);
 	bloomRenderPass.Destory(renderer);
 	framebuffer3.Destory(renderer);
 	renderer.DestoryVulkan();
@@ -187,18 +187,10 @@ void VulkanGraphics::Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera)
 	framebuffer3.Update(renderer);
 
 	light.Update(renderer, camera);
-	for (int x = SpriteList.size() - 1; x > 0; x--)
-	{
-		if (SpriteList[x]->DestoryObjectFlag)
-		{
-			SpriteList[x]->Destory(renderer);
-			SpriteList.erase(SpriteList.begin() + x);
-		}
-	}
-	for (auto& sprite : SpriteList)
-	{
-			sprite->Update(renderer, deltaTime, camera, light.light);
-	}
+
+	mesh.ModelPosition = glm::vec3(1.0f, 10.0f, 0.0f);
+	mesh.UpdateUniformBuffer(renderer, camera, light.light);
+	skybox.Update(renderer, camera);
 
 	
 }
@@ -252,14 +244,6 @@ void VulkanGraphics::ScreenResizeUpdate()
 	renderer.ScreenResizeUpdate(Window.GetWindowPtr());
 	bloomRenderPass.UpdateSwapChain(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
 	framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
-
-	for (auto& sprite : SpriteList)
-	{
-		if (auto spriteTextureRenderer = dynamic_cast<TextureRenderedSprite*>(sprite.get()))
-		{
-			spriteTextureRenderer->UpdateSwapChain(renderer);
-		}
-	}
 
 	int NewWidth = 0;
 	int NewHeight = 0;

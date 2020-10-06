@@ -18,6 +18,21 @@ Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, con
 
 }
 
+Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const MeshData& meshData) : BaseMesh(renderer, meshData)
+{
+    CustomBuffer EmptyBuffer;
+    EmptyBuffer.ByteSize = sizeof(Empty);
+
+    ExtendedMeshProperitesBuffer = EmptyBuffer;
+
+    CreateMaterialProperties();
+    LoadTextures(renderer, textureManager, meshData.TextureList);
+    LoadTiles(renderer, textureManager, meshData.TextureList);
+    CreateUniformBuffers(renderer);
+    CreateDescriptorPool(renderer);
+    CreateDescriptorSets(renderer, textureManager);
+}
+
 Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures) : BaseMesh(renderer, vertexdata, indicesdata)
 {
     CustomBuffer EmptyBuffer;

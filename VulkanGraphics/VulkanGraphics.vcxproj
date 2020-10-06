@@ -150,6 +150,7 @@
     <ClCompile Include="BloomPipeline.cpp" />
     <ClCompile Include="BloomPipeline2nd.cpp" />
     <ClCompile Include="BloomRenderPass.cpp" />
+    <ClCompile Include="Bone.cpp" />
     <ClCompile Include="FrameBufferRenderPass.cpp" />
     <ClCompile Include="FrameBufferTextureRenderer.cpp" />
     <ClCompile Include="SceneRenderer.cpp" />
@@ -200,7 +201,6 @@
     <ClCompile Include="ImGui\imgui_impl_glfw.cpp" />
     <ClCompile Include="ImGui\imgui_impl_vulkan.cpp" />
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
-    <ClCompile Include="Main.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="RendererBase.cpp" />
     <ClCompile Include="RendererColorTexture.cpp" />
@@ -219,7 +219,6 @@
     <ClCompile Include="VulkanUniformBuffer.cpp" />
     <ClCompile Include="WireFramePipeline.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="SkyBoxPipeline.cpp" />
     <ClCompile Include="SkyBoxMesh.cpp" />
     <ClCompile Include="Sphere.cpp" />
@@ -274,6 +273,7 @@
     <ClInclude Include="BloomPipeline.h" />
     <ClInclude Include="BloomPipeline2nd.h" />
     <ClInclude Include="BloomRenderPass.h" />
+    <ClInclude Include="Bone.h" />
     <ClInclude Include="FrameBufferRenderPass.h" />
     <ClInclude Include="FrameBufferTextureRenderer.h" />
     <ClInclude Include="SceneRenderer.h" />
@@ -344,7 +344,6 @@
     <ClInclude Include="VulkanUniformBuffer.h" />
     <ClInclude Include="WireFramePipeline.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="SkyBoxPipeline.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Structs.h" />
