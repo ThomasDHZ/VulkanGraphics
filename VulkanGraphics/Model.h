@@ -4,7 +4,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "Mesh.h"
-
+#include "../AssetImporter/ColladaImporter.h"
 class Model
 {
 private:

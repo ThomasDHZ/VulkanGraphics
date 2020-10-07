@@ -6,6 +6,8 @@ Model::Model()
 
 Model::Model(RendererManager& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath)
 {
+	ColladaImporter open = ColladaImporter(FilePath);
+
 	LoadModel(renderer, textureManager, FilePath);
 
 	for (auto mesh : SubMeshList)
@@ -103,6 +105,7 @@ std::vector<uint16_t> Model::LoadIndices(aiMesh* mesh)
 
 std::vector<Bone> Model::LoadBones(aiMesh* mesh)
 {
+	auto a = mesh->mAnimMeshes[0];
 	std::vector<Bone> BoneList;
 	for (int x = 0; x < mesh->mNumBones; x++)
 	{
