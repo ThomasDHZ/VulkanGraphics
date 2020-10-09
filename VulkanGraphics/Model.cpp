@@ -6,8 +6,6 @@ Model::Model()
 
 Model::Model(RendererManager& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath)
 {
-	ColladaImporter open = ColladaImporter(FilePath);
-
 	LoadModel(renderer, textureManager, FilePath);
 
 	for (auto mesh : SubMeshList)
@@ -46,7 +44,7 @@ void Model::ProcessNode(VulkanEngine& renderer, std::shared_ptr<TextureManager>&
 		NewMesh.VertexList = LoadVertices(mesh);
 		NewMesh.IndexList = LoadIndices(mesh);
 		NewMesh.TextureList = LoadTextures(renderer, textureManager, FilePath, mesh, scene);
-		NewMesh.BoneList = LoadBones(mesh);
+		NewMesh.BoneList = LoadBones(scene->mRootNode, mesh);
 		SubMeshList.emplace_back(NewMesh);
 	}
 
@@ -103,16 +101,30 @@ std::vector<uint16_t> Model::LoadIndices(aiMesh* mesh)
 	return IndexList;
 }
 
-std::vector<Bone> Model::LoadBones(aiMesh* mesh)
+std::vector<Bone> Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh)
 {
-	auto a = mesh->mAnimMeshes[0];
-	std::vector<Bone> BoneList;
+	std::vector<Bone> BoneNameList;
 	for (int x = 0; x < mesh->mNumBones; x++)
 	{
-		//Bone bone = Bone(mesh->mBones[x]->mName.data, x, aiMatrix4x4ToGlm(mesh->mBones[x]->mOffsetMatrix));
-	//	BoneList.emplace_back(bone);
+		BoneNameList.emplace_back(Bone(x, mesh->mBones[x]->mName.data));
 	}
-	return BoneList;
+
+	for (Bone& bone : BoneNameList)
+	{
+		auto BoneAsNode = RootNode->FindNode(bone.GetBoneName().c_str());
+		for (int x = 0; x < BoneAsNode->mNumChildren; x++)
+		{
+			for (Bone& bone2 : BoneNameList)
+			{
+				if (bone2.GetBoneName() == BoneAsNode->mChildren[x]->mName.C_Str())
+				{
+					bone.AddChildBone(bone2);
+				}
+			}
+		}
+	}
+
+	return BoneNameList;
 }
 
 MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
@@ -141,19 +153,20 @@ MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<Texture
 	//auto d = material->GetTextureCount(aiTextureType_AMBIENT);
 	//auto e = material->GetTextureCount(aiTextureType_OPACITY);
 
-	//for (int x = 0; x <= aiTextureType_UNKNOWN; x++)
-	//{
-	//	for (unsigned int y = 0; y < material->GetTextureCount(static_cast<aiTextureType>(x)); y++)
-	//	{
-	//		aiString TextureLocation;
-	//		material->GetTexture(static_cast<aiTextureType>(x), y, &TextureLocation);
-	//		material->GetTexture(aiTextureType_NORMALS, y, &TextureLocation);
-	//		if(!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
-	//		{
-	//			textureManager->LoadTexture(renderer, directory + TextureLocation.C_Str(), VK_FORMAT_R8G8B8A8_UNORM);
-	//		}
-	//	}
-	//}
+
+	for (int x = 0; x <= aiTextureType_UNKNOWN; x++)
+	{
+		for (unsigned int y = 0; y < material->GetTextureCount(static_cast<aiTextureType>(x)); y++)
+		{
+			aiString TextureLocation;
+			material->GetTexture(static_cast<aiTextureType>(x), y, &TextureLocation);
+			material->GetTexture(aiTextureType_NORMALS, y, &TextureLocation);
+			if(!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
+			{
+				textureManager->LoadTexture(renderer, directory + TextureLocation.C_Str(), VK_FORMAT_R8G8B8A8_UNORM);
+			}
+		}
+	}
 	return meshTextures;
 }
 
@@ -163,6 +176,19 @@ void Model::SendDrawMessage(RendererManager& renderer)
 	{
 		mesh.CreateDrawMessage(renderer, 4, renderer.sceneRenderer.renderer3DPipeline);
 	}
+}
+
+glm::mat4 Model::AssimpToGLMMatrixConverter(aiMatrix4x4 AssMatrix)
+{
+	glm::mat4 GLMMatrix;
+	for (int y = 0; y < 4; y++)
+	{
+		for (int x = 0; x < 4; x++)
+		{
+			GLMMatrix[x][y] = AssMatrix[y][x];
+		}
+	}
+	return GLMMatrix;
 }
 
 void Model::UpdateUniformBuffer(RendererManager& renderer, std::shared_ptr<Camera>& camera, LightBufferObject& light)

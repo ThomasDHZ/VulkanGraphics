@@ -53,7 +53,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	meshTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
 
 	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
-	mesh = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/TestAnimModel/Handgun_dae.dae");
+	mesh = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/TestAnimModel/model.dae");
 	//mesh.ModelRotate = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);

@@ -11,21 +11,17 @@ private:
 	std::string BoneName;
 	std::vector<Bone> ChildrenBoneList;
 	glm::mat4 BoneTransformMatrix;
-	glm::mat4 LocalBindTransform;
-	glm::mat4 InverseBindTransform;
-	
-	void AddChildBone(Bone bone);
-	void CalcInverseBindTransform(Bone* parentBone);
+
 public:
-	
 	Bone();
-	Bone(const std::string& boneName, int index, glm::mat4 bindLocalTransform);
+	Bone(int index, const std::string& boneName);
 	~Bone();
 
-	void SetBoneTransform(glm::mat4 Transform);
+	void AddChildBone(Bone bone);
 
-	glm::mat4 GetBoneTransformMatrix() { return BoneTransformMatrix; }
-	glm::mat4 GetLocalBindTransform() { return LocalBindTransform; }
-	glm::mat4 GetInverseBindTransform() { return InverseBindTransform; }
+	int GetBoneID() { return BoneID; }
+	const std::string& GetBoneName() { return BoneName; }
+	const std::vector<Bone> GetChildrenBoneList() { return ChildrenBoneList; }
+	const glm::mat4 GetBoneTransformMatrix() { return BoneTransformMatrix; }
 };
 

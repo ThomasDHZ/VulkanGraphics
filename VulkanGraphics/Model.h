@@ -4,7 +4,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include "Mesh.h"
-#include "../AssetImporter/ColladaImporter.h"
+#include <unordered_map>
 class Model
 {
 private:
@@ -15,9 +15,11 @@ private:
 	void ProcessNode(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath, aiNode* node, const aiScene* scene);
 	std::vector<Vertex> LoadVertices(aiMesh* mesh);
 	std::vector<uint16_t> LoadIndices(aiMesh* mesh);
-	std::vector<Bone> LoadBones(aiMesh* mesh);
+	std::vector<Bone> LoadBones(const aiNode* RootNode, const aiMesh* mesh);
 	MeshTextures LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene);
 	void SendDrawMessage(RendererManager& renderer);
+
+	glm::mat4 AssimpToGLMMatrixConverter(aiMatrix4x4 matrix);
 
 public:
 	Model();
