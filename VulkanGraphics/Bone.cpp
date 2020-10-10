@@ -4,10 +4,11 @@ Bone::Bone()
 {
 }
 
-Bone::Bone(int index, const std::string& boneName)
+Bone::Bone(const std::string& boneName, int boneId, glm::mat4 boneTransformMatrix)
 {
-	BoneID = index;
+	BoneID = boneId;
 	BoneName = boneName;
+	BoneTransformMatrix = boneTransformMatrix;
 }
 
 Bone::~Bone()

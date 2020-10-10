@@ -15,6 +15,8 @@ struct Vertex
 	glm::vec2 TexureCoord;
 	glm::vec3 Tangant;
 	glm::vec3 BiTangant;
+	glm::vec4 BoneID = glm::vec4(0);
+	glm::vec4 BoneWeights = glm::vec4(0.0f);
 
 	static VkVertexInputBindingDescription GetBindingDescription()
 	{

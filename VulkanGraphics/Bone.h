@@ -14,7 +14,7 @@ private:
 
 public:
 	Bone();
-	Bone(int index, const std::string& boneName);
+	Bone(const std::string& boneName, int boneId, glm::mat4 boneTransformMatrix);
 	~Bone();
 
 	void AddChildBone(Bone bone);

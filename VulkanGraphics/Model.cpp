@@ -44,7 +44,7 @@ void Model::ProcessNode(VulkanEngine& renderer, std::shared_ptr<TextureManager>&
 		NewMesh.VertexList = LoadVertices(mesh);
 		NewMesh.IndexList = LoadIndices(mesh);
 		NewMesh.TextureList = LoadTextures(renderer, textureManager, FilePath, mesh, scene);
-		NewMesh.BoneList = LoadBones(scene->mRootNode, mesh);
+		NewMesh.BoneList = LoadBones(scene->mRootNode, mesh, NewMesh.VertexList);
 		SubMeshList.emplace_back(NewMesh);
 	}
 
@@ -69,6 +69,11 @@ std::vector<Vertex> Model::LoadVertices(aiMesh* mesh)
 			vertex.Tangant = glm::vec3{ mesh->mTangents[x].x, mesh->mTangents[x].y, mesh->mTangents[x].z };
 			vertex.BiTangant = glm::vec3{ mesh->mBitangents[x].x, mesh->mBitangents[x].y, mesh->mBitangents[x].z };
 		}
+		else
+		{
+			vertex.Tangant = glm::vec3{ 0.0f, 0.0f, 0.0f };
+			vertex.BiTangant = glm::vec3{ 0.0f, 0.0f, 0.0f };
+		}
 
 		if (mesh->mTextureCoords[0])
 		{
@@ -78,6 +83,9 @@ std::vector<Vertex> Model::LoadVertices(aiMesh* mesh)
 		{
 			vertex.TexureCoord = glm::vec2{ 0.0f, 0.0f };
 		}
+
+		vertex.BoneID = glm::vec4(0.0f);
+		vertex.BoneWeights = glm::vec4(0.0f);
 
 		VertexList.emplace_back(vertex);
 	}
@@ -101,20 +109,20 @@ std::vector<uint16_t> Model::LoadIndices(aiMesh* mesh)
 	return IndexList;
 }
 
-std::vector<Bone> Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh)
+std::vector<Bone> Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh, std::vector<Vertex>& VertexList)
 {
-	std::vector<Bone> BoneNameList;
+	std::vector<Bone> BoneList;
 	for (int x = 0; x < mesh->mNumBones; x++)
 	{
-		BoneNameList.emplace_back(Bone(x, mesh->mBones[x]->mName.data));
+		BoneList.emplace_back(Bone(mesh->mBones[x]->mName.data, x, AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)));
 	}
 
-	for (Bone& bone : BoneNameList)
+	for (Bone& bone : BoneList)
 	{
 		auto BoneAsNode = RootNode->FindNode(bone.GetBoneName().c_str());
 		for (int x = 0; x < BoneAsNode->mNumChildren; x++)
 		{
-			for (Bone& bone2 : BoneNameList)
+			for (Bone& bone2 : BoneList)
 			{
 				if (bone2.GetBoneName() == BoneAsNode->mChildren[x]->mName.C_Str())
 				{
@@ -124,7 +132,40 @@ std::vector<Bone> Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh)
 		}
 	}
 
-	return BoneNameList;
+	for (int x = 0; x < mesh->mNumBones; x++)
+	{
+		std::vector<unsigned int> AffectedVertices;
+		AffectedVertices.resize(VertexList.size(), 0);
+
+		aiBone* bone = mesh->mBones[x];
+		for (int y = 0; y < bone->mNumWeights; y++)
+		{
+			unsigned int vertexID = bone->mWeights[y].mVertexId;
+			float weight = bone->mWeights[y].mWeight;
+			AffectedVertices[vertexID]++;
+			switch (AffectedVertices[vertexID])
+			{
+				case 1:
+					VertexList[vertexID].BoneID.x = vertexID;
+					VertexList[vertexID].BoneWeights.x = weight;
+					break;
+				case 2:
+					VertexList[vertexID].BoneID.y = vertexID;
+					VertexList[vertexID].BoneWeights.y = weight;
+					break;
+				case 3:
+					VertexList[vertexID].BoneID.z = vertexID;
+					VertexList[vertexID].BoneWeights.z = weight;
+					break;
+				case 4:
+					VertexList[vertexID].BoneID.w = vertexID;
+					VertexList[vertexID].BoneWeights.w = weight;
+					break;
+			}
+		}
+	}
+
+	return BoneList;
 }
 
 MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)

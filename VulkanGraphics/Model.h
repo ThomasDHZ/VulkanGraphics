@@ -15,7 +15,7 @@ private:
 	void ProcessNode(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath, aiNode* node, const aiScene* scene);
 	std::vector<Vertex> LoadVertices(aiMesh* mesh);
 	std::vector<uint16_t> LoadIndices(aiMesh* mesh);
-	std::vector<Bone> LoadBones(const aiNode* RootNode, const aiMesh* mesh);
+	std::vector<Bone> LoadBones(const aiNode* RootNode, const aiMesh* mesh, std::vector<Vertex>& VertexList);
 	MeshTextures LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene);
 	void SendDrawMessage(RendererManager& renderer);
 
