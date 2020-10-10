@@ -51,7 +51,6 @@ struct MeshData
 {
     std::vector<Vertex> VertexList;
     std::vector<uint16_t> IndexList;
-    std::vector<Bone> BoneList;
     MeshTextures TextureList;
 };
 

@@ -44,7 +44,8 @@ void Model::ProcessNode(VulkanEngine& renderer, std::shared_ptr<TextureManager>&
 		NewMesh.VertexList = LoadVertices(mesh);
 		NewMesh.IndexList = LoadIndices(mesh);
 		NewMesh.TextureList = LoadTextures(renderer, textureManager, FilePath, mesh, scene);
-		NewMesh.BoneList = LoadBones(scene->mRootNode, mesh, NewMesh.VertexList);
+		BoneList = LoadBones(scene->mRootNode, mesh, NewMesh.VertexList);
+		LoadAnimations(scene);
 		SubMeshList.emplace_back(NewMesh);
 	}
 
@@ -165,7 +166,49 @@ std::vector<Bone> Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh, s
 		}
 	}
 
+	for (int x = 0; x < VertexList.size(); x++)
+	{
+		float Weight = VertexList[x].BoneWeights.x +
+			VertexList[x].BoneWeights.y +
+			VertexList[x].BoneWeights.z +
+			VertexList[x].BoneWeights.w;
+		if (Weight != 1.0f)
+		{
+			VertexList[x].BoneWeights = glm::vec4(
+			VertexList[x].BoneWeights.x / Weight,
+			VertexList[x].BoneWeights.y / Weight,
+			VertexList[x].BoneWeights.z / Weight,
+			VertexList[x].BoneWeights.w / Weight);
+		}
+	}
+
 	return BoneList;
+}
+
+std::vector<Animation3D> Model::LoadAnimations(const aiScene* scene)
+{
+	for (int x = 0; x < scene->mNumAnimations; x++)
+	{
+		aiAnimation* assImpAnimation = scene->mAnimations[x];
+
+		Animation3D animation = Animation3D();
+		animation.TicksPerSec = assImpAnimation->mTicksPerSecond;
+		animation.AnimationTime = assImpAnimation->mDuration * animation.TicksPerSec;
+
+		for (int y = 0; y < assImpAnimation->mNumChannels; y++)
+		{
+			aiNodeAnim* channel = assImpAnimation->mChannels[y];
+			for (int z = 0; z < channel->mNumPositionKeys; z++)
+			{
+				auto a = channel->mPositionKeys[z].mTime;
+				auto b = channel->mPositionKeys[z].mValue;
+				int c = 34;
+			}
+		}
+
+		AnimationList.emplace_back(animation);
+	}
+	return AnimationList;
 }
 
 MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
