@@ -64,6 +64,18 @@ struct Vertex
 		AttributeDescription.offset = offsetof(Vertex, BiTangant);
 		AttributeDescriptions.emplace_back(AttributeDescription);
 
+		AttributeDescription.binding = 0;
+		AttributeDescription.location = 5;
+		AttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+		AttributeDescription.offset = offsetof(Vertex, BoneID);
+		AttributeDescriptions.emplace_back(AttributeDescription);
+
+		AttributeDescription.binding = 0;
+		AttributeDescription.location = 6;
+		AttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+		AttributeDescription.offset = offsetof(Vertex, BoneWeights);
+		AttributeDescriptions.emplace_back(AttributeDescription);
+
 		return AttributeDescriptions;
 	}
 };
