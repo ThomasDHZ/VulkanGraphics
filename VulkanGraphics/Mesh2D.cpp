@@ -103,7 +103,7 @@ void Mesh2D::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<Tex
         VkDescriptorBufferInfo PositionInfo = {};
         PositionInfo.buffer = uniformBuffer.GetUniformBuffer(i);
         PositionInfo.offset = 0;
-        PositionInfo.range = sizeof(UniformBufferObject);
+        PositionInfo.range = sizeof(VertexMatrixObject);
 
         VkDescriptorBufferInfo LightInfo = {};
         LightInfo.buffer = lightBuffer.GetUniformBuffer(i);

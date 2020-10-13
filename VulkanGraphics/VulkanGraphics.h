@@ -69,9 +69,9 @@ const std::vector<uint16_t> indices =
 //	{{0.5,0.5,-0.5}, {0,1,0}, {1,1}},
 //};
 
-const std::vector<uint16_t> cubeindices = {
-
-};
+//const std::vector<uint16_t> cubeindices = {
+//
+//};
 
 const std::vector<Vertex> MegaManVertices = {
     {{-0.5f, -0.5f, -0.01f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},

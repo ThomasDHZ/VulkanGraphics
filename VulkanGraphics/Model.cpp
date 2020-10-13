@@ -197,13 +197,44 @@ std::vector<Animation3D> Model::LoadAnimations(const aiScene* scene)
 
 		for (int y = 0; y < assImpAnimation->mNumChannels; y++)
 		{
+			KeyFrame keyframe;
 			aiNodeAnim* channel = assImpAnimation->mChannels[y];
+
+			for (auto bone : BoneList)
+			{
+				if (channel->mNodeName.C_Str() == bone.GetBoneName())
+				{
+					keyframe.BoneName = channel->mNodeName.C_Str();
+					keyframe.BoneId = bone.GetBoneID();
+					break;
+				}
+			}
+
 			for (int z = 0; z < channel->mNumPositionKeys; z++)
 			{
-				auto a = channel->mPositionKeys[z].mTime;
-				auto b = channel->mPositionKeys[z].mValue;
-				int c = 34;
+				KeyFrameInfo PosKeyFrame;
+				PosKeyFrame.Time = channel->mPositionKeys[z].mTime;
+				PosKeyFrame.AnimationInfo = glm::vec3(channel->mPositionKeys[z].mValue.x, channel->mPositionKeys[z].mValue.y, channel->mPositionKeys[z].mValue.z);
+				keyframe.BonePosition.emplace_back(PosKeyFrame);
 			}
+
+			for (int z = 0; z < channel->mNumRotationKeys; z++)
+			{
+				KeyFrameInfo RotKeyFrame;
+				RotKeyFrame.Time = channel->mRotationKeys[z].mTime;
+				RotKeyFrame.AnimationInfo = glm::vec3(channel->mRotationKeys[z].mValue.x, channel->mRotationKeys[z].mValue.y, channel->mRotationKeys[z].mValue.z);
+				keyframe.BoneRotation.emplace_back(RotKeyFrame);
+			}
+
+			for (int z = 0; z < channel->mNumScalingKeys; z++)
+			{
+				KeyFrameInfo ScaleKeyFrame;
+				ScaleKeyFrame.Time = channel->mScalingKeys[z].mTime;
+				ScaleKeyFrame.AnimationInfo = glm::vec3(channel->mScalingKeys[z].mValue.x, channel->mScalingKeys[z].mValue.y, channel->mScalingKeys[z].mValue.z);
+				keyframe.BoneScale.emplace_back(ScaleKeyFrame);
+			}
+
+			animation.AddBoneKeyFrame(keyframe);
 		}
 
 		AnimationList.emplace_back(animation);
@@ -218,7 +249,7 @@ MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<Texture
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto directory = FilePath.substr(0, FilePath.find_last_of('/')) + '/';
 
-	meshTextures.DiffuseMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/TestAnimModel/diffuse.png";
+	meshTextures.DiffuseMap = DefaultTexture;
 	meshTextures.SpecularMap = DefaultTexture;
 	meshTextures.NormalMap = DefaultTexture;
 	meshTextures.AlphaMap = DefaultTexture;
@@ -231,26 +262,71 @@ MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<Texture
 	meshTextures.CubeMap[4] = DefaultTexture;
 	meshTextures.CubeMap[5] = DefaultTexture;
 
-	//auto a = material->GetTextureCount(aiTextureType_DIFFUSE);
-	//auto b = material->GetTextureCount(aiTextureType_SPECULAR);
-	//auto c = material->GetTextureCount(aiTextureType_HEIGHT);
-	//auto d = material->GetTextureCount(aiTextureType_AMBIENT);
-	//auto e = material->GetTextureCount(aiTextureType_OPACITY);
 
-
-	for (int x = 0; x <= aiTextureType_UNKNOWN; x++)
+	aiString TextureLocation;
+	for (unsigned int x = 0; x < material->GetTextureCount(aiTextureType_DIFFUSE); x++)
 	{
-		for (unsigned int y = 0; y < material->GetTextureCount(static_cast<aiTextureType>(x)); y++)
+		material->GetTexture(aiTextureType_DIFFUSE, x, &TextureLocation);
+		if (!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
 		{
-			aiString TextureLocation;
-			material->GetTexture(static_cast<aiTextureType>(x), y, &TextureLocation);
-			material->GetTexture(aiTextureType_NORMALS, y, &TextureLocation);
-			if(!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
-			{
-				textureManager->LoadTexture(renderer, directory + TextureLocation.C_Str(), VK_FORMAT_R8G8B8A8_UNORM);
-			}
+			meshTextures.DiffuseMap = directory + TextureLocation.C_Str();
 		}
 	}
+
+	for (unsigned int x = 0; x < material->GetTextureCount(aiTextureType_SPECULAR); x++)
+	{
+		material->GetTexture(aiTextureType_SPECULAR, x, &TextureLocation);
+		if (!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
+		{
+			meshTextures.SpecularMap = directory + TextureLocation.C_Str();
+		}
+	}
+
+	for (unsigned int x = 0; x < material->GetTextureCount(aiTextureType_NORMALS); x++)
+	{
+		material->GetTexture(aiTextureType_NORMALS, x, &TextureLocation);
+		if (!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
+		{
+			meshTextures.NormalMap = directory + TextureLocation.C_Str();
+		}
+	}
+
+	for (unsigned int x = 0; x < material->GetTextureCount(aiTextureType_HEIGHT); x++)
+	{
+		material->GetTexture(aiTextureType_HEIGHT, x, &TextureLocation);
+		if (!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
+		{
+			meshTextures.DepthMap = directory + TextureLocation.C_Str();
+		}
+	}
+
+	for (unsigned int x = 0; x < material->GetTextureCount(aiTextureType_OPACITY); x++)
+	{
+		material->GetTexture(aiTextureType_OPACITY, x, &TextureLocation);
+		if (!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
+		{
+			meshTextures.AlphaMap = directory + TextureLocation.C_Str();
+		}
+	}
+
+	for (unsigned int x = 0; x < material->GetTextureCount(aiTextureType_EMISSIVE); x++)
+	{
+		material->GetTexture(aiTextureType_EMISSIVE, x, &TextureLocation);
+		if (!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
+		{
+			meshTextures.EmissionMap = directory + TextureLocation.C_Str();
+		}
+	}
+
+	for (unsigned int x = 0; x < material->GetTextureCount(aiTextureType_REFLECTION); x++)
+	{
+		material->GetTexture(aiTextureType_REFLECTION, x, &TextureLocation);
+		if (!textureManager->GetTextureByName(directory + TextureLocation.C_Str()))
+		{
+			meshTextures.ReflectionMap = directory + TextureLocation.C_Str();
+		}
+	}
+
 	return meshTextures;
 }
 
@@ -258,7 +334,7 @@ void Model::SendDrawMessage(RendererManager& renderer)
 {
 	for (auto mesh : MeshList)
 	{
-		mesh.CreateDrawMessage(renderer, 4, renderer.sceneRenderer.renderer3DPipeline);
+		mesh.CreateDrawMessage(renderer, 1, renderer.forwardRenderer.forwardRendereringPipeline);
 	}
 }
 
@@ -279,7 +355,7 @@ void Model::UpdateUniformBuffer(RendererManager& renderer, std::shared_ptr<Camer
 {
 	for (auto mesh : MeshList)
 	{
-		mesh.Update(renderer, camera, light);
+		mesh.Update(renderer, camera, light, BoneList);
 	}
 }
 

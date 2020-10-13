@@ -15,7 +15,7 @@ struct Vertex
 	glm::vec2 TexureCoord;
 	glm::vec3 Tangant;
 	glm::vec3 BiTangant;
-	glm::vec4 BoneID = glm::vec4(0);
+	glm::ivec4 BoneID = glm::vec4(0);
 	glm::vec4 BoneWeights = glm::vec4(0.0f);
 
 	static VkVertexInputBindingDescription GetBindingDescription()
@@ -66,7 +66,7 @@ struct Vertex
 
 		AttributeDescription.binding = 0;
 		AttributeDescription.location = 5;
-		AttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+		AttributeDescription.format = VK_FORMAT_R32G32B32A32_SINT;
 		AttributeDescription.offset = offsetof(Vertex, BoneID);
 		AttributeDescriptions.emplace_back(AttributeDescription);
 

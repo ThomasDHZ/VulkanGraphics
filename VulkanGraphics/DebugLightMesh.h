@@ -58,7 +58,7 @@ private:
     virtual void CreateUniformBuffers(RendererManager& renderer) override;
     virtual void CreateDescriptorPool(RendererManager& renderer) override;
     virtual void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager) override;
-    virtual void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, MeshColor meshColorBuffer);
+    virtual void UpdateUniformBuffer(RendererManager& renderer, VertexMatrixObject ubo, MeshColor meshColorBuffer);
 
 public:
 

@@ -6,7 +6,7 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitangent;
-layout (location = 5) in vec4 BoneID;
+layout (location = 5) in ivec4 BoneID;
 layout (location = 6) in vec4 BoneWeights;
 
 layout(location = 0) out vec3 FragPos;
@@ -18,11 +18,22 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
     mat4 projection;
+    mat4[16] BoneTransform;
 } ubo;
 
 void main()
 {
-    FragPos = vec3(ubo.model * vec4(aPos, 1.0));    
+    mat4 BoneTransform = mat4(1.0f);
+    if(BoneID.x != 0)
+    {
+        BoneTransform = ubo.BoneTransform[int(BoneID.x)] * BoneWeights.x;
+        BoneTransform += ubo.BoneTransform[int(BoneID.y)] * BoneWeights.y;
+        BoneTransform += ubo.BoneTransform[int(BoneID.z)] * BoneWeights.z;
+        BoneTransform += ubo.BoneTransform[int(BoneID.w)] * BoneWeights.w;
+    }
+    vec4 pos = BoneTransform * vec4(aPos, 1.0);
+
+    FragPos = vec3(ubo.model * pos);    
     TexCoords = aTexCoords;
     Normal = aNormal;
 
@@ -31,5 +42,5 @@ void main()
     vec3 N = normalize(mat3(ubo.model) * aNormal);
     TBN = transpose(mat3(T, B, N));
 
-    gl_Position = ubo.projection * ubo.view * ubo.model * vec4(aPos, 1.0);
+    gl_Position = ubo.projection * ubo.view * ubo.model * pos;
 }

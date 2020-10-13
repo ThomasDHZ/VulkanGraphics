@@ -23,7 +23,7 @@ SkyBoxMesh::~SkyBoxMesh()
 
 void SkyBoxMesh::CreateUniformBuffers(RendererManager& renderer)
 {
-	uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
+	uniformBuffer = VulkanUniformBuffer(renderer, sizeof(VertexMatrixObject));
 }
 
 void SkyBoxMesh::CreateDescriptorPool(RendererManager& renderer)
@@ -50,7 +50,7 @@ void SkyBoxMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr
 		VkDescriptorBufferInfo bufferInfo = {};
 		bufferInfo.buffer = uniformBuffer.GetUniformBuffer(i);
 		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
+		bufferInfo.range = sizeof(VertexMatrixObject);
 
 		std::array<VkWriteDescriptorSet, 2>  descriptorWrites = {};
 
@@ -76,7 +76,7 @@ void SkyBoxMesh::CreateDescriptorSets(RendererManager& renderer, std::shared_ptr
 
 void SkyBoxMesh::UpdateUniformBuffer(RendererManager& renderer, std::shared_ptr<Camera> camera)
 {
-	UniformBufferObject ubo{};
+	VertexMatrixObject ubo{};
 	ubo.view = glm::mat4(glm::mat3(camera->GetViewMatrix()));
 	ubo.proj = glm::perspective(glm::radians(camera->GetZoom()), renderer.SwapChain.GetSwapChainResolution().width / (float)renderer.SwapChain.GetSwapChainResolution().height, 0.1f, 100.0f);
 	ubo.proj[1][1] *= -1;

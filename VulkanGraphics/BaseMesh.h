@@ -68,7 +68,7 @@ protected:
 
     std::shared_ptr<Texture> DiffuseTexture;
     std::shared_ptr<Texture> SpecularTexture;
-
+    std::shared_ptr<Texture> NormalTexture;
     std::shared_ptr<Texture> DepthTexture;
     std::shared_ptr<Texture> AlphaTexture;
     std::shared_ptr<Texture> EmissionTexture;
@@ -77,8 +77,7 @@ protected:
 
     std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 
-    glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 MeshScale = glm::vec3(1.0f);
+
     float RotationAmount = 0.0f;
 
     bool MeshDeletedFlag = false;
@@ -89,9 +88,10 @@ protected:
     void CreateDescriptorSetsData(RendererManager& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 
 public:
-    std::shared_ptr<Texture> NormalTexture;
     std::string MeshName;
     glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 MeshScale = glm::vec3(1.0f);
 
     BaseMesh();
     BaseMesh(RendererManager& renderer, const MeshData& meshData);

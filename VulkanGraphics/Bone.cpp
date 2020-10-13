@@ -9,7 +9,6 @@ Bone::Bone(const std::string& boneName, int boneId, glm::mat4 boneTransformMatri
 	BoneID = boneId;
 	BoneName = boneName;
 	BoneTransformMatrix = boneTransformMatrix;
-	BoneTransformMatrix[1][1] *= -1;
 }
 
 Bone::~Bone()

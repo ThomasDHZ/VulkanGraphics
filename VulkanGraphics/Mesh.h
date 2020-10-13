@@ -86,10 +86,11 @@ struct LightBufferObject
     alignas(16) glm::vec3 viewPos;
 };
 
-struct UniformBufferObject {
+struct VertexMatrixObject {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
+    alignas(16) glm::mat4 BoneTransform[16];
 };
 
 struct Empty
@@ -106,6 +107,7 @@ struct CustomBuffer
 class Mesh : public BaseMesh
 {
 private:
+    VertexMatrixObject ubo;
 
 protected:
 
@@ -120,8 +122,8 @@ protected:
     virtual void CreateUniformBuffers(RendererManager& renderer);
     virtual void CreateDescriptorPool(RendererManager& renderer);
     virtual void CreateDescriptorSets(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager);
-    virtual void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, void* CustomBufferinfo = nullptr);
-    virtual void UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
+    virtual void UpdateUniformBuffer(RendererManager& renderer, VertexMatrixObject ubo, void* CustomBufferinfo = nullptr);
+    virtual void UpdateUniformBuffer(RendererManager& renderer, VertexMatrixObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
 
 public:
     MeshProperties properites;
@@ -137,6 +139,7 @@ public:
 
     virtual void Update(RendererManager& renderer) override;
     virtual void Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
+    virtual void Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, std::vector<Bone>& BoneList, void* CustomBufferinfo = nullptr);
     virtual void ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager);
     virtual void Destory(RendererManager& renderer) override;
 };

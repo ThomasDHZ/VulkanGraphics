@@ -35,7 +35,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	SparkManTextures.CubeMap[4] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg";
 	SparkManTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
 
-	CameraList.emplace_back(std::make_shared<PerspectiveCamera>(PerspectiveCamera(glm::vec2(1920, 1080), glm::vec3(8.0f, 9.0f, 0.0f))));
+	CameraList.emplace_back(std::make_shared<PerspectiveCamera>(PerspectiveCamera(glm::vec2(1920, 1080), glm::vec3(2.0f, 7.0, 26.0f))));
 	ActiveCamera = CameraList[cameraIndex];
 
 	MeshTextures meshTextures = {};
@@ -54,12 +54,14 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 
 	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	mesh = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/TestAnimModel/model.dae");
-	//mesh.ModelRotate = glm::vec3(0.0f, 1.0f, 0.0f);
-
+	mesh.GetModelMeshList()[0].MeshPosition = glm::vec3(8.0f, 40.0f, 0.0f);
+	cube = Mesh(renderer, gameManager.textureManager, MegaManVertices, MegaManIndices, SparkManTextures);
+	cube.MeshPosition = glm::vec3(8.0f, 40.0f, 0.0f);
+	cube.CreateDrawMessage(renderer, 1, renderer.forwardRenderer.forwardRendereringPipeline);
 	skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 
-	bloomRenderPass = BloomRenderPass(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
-	framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
+	//bloomRenderPass = BloomRenderPass(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
+	//framebuffer3 = FrameBufferMesh(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
 }
 
 VulkanGraphics::~VulkanGraphics()
@@ -69,9 +71,10 @@ VulkanGraphics::~VulkanGraphics()
 	gameManager.textureManager->UnloadAllTextures(*renderer.GetVulkanRendererBase());
 	light.Destory(renderer);
 	mesh.Destroy(renderer);
+	cube.Destory(renderer);
 	skybox.Destory(renderer);
-	bloomRenderPass.Destory(renderer);
-	framebuffer3.Destory(renderer);
+	//bloomRenderPass.Destory(renderer);
+	//framebuffer3.Destory(renderer);
 	renderer.DestoryVulkan();
 	Window.CleanUp();
 }
@@ -121,7 +124,7 @@ void VulkanGraphics::UpdateImGUI()
 				ImGui::Image(spriteTextureRenderer->GetIMGuiImage(), ImVec2(400.0f, 255.0f));
 			}
 		}
-		ImGui::Image(bloomRenderPass.GetIMGuiImagePass2(), ImVec2(400.0f, 255.0f));
+		//ImGui::Image(bloomRenderPass.GetIMGuiImagePass2(), ImVec2(400.0f, 255.0f));
 		ImGui::Image(renderer.shadowRenderer.DepthTexture->ImGuiDescriptorSet, ImVec2(400.0f, 255.0f));
 		ImGui::End();
 
@@ -183,13 +186,16 @@ void VulkanGraphics::Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera)
 	lastFrame = currentFrame;
 
 	camera->Update();
-	bloomRenderPass.Update(renderer);
-	framebuffer3.Update(renderer);
+	//bloomRenderPass.Update(renderer);
+	//framebuffer3.Update(renderer);
 
 	light.Update(renderer, camera);
 
 	mesh.ModelPosition = glm::vec3(1.0f, 10.0f, 0.0f);
 	mesh.UpdateUniformBuffer(renderer, camera, light.light);
+	cube.MeshPosition = glm::vec3(1.0f, 10.0f, 0.0f);
+	cube.MeshScale = glm::vec3(5.0f);
+	cube.Update(renderer, camera, light.light);
 	skybox.Update(renderer, camera);
 
 	
@@ -226,10 +232,10 @@ void VulkanGraphics::Draw()
 		}
 		Update(renderer.DrawFrame, ActiveCamera);
 		renderer.MainRenderPass();
-		renderer.ShadowRenderPass();
-		renderer.SceneRenderPass();
-		bloomRenderPass.Draw(renderer);
-		renderer.FrameBufferRenderPass();
+		//renderer.ShadowRenderPass();
+		//renderer.SceneRenderPass();
+		//bloomRenderPass.Draw(renderer);
+		//renderer.FrameBufferRenderPass();
 		renderer.EndDraw(Window.GetWindowPtr());
 		if (renderer.UpdateSwapChainFlag)
 		{
@@ -242,8 +248,8 @@ void VulkanGraphics::ScreenResizeUpdate()
 {
 
 	renderer.ScreenResizeUpdate(Window.GetWindowPtr());
-	bloomRenderPass.UpdateSwapChain(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
-	framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
+	//bloomRenderPass.UpdateSwapChain(renderer, gameManager.textureManager, renderer.sceneRenderer.BloomTexture);
+	//framebuffer3.ScreenResizeUpdate(renderer, gameManager.textureManager, renderer.sceneRenderer.ColorTexture, bloomRenderPass.OutputBloomImage());
 
 	int NewWidth = 0;
 	int NewHeight = 0;

@@ -28,7 +28,7 @@ DebugLightMesh::~DebugLightMesh()
 
 void DebugLightMesh::CreateUniformBuffers(RendererManager& renderer)
 {
-    uniformBuffer = VulkanUniformBuffer(renderer, sizeof(UniformBufferObject));
+    uniformBuffer = VulkanUniformBuffer(renderer, sizeof(VertexMatrixObject));
     meshColorBuffer = VulkanUniformBuffer(renderer, sizeof(MeshColor));
 }
 
@@ -51,7 +51,7 @@ void DebugLightMesh::CreateDescriptorSets(RendererManager& renderer, std::shared
         VkDescriptorBufferInfo PositionInfo = {};
         PositionInfo.buffer = uniformBuffer.GetUniformBuffer(i);
         PositionInfo.offset = 0;
-        PositionInfo.range = sizeof(UniformBufferObject);
+        PositionInfo.range = sizeof(VertexMatrixObject);
 
         VkDescriptorBufferInfo MeshColorInfo = {};
         MeshColorInfo.buffer = meshColorBuffer.GetUniformBuffer(i);
@@ -80,7 +80,7 @@ void DebugLightMesh::CreateDescriptorSets(RendererManager& renderer, std::shared
 
 void DebugLightMesh::Update(RendererManager& renderer, std::shared_ptr<Camera>& camera, MeshColor MeshColorBuffer)
 {
-    UniformBufferObject ubo{};
+    VertexMatrixObject ubo{};
     ubo.model = glm::mat4(1.0f);
     ubo.model = glm::translate(ubo.model, MeshPosition);
     ubo.model = glm::scale(ubo.model, MeshScale);
@@ -92,7 +92,7 @@ void DebugLightMesh::Update(RendererManager& renderer, std::shared_ptr<Camera>& 
     Mesh::UpdateUniformBuffer(renderer, ubo);
 }
 
-void DebugLightMesh::UpdateUniformBuffer(RendererManager& renderer, UniformBufferObject ubo, MeshColor MeshColorBuffer)
+void DebugLightMesh::UpdateUniformBuffer(RendererManager& renderer, VertexMatrixObject ubo, MeshColor MeshColorBuffer)
 {
     meshColorBuffer.UpdateUniformBuffer(renderer, static_cast<void*>(&MeshColorBuffer));
     Mesh::UpdateUniformBuffer(renderer, ubo);
