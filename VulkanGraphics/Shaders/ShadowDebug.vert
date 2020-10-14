@@ -12,7 +12,7 @@ layout(location = 1) in vec3 inColor;
 layout(location = 2) in vec2 inTexCoord;
 layout(location = 3) in vec3 inTangent;
 layout(location = 4) in vec3 inBitangent;
-layout (location = 5) in vec4 BoneID;
+layout (location = 5) in ivec4 BoneID;
 layout (location = 6) in vec4 BoneWeights;
 
 layout(location = 0) out vec3 fragColor;

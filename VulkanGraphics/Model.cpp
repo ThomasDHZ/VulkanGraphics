@@ -32,6 +32,9 @@ void Model::LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager>& t
 		return;
 	}
 
+	GlobalInverseTransform = AssimpToGLMMatrixConverter(Scene->mRootNode->mTransformation);
+	GlobalInverseTransform = glm::inverse(GlobalInverseTransform);
+
 	ProcessNode(renderer, textureManager, FilePath, Scene->mRootNode, Scene);
 }
 
@@ -181,6 +184,8 @@ std::vector<Bone> Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh, s
 			VertexList[x].BoneWeights.w / Weight);
 		}
 	}
+
+	BoneList[0].InvertBoneMatrix(BoneList[0], glm::mat4(1.0f), GlobalInverseTransform);
 
 	return BoneList;
 }

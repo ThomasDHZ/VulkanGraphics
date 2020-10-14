@@ -15,6 +15,8 @@ private:
 
 	std::vector<MeshData> SubMeshList;
 
+	glm::mat4 GlobalInverseTransform;
+
 	void LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath);
 	void ProcessNode(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath, aiNode* node, const aiScene* scene);
 	std::vector<Vertex> LoadVertices(aiMesh* mesh);
