@@ -32,8 +32,13 @@ void Model::LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager>& t
 		return;
 	}
 
-	GlobalInverseTransform = AssimpToGLMMatrixConverter(Scene->mRootNode->mTransformation);
-	GlobalInverseTransform = glm::inverse(GlobalInverseTransform);
+	GlobalInverseTransform = AssimpToGLMMatrixConverter(Scene->mRootNode->mTransformation.Inverse());
+
+	std::cout << "GlobalInverseTransform" << std::endl;
+	std::cout << GlobalInverseTransform[0].x << "  " << GlobalInverseTransform[0].y << "  " << GlobalInverseTransform[0].z << "  " << GlobalInverseTransform[0].w << std::endl;
+	std::cout << GlobalInverseTransform[1].x << "  " << GlobalInverseTransform[1].y << "  " << GlobalInverseTransform[1].z << "  " << GlobalInverseTransform[1].w << std::endl;
+	std::cout << GlobalInverseTransform[2].x << "  " << GlobalInverseTransform[2].y << "  " << GlobalInverseTransform[2].z << "  " << GlobalInverseTransform[2].w << std::endl;
+	std::cout << GlobalInverseTransform[3].x << "  " << GlobalInverseTransform[3].y << "  " << GlobalInverseTransform[3].z << "  " << GlobalInverseTransform[3].w << std::endl;
 
 	ProcessNode(renderer, textureManager, FilePath, Scene->mRootNode, Scene);
 }
@@ -119,6 +124,13 @@ std::vector<Bone> Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh, s
 	for (int x = 0; x < mesh->mNumBones; x++)
 	{
 		BoneList.emplace_back(Bone(mesh->mBones[x]->mName.data, x, AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)));
+	
+		std::cout << mesh->mBones[x]->mName.C_Str() << std::endl;
+		std::cout << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[0].x << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[0].y << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[0].z << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[0].w << std::endl;
+		std::cout << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[1].x << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[1].y << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[1].z << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[1].w << std::endl;
+		std::cout << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[2].x << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[2].y << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[2].z << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[2].w << std::endl;
+		std::cout << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[3].x << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[3].y << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[3].z << "  " << AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)[3].w << std::endl;
+		int z = 0;
 	}
 
 	for (Bone& bone : BoneList)

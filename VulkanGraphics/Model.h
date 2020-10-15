@@ -15,6 +15,7 @@ private:
 
 	std::vector<MeshData> SubMeshList;
 
+	aiMatrix4x4 assGlobalInverseTranform;
 	glm::mat4 GlobalInverseTransform;
 
 	void LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath);

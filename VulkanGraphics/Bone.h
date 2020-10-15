@@ -9,6 +9,7 @@ class Bone
 private:
 	int BoneID;
 	std::string BoneName;
+	std::vector<std::shared_ptr<Bone>> boner;
 	std::vector<Bone> ChildrenBoneList;
 	glm::mat4 OffsetMatrix;
 	glm::mat4 BoneTransformMatrix;

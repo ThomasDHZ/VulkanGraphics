@@ -23,14 +23,12 @@ layout(binding = 0) uniform UniformBufferObject {
 
 void main()
 {
-    mat4 BoneTransform = mat4(1.0f);
-    if(BoneID.x != 0)
-    {
-        BoneTransform = ubo.BoneTransform[int(BoneID.x)] * BoneWeights.x;
-        BoneTransform += ubo.BoneTransform[int(BoneID.y)] * BoneWeights.y;
-        BoneTransform += ubo.BoneTransform[int(BoneID.z)] * BoneWeights.z;
-        BoneTransform += ubo.BoneTransform[int(BoneID.w)] * BoneWeights.w;
-    }
+    mat4 BoneTransform;
+    BoneTransform = ubo.BoneTransform[int(BoneID.x)] * BoneWeights.x;
+    BoneTransform += ubo.BoneTransform[int(BoneID.y)] * BoneWeights.y;
+    BoneTransform += ubo.BoneTransform[int(BoneID.z)] * BoneWeights.z;
+    BoneTransform += ubo.BoneTransform[int(BoneID.w)] * BoneWeights.w;
+    
     vec4 pos = BoneTransform * vec4(aPos, 1.0);
 
     FragPos = vec3(ubo.model * pos);    
