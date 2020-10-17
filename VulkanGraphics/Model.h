@@ -10,8 +10,9 @@ class Model
 {
 private:
 	std::vector<Mesh> MeshList;
-	std::vector<Bone> BoneList;
-	std::vector<Animation3D> AnimationList;
+	std::vector<std::shared_ptr<Bone>> BoneList;
+
+	//std::vector<Animation3D> AnimationList;
 
 	std::vector<MeshData> SubMeshList;
 
@@ -22,8 +23,8 @@ private:
 	void ProcessNode(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath, aiNode* node, const aiScene* scene);
 	std::vector<Vertex> LoadVertices(aiMesh* mesh);
 	std::vector<uint16_t> LoadIndices(aiMesh* mesh);
-	std::vector<Bone> LoadBones(const aiNode* RootNode, const aiMesh* mesh, std::vector<Vertex>& VertexList);
-	std::vector<Animation3D> LoadAnimations(const aiScene* scene);
+	std::vector<std::shared_ptr<Bone>> LoadBones(const aiNode* RootNode, const aiMesh* mesh, std::vector<Vertex>& VertexList);
+	//std::vector<Animation3D> LoadAnimations(const aiScene* scene);
 	MeshTextures LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene);
 	void SendDrawMessage(RendererManager& renderer);
 

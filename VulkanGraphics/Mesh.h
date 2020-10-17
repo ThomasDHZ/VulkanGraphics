@@ -90,7 +90,7 @@ struct VertexMatrixObject {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
-    alignas(16) glm::mat4 BoneTransform[16];
+    glm::mat4 BoneTransform[100];
 };
 
 struct Empty
@@ -139,7 +139,7 @@ public:
 
     virtual void Update(RendererManager& renderer) override;
     virtual void Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
-    virtual void Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, std::vector<Bone>& BoneList, void* CustomBufferinfo = nullptr);
+    virtual void Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, const std::vector<std::shared_ptr<Bone>>& BoneList, void* CustomBufferinfo = nullptr);
     virtual void ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager);
     virtual void Destory(RendererManager& renderer) override;
 };

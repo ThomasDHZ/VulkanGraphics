@@ -331,18 +331,26 @@ void Mesh::Update(RendererManager& renderer, std::shared_ptr<Camera> camera, Lig
     UpdateUniformBuffer(renderer, ubo, Lightbuffer, CustomBufferinfo);
 }
 
-void Mesh::Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, std::vector<Bone>& BoneList, void* CustomBufferinfo)
+void Mesh::Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, const std::vector<std::shared_ptr<Bone>>& BoneList, void* CustomBufferinfo)
 {
     ubo.model = glm::mat4(1.0f);
-    ubo.model = glm::translate(ubo.model, MeshPosition);
-    ubo.model = glm::scale(ubo.model, MeshScale);
+  //  ubo.model = glm::translate(ubo.model, MeshPosition);
+  //  ubo.model = glm::scale(ubo.model, MeshScale);
     ubo.view = camera->GetViewMatrix();
     ubo.proj = camera->GetProjectionMatrix();
     ubo.proj[1][1] *= -1;
 
     for (auto bone : BoneList)
     {
-        ubo.BoneTransform[bone.GetBoneID()] = bone.GetBoneTransformMatrix();
+        ubo.BoneTransform[bone->GetBoneID()] = bone->GetBoneTransformMatrix();
+
+        std::cout << bone->GetBoneName() << std::endl;
+        std::cout << bone->GetBoneTransformMatrix()[0].x << "  " << bone->GetBoneTransformMatrix()[0].y << "  " << bone->GetBoneTransformMatrix()[0].z << "  " << bone->GetBoneTransformMatrix()[0].w << std::endl;
+        std::cout << bone->GetBoneTransformMatrix()[1].x << "  " << bone->GetBoneTransformMatrix()[1].y << "  " << bone->GetBoneTransformMatrix()[1].z << "  " << bone->GetBoneTransformMatrix()[1].w << std::endl;
+        std::cout << bone->GetBoneTransformMatrix()[2].x << "  " << bone->GetBoneTransformMatrix()[2].y << "  " << bone->GetBoneTransformMatrix()[2].z << "  " << bone->GetBoneTransformMatrix()[2].w << std::endl;
+        std::cout << bone->GetBoneTransformMatrix()[3].x << "  " << bone->GetBoneTransformMatrix()[3].y << "  " << bone->GetBoneTransformMatrix()[3].z << "  " << bone->GetBoneTransformMatrix()[3].w << std::endl;
+
+        int z = 34;
     }
 
     properites.timer = glfwGetTime();

@@ -9,22 +9,23 @@ class Bone
 private:
 	int BoneID;
 	std::string BoneName;
-	std::vector<std::shared_ptr<Bone>> boner;
-	std::vector<Bone> ChildrenBoneList;
 	glm::mat4 OffsetMatrix;
 	glm::mat4 BoneTransformMatrix;
+	std::shared_ptr<Bone> ParentBone;
+	std::vector<std::shared_ptr<Bone>> ChildrenBoneList;
 
 public:
 	Bone();
 	Bone(const std::string& boneName, int boneId, glm::mat4 boneTransformMatrix);
 	~Bone();
 
-	void AddChildBone(Bone bone);
-	void InvertBoneMatrix(Bone& BoneList, const glm::mat4& ParentTransformMatrix, const glm::mat4& GlobalInverseTransformMatrix);
+	void SetParentBone(const glm::mat4& GlobalInverseTransformMatrix, std::shared_ptr<Bone> parentBone);
+	void AddChildBone(std::shared_ptr<Bone> bone);
+	void InvertBoneMatrix(const glm::mat4& GlobalInverseTransformMatrix);
 
 	int GetBoneID() { return BoneID; }
 	const std::string& GetBoneName() { return BoneName; }
-	const std::vector<Bone> GetChildrenBoneList() { return ChildrenBoneList; }
+	const std::vector<std::shared_ptr<Bone>> GetChildrenBoneList() { return ChildrenBoneList; }
 	const glm::mat4 GetOffsetMatrix() { return OffsetMatrix; }
 	const glm::mat4 GetBoneTransformMatrix() { return BoneTransformMatrix; }
 };

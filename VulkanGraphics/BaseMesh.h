@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include "Vertex.h"
 #include "VulkanEngine.h"
 #include "Structs.h"

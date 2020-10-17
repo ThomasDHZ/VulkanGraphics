@@ -10,12 +10,12 @@
 
 struct Vertex
 {
-	glm::vec3 Position;
-	glm::vec3 Normal;
-	glm::vec2 TexureCoord;
-	glm::vec3 Tangant;
-	glm::vec3 BiTangant;
-	glm::ivec4 BoneID = glm::vec4(0);
+	glm::vec3 Position = glm::vec3(0.0f);
+	glm::vec3 Normal = glm::vec3(0.0f);
+	glm::vec2 TexureCoord = glm::vec2(0.0f);
+	glm::vec3 Tangant = glm::vec3(0.0f);
+	glm::vec3 BiTangant = glm::vec3(0.0f);
+	glm::ivec4 BoneID = glm::ivec4(0);
 	glm::vec4 BoneWeights = glm::vec4(0.0f);
 
 	static VkVertexInputBindingDescription GetBindingDescription()
