@@ -342,15 +342,7 @@ void Mesh::Update(RendererManager& renderer, std::shared_ptr<Camera> camera, Lig
 
     for (auto bone : BoneList)
     {
-        ubo.BoneTransform[bone->GetBoneID()] = bone->GetBoneTransformMatrix();
-
-        std::cout << bone->GetBoneName() << std::endl;
-        std::cout << bone->GetBoneTransformMatrix()[0].x << "  " << bone->GetBoneTransformMatrix()[0].y << "  " << bone->GetBoneTransformMatrix()[0].z << "  " << bone->GetBoneTransformMatrix()[0].w << std::endl;
-        std::cout << bone->GetBoneTransformMatrix()[1].x << "  " << bone->GetBoneTransformMatrix()[1].y << "  " << bone->GetBoneTransformMatrix()[1].z << "  " << bone->GetBoneTransformMatrix()[1].w << std::endl;
-        std::cout << bone->GetBoneTransformMatrix()[2].x << "  " << bone->GetBoneTransformMatrix()[2].y << "  " << bone->GetBoneTransformMatrix()[2].z << "  " << bone->GetBoneTransformMatrix()[2].w << std::endl;
-        std::cout << bone->GetBoneTransformMatrix()[3].x << "  " << bone->GetBoneTransformMatrix()[3].y << "  " << bone->GetBoneTransformMatrix()[3].z << "  " << bone->GetBoneTransformMatrix()[3].w << std::endl;
-
-        int z = 34;
+        ubo.BoneTransform[bone->BoneID] = bone->FinalTransformMatrix;
     }
 
     properites.timer = glfwGetTime();
