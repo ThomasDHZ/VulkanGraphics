@@ -1,6 +1,27 @@
 #include "AnimationPlayer3D.h"
 #include <GLFW\glfw3.h>
 
+AnimationPlayer3D::AnimationPlayer3D()
+{
+}
+
+AnimationPlayer3D::AnimationPlayer3D(std::vector<std::shared_ptr<Bone>> skeleton, std::vector<NodeMap> nodeMapList, glm::mat4 globalInverseTransformMatrix, Animation3D StartingAnimation)
+{
+	Skeleton = skeleton;
+	NodeMapList = nodeMapList;
+	GlobalInverseTransformMatrix = globalInverseTransformMatrix;
+	CurrentAnimation = StartingAnimation;
+}
+
+AnimationPlayer3D::~AnimationPlayer3D()
+{
+}
+
+void AnimationPlayer3D::Update()
+{
+	UpdateSkeleton(0, glm::mat4(1.0f));
+}
+
 aiVector3D AnimationPlayer3D::InterpolatePosition(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID)
 {
 	int Frame = 0;
@@ -84,7 +105,7 @@ aiVector3D AnimationPlayer3D::InterpolateScaling(const std::shared_ptr<Bone> bon
 	return StartPos + factor * Diffrence;
 }
 
-void AnimationPlayer3D::UpdateSkeleton(const int NodeID, const glm::mat4 ParentMatrix)
+void AnimationPlayer3D::UpdateSkeleton(const int NodeID = 0, const glm::mat4 ParentMatrix = glm::mat4(1.0f))
 {
 	glm::mat4 glmTransform = AssimpToGLMMatrixConverter(NodeMapList[NodeID].NodeTransform);
 
@@ -129,7 +150,15 @@ void AnimationPlayer3D::UpdateSkeleton(const int NodeID, const glm::mat4 ParentM
 
 glm::mat4 AnimationPlayer3D::AssimpToGLMMatrixConverter(aiMatrix4x4 matrix)
 {
-	return glm::mat4();
+	glm::mat4 GLMMatrix;
+	for (int y = 0; y < 4; y++)
+	{
+		for (int x = 0; x < 4; x++)
+		{
+			GLMMatrix[x][y] = matrix[y][x];
+		}
+	}
+	return GLMMatrix;
 }
 
 aiQuaternion AnimationPlayer3D::nlerp(aiQuaternion quaternion1, aiQuaternion quaternion2, float blend)
@@ -157,8 +186,4 @@ aiQuaternion AnimationPlayer3D::nlerp(aiQuaternion quaternion1, aiQuaternion qua
 	}
 
 	return result.Normalize();
-}
-
-AnimationPlayer3D::AnimationPlayer3D()
-{
 }

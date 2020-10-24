@@ -22,7 +22,7 @@ private:
 	std::vector<MeshData> SubMeshList;
 
 
-	AnimationPlayer3D animationPlayer;
+	AnimationPlayer3D AnimationPlayer;
 	Animation3D CurrentAnimation;
 
 	void LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath);
@@ -37,14 +37,7 @@ private:
 
 	void BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int vertexID, unsigned int bone_id, float weight);
 
-	aiVector3D InterpolatePosition(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID);
-	aiQuaternion InterpolateRotation(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID);
-	aiVector3D InterpolateScaling(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID);
-
-	void UpdateSkeleton(const int NodeID, const glm::mat4 ParentMatrix);
-
 	glm::mat4 AssimpToGLMMatrixConverter(aiMatrix4x4 matrix);
-	aiQuaternion nlerp(aiQuaternion a, aiQuaternion b, float blend);
 
 public:
 	Model();

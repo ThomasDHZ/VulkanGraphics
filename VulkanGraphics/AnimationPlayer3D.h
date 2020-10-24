@@ -30,5 +30,9 @@ private:
 
 public:
 	AnimationPlayer3D();
+	AnimationPlayer3D(std::vector<std::shared_ptr<Bone>> skeleton, std::vector<NodeMap> nodeMapList, glm::mat4 globalInverseTransformMatrix, Animation3D StartingAnimation);
+	~AnimationPlayer3D();
+
+	void Update();
 };
 

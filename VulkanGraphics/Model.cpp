@@ -9,7 +9,7 @@ Model::Model(RendererManager& renderer, std::shared_ptr<TextureManager>& texture
 	LoadModel(renderer, textureManager, FilePath);
 	if (AnimationList.size() > 0)
 	{
-		CurrentAnimation = AnimationList[0];
+		AnimationPlayer = AnimationPlayer3D(BoneList, NodeMapList, GlobalInverseTransformMatrix, AnimationList[0]);
 	}
 
 	for (auto mesh : SubMeshList)
@@ -154,8 +154,6 @@ void Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh, std::vector<Ve
 				VertexList[x].BoneWeights.w / Weight);
 		}
 	}
-
-	UpdateSkeleton(0, glm::mat4(1.0f));
 }
 
 void Model::LoadNodeTree(const aiNode* Node, int parentNodeID = -1)
@@ -330,89 +328,6 @@ void Model::SendDrawMessage(RendererManager& renderer)
 	}
 }
 
-aiVector3D Model::InterpolatePosition(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID)
-{
-	int Frame = 0;
-	for (int x = CurrentAnimation.BoneKeyFrameList[0].BonePosition.size() - 1; x > 0; x--)
-	{
-		if (AnimationTime >= CurrentAnimation.BoneKeyFrameList[0].BonePosition[x].Time)
-		{
-			Frame = x;
-			break;
-		}
-	}
-
-	int NextFrame = Frame + 1;
-	if (NextFrame >= CurrentAnimation.BoneKeyFrameList[0].BonePosition.size() - 1)
-	{
-		NextFrame = 0;
-	}
-
-	float delta_time = (float)(CurrentAnimation.BoneKeyFrameList[bone->BoneID].BonePosition[NextFrame].Time - CurrentAnimation.BoneKeyFrameList[bone->BoneID].BonePosition[Frame].Time);
-	float factor = (AnimationTime - (float)CurrentAnimation.BoneKeyFrameList[bone->BoneID].BonePosition[Frame].Time) / delta_time;
-
-	aiVector3D StartPos = CurrentAnimation.BoneKeyFrameList[bone->BoneID].BonePosition[Frame].AnimationInfo;
-	aiVector3D EndPos = CurrentAnimation.BoneKeyFrameList[bone->BoneID].BonePosition[NextFrame].AnimationInfo;
-	aiVector3D Diffrence = EndPos - StartPos;
-
-	return StartPos + factor * Diffrence;
-}
-
-aiQuaternion Model::InterpolateRotation(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID)
-{
-	int Frame = 0;
-	for (int x = CurrentAnimation.BoneKeyFrameList[0].BoneRotation.size() - 1; x > 0; x--)
-	{
-		if (AnimationTime >= CurrentAnimation.BoneKeyFrameList[0].BoneRotation[x].Time)
-		{
-			Frame = x;
-			break;
-		}
-	}
-
-	int NextFrame = Frame + 1;
-	if (NextFrame >= CurrentAnimation.BoneKeyFrameList[0].BoneRotation.size() - 1)
-	{
-		NextFrame = 0;
-	}
-
-	float delta_time = (float)(CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneRotation[NextFrame].Time - CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneRotation[Frame].Time);
-	float factor = (AnimationTime - (float)CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneRotation[Frame].Time) / delta_time;
-
-	aiQuaternion StartPos = CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneRotation[Frame].AnimationInfo;
-	aiQuaternion EndPos = CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneRotation[NextFrame].AnimationInfo;
-
-	return nlerp(StartPos, EndPos, factor);
-}
-
-aiVector3D Model::InterpolateScaling(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID)
-{
-	int Frame = 0;
-	for (int x = CurrentAnimation.BoneKeyFrameList[0].BoneScale.size() - 1; x > 0; x--)
-	{
-		if (AnimationTime >= CurrentAnimation.BoneKeyFrameList[0].BoneScale[x].Time)
-		{
-			Frame = x;
-			break;
-		}
-	}
-
-	int NextFrame = Frame + 1;
-	if (NextFrame >= CurrentAnimation.BoneKeyFrameList[0].BoneScale.size() - 1)
-	{
-		NextFrame = 0;
-	}
-
-	float delta_time = (float)(CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneScale[NextFrame].Time - CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneScale[Frame].Time);
-	float factor = (AnimationTime - (float)CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneScale[Frame].Time) / delta_time;
-
-	aiVector3D StartPos = CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneScale[Frame].AnimationInfo;
-	aiVector3D EndPos = CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneScale[NextFrame].AnimationInfo;
-	aiVector3D Diffrence = EndPos - StartPos;
-
-	return StartPos + factor * Diffrence;
-}
-
 void Model::BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int vertexID, unsigned int bone_id, float weight)
 {
 	for (unsigned int i = 0; i < 4; i++)
@@ -423,51 +338,6 @@ void Model::BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int ve
 			VertexList[vertexID].BoneWeights[i] = weight;
 			return;
 		}
-	}
-}
-
-void Model::UpdateSkeleton(const int NodeID, const glm::mat4 ParentMatrix)
-{
-	glm::mat4 glmTransform = AssimpToGLMMatrixConverter(NodeMapList[NodeID].NodeTransform);
-	if (AnimationList.size() != 0)
-	{
-		auto Time = (float)glfwGetTime() * CurrentAnimation.TicksPerSec;
-		float AnimationTime = fmod(Time, CurrentAnimation.AnimationTime);
-
-		for (auto bone : BoneList)
-		{
-			if (NodeMapList[NodeID].NodeString == bone->BoneName)
-			{
-				aiMatrix4x4 ScaleMatrix;
-				aiMatrix4x4 TranslateMatrix;
-
-				aiVector3D scaling_vector = InterpolateScaling(bone, AnimationTime, NodeID);
-				aiMatrix4x4::Scaling(scaling_vector, ScaleMatrix);
-
-				aiQuaternion rotate_quat = InterpolateRotation(bone, AnimationTime, NodeID);
-				aiMatrix4x4 rotate_matr = aiMatrix4x4(rotate_quat.GetMatrix());
-
-				aiVector3D translate_vector = InterpolatePosition(bone, AnimationTime, NodeID);
-				aiMatrix4x4::Translation(translate_vector, TranslateMatrix);
-
-				glmTransform = AssimpToGLMMatrixConverter(TranslateMatrix * rotate_matr * ScaleMatrix);
-			}
-		}
-	}
-
-	glm::mat4 GlobalTransform = ParentMatrix * glmTransform;
-
-	for (auto bone : BoneList)
-	{
-		if (NodeMapList[NodeID].NodeString == bone->BoneName)
-		{
-			bone->FinalTransformMatrix = GlobalInverseTransformMatrix * GlobalTransform * bone->OffsetMatrix;
-		}
-	}
-
-	for (int x = 0; x < NodeMapList[NodeID].ChildNodeList.size(); x++)
-	{
-		UpdateSkeleton(NodeMapList[NodeID].ChildNodeList[x], GlobalTransform);
 	}
 }
 
@@ -484,36 +354,9 @@ glm::mat4 Model::AssimpToGLMMatrixConverter(aiMatrix4x4 AssMatrix)
 	return GLMMatrix;
 }
 
-aiQuaternion Model::nlerp(aiQuaternion a, aiQuaternion b, float blend)
-{
-	a.Normalize();
-	b.Normalize();
-
-	aiQuaternion result;
-	float dot_product = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-	float one_minus_blend = 1.0f - blend;
-
-	if (dot_product < 0.0f)
-	{
-		result.x = a.x * one_minus_blend + blend * -b.x;
-		result.y = a.y * one_minus_blend + blend * -b.y;
-		result.z = a.z * one_minus_blend + blend * -b.z;
-		result.w = a.w * one_minus_blend + blend * -b.w;
-	}
-	else
-	{
-		result.x = a.x * one_minus_blend + blend * b.x;
-		result.y = a.y * one_minus_blend + blend * b.y;
-		result.z = a.z * one_minus_blend + blend * b.z;
-		result.w = a.w * one_minus_blend + blend * b.w;
-	}
-
-	return result.Normalize();
-}
-
 void Model::UpdateUniformBuffer(RendererManager& renderer, std::shared_ptr<Camera>& camera, LightBufferObject& light)
 {
-	UpdateSkeleton(0, glm::mat4(1.0f));
+	AnimationPlayer.Update();
 	for (auto mesh : MeshList)
 	{
 		mesh.Update(renderer, camera, light, BoneList);
