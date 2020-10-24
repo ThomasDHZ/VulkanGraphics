@@ -6,15 +6,7 @@
 #include "Mesh.h"
 #include <unordered_map>
 #include <Animation3D.h>
-
-struct NodeMap
-{
-	std::string NodeString;
-	aiMatrix4x4 NodeTransform;
-	int ParentNodeID;
-	int NodeID;
-	std::vector<int> ChildNodeList;
-};
+#include <AnimationPlayer3D.h>
 
 class Model
 {
@@ -25,10 +17,12 @@ private:
 	std::vector<std::shared_ptr<Bone>> BoneList;
 	std::vector<Animation3D> AnimationList;
 	std::vector<NodeMap> NodeMapList;
+	glm::mat4 GlobalInverseTransformMatrix;
 
 	std::vector<MeshData> SubMeshList;
 
-	glm::mat4 GlobalInverseTransformMatrix;
+
+	AnimationPlayer3D animationPlayer;
 	Animation3D CurrentAnimation;
 
 	void LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath);
@@ -41,11 +35,12 @@ private:
 	MeshTextures LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene);
 	void SendDrawMessage(RendererManager& renderer);
 
+	void BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int vertexID, unsigned int bone_id, float weight);
+
 	aiVector3D InterpolatePosition(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID);
 	aiQuaternion InterpolateRotation(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID);
 	aiVector3D InterpolateScaling(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID);
 
-	void BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int vertexID, unsigned int bone_id, float weight);
 	void UpdateSkeleton(const int NodeID, const glm::mat4 ParentMatrix);
 
 	glm::mat4 AssimpToGLMMatrixConverter(aiMatrix4x4 matrix);

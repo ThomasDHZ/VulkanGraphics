@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="Animation2D.cpp" />
     <ClCompile Include="Animation3D.cpp" />
+    <ClCompile Include="AnimationPlayer3D.cpp" />
     <ClCompile Include="BloomPipeline.cpp" />
     <ClCompile Include="BloomPipeline2nd.cpp" />
     <ClCompile Include="BloomRenderPass.cpp" />
@@ -272,6 +273,7 @@
   <ItemGroup>
     <ClInclude Include="Animation2D.h" />
     <ClInclude Include="Animation3D.h" />
+    <ClInclude Include="AnimationPlayer3D.h" />
     <ClInclude Include="BloomPipeline.h" />
     <ClInclude Include="BloomPipeline2nd.h" />
     <ClInclude Include="BloomRenderPass.h" />
