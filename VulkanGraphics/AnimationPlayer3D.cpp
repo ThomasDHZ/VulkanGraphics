@@ -3,6 +3,8 @@
 
 AnimationPlayer3D::AnimationPlayer3D()
 {
+	AniTime = 0.0f;
+	AnimationPlaySpeed = 0.0f;
 }
 
 AnimationPlayer3D::AnimationPlayer3D(std::vector<std::shared_ptr<Bone>> skeleton, std::vector<NodeMap> nodeMapList, glm::mat4 globalInverseTransformMatrix, Animation3D StartingAnimation)
@@ -11,6 +13,9 @@ AnimationPlayer3D::AnimationPlayer3D(std::vector<std::shared_ptr<Bone>> skeleton
 	NodeMapList = nodeMapList;
 	GlobalInverseTransformMatrix = globalInverseTransformMatrix;
 	CurrentAnimation = StartingAnimation;
+	AniTime = 0.0f;
+	AnimationPlaySpeed = 1.0f;
+	PlayAnimationFlag = true;
 }
 
 AnimationPlayer3D::~AnimationPlayer3D()
@@ -19,7 +24,20 @@ AnimationPlayer3D::~AnimationPlayer3D()
 
 void AnimationPlayer3D::Update()
 {
-	UpdateSkeleton(0, glm::mat4(1.0f));
+	if (PlayAnimationFlag)
+	{
+		UpdateSkeleton(0, glm::mat4(1.0f));
+	}
+}
+
+void AnimationPlayer3D::SetAnimation(Animation3D animation)
+{
+	CurrentAnimation = animation;
+}
+
+void AnimationPlayer3D::SetPlayAnimationFlag(bool Flag)
+{
+	PlayAnimationFlag = Flag;
 }
 
 aiVector3D AnimationPlayer3D::InterpolatePosition(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID)
@@ -109,8 +127,8 @@ void AnimationPlayer3D::UpdateSkeleton(const int NodeID = 0, const glm::mat4 Par
 {
 	glm::mat4 glmTransform = AssimpToGLMMatrixConverter(NodeMapList[NodeID].NodeTransform);
 
-	auto Time = (float)glfwGetTime() * CurrentAnimation.TicksPerSec;
-	float AnimationTime = fmod(Time, CurrentAnimation.AnimationTime);
+	auto Time = (float)glfwGetTime() * AnimationPlaySpeed * CurrentAnimation.TicksPerSec;
+	AniTime = fmod(Time, CurrentAnimation.AnimationTime);
 
 	for (auto bone : Skeleton)
 	{
@@ -119,13 +137,13 @@ void AnimationPlayer3D::UpdateSkeleton(const int NodeID = 0, const glm::mat4 Par
 			aiMatrix4x4 ScaleMatrix;
 			aiMatrix4x4 TranslateMatrix;
 
-			aiVector3D scaling_vector = InterpolateScaling(bone, AnimationTime, NodeID);
+			aiVector3D scaling_vector = InterpolateScaling(bone, AniTime, NodeID);
 			aiMatrix4x4::Scaling(scaling_vector, ScaleMatrix);
 
-			aiQuaternion rotate_quat = InterpolateRotation(bone, AnimationTime, NodeID);
+			aiQuaternion rotate_quat = InterpolateRotation(bone, AniTime, NodeID);
 			aiMatrix4x4 rotate_matr = aiMatrix4x4(rotate_quat.GetMatrix());
 
-			aiVector3D translate_vector = InterpolatePosition(bone, AnimationTime, NodeID);
+			aiVector3D translate_vector = InterpolatePosition(bone, AniTime, NodeID);
 			aiMatrix4x4::Translation(translate_vector, TranslateMatrix);
 
 			glmTransform = AssimpToGLMMatrixConverter(TranslateMatrix * rotate_matr * ScaleMatrix);

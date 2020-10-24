@@ -156,6 +156,19 @@ void Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh, std::vector<Ve
 	}
 }
 
+void Model::BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int vertexID, unsigned int bone_id, float weight)
+{
+	for (unsigned int i = 0; i < MAX_BONE_VERTEX_COUNT; i++)
+	{
+		if (VertexList[vertexID].BoneWeights[i] == 0.0)
+		{
+			VertexList[vertexID].BoneID[i] = bone_id;
+			VertexList[vertexID].BoneWeights[i] = weight;
+			return;
+		}
+	}
+}
+
 void Model::LoadNodeTree(const aiNode* Node, int parentNodeID = -1)
 {
 	NodeMap node;
@@ -328,19 +341,6 @@ void Model::SendDrawMessage(RendererManager& renderer)
 	}
 }
 
-void Model::BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int vertexID, unsigned int bone_id, float weight)
-{
-	for (unsigned int i = 0; i < 4; i++)
-	{
-		if (VertexList[vertexID].BoneWeights[i] == 0.0)
-		{
-			VertexList[vertexID].BoneID[i] = bone_id;
-			VertexList[vertexID].BoneWeights[i] = weight;
-			return;
-		}
-	}
-}
-
 glm::mat4 Model::AssimpToGLMMatrixConverter(aiMatrix4x4 AssMatrix)
 {
 	glm::mat4 GLMMatrix;
@@ -354,13 +354,32 @@ glm::mat4 Model::AssimpToGLMMatrixConverter(aiMatrix4x4 AssMatrix)
 	return GLMMatrix;
 }
 
-void Model::UpdateUniformBuffer(RendererManager& renderer, std::shared_ptr<Camera>& camera, LightBufferObject& light)
+void Model::Update(RendererManager& renderer, std::shared_ptr<Camera>& camera, LightBufferObject& light)
 {
 	AnimationPlayer.Update();
 	for (auto mesh : MeshList)
 	{
 		mesh.Update(renderer, camera, light, BoneList);
 	}
+}
+
+void Model::UpdateImGUI()
+{
+	ImGui::Begin("Model");
+	if (ImGui::Button("Play"))
+	{
+		if (AnimationPlayer.GetPlayAnimationFlag())
+		{
+			AnimationPlayer.SetPlayAnimationFlag(false);
+		}
+		else
+		{
+			AnimationPlayer.SetPlayAnimationFlag(true);
+		}
+	}
+	ImGui::SliderFloat("Anibar", AnimationPlayer.GetAnimationTimePtr(), 0.0f, AnimationPlayer.GetAnimationLength());
+	ImGui::SliderFloat("PlaySpeed", AnimationPlayer.GetAnimationPlaySpeedPtr(), 0.0f, 10.0f);
+	ImGui::End();
 }
 
 void Model::Destroy(RendererManager& renderer)

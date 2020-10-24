@@ -8,10 +8,15 @@
 #include <Animation3D.h>
 #include <AnimationPlayer3D.h>
 
+const unsigned int MAX_BONE_VERTEX_COUNT = 4;
+
 class Model
 {
 private:
-	//const unsigned int MAX_BONE_VERTEX_COUNT = 4;
+	std::string ModelName;
+	glm::vec3 ModelPosition = glm::vec3(0.0f);
+	glm::vec3 ModelRotate = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 ModelScale = glm::vec3(1.0f);
 
 	std::vector<Mesh> MeshList;
 	std::vector<std::shared_ptr<Bone>> BoneList;
@@ -21,8 +26,6 @@ private:
 
 	std::vector<MeshData> SubMeshList;
 
-
-	AnimationPlayer3D AnimationPlayer;
 	Animation3D CurrentAnimation;
 
 	void LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath);
@@ -44,16 +47,14 @@ public:
 	Model(RendererManager& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath);
 	~Model();
 
-	std::string ModelName;
-	glm::vec3 ModelPosition = glm::vec3(0.0f);
-	glm::vec3 ModelRotate = glm::vec3(0.0f, 0.0f, 1.0f);
-	glm::vec3 ModelScale = glm::vec3(1.0f);
-
-	void UpdateUniformBuffer(RendererManager& renderer, std::shared_ptr<Camera>& camera, LightBufferObject& light);
+	void Update(RendererManager& renderer, std::shared_ptr<Camera>& camera, LightBufferObject& light);
+	void UpdateImGUI();
 	void Destroy(RendererManager& renderer);
 
 	std::vector<Mesh> GetModelMeshList()
 	{
 		return MeshList;
 	}
+
+	AnimationPlayer3D AnimationPlayer;
 };

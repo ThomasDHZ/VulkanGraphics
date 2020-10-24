@@ -105,6 +105,8 @@ void VulkanGraphics::UpdateImGUI()
 		//ImGui::SliderFloat("wavePeriod", &a->waveprop.wavePeriod, 0.0f, 60.0f);
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+
 		//ImGui::SliderFloat("Gamma", &framebuffer.settings.Gamma, 0.0f, 10.0f);
 		//ImGui::SliderFloat("HDR Value", &framebuffer.settings.HDRValue, 0.0f, 10.0f);
 		ImGui::Checkbox("MeshView", &renderer.Settings.ShowMeshLines);
@@ -174,6 +176,7 @@ void VulkanGraphics::UpdateImGUI()
 		}
 		ImGui::End();
 		gameManager.textureManager->UpdateIMGUIVRAM();
+		mesh.UpdateImGUI();
 	}
 
 	ImGui::Render();
@@ -191,8 +194,8 @@ void VulkanGraphics::Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera)
 
 	light.Update(renderer, camera);
 
-	mesh.ModelPosition = glm::vec3(1.0f, 10.0f, 0.0f);
-	mesh.UpdateUniformBuffer(renderer, camera, light.light);
+	//mesh.ModelPosition = glm::vec3(1.0f, 10.0f, 0.0f);
+	mesh.Update(renderer, camera, light.light);
 	cube.MeshPosition = glm::vec3(1.0f, 10.0f, 0.0f);
 	cube.MeshScale = glm::vec3(5.0f);
 	cube.Update(renderer, camera, light.light);

@@ -13,11 +13,16 @@ struct NodeMap
 class AnimationPlayer3D
 {
 private:
+
 	Animation3D CurrentAnimation;
 	std::vector<std::shared_ptr<Bone>> Skeleton;
 
 	std::vector<NodeMap> NodeMapList;
 	glm::mat4 GlobalInverseTransformMatrix;
+
+	float AniTime;
+	float AnimationPlaySpeed;
+	bool PlayAnimationFlag;
 
 	aiVector3D InterpolatePosition(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID);
 	aiQuaternion InterpolateRotation(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID);
@@ -34,5 +39,18 @@ public:
 	~AnimationPlayer3D();
 
 	void Update();
+
+	void SetAnimation(Animation3D animation);
+	void SetPlayAnimationFlag(bool Flag);
+
+	float GetAnimationTime() { return AniTime; }
+	float GetAnimationPlaySpeed() { return AnimationPlaySpeed; }
+	float GetAnimationLength() { return CurrentAnimation.AnimationTime; }
+	bool GetPlayAnimationFlag() { return PlayAnimationFlag; }
+	Animation3D GetCurrentAnimation() { return CurrentAnimation; }
+
+	float* GetAnimationTimePtr() { return &AniTime; }
+	float* GetAnimationLengthPtr() { return &CurrentAnimation.AnimationTime; }
+	float* GetAnimationPlaySpeedPtr() { return &AnimationPlaySpeed; }
 };
 
