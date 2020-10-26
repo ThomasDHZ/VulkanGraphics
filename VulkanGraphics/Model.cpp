@@ -6,27 +6,6 @@ Model::Model()
 
 Model::Model(RendererManager& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath)
 {
-	LoadModel(renderer, textureManager, FilePath);
-	if (AnimationList.size() > 0)
-	{
-		AnimationPlayer = AnimationPlayer3D(BoneList, NodeMapList, GlobalInverseTransformMatrix, AnimationList[0]);
-	}
-
-	for (auto mesh : SubMeshList)
-	{
-		MeshList.emplace_back(Mesh(renderer, textureManager, mesh));
-	}
-
-	SendDrawMessage(renderer);
-}
-
-Model::~Model()
-{
-
-}
-
-void Model::LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath)
-{
 	Assimp::Importer ModelImporter;
 
 	const aiScene* Scene = ModelImporter.ReadFile(FilePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -38,27 +17,58 @@ void Model::LoadModel(VulkanEngine& renderer, std::shared_ptr<TextureManager>& t
 
 	GlobalInverseTransformMatrix = AssimpToGLMMatrixConverter(Scene->mRootNode->mTransformation.Inverse());
 
-	ProcessNode(renderer, textureManager, FilePath, Scene->mRootNode, Scene);
+	LoadNodeTree(Scene->mRootNode);
+	LoadAnimations(Scene);
+	LoadMesh(renderer, textureManager, FilePath, Scene->mRootNode, Scene);
+
+	for (auto mesh : SubMeshList)
+	{
+		MeshList.emplace_back(std::make_shared<Mesh>(Mesh(renderer, textureManager, mesh)));
+	}
+
+	LoadMeshTransform();
+
+	if (AnimationList.size() > 0)
+	{
+		AnimationPlayer = AnimationPlayer3D(BoneList, NodeMapList, GlobalInverseTransformMatrix, AnimationList[0]);
+	}
+
+	SendDrawMessage(renderer);
 }
 
-void Model::ProcessNode(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath, aiNode* node, const aiScene* scene)
+Model::~Model()
+{
+
+}
+
+void Model::LoadMesh(VulkanEngine& renderer, std::shared_ptr<TextureManager>& textureManager, const std::string& FilePath, aiNode* node, const aiScene* scene)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
-		MeshData NewMesh;
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		LoadNodeTree(scene->mRootNode, -1);
+
+		MeshData NewMesh;
+		NewMesh.MeshID = SubMeshList.size();
+		NewMesh.NodeName = node->mName.C_Str();
 		NewMesh.VertexList = LoadVertices(mesh);
 		NewMesh.IndexList = LoadIndices(mesh);
 		NewMesh.TextureList = LoadTextures(renderer, textureManager, FilePath, mesh, scene);
-		LoadAnimations(scene);
+		NewMesh.TransformMatrix = AssimpToGLMMatrixConverter(node->mTransformation);
 		LoadBones(scene->mRootNode, mesh, NewMesh.VertexList);
+		for (auto nodeMap : NodeMapList)
+		{
+			if (nodeMap.NodeString == node->mName.C_Str())
+			{
+				NewMesh.NodeID = nodeMap.NodeID;
+				nodeMap.MeshID = NewMesh.MeshID;
+			}
+		}
 		SubMeshList.emplace_back(NewMesh);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		ProcessNode(renderer, textureManager, FilePath, node->mChildren[i], scene);
+		LoadMesh(renderer, textureManager, FilePath, node->mChildren[i], scene);
 	}
 }
 
@@ -98,33 +108,6 @@ std::vector<Vertex> Model::LoadVertices(aiMesh* mesh)
 		VertexList.emplace_back(vertex);
 	}
 
-	return VertexList;
-}
-
-std::vector<uint16_t> Model::LoadIndices(aiMesh* mesh)
-{
-	std::vector<uint16_t> IndexList;
-
-	for (int x = 0; x < mesh->mNumFaces; x++)
-	{
-		aiFace Faces = mesh->mFaces[x];
-		for (int y = 0; y < Faces.mNumIndices; y++)
-		{
-			IndexList.emplace_back(Faces.mIndices[y]);
-		}
-	}
-
-	return IndexList;
-}
-
-void Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh, std::vector<Vertex>& VertexList)
-{
-	for (int x = 0; x < mesh->mNumBones; x++)
-	{
-		auto node = RootNode->FindNode(mesh->mBones[x]->mName.data);
-		BoneList.emplace_back(std::make_shared<Bone>(mesh->mBones[x]->mName.data, x, AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)));
-	}
-
 	for (int x = 0; x < mesh->mNumBones; x++)
 	{
 		std::vector<unsigned int> AffectedVertices;
@@ -154,6 +137,52 @@ void Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh, std::vector<Ve
 				VertexList[x].BoneWeights.w / Weight);
 		}
 	}
+
+	return VertexList;
+}
+
+std::vector<uint16_t> Model::LoadIndices(aiMesh* mesh)
+{
+	std::vector<uint16_t> IndexList;
+
+	for (int x = 0; x < mesh->mNumFaces; x++)
+	{
+		aiFace Faces = mesh->mFaces[x];
+		for (int y = 0; y < Faces.mNumIndices; y++)
+		{
+			IndexList.emplace_back(Faces.mIndices[y]);
+		}
+	}
+
+	return IndexList;
+}
+
+void Model::LoadBones(const aiNode* RootNode, const aiMesh* mesh, std::vector<Vertex>& VertexList)
+{
+	for (int x = 0; x < mesh->mNumBones; x++)
+	{
+		auto node = RootNode->FindNode(mesh->mBones[x]->mName.data);
+		BoneList.emplace_back(std::make_shared<Bone>(mesh->mBones[x]->mName.data, x, AssimpToGLMMatrixConverter(mesh->mBones[x]->mOffsetMatrix)));
+	}
+}
+
+void Model::LoadMeshTransform(const int NodeID, const glm::mat4 ParentMatrix)
+{
+	glm::mat4 glmTransform = AssimpToGLMMatrixConverter(NodeMapList[NodeID].NodeTransform);
+	glm::mat4 GlobalTransform = ParentMatrix * glmTransform;
+
+	for (auto mesh : MeshList)
+	{
+		if (mesh->NodeId == NodeID)
+		{
+			mesh->TransformMatrix = GlobalTransform;
+		}
+	}
+
+	for (int x = 0; x < NodeMapList[NodeID].ChildNodeList.size(); x++)
+	{
+		LoadMeshTransform(NodeMapList[NodeID].ChildNodeList[x], GlobalTransform);
+	}
 }
 
 void Model::BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int vertexID, unsigned int bone_id, float weight)
@@ -169,7 +198,7 @@ void Model::BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int ve
 	}
 }
 
-void Model::LoadNodeTree(const aiNode* Node, int parentNodeID = -1)
+void Model::LoadNodeTree(const aiNode* Node, int parentNodeID)
 {
 	NodeMap node;
 	node.NodeID = NodeMapList.size();
@@ -241,17 +270,15 @@ void Model::LoadAnimations(const aiScene* scene)
 		}
 
 		AnimationList.emplace_back(animation);
-		CurrentAnimation = AnimationList[0];
 	}
 }
 
 MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
 {
-	MeshTextures meshTextures;
-
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto directory = FilePath.substr(0, FilePath.find_last_of('/')) + '/';
 
+	MeshTextures meshTextures;
 	meshTextures.DiffuseMap = DefaultTexture;
 	meshTextures.SpecularMap = DefaultTexture;
 	meshTextures.NormalMap = DefaultTexture;
@@ -264,7 +291,6 @@ MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<Texture
 	meshTextures.CubeMap[3] = DefaultTexture;
 	meshTextures.CubeMap[4] = DefaultTexture;
 	meshTextures.CubeMap[5] = DefaultTexture;
-
 
 	aiString TextureLocation;
 	for (unsigned int x = 0; x < material->GetTextureCount(aiTextureType_DIFFUSE); x++)
@@ -337,7 +363,7 @@ void Model::SendDrawMessage(RendererManager& renderer)
 {
 	for (auto mesh : MeshList)
 	{
-		mesh.CreateDrawMessage(renderer, 1, renderer.forwardRenderer.forwardRendereringPipeline);
+		mesh->CreateDrawMessage(renderer, 1, renderer.forwardRenderer.forwardRendereringPipeline);
 	}
 }
 
@@ -359,13 +385,21 @@ void Model::Update(RendererManager& renderer, std::shared_ptr<Camera>& camera, L
 	AnimationPlayer.Update();
 	for (auto mesh : MeshList)
 	{
-		mesh.Update(renderer, camera, light, BoneList);
+		mesh->Update(renderer, camera, light, BoneList);
 	}
 }
 
 void Model::UpdateImGUI()
 {
+
 	ImGui::Begin("Model");
+	ImGui::SliderFloat3("a", &MeshList[0]->MeshRotate.x, 0.0f, 360.0f);
+	ImGui::SliderFloat3("b", &MeshList[1]->MeshRotate.x, 0.0f, 360.0f);
+	ImGui::SliderFloat3("c", &MeshList[2]->MeshRotate.x, 0.0f, 360.0f);
+	ImGui::SliderFloat3("d", &MeshList[3]->MeshRotate.x, 0.0f, 360.0f);
+	ImGui::SliderFloat3("e", &MeshList[4]->MeshRotate.x, 0.0f, 360.0f);
+	ImGui::SliderFloat3("f", &MeshList[5]->MeshRotate.x, 0.0f, 360.0f);
+
 	if (ImGui::Button("Play"))
 	{
 		if (AnimationPlayer.GetPlayAnimationFlag())
@@ -386,6 +420,6 @@ void Model::Destroy(RendererManager& renderer)
 {
 	for (auto mesh : MeshList)
 	{
-		mesh.Destory(renderer);
+		mesh->Destory(renderer);
 	}
 }

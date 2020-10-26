@@ -53,8 +53,8 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	meshTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
 
 	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
-	mesh = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/TestAnimModel/model.dae");
-	mesh.GetModelMeshList()[0].MeshPosition = glm::vec3(8.0f, 40.0f, 0.0f);
+	mesh = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/nano_hierarchy.gltf");
+
 	cube = Mesh(renderer, gameManager.textureManager, MegaManVertices, MegaManIndices, SparkManTextures);
 	cube.MeshPosition = glm::vec3(8.0f, 40.0f, 0.0f);
 	cube.CreateDrawMessage(renderer, 1, renderer.forwardRenderer.forwardRendereringPipeline);

@@ -50,9 +50,13 @@ struct MeshTextures
 
 struct MeshData
 {
+    unsigned int MeshID;
+    unsigned int NodeID;
+    std::string NodeName;
     std::vector<Vertex> VertexList;
     std::vector<uint16_t> IndexList;
     MeshTextures TextureList;
+    glm::mat4 TransformMatrix;
 };
 
 class BaseMesh
@@ -89,9 +93,9 @@ protected:
     void CreateDescriptorSetsData(RendererManager& renderer, std::vector<WriteDescriptorSetInfo> descriptorWritesList);
 
 public:
-    std::string MeshName;
+ 
     glm::vec3 MeshPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 MeshRotate = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 MeshRotate = glm::vec3(0.0f, 0.0f, 0.0f);
     glm::vec3 MeshScale = glm::vec3(1.0f);
 
     BaseMesh();

@@ -34,6 +34,10 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
     CustomBuffer EmptyBuffer;
     EmptyBuffer.ByteSize = sizeof(Empty);
 
+    NodeId = meshData.NodeID;
+    MeshID = meshData.MeshID;
+    MeshName = meshData.NodeName;
+    TransformMatrix = meshData.TransformMatrix;
     ExtendedMeshProperitesBuffer = EmptyBuffer;
 
     CreateMaterialProperties();
@@ -320,7 +324,7 @@ void Mesh::Update(RendererManager& renderer)
 
 void Mesh::Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, void* CustomBufferinfo)
 {
-    ubo.model = glm::mat4(1.0f);
+    ubo.model = TransformMatrix;
     ubo.model = glm::translate(ubo.model, MeshPosition);
     ubo.model = glm::scale(ubo.model, MeshScale);
     ubo.view = camera->GetViewMatrix();
@@ -333,9 +337,12 @@ void Mesh::Update(RendererManager& renderer, std::shared_ptr<Camera> camera, Lig
 
 void Mesh::Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, const std::vector<std::shared_ptr<Bone>>& BoneList, void* CustomBufferinfo)
 {
-    ubo.model = glm::mat4(1.0f);
-  //  ubo.model = glm::translate(ubo.model, MeshPosition);
-  //  ubo.model = glm::scale(ubo.model, MeshScale);
+    ubo.model = TransformMatrix;
+    ubo.model = glm::translate(ubo.model, MeshPosition);
+    ubo.model = glm::rotate(ubo.model, glm::radians(MeshRotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    ubo.model = glm::rotate(ubo.model, glm::radians(MeshRotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    ubo.model = glm::rotate(ubo.model, glm::radians(MeshRotate.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.model = glm::scale(ubo.model, MeshScale);
     ubo.view = camera->GetViewMatrix();
     ubo.proj = camera->GetProjectionMatrix();
     ubo.proj[1][1] *= -1;

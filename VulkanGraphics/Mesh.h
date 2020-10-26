@@ -107,7 +107,9 @@ struct CustomBuffer
 class Mesh : public BaseMesh
 {
 private:
+
     VertexMatrixObject ubo;
+
 
 protected:
 
@@ -126,6 +128,13 @@ protected:
     virtual void UpdateUniformBuffer(RendererManager& renderer, VertexMatrixObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
 
 public:
+    std::string MeshName;
+    int MeshID = -1;
+    unsigned int NodeId = -1;
+    glm::mat4 TransformMatrix = glm::mat4(1.0f);
+    std::shared_ptr<Mesh> ParentMesh;
+    std::vector<std::shared_ptr<Mesh>> ChildrenMesh;
+
     MeshProperties properites;
 
     Mesh();

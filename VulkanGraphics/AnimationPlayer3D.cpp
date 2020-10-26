@@ -5,6 +5,7 @@ AnimationPlayer3D::AnimationPlayer3D()
 {
 	AniTime = 0.0f;
 	AnimationPlaySpeed = 0.0f;
+	PlayAnimationFlag = false;
 }
 
 AnimationPlayer3D::AnimationPlayer3D(std::vector<std::shared_ptr<Bone>> skeleton, std::vector<NodeMap> nodeMapList, glm::mat4 globalInverseTransformMatrix, Animation3D StartingAnimation)

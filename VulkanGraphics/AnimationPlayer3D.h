@@ -8,6 +8,7 @@ struct NodeMap
 	int ParentNodeID;
 	int NodeID;
 	std::vector<int> ChildNodeList;
+	int MeshID;
 };
 
 class AnimationPlayer3D
