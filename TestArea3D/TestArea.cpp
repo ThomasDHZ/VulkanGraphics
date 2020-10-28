@@ -137,7 +137,6 @@ void VulkanGraphics::UpdateImGUI()
 		if (ImGui::TreeNode("MeshList"))
 		{
 			//ImGui::Columns(2, "tree", true);
-
 			//for (int x = 0; x < renderer.ObjectMesh.size(); x++)
 			//{
 			//	bool open1 = ImGui::TreeNode((void*)(intptr_t)x, "Mesh%d", x);

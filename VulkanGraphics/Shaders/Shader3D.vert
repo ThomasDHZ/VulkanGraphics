@@ -25,13 +25,12 @@ void main()
 {
 
     mat4 BoneTransform = mat4(1.0f);
-   // if()
-  //  {
-   //     BoneTransform =  ubo.BoneTransform[BoneID[0]] * BoneWeights[0];
+
+     //   BoneTransform =  ubo.BoneTransform[BoneID[0]] * BoneWeights[0];
 	//	BoneTransform += ubo.BoneTransform[BoneID[1]] * BoneWeights[1];
 	//    BoneTransform += ubo.BoneTransform[BoneID[2]] * BoneWeights[2];
 	//    BoneTransform += ubo.BoneTransform[BoneID[3]] * BoneWeights[3];
-   // }
+   
 
     vec4 BonePosisition = BoneTransform * vec4(aPos, 1.0);
 

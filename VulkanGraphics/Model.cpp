@@ -26,7 +26,7 @@ Model::Model(RendererManager& renderer, std::shared_ptr<TextureManager>& texture
 		MeshList.emplace_back(std::make_shared<Mesh>(Mesh(renderer, textureManager, mesh)));
 	}
 
-	LoadMeshTransform();
+	LoadMeshTransform(0, ModelTransformMatrix);
 
 	if (AnimationList.size() > 0)
 	{
@@ -382,6 +382,13 @@ glm::mat4 Model::AssimpToGLMMatrixConverter(aiMatrix4x4 AssMatrix)
 
 void Model::Update(RendererManager& renderer, std::shared_ptr<Camera>& camera, LightBufferObject& light)
 {
+	glm::mat4 modelMatrix = ModelTransformMatrix;
+	modelMatrix = glm::translate(modelMatrix, ModelPosition);
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(ModelRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(ModelRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(ModelRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+	modelMatrix = glm::scale(modelMatrix, ModelScale);
+	LoadMeshTransform(0, modelMatrix);
 	AnimationPlayer.Update();
 	for (auto mesh : MeshList)
 	{
@@ -393,12 +400,37 @@ void Model::UpdateImGUI()
 {
 
 	ImGui::Begin("Model");
-	ImGui::SliderFloat3("a", &MeshList[0]->MeshRotate.x, 0.0f, 360.0f);
-	ImGui::SliderFloat3("b", &MeshList[1]->MeshRotate.x, 0.0f, 360.0f);
-	ImGui::SliderFloat3("c", &MeshList[2]->MeshRotate.x, 0.0f, 360.0f);
-	ImGui::SliderFloat3("d", &MeshList[3]->MeshRotate.x, 0.0f, 360.0f);
-	ImGui::SliderFloat3("e", &MeshList[4]->MeshRotate.x, 0.0f, 360.0f);
-	ImGui::SliderFloat3("f", &MeshList[5]->MeshRotate.x, 0.0f, 360.0f);
+
+	if (ImGui::TreeNode("MeshList"))
+	{
+		ImGui::Text("Node contents");
+		ImGui::Columns(2, "tree", true);
+		for (int x = 0; x < MeshList.size(); x++)
+		{
+			ImGui::NextColumn();
+			ImGui::Text(MeshList[x]->MeshName.c_str());
+			ImGui::SliderFloat3("Position", &MeshList[x]->MeshPosition.x, 0.0f, 20.0f);
+			ImGui::SliderFloat3("Rotation", &MeshList[x]->MeshRotate.x, 0.0f, 360.0f);
+			ImGui::SliderFloat3("Scale", &MeshList[x]->MeshScale.x, 0.0f, 20.0f);
+			ImGui::NextColumn();
+		}
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("BoneList"))
+	{
+		ImGui::Text("Node contents");
+		ImGui::Columns(3, "tree", true);
+		for (int x = 0; x < BoneList.size(); x++)
+		{
+			ImGui::NextColumn();
+			ImGui::Text(BoneList[x]->BoneName.c_str());
+			ImGui::SliderFloat3("Position", &BoneList[x]->MeshPosition.x, 0.0f, 20.0f);
+			ImGui::SliderFloat3("Rotation", &BoneList[x]->MeshRotate.x, 0.0f, 360.0f);
+			ImGui::SliderFloat3("Scale", &BoneList[x]->MeshScale.x, 0.0f, 20.0f);
+			ImGui::NextColumn();
+		}
+		ImGui::TreePop();
+	}
 
 	if (ImGui::Button("Play"))
 	{
