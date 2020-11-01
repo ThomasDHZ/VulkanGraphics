@@ -90,7 +90,7 @@ struct VertexMatrixObject {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
-    glm::mat4 BoneTransform[100];
+    glm::mat4 BoneTransform[300];
 };
 
 struct Empty
@@ -107,9 +107,15 @@ struct CustomBuffer
 class Mesh : public BaseMesh
 {
 private:
+    std::string MeshName;
+    int MeshID = -1;
+    unsigned int NodeId = -1;
+    unsigned int BoneCount = 0;
+    glm::mat4 TransformMatrix = glm::mat4(1.0f);
+    std::shared_ptr<Mesh> ParentMesh;
+    std::vector<std::shared_ptr<Mesh>> ChildrenMesh;
 
     VertexMatrixObject ubo;
-
 
 protected:
 
@@ -128,13 +134,6 @@ protected:
     virtual void UpdateUniformBuffer(RendererManager& renderer, VertexMatrixObject ubo, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
 
 public:
-    std::string MeshName;
-    int MeshID = -1;
-    unsigned int NodeId = -1;
-    glm::mat4 TransformMatrix = glm::mat4(1.0f);
-    std::shared_ptr<Mesh> ParentMesh;
-    std::vector<std::shared_ptr<Mesh>> ChildrenMesh;
-
     MeshProperties properites;
 
     Mesh();
@@ -146,9 +145,15 @@ public:
     Mesh(RendererManager& renderer, std::shared_ptr<TextureManager>textureManager, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, MeshTextures textures, CustomBuffer customBuffer);
     ~Mesh();
 
+    void SetTransformMatrix(glm::mat4 NewTranformMatrix);
+
     virtual void Update(RendererManager& renderer) override;
     virtual void Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, void* CustomBufferinfo = nullptr);
     virtual void Update(RendererManager& renderer, std::shared_ptr<Camera> camera, LightBufferObject Lightbuffer, const std::vector<std::shared_ptr<Bone>>& BoneList, void* CustomBufferinfo = nullptr);
     virtual void ScreenResizeUpdate(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager);
     virtual void Destory(RendererManager& renderer) override;
+
+    std::string GetMeshName() { return MeshName; }
+    unsigned int GetNodeId() { return NodeId; }
+    glm::mat4 GetTransformMatrix() { return TransformMatrix; }
 };

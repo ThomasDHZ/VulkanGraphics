@@ -98,7 +98,6 @@ private:
     Keyboard keyboard;
     Mouse mouse;
 
-    std::vector<std::shared_ptr<Object2D>> SpriteList;
     //BloomRenderPass bloomRenderPass;
    // FrameBufferMesh framebuffer3;
 
@@ -106,12 +105,9 @@ private:
     std::shared_ptr<Camera> ActiveCamera;
     std::vector<std::shared_ptr<Camera>> CameraList;
 
-
     Light light;
-
+  //  Model Scene;
     Model mesh;
-    Mesh cube;
-    SkyBox skybox;
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
@@ -120,7 +116,7 @@ private:
     void Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera);
     void Draw();
     void ScreenResizeUpdate();
-    std::vector<Vertex> CalcVertex();
+
 public:
     VulkanGraphics(int Width, int Height, const char* AppName);
     ~VulkanGraphics();

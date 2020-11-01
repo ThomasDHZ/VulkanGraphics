@@ -45,6 +45,7 @@ private:
 	void SendDrawMessage(RendererManager& renderer);
 
 	void LoadMeshTransform(const int NodeID = 0, const glm::mat4 ParentMatrix = glm::mat4(1.0f));
+	void UpdateSkeleton(const int NodeID = 0, const glm::mat4 ParentMatrix = glm::mat4(1.0f));
 	void BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int vertexID, unsigned int bone_id, float weight);
 
 	glm::mat4 AssimpToGLMMatrixConverter(aiMatrix4x4 matrix);

@@ -18,30 +18,27 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
     mat4 projection;
-    mat4 BoneTransform[100];
+    mat4 BoneTransform[300];
 } ubo;
 
 void main()
 {
-
-    mat4 BoneTransform = mat4(1.0f);
-
-     //   BoneTransform =  ubo.BoneTransform[BoneID[0]] * BoneWeights[0];
-	//	BoneTransform += ubo.BoneTransform[BoneID[1]] * BoneWeights[1];
-	//    BoneTransform += ubo.BoneTransform[BoneID[2]] * BoneWeights[2];
-	//    BoneTransform += ubo.BoneTransform[BoneID[3]] * BoneWeights[3];
+   mat4 BoneTransform = mat4(1.0f);
+   BoneTransform =  ubo.BoneTransform[BoneID[0]] * BoneWeights[0];
+   BoneTransform += ubo.BoneTransform[BoneID[1]] * BoneWeights[1];
+   BoneTransform += ubo.BoneTransform[BoneID[2]] * BoneWeights[2];
+   BoneTransform += ubo.BoneTransform[BoneID[3]] * BoneWeights[3];
    
+    vec4 BonePosition = BoneTransform * vec4(aPos, 1.0);
 
-    vec4 BonePosisition = BoneTransform * vec4(aPos, 1.0);
-
-    FragPos = vec3(ubo.model * BonePosisition);    
+    FragPos = vec3(ubo.model * BonePosition);    
     TexCoords = aTexCoords;
-    Normal = aNormal;
+    Normal = normalize(transpose(inverse(mat3(ubo.view * ubo.model * BoneTransform))) * aNormal);
 
     vec3 T = normalize(mat3(ubo.model) * aTangent);
     vec3 B = normalize(mat3(ubo.model) * aBitangent);
-    vec3 N = normalize(mat3(ubo.model) * aNormal);
+    vec3 N = normalize(mat3(ubo.model) * normalize(transpose(inverse(mat3(ubo.view * ubo.model * BoneTransform))) * aNormal));
     TBN = transpose(mat3(T, B, N));
 
-    gl_Position = ubo.projection * ubo.view * ubo.model * BonePosisition;
+    gl_Position = ubo.projection * ubo.view * ubo.model * BonePosition;
 }

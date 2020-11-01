@@ -173,9 +173,9 @@ void Model::LoadMeshTransform(const int NodeID, const glm::mat4 ParentMatrix)
 
 	for (auto mesh : MeshList)
 	{
-		if (mesh->NodeId == NodeID)
+		if (mesh->GetNodeId() == NodeID)
 		{
-			mesh->TransformMatrix = GlobalTransform;
+			mesh->SetTransformMatrix(GlobalTransform);
 		}
 	}
 
@@ -281,7 +281,7 @@ MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<Texture
 	MeshTextures meshTextures;
 	meshTextures.DiffuseMap = DefaultTexture;
 	meshTextures.SpecularMap = DefaultTexture;
-	meshTextures.NormalMap = DefaultTexture;
+	meshTextures.NormalMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/TestAnimModel/z_normal.bmp";
 	meshTextures.AlphaMap = DefaultTexture;
 	meshTextures.DepthMap = DefaultTexture;
 	meshTextures.ReflectionMap = DefaultTexture;
@@ -408,25 +408,10 @@ void Model::UpdateImGUI()
 		for (int x = 0; x < MeshList.size(); x++)
 		{
 			ImGui::NextColumn();
-			ImGui::Text(MeshList[x]->MeshName.c_str());
+			ImGui::Text(MeshList[x]->GetMeshName().c_str());
 			ImGui::SliderFloat3("Position", &MeshList[x]->MeshPosition.x, 0.0f, 20.0f);
 			ImGui::SliderFloat3("Rotation", &MeshList[x]->MeshRotate.x, 0.0f, 360.0f);
 			ImGui::SliderFloat3("Scale", &MeshList[x]->MeshScale.x, 0.0f, 20.0f);
-			ImGui::NextColumn();
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("BoneList"))
-	{
-		ImGui::Text("Node contents");
-		ImGui::Columns(3, "tree", true);
-		for (int x = 0; x < BoneList.size(); x++)
-		{
-			ImGui::NextColumn();
-			ImGui::Text(BoneList[x]->BoneName.c_str());
-			ImGui::SliderFloat3("Position", &BoneList[x]->MeshPosition.x, 0.0f, 20.0f);
-			ImGui::SliderFloat3("Rotation", &BoneList[x]->MeshRotate.x, 0.0f, 360.0f);
-			ImGui::SliderFloat3("Scale", &BoneList[x]->MeshScale.x, 0.0f, 20.0f);
 			ImGui::NextColumn();
 		}
 		ImGui::TreePop();

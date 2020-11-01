@@ -7,7 +7,7 @@ Mesh::Mesh() : BaseMesh()
 
 Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata) : BaseMesh(renderer, vertexdata)
 {
-    for (int x = 0; x < 16; x++)
+    for (int x = 0; x < 300; x++)
     {
         ubo.BoneTransform[x] = glm::mat4(1.0f);
     }
@@ -15,7 +15,7 @@ Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata) : B
 
 Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata) : BaseMesh(renderer, vertexdata, indicesdata)
 {
-    for (int x = 0; x < 16; x++)
+    for (int x = 0; x < 300; x++)
     {
         ubo.BoneTransform[x] = glm::mat4(1.0f);
     }
@@ -23,7 +23,7 @@ Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, con
 
 Mesh::Mesh(RendererManager& renderer, const std::vector<Vertex>& vertexdata, const std::vector<uint16_t>& indicesdata, CustomBuffer customBuffer) : BaseMesh(renderer, vertexdata, indicesdata)
 {
-    for (int x = 0; x < 16; x++)
+    for (int x = 0; x < 300; x++)
     {
         ubo.BoneTransform[x] = glm::mat4(1.0f);
     }
@@ -33,6 +33,7 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
 {
     CustomBuffer EmptyBuffer;
     EmptyBuffer.ByteSize = sizeof(Empty);
+
 
     NodeId = meshData.NodeID;
     MeshID = meshData.MeshID;
@@ -47,7 +48,7 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
 
-    for (int x = 0; x < 16; x++)
+    for (int x = 0; x < 300; x++)
     {
         ubo.BoneTransform[x] = glm::mat4(1.0f);
     }
@@ -92,6 +93,11 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
 
 Mesh::~Mesh()
 {
+}
+
+void Mesh::SetTransformMatrix(glm::mat4 NewTranformMatrix)
+{
+    TransformMatrix = NewTranformMatrix;
 }
 
 void Mesh::CreateMaterialProperties()
