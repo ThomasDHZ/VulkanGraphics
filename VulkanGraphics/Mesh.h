@@ -52,7 +52,7 @@ struct MapBits
 struct LightBufferObject
 {
     DirectionalLightStruct dLight;
-    PointLightStruct pLight;
+    PointLightStruct pLight[4];
     SpotLightStruct sLight;
     alignas(16) glm::vec3 viewPos;
 };

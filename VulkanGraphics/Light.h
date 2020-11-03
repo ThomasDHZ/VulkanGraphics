@@ -17,10 +17,9 @@ const std::vector<uint16_t> LightIndices = {
 class Light
 {
 private:
-
+	std::vector<std::shared_ptr<DebugLightMesh>> LightMeshList;
 
 public:
-	std::shared_ptr<DebugLightMesh> LightMesh;
 	LightBufferObject light;
 
 	Light();

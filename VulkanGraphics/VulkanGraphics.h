@@ -114,7 +114,7 @@ private:
     void Update(uint32_t DrawFrame, std::shared_ptr<Camera> camera);
     void Draw();
     void ScreenResizeUpdate();
-    std::vector<Vertex> CalcVertex();
+
 public:
     VulkanGraphics(int Width, int Height, const char* AppName);
     ~VulkanGraphics();

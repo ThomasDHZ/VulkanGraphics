@@ -96,7 +96,7 @@ layout(binding = 9) uniform MeshProperties
 layout(binding = 10) uniform Light
 {
     DirectionalLightStruct dLight;
-    PointLightStruct pLight;
+    PointLightStruct pLight[4];
     SpotLightStruct sLight;
     vec3 viewPos;
 } light;
@@ -266,7 +266,6 @@ void main()
     vec3 N = Normal;
 
     vec3 TangentLightDirection = TBN * light.dLight.direction;
-    vec3 TangentLightPos = TBN * light.pLight.position;
     vec3 TangentViewPos  = TBN * light.viewPos;
     vec3 TangentFragPos  = TBN * FragPos;
 
@@ -277,7 +276,12 @@ void main()
    }
 
    vec3 result = DirectionalLight( V,  N,  UV, light.dLight);
-   result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
+
+   for(int x = 0; x < 4; x++)
+   {
+    vec3 TangentLightPos = TBN * light.pLight[x].position;
+    result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight[x]);
+   }
 
    vec3 ReflectResult = Reflection(N, TangentViewPos);
    result = mix(result, ReflectResult, meshProperties.material.reflectivness);
