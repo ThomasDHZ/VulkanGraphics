@@ -52,7 +52,7 @@ void Model::LoadMesh(VulkanEngine& renderer, std::shared_ptr<TextureManager>& te
 		NewMesh.NodeName = node->mName.C_Str();
 		NewMesh.VertexList = LoadVertices(mesh);
 		NewMesh.IndexList = LoadIndices(mesh);
-		NewMesh.TextureList = LoadTextures(renderer, textureManager, FilePath, mesh, scene);
+		LoadTextures(renderer, textureManager, NewMesh, FilePath, mesh, scene);
 		NewMesh.TransformMatrix = AssimpToGLMMatrixConverter(node->mTransformation);
 		LoadBones(scene->mRootNode, mesh, NewMesh.VertexList);
 		for (auto nodeMap : NodeMapList)
@@ -274,7 +274,7 @@ void Model::LoadAnimations(const aiScene* scene)
 	}
 }
 
-MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
+void Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<TextureManager> textureManager, MeshData& Properties, const std::string& FilePath, aiMesh* mesh, const aiScene* scene)
 {
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto directory = FilePath.substr(0, FilePath.find_last_of('/')) + '/';
@@ -287,12 +287,21 @@ MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<Texture
 	meshTextures.DepthMap = DefaultTexture;
 	meshTextures.EmissionMap = DefaultTexture;
 	meshTextures.ReflectionMap = DefaultTexture;
-	meshTextures.CubeMap[0] = DefaultTexture;
-	meshTextures.CubeMap[1] = DefaultTexture;
-	meshTextures.CubeMap[2] = DefaultTexture;
-	meshTextures.CubeMap[3] = DefaultTexture;
-	meshTextures.CubeMap[4] = DefaultTexture;
-	meshTextures.CubeMap[5] = DefaultTexture;
+	meshTextures.CubeMap[0] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/left.jpg";
+	meshTextures.CubeMap[1] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/right.jpg";
+	meshTextures.CubeMap[2] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/top.jpg";
+	meshTextures.CubeMap[3] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/bottom.jpg";
+	meshTextures.CubeMap[4] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg";
+	meshTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
+
+	Properties.properties.material.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
+	Properties.properties.material.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+	Properties.properties.material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	Properties.properties.material.shininess = 32;
+	Properties.properties.material.reflectivness = 0;
+	Properties.properties.minLayers = 8.0f;
+	Properties.properties.maxLayers = 32.0f;
+	Properties.properties.heightScale = 0.1f;
 
 	if (std::string(mesh->mName.C_Str()) == "Demon_HeadA")
 	{
@@ -439,15 +448,19 @@ MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<Texture
 		meshTextures.NormalMap = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/Demon/tex_Demon Armor/DemonsArmor_normal.png";
 	}
 
-	//if (AI_SUCCESS != aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &properites.material.shininess))
-	//{
-	//	properites.material.shininess = 32.0f;
-	//}
+	if (AI_SUCCESS != aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &Properties.properties.material.shininess))
+	{
+		Properties.properties.material.shininess = 32.0f;
+	}
 
-	//if (AI_SUCCESS != aiGetMaterialFloat(material, AI_MATKEY_REFLECTIVITY, &properites.material.reflectivness))
-	//{
-	//	properites.material.reflectivness = 0.0f;
-	//}
+	if (AI_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_REFLECTIVITY, &Properties.properties.material.reflectivness))
+	{
+		Properties.properties.material.reflectivness = 1.0f - Properties.properties.material.reflectivness;
+	}
+	else
+	{
+		Properties.properties.material.reflectivness = 0.0f;
+	}
 
 	//aiString TextureLocation;
 	//for (unsigned int x = 0; x < material->GetTextureCount(aiTextureType_DIFFUSE); x++)
@@ -513,7 +526,43 @@ MeshTextures Model::LoadTextures(VulkanEngine& renderer, std::shared_ptr<Texture
 	//	}
 	//}
 
-	return meshTextures;
+	if (meshTextures.DiffuseMap != DefaultTexture)
+	{
+		Properties.properties.UseDiffuseMapBit = 1;
+	}
+
+	if (meshTextures.SpecularMap != DefaultTexture)
+	{
+		Properties.properties.UseSpecularMapBit = 1;
+	}
+
+	if (meshTextures.NormalMap != DefaultTexture)
+	{
+		Properties.properties.UseNormalMapBit = 1;
+	}
+
+	if (meshTextures.DepthMap != DefaultTexture)
+	{
+		Properties.properties.UseDepthMapBit = 1;
+	}
+
+	if (meshTextures.AlphaMap != DefaultTexture)
+	{
+		Properties.properties.UseAlphaMapBit = 1;
+	}
+
+	if (meshTextures.EmissionMap != DefaultTexture)
+	{
+		Properties.properties.UseEmissionMapBit = 1;
+	}
+
+	if (meshTextures.ReflectionMap != DefaultTexture)
+	{
+		Properties.properties.UseReflectionMapBit = 1;
+	}
+
+
+	Properties.TextureList = meshTextures;
 }
 
 void Model::SendDrawMessage(RendererManager& renderer)

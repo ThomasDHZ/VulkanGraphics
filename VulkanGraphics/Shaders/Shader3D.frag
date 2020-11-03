@@ -244,6 +244,13 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
     return finalTexCoords;
 }
 
+vec3 Reflection(vec3 N, vec3 TangentViewPos)
+{
+   vec3 I = normalize(FragPos - TangentViewPos);
+   vec3 R = reflect(I, normalize(N));
+   return texture(SkyBox, R).rgb;
+}
+
 void main()
 {           
     vec2 UV = TexCoords + meshProperties.UVOffset;
@@ -271,7 +278,9 @@ void main()
 
    vec3 result = DirectionalLight( V,  N,  UV, light.dLight);
    result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
-   //result = mix(result, texture(ReflectDiffuseMap, UV).rgb, 0.15f);
+
+   vec3 ReflectResult = Reflection(N, TangentViewPos);
+   result = mix(result, ReflectResult, meshProperties.material.reflectivness);
 
    if(meshProperties.UseEmissionMapBit == 1)
    {

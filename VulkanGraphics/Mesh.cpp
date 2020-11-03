@@ -37,10 +37,10 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
     NodeId = meshData.NodeID;
     MeshID = meshData.MeshID;
     MeshName = meshData.NodeName;
+    properites = meshData.properties;
     TransformMatrix = meshData.TransformMatrix;
     ExtendedMeshProperitesBuffer = EmptyBuffer;
 
-    CreateMaterialProperties(meshData.TextureList);
     LoadTextures(renderer, textureManager, meshData.TextureList);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
