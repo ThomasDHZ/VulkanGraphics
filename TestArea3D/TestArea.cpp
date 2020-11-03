@@ -24,7 +24,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	ActiveCamera = CameraList[cameraIndex];
 
 	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
-	mesh = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/TestAnimModel/model.dae");
+	mesh = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/Demon/Demons.fbx");
 	//Scene = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/Sponza/sponza.obj");
 	//skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
 
@@ -62,7 +62,7 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::SliderFloat3("dambient", &light.light.dLight.ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("ddiffuse", &light.light.dLight.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("dspecular", &light.light.dLight.specular.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pLight", &light.light.pLight.position.x, -10.0f, 10.0f);
+		ImGui::SliderFloat3("pLight", &light.light.pLight.position.x, -100.0f, 100.0f);
 		ImGui::SliderFloat3("pambient", &light.light.pLight.ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pdiffuse", &light.light.pLight.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("pspecular", &light.light.pLight.specular.x, 0.0f, 1.0f);

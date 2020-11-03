@@ -24,7 +24,7 @@ private:
 	glm::mat4 ModelTransformMatrix = glm::mat4(1.0f);
 	glm::vec3 ModelPosition = glm::vec3(0.0f);
 	glm::vec3 ModelRotation = glm::vec3(0.0f);
-	glm::vec3 ModelScale = glm::vec3(1.0f);
+	glm::vec3 ModelScale = glm::vec3(0.167f);
 
 	std::vector<std::shared_ptr<Mesh>> MeshList;
 	std::vector<std::shared_ptr<Bone>> BoneList;
@@ -45,7 +45,6 @@ private:
 	void SendDrawMessage(RendererManager& renderer);
 
 	void LoadMeshTransform(const int NodeID = 0, const glm::mat4 ParentMatrix = glm::mat4(1.0f));
-	void UpdateSkeleton(const int NodeID = 0, const glm::mat4 ParentMatrix = glm::mat4(1.0f));
 	void BoneWeightPlacement(std::vector<Vertex>& VertexList, unsigned int vertexID, unsigned int bone_id, float weight);
 
 	glm::mat4 AssimpToGLMMatrixConverter(aiMatrix4x4 matrix);

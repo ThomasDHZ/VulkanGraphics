@@ -34,16 +34,14 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
     CustomBuffer EmptyBuffer;
     EmptyBuffer.ByteSize = sizeof(Empty);
 
-
     NodeId = meshData.NodeID;
     MeshID = meshData.MeshID;
     MeshName = meshData.NodeName;
     TransformMatrix = meshData.TransformMatrix;
     ExtendedMeshProperitesBuffer = EmptyBuffer;
 
-    CreateMaterialProperties();
+    CreateMaterialProperties(meshData.TextureList);
     LoadTextures(renderer, textureManager, meshData.TextureList);
-    LoadTiles(renderer, textureManager, meshData.TextureList);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
@@ -61,14 +59,13 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
 
     ExtendedMeshProperitesBuffer = EmptyBuffer;
 
-    CreateMaterialProperties();
+    CreateMaterialProperties(textures);
     LoadTextures(renderer, textureManager, textures);
-    LoadTiles(renderer, textureManager, textures);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
 
-    for (int x = 0; x < 16; x++)
+    for (int x = 0; x < 300; x++)
     {
         ubo.BoneTransform[x] = glm::mat4(1.0f);
     }
@@ -79,13 +76,12 @@ Mesh::Mesh(RendererManager& renderer, std::shared_ptr<TextureManager> textureMan
     ExtendedMeshProperitesBuffer = customBuffer;
 
     LoadTextures(renderer, textureManager, textures);
-    LoadTiles(renderer, textureManager, textures);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
-    CreateMaterialProperties();
+    CreateMaterialProperties(textures);
 
-    for (int x = 0; x < 16; x++)
+    for (int x = 0; x < 300; x++)
     {
         ubo.BoneTransform[x] = glm::mat4(1.0f);
     }
@@ -100,21 +96,8 @@ void Mesh::SetTransformMatrix(glm::mat4 NewTranformMatrix)
     TransformMatrix = NewTranformMatrix;
 }
 
-void Mesh::CreateMaterialProperties()
+void Mesh::CreateMaterialProperties(MeshTextures textures)
 {
-    properites.material.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
-    properites.material.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
-    properites.material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    properites.material.shininess = 32;
-    properites.material.reflectivness = 0;
-    properites.minLayers = 8.0f;
-    properites.maxLayers = 32.0f;
-    properites.heightScale = 0.1f;
-}
-
-void Mesh::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures)
-{
-
     if (textures.DiffuseMap != DefaultTexture)
     {
         properites.UseDiffuseMapBit = 1;
@@ -150,6 +133,14 @@ void Mesh::LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> 
         properites.UseReflectionMapBit = 1;
     }
 
+    properites.material.ambient = glm::vec3(0.5f, 0.5f, 0.5f);
+    properites.material.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+    properites.material.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    properites.material.shininess = 32;
+    properites.material.reflectivness = 0;
+    properites.minLayers = 8.0f;
+    properites.maxLayers = 32.0f;
+    properites.heightScale = 0.1f;
 }
 
 void Mesh::CreateUniformBuffers(RendererManager& renderer)

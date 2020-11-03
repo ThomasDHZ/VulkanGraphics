@@ -22,9 +22,8 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
 
     ExtendedMeshProperitesBuffer = EmptyBuffer;
 
-    CreateMaterialProperties();
+    CreateMaterialProperties(textures);
     LoadTextures(renderer, textureManager, textures);
-    LoadTiles(renderer, textureManager, textures);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
@@ -35,11 +34,10 @@ Mesh2D::Mesh2D(RendererManager& renderer, std::shared_ptr<TextureManager> textur
     ExtendedMeshProperitesBuffer = customBuffer;
 
     LoadTextures(renderer, textureManager, textures);
-    LoadTiles(renderer, textureManager, textures);
     CreateUniformBuffers(renderer);
     CreateDescriptorPool(renderer);
     CreateDescriptorSets(renderer, textureManager);
-    CreateMaterialProperties();
+    CreateMaterialProperties(textures);
 }
 
 Mesh2D::~Mesh2D()

@@ -43,6 +43,11 @@ void AnimationPlayer3D::SetPlayAnimationFlag(bool Flag)
 
 aiVector3D AnimationPlayer3D::InterpolatePosition(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID)
 {
+	if (CurrentAnimation.BoneKeyFrameList[bone->BoneID].BonePosition.size() == 1)
+	{
+		return CurrentAnimation.BoneKeyFrameList[bone->BoneID].BonePosition[0].AnimationInfo;
+	}
+
 	int Frame = 0;
 	for (int x = CurrentAnimation.BoneKeyFrameList[0].BonePosition.size() - 1; x > 0; x--)
 	{
@@ -71,6 +76,11 @@ aiVector3D AnimationPlayer3D::InterpolatePosition(const std::shared_ptr<Bone> bo
 
 aiQuaternion AnimationPlayer3D::InterpolateRotation(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID)
 {
+	if (CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneRotation.size() == 1)
+	{
+		return CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneRotation[0].AnimationInfo;
+	}
+
 	int Frame = 0;
 	for (int x = CurrentAnimation.BoneKeyFrameList[0].BoneRotation.size() - 1; x > 0; x--)
 	{
@@ -98,6 +108,11 @@ aiQuaternion AnimationPlayer3D::InterpolateRotation(const std::shared_ptr<Bone> 
 
 aiVector3D AnimationPlayer3D::InterpolateScaling(const std::shared_ptr<Bone> bone, float AnimationTime, const int NodeID)
 {
+	if (CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneScale.size() == 1)
+	{
+		return CurrentAnimation.BoneKeyFrameList[bone->BoneID].BoneScale[0].AnimationInfo;
+	}
+
 	int Frame = 0;
 	for (int x = CurrentAnimation.BoneKeyFrameList[0].BoneScale.size() - 1; x > 0; x--)
 	{

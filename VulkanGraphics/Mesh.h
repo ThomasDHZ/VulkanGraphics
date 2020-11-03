@@ -76,6 +76,7 @@ struct MeshProperties
     alignas(4) float timer;
     alignas(4) int ReflectSprite;
     alignas(8) glm::vec2 UVScale = glm::vec2(1.0f, 1.0f);
+    alignas(4) float EmissionStrength = 1.0f;
 };
 
 struct LightBufferObject
@@ -124,8 +125,7 @@ protected:
     VulkanUniformBuffer meshPropertiesBuffer;
     CustomBuffer ExtendedMeshProperitesBuffer;
 
-    void LoadTiles(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
-    void CreateMaterialProperties();
+    void CreateMaterialProperties(MeshTextures textures);
 
     virtual void CreateUniformBuffers(RendererManager& renderer);
     virtual void CreateDescriptorPool(RendererManager& renderer);

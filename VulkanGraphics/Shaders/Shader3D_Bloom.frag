@@ -253,7 +253,7 @@ void main()
     }
     UV *= meshProperties.UVScale;
 
-    RemoveAlphaPixels(UV);
+    //RemoveAlphaPixels(UV);
 
     vec3 V = light.viewPos;
     vec3 N = Normal;

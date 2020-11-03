@@ -91,6 +91,7 @@ layout(binding = 9) uniform MeshProperties
     float timer;
     int ReflectSprite;
     vec2 UVScale;
+    float EmissionStrength;
 } meshProperties;
 layout(binding = 10) uniform Light
 {
@@ -271,5 +272,14 @@ void main()
    vec3 result = DirectionalLight( V,  N,  UV, light.dLight);
    result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight);
    //result = mix(result, texture(ReflectDiffuseMap, UV).rgb, 0.15f);
+
+   if(meshProperties.UseEmissionMapBit == 1)
+   {
+       if(texture(EmissionMap, UV).r != 0.0f)
+       {
+            result = texture(EmissionMap, UV).rgb * meshProperties.EmissionStrength;
+       }
+   }
+
    FragColor = vec4(result, 1.0f);
 }
