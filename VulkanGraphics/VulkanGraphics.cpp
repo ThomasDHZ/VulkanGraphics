@@ -58,7 +58,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	meshTextures.CubeMap[4] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/back.jpg";
 	meshTextures.CubeMap[5] = "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/texture/skybox/front.jpg";
 
-	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
+	light = LightManager(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	SpriteList.emplace_back(std::make_shared<MegaMan>(MegaMan(renderer, gameManager.textureManager, glm::vec2(1.0f, 10.0f))));
 	SpriteList.emplace_back(std::make_shared<EnergyTank>(EnergyTank(renderer, gameManager.textureManager, glm::vec2(5.0f, 8.0f))));
 	SpriteList.emplace_back(std::make_shared<EnergyTank>(EnergyTank(renderer, gameManager.textureManager, glm::vec2(3.0f, 8.0f))));

@@ -2,6 +2,8 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 
+#define MAXPOINTLIGHTS 128
+
 const int UseDiffuseMapBit    = 0x00000001;
 const int UseSpecularMapBit   = 0x00000002;
 const int UseNormalMapBit     = 0x00000004;
@@ -47,6 +49,7 @@ struct PointLightStruct {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+    int InUse;
 };
 
 struct SpotLightStruct {
@@ -96,7 +99,7 @@ layout(binding = 9) uniform MeshProperties
 layout(binding = 10) uniform Light
 {
     DirectionalLightStruct dLight;
-    PointLightStruct pLight[4];
+    PointLightStruct pLight[MAXPOINTLIGHTS];
     SpotLightStruct sLight;
     vec3 viewPos;
 } light;
@@ -277,10 +280,13 @@ void main()
 
    vec3 result = DirectionalLight( V,  N,  UV, light.dLight);
 
-   for(int x = 0; x < 4; x++)
+   for(int x = 0; x < MAXPOINTLIGHTS; x++)
    {
-    vec3 TangentLightPos = TBN * light.pLight[x].position;
-    result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight[x]);
+        if(light.pLight[x].InUse == 1)
+        {
+            vec3 TangentLightPos = TBN * light.pLight[x].position;
+            result += PointLight( TangentLightPos,  TangentFragPos,  V,  N,  UV, light.pLight[x]);
+        }
    }
 
    vec3 ReflectResult = Reflection(N, TangentViewPos);

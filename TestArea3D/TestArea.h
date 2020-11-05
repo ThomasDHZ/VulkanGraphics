@@ -23,6 +23,7 @@
 #include <map>
 #include "Object2D.h"
 #include "BloomRenderPass.h"
+#include <LightManager.h>
 
 
 const std::vector<Vertex> vertices =
@@ -105,7 +106,7 @@ private:
     std::shared_ptr<Camera> ActiveCamera;
     std::vector<std::shared_ptr<Camera>> CameraList;
 
-    Light light;
+    LightManager light;
   //  Model Scene;
     Model mesh;
 

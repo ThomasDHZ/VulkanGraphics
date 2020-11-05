@@ -2,7 +2,6 @@
 #include "BaseMesh.h"
 #include "PerspectiveCamera.h"
 
-
 struct DirectionalLightStruct {
     alignas(16) glm::vec3 direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 
@@ -12,7 +11,7 @@ struct DirectionalLightStruct {
 };
 
 struct PointLightStruct {
-    alignas(16) glm::vec3 position;
+    alignas(16) glm::vec3 position = glm::vec3(0.0f);
 
     alignas(4) float constant = 1.0f;
     alignas(4) float linear = 0.09f;
@@ -21,6 +20,7 @@ struct PointLightStruct {
     alignas(16) glm::vec3 ambient = glm::vec3(0.05f, 0.05f, 0.05f);
     alignas(16) glm::vec3 diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
     alignas(16) glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    alignas(4)  int InUseFlag = 0;
 };
 
 struct SpotLightStruct {
@@ -38,6 +38,14 @@ struct SpotLightStruct {
     alignas(16) glm::vec3 specular;
 };
 
+struct LightBufferObject
+{
+    DirectionalLightStruct dLight;
+    PointLightStruct pLight[128];
+    SpotLightStruct sLight;
+    alignas(16) glm::vec3 viewPos;
+};
+
 struct MapBits
 {
     alignas(4) int UseDiffuseMapBit = 0;
@@ -47,14 +55,6 @@ struct MapBits
     alignas(4) int UseAlphaMapBit = 0;
     alignas(4) int UseEmissionMapBit = 0;
     alignas(4) int UseSkyBoxBit = 0;
-};
-
-struct LightBufferObject
-{
-    DirectionalLightStruct dLight;
-    PointLightStruct pLight[4];
-    SpotLightStruct sLight;
-    alignas(16) glm::vec3 viewPos;
 };
 
 struct VertexMatrixObject {

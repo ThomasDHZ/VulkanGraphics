@@ -23,7 +23,7 @@ VulkanGraphics::VulkanGraphics(int Width, int Height, const char* AppName)
 	CameraList.emplace_back(std::make_shared<PerspectiveCamera>(PerspectiveCamera(glm::vec2(1920, 1080), glm::vec3(2.0f, 7.0, 26.0f))));
 	ActiveCamera = CameraList[cameraIndex];
 
-	light = Light(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
+	light = LightManager(renderer, gameManager.textureManager, RenderBitFlag::RenderOnMainPass | RenderBitFlag::RenderOnTexturePass, glm::vec3(0.0f));
 	mesh = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/Demon/Demons.fbx");
 	//Scene = Model(renderer, gameManager.textureManager, "C:/Users/dotha/source/repos/VulkanGraphics/VulkanGraphics/Models/Sponza/sponza.obj");
 	//skybox = SkyBox(renderer, gameManager.textureManager, SparkManTextures);
@@ -62,25 +62,30 @@ void VulkanGraphics::UpdateImGUI()
 		ImGui::SliderFloat3("dambient", &light.light.dLight.ambient.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("ddiffuse", &light.light.dLight.diffuse.x, 0.0f, 1.0f);
 		ImGui::SliderFloat3("dspecular", &light.light.dLight.specular.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pLight", &light.light.pLight[0].position.x, -100.0f, 100.0f);
-		ImGui::SliderFloat3("pambient", &light.light.pLight[0].ambient.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pdiffuse", &light.light.pLight[0].diffuse.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pspecular", &light.light.pLight[0].specular.x, 0.0f, 1.0f);
 
-		ImGui::SliderFloat3("pLight2", &light.light.pLight[1].position.x, -100.0f, 100.0f);
-		ImGui::SliderFloat3("pambient2", &light.light.pLight[1].ambient.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pdiffuse2", &light.light.pLight[1].diffuse.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pspecular2", &light.light.pLight[1].specular.x, 0.0f, 1.0f);
+		ImGui::SliderInt("Using1", &light.PointLightList[0]->pointLight.InUseFlag, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pLight", &light.PointLightList[0]->pointLight.position.x, -100.0f, 100.0f);
+		ImGui::SliderFloat3("pambient", &light.PointLightList[0]->pointLight.ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pdiffuse", &light.PointLightList[0]->pointLight.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pspecular", &light.PointLightList[0]->pointLight.specular.x, 0.0f, 1.0f);
 
-		ImGui::SliderFloat3("pLight3", &light.light.pLight[2].position.x, -100.0f, 100.0f);
-		ImGui::SliderFloat3("pambient3", &light.light.pLight[2].ambient.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pdiffuse3", &light.light.pLight[2].diffuse.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pspecular3", &light.light.pLight[2].specular.x, 0.0f, 1.0f);
+		ImGui::SliderInt("Using2", &light.PointLightList[1]->pointLight.InUseFlag, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pLight2", &light.PointLightList[1]->pointLight.position.x, -100.0f, 100.0f);
+		ImGui::SliderFloat3("pambient2", &light.PointLightList[1]->pointLight.ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pdiffuse2", &light.PointLightList[1]->pointLight.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pspecular2", &light.PointLightList[1]->pointLight.specular.x, 0.0f, 1.0f);
 
-		ImGui::SliderFloat3("pLight4", &light.light.pLight[3].position.x, -100.0f, 100.0f);
-		ImGui::SliderFloat3("pambient4", &light.light.pLight[3].ambient.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pdiffuse4", &light.light.pLight[3].diffuse.x, 0.0f, 1.0f);
-		ImGui::SliderFloat3("pspecular4", &light.light.pLight[3].specular.x, 0.0f, 1.0f);
+		ImGui::SliderInt("Using3", &light.PointLightList[2]->pointLight.InUseFlag, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pLight3", &light.PointLightList[2]->pointLight.position.x, -100.0f, 100.0f);
+		ImGui::SliderFloat3("pambient3", &light.PointLightList[2]->pointLight.ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pdiffuse3", &light.PointLightList[2]->pointLight.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pspecular3", &light.PointLightList[2]->pointLight.specular.x, 0.0f, 1.0f);
+
+		ImGui::SliderInt("Using4", &light.PointLightList[3]->pointLight.InUseFlag, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pLight4", &light.PointLightList[3]->pointLight.position.x, -100.0f, 100.0f);
+		ImGui::SliderFloat3("pambient4", &light.PointLightList[3]->pointLight.ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pdiffuse4", &light.PointLightList[3]->pointLight.diffuse.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("pspecular4", &light.PointLightList[3]->pointLight.specular.x, 0.0f, 1.0f);
 		ImGui::End();
 
 		gameManager.textureManager->UpdateIMGUIVRAM();
