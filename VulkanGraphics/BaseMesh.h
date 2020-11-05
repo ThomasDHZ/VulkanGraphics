@@ -113,9 +113,6 @@ protected:
 
     std::vector<std::shared_ptr<RendererDrawMessage>> DrawMessageList;
 
-
-    float RotationAmount = 0.0f;
-
     bool MeshDeletedFlag = false;
 
     void LoadTextures(RendererManager& renderer, std::shared_ptr<TextureManager> textureManager, MeshTextures textures);
@@ -136,6 +133,8 @@ public:
     ~BaseMesh();
 
     void CreateDrawMessage(RendererManager& renderer, unsigned int RendererID, std::shared_ptr<GraphicsPipeline> pipeline);
+
+    virtual void Draw();
     virtual void Update(RendererManager& renderer);
     virtual void Destory(RendererManager& renderer);
 
@@ -143,8 +142,20 @@ public:
     void SetPosition2D(float x, float y);
     void SetPosition3D(glm::vec3 Pos);
     void SetPosition3D(float x, float y, float z);
+    void SetRotation2D(glm::vec2 Rotation);
+    void SetRotation2D(float x, float y);
+    void SetRotation3D(glm::vec3 Rotation);
+    void SetRotation3D(float x, float y, float z);
+    void SetScale2D(glm::vec2 Scale);
+    void SetScale2D(float x, float y);
+    void SetScale3D(glm::vec3 Scale);
+    void SetScale3D(float x, float y, float z);
 
     glm::vec2 GetPosition2D() { return glm::vec2(MeshPosition.x, MeshPosition.y); }
     glm::vec3 GetPosition3D() { return MeshPosition; }
+    glm::vec2 GetRotation2D() { return glm::vec2(MeshRotate.x, MeshRotate.y); }
+    glm::vec3 GetRotation3D() { return MeshRotate; }
+    glm::vec2 GetScale2D() { return glm::vec2(MeshScale.x, MeshScale.y); }
+    glm::vec3 GetScale3D() { return MeshScale; }
     bool GetMeshDeletedFlag() { return MeshDeletedFlag; }
 };

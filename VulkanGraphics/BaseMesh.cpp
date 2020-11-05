@@ -197,6 +197,46 @@ void BaseMesh::SetPosition3D(float x, float y, float z)
     MeshPosition = glm::vec3(x, y, z);
 }
 
+void BaseMesh::SetRotation2D(glm::vec2 Rotation)
+{
+    MeshRotate = glm::vec3(Rotation, 0.0f);
+}
+
+void BaseMesh::SetRotation2D(float x, float y)
+{
+    MeshRotate = glm::vec3(x, y, 0.0f);
+}
+
+void BaseMesh::SetRotation3D(glm::vec3 Rotation)
+{
+    MeshRotate = Rotation;
+}
+
+void BaseMesh::SetRotation3D(float x, float y, float z)
+{
+    MeshRotate = glm::vec3(x, y, z);
+}
+
+void BaseMesh::SetScale2D(glm::vec2 Scale)
+{
+    MeshScale = glm::vec3(Scale, 1.0f);
+}
+
+void BaseMesh::SetScale2D(float x, float y)
+{
+    MeshScale = glm::vec3(x, y, 1.0f);
+}
+
+void BaseMesh::SetScale3D(glm::vec3 Scale)
+{
+    MeshScale = Scale;
+}
+
+void BaseMesh::SetScale3D(float x, float y, float z)
+{
+    MeshScale = glm::vec3(x, y, z);
+}
+
 void BaseMesh::CreateDrawMessage(RendererManager& renderer, unsigned int RendererID, std::shared_ptr<GraphicsPipeline> pipeline)
 {
     RendererDrawMessage DrawMessage = {};
@@ -209,6 +249,10 @@ void BaseMesh::CreateDrawMessage(RendererManager& renderer, unsigned int Rendere
     std::shared_ptr<RendererDrawMessage> DrawMessagePtr = std::make_shared<RendererDrawMessage>(DrawMessage);
     renderer.DrawMessageList.emplace_back(DrawMessagePtr);
     DrawMessageList.emplace_back(DrawMessagePtr);
+}
+
+void BaseMesh::Draw()
+{
 }
 
 void BaseMesh::Update(RendererManager& renderer)
